@@ -69,14 +69,15 @@ func (mgs *MGStage) GetMovieInfo(id string) (info *model.MovieInfo, err error) {
 		d := c.Clone()
 		d.OnResponse(func(r *colly.Response) {
 			data := make(map[string]string)
-			if err = json.Unmarshal(r.Body, &data); err == nil {
+			if json.Unmarshal(r.Body, &data) == nil {
 				if url, ok := data["url"]; ok {
-					info.PreviewVideoURL = regexp.MustCompile(`\.ism/request?.+$`).ReplaceAllString(url, ".mp4")
+					info.PreviewVideoURL = regexp.MustCompile(`\.ism/request?.+$`).
+						ReplaceAllString(url, ".mp4")
 				}
 			}
 		})
 		pid := path.Base(e.ChildAttr(`.//a`, "href"))
-		err = d.Visit(fmt.Sprintf(mgs.SampleURL, pid))
+		d.Visit(fmt.Sprintf(mgs.SampleURL, pid))
 	})
 
 	// Preview Images

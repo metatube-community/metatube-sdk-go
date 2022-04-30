@@ -25,6 +25,7 @@ func ParseDuration(s string) time.Duration {
 
 // ParseScore parses a string into float-based score.
 func ParseScore(s string) float64 {
+	s = strings.ReplaceAll(s, "点", "")
 	fields := strings.Fields(s)
 	if len(fields) == 0 {
 		return 0
