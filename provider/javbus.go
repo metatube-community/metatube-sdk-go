@@ -41,10 +41,6 @@ func (bus *JavBus) GetMovieInfo(id string) (info *model.MovieInfo, err error) {
 
 	c := colly.NewCollector(extensions.RandomUserAgent)
 
-	c.OnError(func(r *colly.Response, innerErr error) {
-		err = innerErr
-	})
-
 	// Image+Title
 	c.OnXML(`//a[@class="bigImage"]/img`, func(e *colly.XMLElement) {
 		info.Title = e.Attr("title")
