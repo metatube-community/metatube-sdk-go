@@ -6,6 +6,7 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/gocolly/colly/v2"
 	"github.com/gocolly/colly/v2/extensions"
@@ -54,9 +55,7 @@ func (bus *JavBus) GetMovieInfo(id string) (info *model.MovieInfo, err error) {
 
 	// Fields
 	c.OnXML(`//div[@class="col-md-3 info"]/p`, func(e *colly.XMLElement) {
-		key := e.ChildText(`.//span`)
-
-		switch key {
+		switch e.ChildText(`.//span`) {
 		case "品番:":
 			info.Number = e.ChildText(`.//span[2]`)
 		case "発売日:":
@@ -103,7 +102,10 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, e
 		extensions.RandomUserAgent,
 	)
 
+	var mu sync.Mutex
 	c.OnXML(`//a[@class="movie-box"]`, func(e *colly.XMLElement) {
+		mu.Lock()
+		defer mu.Unlock()
 		imageID, ext := bus.parseImage(e.ChildAttr(`.//div[1]/img`, "src"))
 		results = append(results, &model.SearchResult{
 			ID:          strings.TrimLeft(e.Attr("href"), bus.BaseURL),
