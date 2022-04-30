@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"path"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
@@ -108,7 +107,7 @@ func (mgs *MGStage) GetMovieInfo(id string) (info *model.MovieInfo, err error) {
 		case "ジャンル：":
 			info.Tags = e.ChildTexts(`.//td/a`)
 		case "評価：":
-			info.Score = mgs.parseScore(e.ChildText(`.//td`))
+			info.Score = util.ParseScore(e.ChildText(`.//td`))
 		}
 	})
 
@@ -130,16 +129,10 @@ func (mgs *MGStage) SearchMovie(keyword string) (results []*model.SearchResult, 
 			Title:    strings.TrimSpace(e.ChildText(`.//a/p`)),
 			ThumbURL: strings.ReplaceAll(e.ChildAttr(`.//h5/a/img`, "src"), "pf_t1", "pf_e"),
 			CoverURL: strings.ReplaceAll(e.ChildAttr(`.//h5/a/img`, "src"), "pf_t1", "pb_e"),
-			Score:    mgs.parseScore(e.ChildText(`.//p[@class="review"]`)),
+			Score:    util.ParseScore(e.ChildText(`.//p[@class="review"]`)),
 		})
 	})
 
 	err = c.Visit(fmt.Sprintf(mgs.SearchURL, keyword))
 	return
-}
-
-func (mgs *MGStage) parseScore(s string) float64 {
-	s = strings.TrimSpace(strings.Fields(s)[0])
-	n, _ := strconv.ParseFloat(s, 10)
-	return n
 }

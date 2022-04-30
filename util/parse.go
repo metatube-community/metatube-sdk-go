@@ -1,6 +1,7 @@
 package util
 
 import (
+	"strconv"
 	"strings"
 	"time"
 
@@ -20,4 +21,15 @@ func ParseDuration(s string) time.Duration {
 	s = strings.Replace(s, "min", "m", 1)
 	d, _ := time.ParseDuration(s)
 	return d
+}
+
+// ParseScore parses a string into float-based score.
+func ParseScore(s string) float64 {
+	fields := strings.Fields(s)
+	if len(fields) == 0 {
+		return 0
+	}
+	s = strings.TrimSpace(fields[0])
+	n, _ := strconv.ParseFloat(s, 10)
+	return n
 }
