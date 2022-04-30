@@ -97,10 +97,10 @@ func (mgs *MGStage) GetMovieInfo(id string) (info *model.MovieInfo, err error) {
 			info.Duration = util.ParseDuration(e.ChildText(`.//td`))
 		case "品番：":
 			info.Number = e.ChildText(`.//td`)
-		case "配信開始日：":
-			info.ReleaseDate = util.ParseDate(e.ChildText(`.//td`))
-		case "商品発売日：":
-			info.ReleaseDate = util.ParseDate(e.ChildText(`.//td`))
+		case "配信開始日：", "商品発売日：":
+			if info.ReleaseDate.IsZero() {
+				info.ReleaseDate = util.ParseDate(e.ChildText(`.//td`))
+			}
 		case "シリーズ：":
 			info.Series = e.ChildText(`.//td`)
 		case "レーベル：":
