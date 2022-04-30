@@ -3,38 +3,35 @@ package model
 import "time"
 
 type SearchResult struct {
-	ID          string
-	Number      string
-	Title       string
-	ThumbURL    string
-	CoverURL    string
-	ReleaseDate time.Time
+	ID          string    `json:"id"`
+	Number      string    `json:"number"`
+	Title       string    `json:"title"`
+	ThumbURL    string    `json:"thumb_url"`
+	CoverURL    string    `json:"cover_url"`
+	ReleaseDate time.Time `json:"release_date"`
 }
 
 type MovieInfo struct {
-	ID       string
-	Number   string
-	Title    string
-	Summary  string
-	Homepage string
+	ID       string `json:"id"`
+	Number   string `json:"number"`
+	Title    string `json:"title"`
+	Summary  string `json:"summary"`
+	Homepage string `json:"homepage"`
 
-	Director string
-	Actors   []struct {
-		ID   string
-		Name string
-	}
+	Director string   `json:"director"`
+	Actors   []string `json:"actors"`
 
-	ThumbURL        string
-	CoverURL        string
-	PreviewVideoURL string
-	PreviewImages   []string
+	ThumbURL        string   `json:"thumb_url"`
+	CoverURL        string   `json:"cover_url"`
+	PreviewVideoURL string   `json:"preview_video_url"`
+	PreviewImages   []string `json:"preview_images"`
 
-	Maker     string
-	Publisher string
-	Series    string
-	Tags      []string
-	Score     float64
+	Maker     string   `json:"maker"`
+	Publisher string   `json:"publisher"`
+	Series    string   `json:"series"`
+	Tags      []string `json:"tags"`
+	Score     float64  `json:"score"`
 
-	Duration    time.Duration
-	ReleaseDate time.Time
+	Duration    time.Duration `json:"duration"`
+	ReleaseDate time.Time     `json:"release_date"`
 }
