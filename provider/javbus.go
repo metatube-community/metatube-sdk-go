@@ -133,8 +133,7 @@ func (bus *JavBus) parseImage(s string) (name, ext string) {
 		s = u.Path
 	}
 	image := path.Base(s)
-	re := regexp.MustCompile(`^([a-zA-Z\d]+)(?:_b)?(\.\w+)$`)
-	if ss := re.FindStringSubmatch(image); len(ss) == 3 {
+	if ss := regexp.MustCompile(`^([a-zA-Z\d]+)(?:_b)?(\.\w+)$`).FindStringSubmatch(image); len(ss) == 3 {
 		return ss[1], ss[2]
 	}
 	return "", ""

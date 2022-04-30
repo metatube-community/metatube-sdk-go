@@ -71,8 +71,7 @@ func (mgs *MGStage) GetMovieInfo(id string) (info *model.MovieInfo, err error) {
 			data := make(map[string]string)
 			if err = json.Unmarshal(r.Body, &data); err == nil {
 				if url, ok := data["url"]; ok {
-					re := regexp.MustCompile(`\.ism\/request?.+$`)
-					info.PreviewVideoURL = re.ReplaceAllString(url, ".mp4")
+					info.PreviewVideoURL = regexp.MustCompile(`\.ism/request?.+$`).ReplaceAllString(url, ".mp4")
 				}
 			}
 		})
