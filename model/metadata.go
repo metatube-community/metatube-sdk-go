@@ -8,6 +8,7 @@ type SearchResult struct {
 	Title       string    `json:"title"`
 	ThumbURL    string    `json:"thumb_url"`
 	CoverURL    string    `json:"cover_url"`
+	Score       float64   `json:"score"`
 	ReleaseDate time.Time `json:"release_date"`
 }
 
