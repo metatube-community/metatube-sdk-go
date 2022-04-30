@@ -16,8 +16,7 @@ import (
 var _ Provider = (*JavBus)(nil)
 
 type JavBus struct {
-	BaseURL                        string
-	MovieURL                       string
+	BaseURL, MovieURL              string
 	SearchURL, SearchUncensoredURL string
 	ThumbURL, CoverURL             string
 }
@@ -48,7 +47,7 @@ func (bus *JavBus) GetMovieInfo(id string) (info *model.MovieInfo, err error) {
 	// Image+Title
 	c.OnXML(`//a[@class="bigImage"]/img`, func(e *colly.XMLElement) {
 		info.Title = e.Attr("title")
-		imageID, ext := parseImage(e.Attr("src"))
+		imageID, ext := bus.parseImage(e.Attr("src"))
 		info.ThumbURL = e.Request.AbsoluteURL(fmt.Sprintf(bus.ThumbURL, imageID, ext))
 		info.CoverURL = e.Request.AbsoluteURL(fmt.Sprintf(bus.CoverURL, imageID, ext))
 	})
@@ -105,7 +104,7 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, e
 	)
 
 	c.OnXML(`//a[@class="movie-box"]`, func(e *colly.XMLElement) {
-		imageID, ext := parseImage(e.ChildAttr(`.//div[1]/img`, "src"))
+		imageID, ext := bus.parseImage(e.ChildAttr(`.//div[1]/img`, "src"))
 		results = append(results, &model.SearchResult{
 			ID:          strings.TrimLeft(e.Attr("href"), bus.BaseURL),
 			Number:      e.ChildText(`.//div[2]/span/date[1]`),
@@ -128,7 +127,7 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, e
 	return
 }
 
-func parseImage(s string) (name, ext string) {
+func (bus *JavBus) parseImage(s string) (name, ext string) {
 	if strings.Contains(s, "://") {
 		u, _ := url.Parse(s)
 		s = u.Path
