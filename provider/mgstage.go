@@ -110,7 +110,7 @@ func (mgs *MGStage) GetMovieInfo(id string) (info *model.MovieInfo, err error) {
 		}
 	})
 
-	err = c.Visit(fmt.Sprintf(mgs.MovieURL, id))
+	err = c.Visit(info.Homepage)
 	return
 }
 
