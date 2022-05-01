@@ -46,3 +46,16 @@ func (mi *MovieInfo) Valid() bool {
 	return mi.ID != "" && mi.Number != "" && mi.Title != "" &&
 		mi.CoverURL != "" && mi.Homepage != ""
 }
+
+func (mi *MovieInfo) ToSearchResult() *SearchResult {
+	return &SearchResult{
+		ID:          mi.ID,
+		Number:      mi.Number,
+		Title:       mi.Title,
+		Homepage:    mi.Homepage,
+		ThumbURL:    mi.ThumbURL,
+		CoverURL:    mi.CoverURL,
+		Score:       mi.Score,
+		ReleaseDate: mi.ReleaseDate,
+	}
+}
