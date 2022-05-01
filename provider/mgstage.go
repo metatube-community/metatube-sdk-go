@@ -34,8 +34,11 @@ func NewMGStage() Provider {
 
 func (mgs *MGStage) GetMovieInfo(id string) (info *model.MovieInfo, err error) {
 	info = &model.MovieInfo{
-		ID:       strings.ToUpper(id),
-		Homepage: fmt.Sprintf(mgs.MovieURL, strings.ToUpper(id)),
+		ID:            strings.ToUpper(id),
+		Homepage:      fmt.Sprintf(mgs.MovieURL, strings.ToUpper(id)),
+		Actors:        []string{},
+		PreviewImages: []string{},
+		Tags:          []string{},
 	}
 
 	c := colly.NewCollector(extensions.RandomUserAgent)
