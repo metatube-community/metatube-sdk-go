@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"path"
 	"regexp"
 	"strings"
@@ -33,9 +34,18 @@ func NewMGStage() Provider {
 }
 
 func (mgs *MGStage) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	return mgs.GetMovieInfoByLink(fmt.Sprintf(mgs.MovieURL, strings.ToUpper(id)))
+}
+
+func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
+	homepage, err := url.Parse(link)
+	if err != nil {
+		return nil, err
+	}
+
 	info = &model.MovieInfo{
-		ID:            strings.ToUpper(id),
-		Homepage:      fmt.Sprintf(mgs.MovieURL, strings.ToUpper(id)),
+		ID:            strings.ToUpper(path.Base(homepage.Path)),
+		Homepage:      homepage.String(),
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},
@@ -73,9 +83,9 @@ func (mgs *MGStage) GetMovieInfoByID(id string) (info *model.MovieInfo, err erro
 		d.OnResponse(func(r *colly.Response) {
 			data := make(map[string]string)
 			if json.Unmarshal(r.Body, &data) == nil {
-				if url, ok := data["url"]; ok {
+				if u, ok := data["url"]; ok {
 					info.PreviewVideoURL = regexp.MustCompile(`\.ism/request?.+$`).
-						ReplaceAllString(url, ".mp4")
+						ReplaceAllString(u, ".mp4")
 				}
 			}
 		})

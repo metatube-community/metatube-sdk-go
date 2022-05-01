@@ -34,9 +34,18 @@ func NewJavBus() Provider {
 }
 
 func (bus *JavBus) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	return bus.GetMovieInfoByLink(fmt.Sprintf(bus.MovieURL, strings.ToUpper(id)))
+}
+
+func (bus *JavBus) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
+	homepage, err := url.Parse(link)
+	if err != nil {
+		return nil, err
+	}
+
 	info = &model.MovieInfo{
-		ID:            strings.ToUpper(id),
-		Homepage:      fmt.Sprintf(bus.MovieURL, strings.ToUpper(id)),
+		ID:            strings.ToUpper(path.Base(homepage.Path)),
+		Homepage:      homepage.String(),
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},

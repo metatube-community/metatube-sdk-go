@@ -41,8 +41,29 @@ func NewDMM() Provider {
 }
 
 func (dmm *DMM) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	id = strings.ToLower(id)
+	for _, homePage := range []string{
+		fmt.Sprintf(dmm.MovieVideoAURL, id),
+		fmt.Sprintf(dmm.MovieVideoCURL, id),
+		fmt.Sprintf(dmm.MovieAnimeURL, id),
+		fmt.Sprintf(dmm.MovieNikkatsuURL, id),
+	} {
+		if info, err = dmm.GetMovieInfoByLink(homePage); err == nil && info.Valid() {
+			return
+		}
+	}
+	return nil, errors.New(http.StatusText(http.StatusNotFound))
+}
+
+func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
+	var id string
+	if sub := regexp.MustCompile(`/cid=(.*?)/`).FindStringSubmatch(link); len(sub) == 2 {
+		id = strings.ToLower(sub[1])
+	} else {
+		return nil, fmt.Errorf("invalid DMM link: %s", link)
+	}
+
 	info = &model.MovieInfo{
+		Homepage:      link,
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},
@@ -162,7 +183,7 @@ func (dmm *DMM) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	c.OnXML(`//tr`, func(e *colly.XMLElement) {
 		switch e.ChildText(`.//td[1]`) {
 		case "品番：":
-			if info.ID == "" {
+			if info.ID == "" /* fallback */ {
 				info.ID = e.ChildText(`.//td[2]`)
 				info.Number = dmm.ParseNumber(info.ID)
 			}
@@ -203,16 +224,7 @@ func (dmm *DMM) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 		}
 	})
 
-	for _, homePage := range []string{
-		fmt.Sprintf(dmm.MovieVideoAURL, id),
-		fmt.Sprintf(dmm.MovieVideoCURL, id),
-		fmt.Sprintf(dmm.MovieAnimeURL, id),
-		fmt.Sprintf(dmm.MovieNikkatsuURL, id),
-	} {
-		if err = c.Visit(homePage); err == nil && info.Valid() {
-			break
-		}
-	}
+	err = c.Visit(info.Homepage)
 	return
 }
 

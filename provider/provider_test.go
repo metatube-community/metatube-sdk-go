@@ -14,7 +14,7 @@ func TestProvider_GetMovieInfoByID(t *testing.T) {
 	}{
 		//{NewJavBus, "ABP-331"},
 		//{NewMGStage, "277DCV-197"},
-		{NewDMM, "h_198need00094r18"},
+		{NewDMM, "h_386acrn00346"},
 	} {
 		provider := unit.builder()
 		info, err := provider.GetMovieInfoByID(unit.movieID)
