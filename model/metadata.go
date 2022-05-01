@@ -12,6 +12,10 @@ type SearchResult struct {
 	ReleaseDate time.Time `json:"release_date"`
 }
 
+func (sr *SearchResult) Valid() bool {
+	return sr.ID != "" && sr.Number != "" && sr.Title != ""
+}
+
 type MovieInfo struct {
 	ID       string `json:"id"`
 	Number   string `json:"number"`
@@ -35,4 +39,9 @@ type MovieInfo struct {
 
 	Duration    time.Duration `json:"duration"`
 	ReleaseDate time.Time     `json:"release_date"`
+}
+
+func (mi *MovieInfo) Valid() bool {
+	return mi.ID != "" && mi.Number != "" && mi.Title != "" &&
+		mi.CoverURL != "" && mi.Homepage != ""
 }
