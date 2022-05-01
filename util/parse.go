@@ -10,6 +10,7 @@ import (
 
 // ParseDate parses a string with valid date format into time.Time.
 func ParseDate(s string) time.Time {
+	s = strings.TrimSpace(s)
 	t, _ := dateparse.ParseAny(s)
 	return t
 }
