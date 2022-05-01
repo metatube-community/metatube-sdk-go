@@ -24,6 +24,7 @@ func TestDMM_ParseNumber(t *testing.T) {
 		{"h_001fcp06", "FCP-006"},
 		{"scute1192", "SCUTE-1192"},
 		{"h_198need00094r18", "NEED-094"},
+		{"1fsdss00131re01", "FSDSS-131"},
 	} {
 		assert.Equal(t, unit.want, dmm.ParseNumber(unit.id))
 	}
