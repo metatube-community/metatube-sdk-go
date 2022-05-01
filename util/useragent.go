@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
-
-	"github.com/gocolly/colly/v2"
 )
 
 var uaGens = []func() string{
@@ -24,7 +22,7 @@ func RandomUserAgent() string {
 	return uaGens[rand.Intn(len(uaGens))]()
 }
 
-func RandomMobileUserAgent(c *colly.Collector) string {
+func RandomMobileUserAgent() string {
 	return uaGensMobile[rand.Intn(len(uaGensMobile))]()
 }
 
