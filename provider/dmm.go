@@ -21,31 +21,37 @@ import (
 var _ Provider = (*DMM)(nil)
 
 type DMM struct {
-	BaseURL          string
-	MovieVideoAURL   string
-	MovieVideoCURL   string
-	MovieAnimeURL    string
-	MovieNikkatsuURL string
-	SearchURL        string
+	BaseURL                 string
+	SearchURL               string
+	MovieDigitalVideoAURL   string
+	MovieDigitalVideoCURL   string
+	MovieDigitalAnimeURL    string
+	MovieDigitalNikkatsuURL string
+	MovieMonoDVDURL         string
+	MovieMonoAnimeURL       string
 }
 
 func NewDMM() Provider {
 	return &DMM{
-		BaseURL:          "https://www.dmm.co.jp/",
-		MovieVideoAURL:   "https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=%s/",
-		MovieVideoCURL:   "https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=%s/",
-		MovieAnimeURL:    "https://www.dmm.co.jp/digital/anime/-/detail/=/cid=%s/",
-		MovieNikkatsuURL: "https://www.dmm.co.jp/digital/nikkatsu/-/detail/=/cid=%s/",
-		SearchURL:        "https://www.dmm.co.jp/digital/-/list/search/=/?searchstr=%s",
+		BaseURL:                 "https://www.dmm.co.jp/",
+		SearchURL:               "https://www.dmm.co.jp/digital/-/list/search/=/?searchstr=%s",
+		MovieDigitalVideoAURL:   "https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=%s/",
+		MovieDigitalVideoCURL:   "https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=%s/",
+		MovieDigitalAnimeURL:    "https://www.dmm.co.jp/digital/anime/-/detail/=/cid=%s/",
+		MovieDigitalNikkatsuURL: "https://www.dmm.co.jp/digital/nikkatsu/-/detail/=/cid=%s/",
+		MovieMonoDVDURL:         "https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=%s/",
+		MovieMonoAnimeURL:       "https://www.dmm.co.jp/mono/anime/-/detail/=/cid=%s/",
 	}
 }
 
 func (dmm *DMM) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	for _, homePage := range []string{
-		fmt.Sprintf(dmm.MovieVideoAURL, id),
-		fmt.Sprintf(dmm.MovieVideoCURL, id),
-		fmt.Sprintf(dmm.MovieAnimeURL, id),
-		fmt.Sprintf(dmm.MovieNikkatsuURL, id),
+		fmt.Sprintf(dmm.MovieDigitalVideoAURL, id),
+		fmt.Sprintf(dmm.MovieMonoDVDURL, id),
+		fmt.Sprintf(dmm.MovieDigitalVideoCURL, id),
+		fmt.Sprintf(dmm.MovieDigitalAnimeURL, id),
+		fmt.Sprintf(dmm.MovieMonoAnimeURL, id),
+		fmt.Sprintf(dmm.MovieDigitalNikkatsuURL, id),
 	} {
 		if info, err = dmm.GetMovieInfoByLink(homePage); err == nil && info.Valid() {
 			return
@@ -81,6 +87,16 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		info.Homepage = r.URL.String()
 	})
 
+	// Title
+	c.OnXML(`//*[@id="title"]`, func(e *colly.XMLElement) {
+		info.Title = strings.TrimSpace(e.Text)
+	})
+
+	// Summary
+	c.OnXML(`//div[@class="mg-b20 lh4"]`, func(e *colly.XMLElement) {
+		info.Summary = strings.TrimSpace(e.Text)
+	})
+
 	// Thumb
 	c.OnXML(fmt.Sprintf(`//*[@id="package-src-%s"]`, id), func(e *colly.XMLElement) {
 		info.ThumbURL = e.Request.AbsoluteURL(e.Attr("src"))
@@ -91,6 +107,40 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		info.CoverURL = e.Request.AbsoluteURL(e.Attr("href"))
 	})
 
+	// Fields
+	c.OnXML(`//tr`, func(e *colly.XMLElement) {
+		switch e.ChildText(`.//td[1]`) {
+		case "品番：":
+			if info.ID == "" /* fallback */ {
+				info.ID = e.ChildText(`.//td[2]`)
+				info.Number = dmm.ParseNumber(info.ID)
+			}
+		case "シリーズ：":
+			info.Series = strings.Trim(e.ChildText(`.//td[2]`), "-")
+		case "メーカー：":
+			info.Maker = strings.Trim(e.ChildText(`.//td[2]`), "-")
+		case "レーベル：":
+			info.Publisher = strings.Trim(e.ChildText(`.//td[2]`), "-")
+		case "ジャンル：":
+			info.Tags = e.ChildTexts(`.//td[2]/a`)
+		case "名前：":
+			info.Actors = e.ChildTexts(`.//td[2]`)
+		case "平均評価：":
+			info.Score = dmm.parseScoreFromURL(e.ChildAttr(`.//td[2]/img`, "src"))
+		case "収録時間：":
+			info.Duration = util.ParseDuration(e.ChildText(`.//td[2]`))
+		case "監督：":
+			info.Director = strings.Trim(e.ChildText(`.//td[2]`), "-")
+		case "配信開始日：", "商品発売日：", "発売日：":
+			info.ReleaseDate = util.ParseDate(e.ChildText(`.//td[2]`))
+		}
+	})
+
+	// Actors
+	c.OnXML(`//*[@id="performer"]`, func(e *colly.XMLElement) {
+		info.Actors = e.ChildTexts(`.//a`)
+	})
+
 	// JSON
 	c.OnXML(`//script[@type="application/ld+json"]`, func(e *colly.XMLElement) {
 		data := struct {
@@ -99,9 +149,9 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 			Description string `json:"description"`
 			Sku         string `json:"sku"`
 			SubjectOf   struct {
-				ContentUrl string   `json:"contentUrl"`
-				EmbedUrl   string   `json:"embedUrl"`
-				Genre      []string `json:"genre"`
+				ContentUrl string `json:"contentUrl"`
+				// EmbedUrl   string   `json:"embedUrl"`
+				Genre []string `json:"genre"`
 			} `json:"subjectOf"`
 			AggregateRating struct {
 				RatingValue string `json:"ratingValue"`
@@ -115,9 +165,7 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 			info.ThumbURL = data.Image
 			info.Tags = data.SubjectOf.Genre
 			info.Score = util.ParseScore(data.AggregateRating.RatingValue)
-			if data.SubjectOf.ContentUrl == "" {
-				info.PreviewVideoURL = data.SubjectOf.ContentUrl
-			}
+			info.PreviewVideoURL = data.SubjectOf.ContentUrl
 		}
 	})
 
@@ -171,48 +219,6 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 				regexp.
 					MustCompile(`^(.+?)(?:js)?(-\d+\.\w+)$`).
 					ReplaceAllString(e.ChildAttr(`.//img`, "src"), "${1}jp${2}"))
-		}
-	})
-
-	// Actors
-	c.OnXML(`//*[@id="performer"]`, func(e *colly.XMLElement) {
-		info.Actors = e.ChildTexts(`.//a`)
-	})
-
-	// Fields
-	c.OnXML(`//tr`, func(e *colly.XMLElement) {
-		switch e.ChildText(`.//td[1]`) {
-		case "品番：":
-			if info.ID == "" /* fallback */ {
-				info.ID = e.ChildText(`.//td[2]`)
-				info.Number = dmm.ParseNumber(info.ID)
-			}
-		case "シリーズ：":
-			info.Series = strings.Trim(e.ChildText(`.//td[2]`), "-")
-		case "メーカー：":
-			info.Maker = strings.Trim(e.ChildText(`.//td[2]`), "-")
-		case "レーベル：":
-			info.Publisher = strings.Trim(e.ChildText(`.//td[2]`), "-")
-		case "ジャンル：":
-			if len(info.Tags) == 0 {
-				info.Tags = e.ChildTexts(`.//td[2]/a`)
-			}
-		case "名前：":
-			if len(info.Actors) == 0 {
-				info.Actors = e.ChildTexts(`.//td[2]`)
-			}
-		case "平均評価：":
-			if info.Score == 0 {
-				info.Score = dmm.parseScoreFromURL(e.ChildAttr(`.//td[2]/img`, "src"))
-			}
-		case "収録時間：":
-			info.Duration = util.ParseDuration(e.ChildText(`.//td[2]`))
-		case "監督：":
-			info.Director = strings.Trim(e.ChildText(`.//td[2]`), "-")
-		case "配信開始日：", "商品発売日：", "発売日：":
-			if info.ReleaseDate.IsZero() {
-				info.ReleaseDate = util.ParseDate(e.ChildText(`.//td[2]`))
-			}
 		}
 	})
 
