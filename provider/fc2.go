@@ -17,12 +17,14 @@ import (
 var _ Provider = (*FC2)(nil)
 
 type FC2 struct {
+	BaseURL   string
 	MovieURL  string
 	SampleURL string
 }
 
 func NewFC2() Provider {
 	return &FC2{
+		BaseURL:   "https://adult.contents.fc2.com/",
 		MovieURL:  "https://adult.contents.fc2.com/article/%s/",
 		SampleURL: "https://adult.contents.fc2.com/api/v2/videos/%s/sample",
 	}
