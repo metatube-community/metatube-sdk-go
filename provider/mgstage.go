@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/gocolly/colly/v2"
-	"github.com/gocolly/colly/v2/extensions"
 	"github.com/javtube/javtube/model"
 	"github.com/javtube/javtube/util"
 )
@@ -51,7 +50,7 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(extensions.RandomUserAgent)
+	c := colly.NewCollector(colly.UserAgent(util.RandomUserAgent()))
 
 	c.SetCookies(mgs.BaseURL, []*http.Cookie{
 		{Name: "adc", Value: "1"},
@@ -129,7 +128,7 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 }
 
 func (mgs *MGStage) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	c := colly.NewCollector(extensions.RandomUserAgent)
+	c := colly.NewCollector(colly.UserAgent(util.RandomUserAgent()))
 
 	c.SetCookies(mgs.BaseURL, []*http.Cookie{
 		{Name: "adc", Value: "1"},

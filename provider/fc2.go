@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/gocolly/colly/v2"
-	"github.com/gocolly/colly/v2/extensions"
 	"github.com/javtube/javtube/model"
 	"github.com/javtube/javtube/util"
 )
@@ -49,7 +48,7 @@ func (fc2 *FC2) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(extensions.RandomUserAgent)
+	c := colly.NewCollector(colly.UserAgent(util.RandomUserAgent()))
 
 	// Headers
 	c.OnXML(`//div[@class="items_article_headerInfo"]`, func(e *colly.XMLElement) {
