@@ -174,7 +174,7 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 			info.Number = dmm.ParseNumber(data.Sku)
 			info.Title = data.Name
 			info.Summary = data.Description
-			info.ThumbURL = data.Image
+			info.ThumbURL = e.Request.AbsoluteURL(data.Image)
 			info.Tags = data.SubjectOf.Genre
 			info.Score = util.ParseScore(data.AggregateRating.RatingValue)
 			info.PreviewVideoURL = data.SubjectOf.ContentUrl
