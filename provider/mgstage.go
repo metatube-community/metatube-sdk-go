@@ -32,7 +32,7 @@ func NewMGStage() Provider {
 	}
 }
 
-func (mgs *MGStage) GetMovieInfo(id string) (info *model.MovieInfo, err error) {
+func (mgs *MGStage) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	info = &model.MovieInfo{
 		ID:            strings.ToUpper(id),
 		Homepage:      fmt.Sprintf(mgs.MovieURL, strings.ToUpper(id)),

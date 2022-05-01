@@ -5,8 +5,8 @@ import (
 )
 
 type Provider interface {
-	// GetMovieInfo gets movie's info by id.
-	GetMovieInfo(id string) (*model.MovieInfo, error)
+	// GetMovieInfoByID gets movie's info by id.
+	GetMovieInfoByID(id string) (*model.MovieInfo, error)
 
 	// SearchMovie searches matched movies.
 	SearchMovie(keyword string) ([]*model.SearchResult, error)

@@ -40,7 +40,7 @@ func NewDMM() Provider {
 	}
 }
 
-func (dmm *DMM) GetMovieInfo(id string) (info *model.MovieInfo, err error) {
+func (dmm *DMM) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	id = strings.ToLower(id)
 	info = &model.MovieInfo{
 		Actors:        []string{},
