@@ -92,8 +92,21 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		info.Title = strings.TrimSpace(e.Text)
 	})
 
+	// Summary (incomplete)
+	c.OnXML(`//meta[@property="og:description"]`, func(e *colly.XMLElement) {
+		info.Summary = e.Attr("content")
+	})
+
 	// Summary
 	c.OnXML(`//div[@class="mg-b20 lh4"]`, func(e *colly.XMLElement) {
+		if summary := e.ChildText(`.//p`); summary != "" {
+			if len(info.Summary) == 0 ||
+				/* starts with incomplete description*/
+				strings.HasPrefix(summary, info.Summary[:len(info.Summary)/2]) {
+				info.Summary = strings.TrimSpace(summary)
+				return
+			}
+		}
 		info.Summary = strings.TrimSpace(e.Text)
 	})
 
