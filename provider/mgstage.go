@@ -126,9 +126,11 @@ func (mgs *MGStage) SearchMovie(keyword string) (results []*model.SearchResult, 
 	})
 
 	c.OnXML(`//*[@id="center_column"]/div[2]/div/ul/li`, func(e *colly.XMLElement) {
+		href := e.ChildAttr(`.//h5/a`, "href")
 		results = append(results, &model.SearchResult{
-			ID:       path.Base(e.ChildAttr(`.//h5/a`, "href")),
-			Number:   path.Base(e.ChildAttr(`.//h5/a`, "href")), /* same as ID */
+			ID:       path.Base(href),
+			Number:   path.Base(href), /* same as ID */
+			Homepage: e.Request.AbsoluteURL(href),
 			Title:    strings.TrimSpace(e.ChildText(`.//a/p`)),
 			ThumbURL: strings.ReplaceAll(e.ChildAttr(`.//h5/a/img`, "src"), "pf_t1", "pf_e"),
 			CoverURL: strings.ReplaceAll(e.ChildAttr(`.//h5/a/img`, "src"), "pf_t1", "pb_e"),

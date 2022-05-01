@@ -6,6 +6,7 @@ type SearchResult struct {
 	ID          string    `json:"id"`
 	Number      string    `json:"number"`
 	Title       string    `json:"title"`
+	Homepage    string    `json:"homepage"`
 	ThumbURL    string    `json:"thumb_url"`
 	CoverURL    string    `json:"cover_url"`
 	Score       float64   `json:"score"`
@@ -13,7 +14,7 @@ type SearchResult struct {
 }
 
 func (sr *SearchResult) Valid() bool {
-	return sr.ID != "" && sr.Number != "" && sr.Title != ""
+	return sr.ID != "" && sr.Number != "" && sr.Title != "" && sr.Homepage != ""
 }
 
 type MovieInfo struct {

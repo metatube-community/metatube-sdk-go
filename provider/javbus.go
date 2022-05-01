@@ -110,6 +110,7 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, e
 			ID:          strings.TrimLeft(e.Attr("href"), bus.BaseURL),
 			Number:      e.ChildText(`.//div[2]/span/date[1]`),
 			Title:       strings.SplitN(e.ChildText(`.//div[2]/span`), "\n", 2)[0],
+			Homepage:    e.Request.AbsoluteURL(e.Attr("href")),
 			ThumbURL:    e.Request.AbsoluteURL(fmt.Sprintf(bus.ThumbURL, imageID, ext)),
 			CoverURL:    e.Request.AbsoluteURL(fmt.Sprintf(bus.CoverURL, imageID, ext)),
 			ReleaseDate: util.ParseDate(e.ChildText(`.//div[2]/span/date[2]`)),

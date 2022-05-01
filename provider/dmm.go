@@ -240,6 +240,7 @@ func (dmm *DMM) SearchMovie(keyword string) (results []*model.SearchResult, err 
 			ID:       id,
 			Number:   dmm.ParseNumber(id),
 			Title:    e.ChildAttr(`.//p[@class="tmb"]/a/span[1]/img`, "alt"),
+			Homepage: e.Request.AbsoluteURL(e.ChildAttr(`.//p[@class="tmb"]/a`, "href")),
 			ThumbURL: e.Request.AbsoluteURL(strings.ReplaceAll(thumb, "pt.", "ps.")),
 			CoverURL: e.Request.AbsoluteURL(strings.ReplaceAll(thumb, "pt.", "pl.")),
 			Score:    util.ParseScore(e.ChildText(`.//p[@class="rate"]/span/span`)),
