@@ -43,6 +43,7 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 		ID:            id,
 		Number:        fmt.Sprintf("HEYZO-%s", id),
 		Homepage:      homepage.String(),
+		Maker:         "HEYZO",
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},
