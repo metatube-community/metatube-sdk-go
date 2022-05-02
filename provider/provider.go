@@ -1,7 +1,7 @@
 package provider
 
 import (
-	"github.com/javtube/javtube/model"
+	"github.com/javtube/javtube-sdk-go/model"
 )
 
 var (

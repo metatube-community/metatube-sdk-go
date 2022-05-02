@@ -1,4 +1,4 @@
-module github.com/javtube/javtube
+module github.com/javtube/javtube-sdk-go
 
 go 1.18
 

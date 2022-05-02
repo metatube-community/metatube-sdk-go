@@ -9,8 +9,8 @@ import (
 	"sync"
 
 	"github.com/gocolly/colly/v2"
-	"github.com/javtube/javtube/model"
-	"github.com/javtube/javtube/util"
+	"github.com/javtube/javtube-sdk-go/model"
+	"github.com/javtube/javtube-sdk-go/util"
 )
 
 var _ Provider = (*JavBus)(nil)
