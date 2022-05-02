@@ -1,6 +1,7 @@
 package util
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -21,6 +22,9 @@ func ParseDuration(s string) time.Duration {
 	s = strings.TrimSpace(s)
 	s = strings.Replace(s, "分", "m", 1)
 	s = strings.Replace(s, "min", "m", 1)
+	if re := regexp.MustCompile(`(\d\d):(\d\d):(\d\d)`); re.MatchString(s) {
+		s = re.ReplaceAllString(s, "${1}h${2}m${3}s")
+	}
 	d, _ := time.ParseDuration(s)
 	return d
 }

@@ -135,9 +135,7 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 					Full string `json:"full"`
 				}{}
 				if json.Unmarshal([]byte(sub[1]), &data) == nil {
-					info.Duration = util.ParseDuration(
-						regexp.MustCompile(`(\d\d):(\d\d):(\d\d)`).
-							ReplaceAllString(data.Full, "${1}h${2}m${3}s"))
+					info.Duration = util.ParseDuration(data.Full)
 				}
 			}
 		}
