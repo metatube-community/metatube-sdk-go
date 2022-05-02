@@ -44,7 +44,7 @@ func NewDMM() Provider {
 }
 
 func (dmm *DMM) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	for _, homePage := range []string{
+	for _, homepage := range []string{
 		fmt.Sprintf(dmm.MovieDigitalVideoAURL, id),
 		fmt.Sprintf(dmm.MovieMonoDVDURL, id),
 		fmt.Sprintf(dmm.MovieDigitalVideoCURL, id),
@@ -52,7 +52,7 @@ func (dmm *DMM) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 		fmt.Sprintf(dmm.MovieMonoAnimeURL, id),
 		fmt.Sprintf(dmm.MovieDigitalNikkatsuURL, id),
 	} {
-		if info, err = dmm.GetMovieInfoByLink(homePage); err == nil && info.Valid() {
+		if info, err = dmm.GetMovieInfoByLink(homepage); err == nil && info.Valid() {
 			return
 		}
 	}
