@@ -193,11 +193,11 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 							Src     string `json:"src"`
 						} `json:"bitrates"`
 					}{}
-					if json.Unmarshal(resp[1], &data) == nil {
+					if json.Unmarshal(resp[1], &data) == nil && len(data.Bitrates) > 0 {
 						sort.SliceStable(data.Bitrates, func(i, j int) bool {
-							return data.Bitrates[i].Bitrate > data.Bitrates[j].Bitrate /* descending */
+							return data.Bitrates[i].Bitrate < data.Bitrates[j].Bitrate
 						})
-						info.PreviewVideoURL = e.Request.AbsoluteURL(data.Bitrates[0].Src)
+						info.PreviewVideoURL = e.Request.AbsoluteURL(data.Bitrates[len(data.Bitrates)-1].Src)
 					}
 				}
 			})
