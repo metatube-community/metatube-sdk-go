@@ -2,11 +2,12 @@ package provider
 
 import (
 	"github.com/javtube/javtube-sdk-go/model"
+	"github.com/javtube/javtube-sdk-go/util"
 )
 
 var (
 	// UA is the default user agent for each provider.
-	UA = colly.UserAgent(UA)()
+	UA = util.RandomUserAgent()
 )
 
 type Provider interface {
