@@ -50,7 +50,7 @@ func (bus *JavBus) GetMovieInfoByLink(link string) (info *model.MovieInfo, err e
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(colly.UserAgent(util.RandomUserAgent()))
+	c := colly.NewCollector(colly.UserAgent(UA))
 
 	// Image+Title
 	c.OnXML(`//a[@class="bigImage"]/img`, func(e *colly.XMLElement) {
@@ -106,7 +106,7 @@ func (bus *JavBus) GetMovieInfoByLink(link string) (info *model.MovieInfo, err e
 func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
 	c := colly.NewCollector(
 		colly.Async(true),
-		colly.UserAgent(util.RandomUserAgent()),
+		colly.UserAgent(UA),
 	)
 
 	var mu sync.Mutex

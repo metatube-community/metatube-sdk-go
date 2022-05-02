@@ -48,7 +48,7 @@ func (fc2 *FC2) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(colly.UserAgent(util.RandomUserAgent()))
+	c := colly.NewCollector(colly.UserAgent(UA))
 
 	// Headers
 	c.OnXML(`//div[@class="items_article_headerInfo"]`, func(e *colly.XMLElement) {

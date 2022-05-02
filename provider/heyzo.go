@@ -48,7 +48,7 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(colly.UserAgent(util.RandomUserAgent()))
+	c := colly.NewCollector(colly.UserAgent(UA))
 
 	// JSON
 	c.OnXML(`//script[@type="application/ld+json"]`, func(e *colly.XMLElement) {

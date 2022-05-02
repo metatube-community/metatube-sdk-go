@@ -4,6 +4,11 @@ import (
 	"github.com/javtube/javtube/model"
 )
 
+var (
+	// UA is the default user agent for each provider.
+	UA = colly.UserAgent(UA)()
+)
+
 type Provider interface {
 	// GetMovieInfoByID gets movie's info by id.
 	GetMovieInfoByID(id string) (*model.MovieInfo, error)

@@ -74,7 +74,7 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(colly.UserAgent(util.RandomUserAgent()))
+	c := colly.NewCollector(colly.UserAgent(UA))
 
 	c.SetCookies(dmm.BaseURL, []*http.Cookie{
 		{Name: "ckcy", Value: "1"},
@@ -248,7 +248,7 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 
 func (dmm *DMM) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
 	keyword = strings.ToLower(keyword) /* DMM prefers lowercase */
-	c := colly.NewCollector(colly.UserAgent(util.RandomUserAgent()))
+	c := colly.NewCollector(colly.UserAgent(UA))
 
 	c.SetCookies(dmm.BaseURL, []*http.Cookie{
 		{Name: "ckcy", Value: "1"},

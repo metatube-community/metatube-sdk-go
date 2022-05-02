@@ -50,7 +50,7 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(colly.UserAgent(util.RandomUserAgent()))
+	c := colly.NewCollector(colly.UserAgent(UA))
 
 	c.SetCookies(mgs.BaseURL, []*http.Cookie{
 		{Name: "adc", Value: "1"},
@@ -128,7 +128,7 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 }
 
 func (mgs *MGStage) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	c := colly.NewCollector(colly.UserAgent(util.RandomUserAgent()))
+	c := colly.NewCollector(colly.UserAgent(UA))
 
 	c.SetCookies(mgs.BaseURL, []*http.Cookie{
 		{Name: "adc", Value: "1"},
