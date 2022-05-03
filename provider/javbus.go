@@ -27,8 +27,6 @@ func NewJavBus() Provider {
 		MovieURL:            "https://www.javbus.com/ja/%s",
 		SearchURL:           "https://www.javbus.com/ja/search/%s",
 		SearchUncensoredURL: "https://www.javbus.com/ja/uncensored/search/%s",
-		ThumbURL:            "https://www.javbus.com/pics/thumb/%s%s",
-		CoverURL:            "https://www.javbus.com/pics/cover/%s_b%s",
 	}
 }
 
