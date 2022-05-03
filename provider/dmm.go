@@ -253,7 +253,11 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 }
 
 func (dmm *DMM) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	keyword = strings.ToLower(keyword) /* DMM prefers lowercase */
+	{ // keyword pre-handling
+		keyword = strings.ReplaceAll(keyword, "-", "00")
+		keyword = strings.ToLower(keyword) /* DMM prefers lowercase */
+	}
+
 	c := colly.NewCollector(colly.UserAgent(UA))
 
 	c.SetCookies(dmm.BaseURL, []*http.Cookie{
@@ -286,7 +290,7 @@ func (dmm *DMM) SearchMovie(keyword string) (results []*model.SearchResult, err 
 		})
 	})
 
-	err = c.Visit(fmt.Sprintf(dmm.SearchURL, keyword))
+	err = c.Visit(fmt.Sprintf(dmm.SearchURL, url.QueryEscape(keyword)))
 	return
 }
 
