@@ -67,7 +67,7 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 	})
 
 	// Thumb
-	c.OnXML(`//*[@id="center_column"]/div[1]/div[1]/div/div/h2/img`, func(e *colly.XMLElement) {
+	c.OnXML(`//div[@class="detail_data"]/div/h2/img`, func(e *colly.XMLElement) {
 		info.ThumbURL = e.Request.AbsoluteURL(mgs.imageSrc(e.Attr("src"), true))
 	})
 
@@ -77,7 +77,7 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 	})
 
 	// Preview Video
-	c.OnXML(`//*[@id="center_column"]/div[1]/div[1]/div/div/p[2]`, func(e *colly.XMLElement) {
+	c.OnXML(`//div[@class="detail_data"]//p[@class="sample_movie_btn"]`, func(e *colly.XMLElement) {
 		d := c.Clone()
 		d.OnResponse(func(r *colly.Response) {
 			data := make(map[string]string)
