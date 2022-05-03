@@ -2,7 +2,6 @@ package provider
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -156,5 +155,5 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 }
 
 func (opd *OnePondo) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	return nil, errors.New("unimplemented")
+	return nil, ErrSearchNotSupported
 }

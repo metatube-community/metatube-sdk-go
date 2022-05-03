@@ -1,6 +1,8 @@
 package provider
 
 import (
+	"errors"
+
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/util"
 )
@@ -8,6 +10,10 @@ import (
 var (
 	// UA is the default user agent for each provider.
 	UA = util.RandomUserAgent()
+)
+
+var (
+	ErrSearchNotSupported = errors.New("search is not supported")
 )
 
 type Provider interface {

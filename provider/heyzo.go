@@ -3,7 +3,6 @@ package provider
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/url"
 	"path"
@@ -207,5 +206,5 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 }
 
 func (hzo *Heyzo) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	return nil, errors.New("no search support for Heyzo")
+	return nil, ErrSearchNotSupported
 }

@@ -158,5 +158,5 @@ func (crb *Caribbean) GetMovieInfoByLink(link string) (info *model.MovieInfo, er
 }
 
 func (crb *Caribbean) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	return nil, errors.New("unimplemented")
+	return nil, ErrSearchNotSupported
 }

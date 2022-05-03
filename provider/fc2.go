@@ -1,7 +1,6 @@
 package provider
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 	"path"
@@ -109,5 +108,5 @@ func (fc2 *FC2) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 }
 
 func (fc2 *FC2) SearchMovie(keyword string) ([]*model.SearchResult, error) {
-	return nil, errors.New("no search support for FC2")
+	return nil, ErrSearchNotSupported
 }
