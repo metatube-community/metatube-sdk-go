@@ -33,7 +33,7 @@ func NewCaribbean() Provider {
 }
 
 func (crb *Caribbean) Name() string {
-	return "カリビアンコム"
+	return "Caribbean"
 }
 
 func (crb *Caribbean) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -59,7 +59,7 @@ func (crb *Caribbean) GetMovieInfoByLink(link string) (info *model.MovieInfo, er
 		ID:            id,
 		Number:        id,
 		Homepage:      homepage.String(),
-		Maker:         crb.Name(),
+		Maker:         "カリビアンコム",
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},
