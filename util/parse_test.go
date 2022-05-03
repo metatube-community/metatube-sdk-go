@@ -13,6 +13,7 @@ func TestParseDuration(t *testing.T) {
 		orig string
 		want time.Duration
 	}{
+		{"0", 0},
 		{"1min", time.Minute},
 		{"1分", time.Minute},
 		{"1h2m3s", time.Hour + time.Minute*2 + time.Second*3},
