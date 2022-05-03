@@ -101,7 +101,13 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 	c.OnXML(`//tr`, func(e *colly.XMLElement) {
 		switch e.ChildText(`.//th`) {
 		case "出演：":
-			info.Actors = e.ChildTexts(`.//td/a`)
+			if actors := e.ChildTexts(`.//td/a`); len(actors) > 0 {
+				info.Actors = actors
+			} else if actors = e.ChildTexts(`.//td`); len(actors) > 0 {
+				for _, actor := range actors {
+					info.Actors = append(info.Actors, strings.TrimSpace(actor))
+				}
+			}
 		case "メーカー：":
 			info.Maker = e.ChildText(`.//td`)
 		case "収録時間：":
