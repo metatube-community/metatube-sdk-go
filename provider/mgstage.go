@@ -68,12 +68,12 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 
 	// Thumb
 	c.OnXML(`//*[@id="center_column"]/div[1]/div[1]/div/div/h2/img`, func(e *colly.XMLElement) {
-		info.ThumbURL = strings.ReplaceAll(e.Attr("src"), "pf_o1", "pf_e")
+		info.ThumbURL = e.Request.AbsoluteURL(mgs.imageSrc(e.Attr("src"), true))
 	})
 
 	// Cover
 	c.OnXML(`//*[@id="EnlargeImage"]`, func(e *colly.XMLElement) {
-		info.CoverURL = e.Attr("href")
+		info.CoverURL = e.Request.AbsoluteURL(e.Attr("href"))
 	})
 
 	// Preview Video
@@ -141,12 +141,22 @@ func (mgs *MGStage) SearchMovie(keyword string) (results []*model.SearchResult, 
 			Number:   path.Base(href), /* same as ID */
 			Homepage: e.Request.AbsoluteURL(href),
 			Title:    strings.TrimSpace(e.ChildText(`.//a/p`)),
-			ThumbURL: strings.ReplaceAll(e.ChildAttr(`.//h5/a/img`, "src"), "pf_t1", "pf_e"),
-			CoverURL: strings.ReplaceAll(e.ChildAttr(`.//h5/a/img`, "src"), "pf_t1", "pb_e"),
+			ThumbURL: e.Request.AbsoluteURL(mgs.imageSrc(e.ChildAttr(`.//h5/a/img`, "src"), true)),
+			CoverURL: e.Request.AbsoluteURL(mgs.imageSrc(e.ChildAttr(`.//h5/a/img`, "src"), false)),
 			Score:    util.ParseScore(e.ChildText(`.//p[@class="review"]`)),
 		})
 	})
 
 	err = c.Visit(fmt.Sprintf(mgs.SearchURL, keyword))
 	return
+}
+
+func (mgs *MGStage) imageSrc(s string, thumb bool) string {
+	if re := regexp.MustCompile(`(?i)/p[f|b]_[a-z]\d+?_`); re.MatchString(s) {
+		if thumb {
+			return re.ReplaceAllString(s, "/pf_e_")
+		}
+		return re.ReplaceAllString(s, "/pb_e_")
+	}
+	return s
 }
