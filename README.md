@@ -1,2 +1,3 @@
-# javtube
-Just Another Video Tube.
+# JavTube SDK Go
+
+WRITTEN BY 12X WITH LOVE.
