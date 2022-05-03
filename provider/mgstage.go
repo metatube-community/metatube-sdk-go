@@ -157,7 +157,7 @@ func (mgs *MGStage) SearchMovie(keyword string) (results []*model.SearchResult, 
 		})
 	})
 
-	err = c.Visit(fmt.Sprintf(mgs.SearchURL, keyword))
+	err = c.Visit(fmt.Sprintf(mgs.SearchURL, url.QueryEscape(keyword)))
 	return
 }
 
