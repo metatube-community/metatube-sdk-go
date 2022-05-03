@@ -111,18 +111,18 @@ func (crb *Caribbean) GetMovieInfoByLink(link string) (info *model.MovieInfo, er
 
 	// Thumb+Cover+Video
 	c.OnXML(`//script`, func(e *colly.XMLElement) {
-		if re := regexp.MustCompile(`emimg\s+?=\s+?'(.+?)';`); re.MatchString(e.Text) {
+		if re := regexp.MustCompile(`emimg\s*=\s*'(.+?)';`); re.MatchString(e.Text) {
 			if ss := re.FindStringSubmatch(e.Text); len(ss) == 2 {
 				info.ThumbURL = e.Request.AbsoluteURL(ss[1])
 				info.CoverURL = info.ThumbURL /* use thumb as cover */
 			}
-		} else if re = regexp.MustCompile(`posterImage\s+=\s+'(.+?)'\+movie_id\+'(.+?)';`); re.MatchString(e.Text) {
+		} else if re = regexp.MustCompile(`posterImage\s*=\s*'(.+?)'\+movie_id\+'(.+?)';`); re.MatchString(e.Text) {
 			// var posterImage = '/moviepages/'+movie_id+'/images/main_b.jpg';
 			if ss := re.FindStringSubmatch(e.Text); len(ss) == 3 {
 				info.ThumbURL = e.Request.AbsoluteURL(ss[1] + id + ss[2])
 				info.CoverURL = info.ThumbURL /* use thumb as cover */
 			}
-		} else if re = regexp.MustCompile(`Movie\s+?=\s+?(\{.+?});`); re.MatchString(e.Text) {
+		} else if re = regexp.MustCompile(`Movie\s*=\s*(\{.+?});`); re.MatchString(e.Text) {
 			if ss := re.FindStringSubmatch(e.Text); len(ss) == 2 {
 				data := struct {
 					SampleFlashURL  string `json:"sample_flash_url"`
