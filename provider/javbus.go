@@ -55,9 +55,10 @@ func (bus *JavBus) GetMovieInfoByLink(link string) (info *model.MovieInfo, err e
 	// Image+Title
 	c.OnXML(`//a[@class="bigImage"]/img`, func(e *colly.XMLElement) {
 		info.Title = e.Attr("title")
-		imageID, ext := bus.parseImage(e.Attr("src"))
-		info.ThumbURL = e.Request.AbsoluteURL(fmt.Sprintf(bus.ThumbURL, imageID, ext))
-		info.CoverURL = e.Request.AbsoluteURL(fmt.Sprintf(bus.CoverURL, imageID, ext))
+		info.CoverURL = e.Request.AbsoluteURL(e.Attr("src"))
+		if re := regexp.MustCompile(`(?i)/cover/([a-z\d]+)(?:_b)?\.(jpg|png)`); re.MatchString(info.CoverURL) {
+			info.ThumbURL = re.ReplaceAllString(info.CoverURL, "/thumb/${1}.${2}")
+		}
 	})
 
 	// Fields
@@ -113,14 +114,20 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, e
 	c.OnXML(`//a[@class="movie-box"]`, func(e *colly.XMLElement) {
 		mu.Lock()
 		defer mu.Unlock()
-		imageID, ext := bus.parseImage(e.ChildAttr(`.//div[1]/img`, "src"))
+
+		var thumb, cover string
+		thumb = e.Request.AbsoluteURL(e.ChildAttr(`.//div[1]/img`, "src"))
+		if re := regexp.MustCompile(`(?i)/thumbs?/([a-z\d]+)(?:_b)?\.(jpg|png)`); re.MatchString(thumb) {
+			cover = re.ReplaceAllString(thumb, "/cover/${1}_b.${2}") // guess
+		}
+
 		results = append(results, &model.SearchResult{
 			ID:          strings.TrimLeft(e.Attr("href"), bus.BaseURL),
 			Number:      e.ChildText(`.//div[2]/span/date[1]`),
 			Title:       strings.SplitN(e.ChildText(`.//div[2]/span`), "\n", 2)[0],
 			Homepage:    e.Request.AbsoluteURL(e.Attr("href")),
-			ThumbURL:    e.Request.AbsoluteURL(fmt.Sprintf(bus.ThumbURL, imageID, ext)),
-			CoverURL:    e.Request.AbsoluteURL(fmt.Sprintf(bus.CoverURL, imageID, ext)),
+			ThumbURL:    thumb,
+			CoverURL:    cover,
 			ReleaseDate: util.ParseDate(e.ChildText(`.//div[2]/span/date[2]`)),
 		})
 	})
@@ -135,16 +142,4 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, e
 
 	c.Wait()
 	return
-}
-
-func (bus *JavBus) parseImage(s string) (name, ext string) {
-	if strings.Contains(s, "://") {
-		u, _ := url.Parse(s)
-		s = u.Path
-	}
-	image := path.Base(s)
-	if ss := regexp.MustCompile(`^([a-zA-Z\d]+)(?:_b)?(\.\w+)$`).FindStringSubmatch(image); len(ss) == 3 {
-		return ss[1], ss[2]
-	}
-	return "", ""
 }
