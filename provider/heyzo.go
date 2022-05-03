@@ -98,6 +98,14 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 		}
 	})
 
+	// Thumb+Cover (fallback)
+	c.OnXML(`//meta[@property="og:image"]`, func(e *colly.XMLElement) {
+		if info.CoverURL == "" {
+			info.CoverURL = e.Request.AbsoluteURL(e.Attr("content"))
+			info.ThumbURL = info.CoverURL
+		}
+	})
+
 	// Fields
 	c.OnXML(`//table[@class="movieInfo"]/tbody/tr`, func(e *colly.XMLElement) {
 		switch e.ChildText(`.//td[1]`) {
