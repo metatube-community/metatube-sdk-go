@@ -130,7 +130,9 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 
 	// Actors
 	c.OnXML(`//*[@id="performer"]`, func(e *colly.XMLElement) {
-		info.Actors = e.ChildTexts(`.//a`)
+		if actors := e.ChildTexts(`.//a`); len(actors) > 0 {
+			info.Actors = actors
+		}
 	})
 
 	// JSON
