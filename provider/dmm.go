@@ -91,24 +91,6 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		info.Title = strings.TrimSpace(e.Text)
 	})
 
-	// Summary (incomplete)
-	c.OnXML(`//meta[@property="og:description"]`, func(e *colly.XMLElement) {
-		info.Summary = e.Attr("content")
-	})
-
-	// Summary
-	c.OnXML(`//div[@class="mg-b20 lh4"]`, func(e *colly.XMLElement) {
-		if summary := e.ChildText(`.//p`); summary != "" {
-			if len(info.Summary) == 0 ||
-				/* starts with incomplete description*/
-				strings.HasPrefix(summary, info.Summary[:len(info.Summary)/2]) {
-				info.Summary = strings.TrimSpace(summary)
-				return
-			}
-		}
-		info.Summary = strings.TrimSpace(e.Text)
-	})
-
 	// Thumb
 	c.OnXML(fmt.Sprintf(`//*[@id="package-src-%s"]`, id), func(e *colly.XMLElement) {
 		info.ThumbURL = e.Request.AbsoluteURL(e.Attr("src"))
@@ -123,10 +105,8 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 	c.OnXML(`//tr`, func(e *colly.XMLElement) {
 		switch e.ChildText(`.//td[1]`) {
 		case "品番：":
-			if info.ID == "" /* fallback */ {
-				info.ID = e.ChildText(`.//td[2]`)
-				info.Number = dmm.ParseNumber(info.ID)
-			}
+			info.ID = e.ChildText(`.//td[2]`)
+			info.Number = dmm.ParseNumber(info.ID)
 		case "シリーズ：":
 			info.Series = strings.Trim(e.ChildText(`.//td[2]`), "-")
 		case "メーカー：":
@@ -168,16 +148,45 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 			AggregateRating struct {
 				RatingValue string `json:"ratingValue"`
 			} `json:"aggregateRating"`
-		}{}
+		}{ /* assign default values */
+			Name:        info.Title,
+			Image:       info.ThumbURL,
+			Description: info.Summary,
+			Sku:         info.ID,
+		}
 		if json.Unmarshal([]byte(e.Text), &data) == nil {
 			info.ID = data.Sku
 			info.Number = dmm.ParseNumber(data.Sku)
 			info.Title = data.Name
 			info.Summary = data.Description
 			info.ThumbURL = e.Request.AbsoluteURL(data.Image)
-			info.Tags = data.SubjectOf.Genre
-			info.Score = util.ParseScore(data.AggregateRating.RatingValue)
-			info.PreviewVideoURL = data.SubjectOf.ContentUrl
+			if len(data.SubjectOf.Genre) > 0 {
+				info.Tags = data.SubjectOf.Genre
+			}
+			if data.AggregateRating.RatingValue != "" {
+				info.Score = util.ParseScore(data.AggregateRating.RatingValue)
+			}
+			if data.SubjectOf.ContentUrl != "" {
+				info.PreviewVideoURL = data.SubjectOf.ContentUrl
+			}
+		}
+	})
+
+	// Summary (fallback)
+	c.OnXML(`//div[@class="mg-b20 lh4"]`, func(e *colly.XMLElement) {
+		if info.Summary == "" {
+			if summary := e.ChildText(`.//p`); summary != "" {
+				info.Summary = strings.TrimSpace(summary)
+				return
+			}
+			info.Summary = strings.TrimSpace(e.Text)
+		}
+	})
+
+	// Summary (incomplete fallback)
+	c.OnXML(`//meta[@property="og:description"]`, func(e *colly.XMLElement) {
+		if info.Summary == "" {
+			info.Summary = e.Attr("content")
 		}
 	})
 
