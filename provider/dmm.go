@@ -98,7 +98,7 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 
 	// Cover
 	c.OnXML(fmt.Sprintf(`//*[@id="%s"]`, id), func(e *colly.XMLElement) {
-		info.CoverURL = e.Request.AbsoluteURL(e.Attr("href"))
+		info.CoverURL = e.Request.AbsoluteURL(dmm.PreviewSrc(e.Attr("href")))
 	})
 
 	// Fields
@@ -233,23 +233,15 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 
 	// Preview Images
 	c.OnXML(`//*[@id="sample-image-block"]/a`, func(e *colly.XMLElement) {
-		if image := regexp.
-			MustCompile(fmt.Sprintf(`^(.+/%s).*?(-\d+\.\w+)$`, id)).
-			ReplaceAllString(e.ChildAttr(`.//img`, "src"), "${1}jp${2}"); image != "" {
-			info.PreviewImages = append(info.PreviewImages, image)
-		} else /* fallback */ {
-			info.PreviewImages = append(info.PreviewImages,
-				regexp.
-					MustCompile(`^(.+?)(?:js)?(-\d+\.\w+)$`).
-					ReplaceAllString(e.ChildAttr(`.//img`, "src"), "${1}jp${2}"))
-		}
+		info.PreviewImages = append(info.PreviewImages,
+			e.Request.AbsoluteURL(dmm.PreviewSrc(e.ChildAttr(`.//img`, "src"))))
 	})
 
 	// Final
 	c.OnScraped(func(r *colly.Response) {
 		if info.CoverURL == "" {
 			// use thumb image as cover
-			info.CoverURL = info.ThumbURL
+			info.CoverURL = dmm.PreviewSrc(info.ThumbURL)
 		}
 	})
 
@@ -275,15 +267,19 @@ func (dmm *DMM) SearchMovie(keyword string) (results []*model.SearchResult, err 
 			return
 		}
 		id := pattens[1]
+
 		thumb := e.ChildAttr(`.//p[@class="tmb"]/a/span[1]/img`, "src")
+		if re := regexp.MustCompile(`(p[a-z]\.)jpg`); re.MatchString(thumb) {
+			thumb = re.ReplaceAllString(thumb, "ps.jpg")
+		}
 
 		results = append(results, &model.SearchResult{
 			ID:       id,
 			Number:   dmm.ParseNumber(id),
 			Title:    e.ChildAttr(`.//p[@class="tmb"]/a/span[1]/img`, "alt"),
 			Homepage: e.Request.AbsoluteURL(e.ChildAttr(`.//p[@class="tmb"]/a`, "href")),
-			ThumbURL: e.Request.AbsoluteURL(strings.ReplaceAll(thumb, "pt.", "ps.")),
-			CoverURL: e.Request.AbsoluteURL(strings.ReplaceAll(thumb, "pt.", "pl.")),
+			ThumbURL: e.Request.AbsoluteURL(thumb),
+			CoverURL: e.Request.AbsoluteURL(dmm.PreviewSrc(thumb)),
 			Score:    util.ParseScore(e.ChildText(`.//p[@class="rate"]/span/span`)),
 		})
 	})
@@ -311,4 +307,40 @@ func (dmm *DMM) parseScoreFromURL(s string) float64 {
 	n := gif[:len(gif)-len(ext)]
 	score, _ := strconv.ParseFloat(n, 10)
 	return score
+}
+
+// PreviewSrc maximize the preview image.
+// Ref: https://digstatic.dmm.com/js/digital/preview_jquery.js#652
+// JS Code:
+//// 画像パスの正規化
+//function preview_src(src)
+//{
+//	  if (src.match(/(p[a-z]\.)jpg/)) {
+//		  return src.replace(RegExp.$1, 'pl.');
+//	  } else if (src.match(/consumer_game/)) {
+//		  return src.replace('js-','-');
+//	  } else if (src.match(/js\-([0-9]+)\.jpg$/)) {
+//		  return src.replace('js-','jp-');
+//	  } else if (src.match(/ts\-([0-9]+)\.jpg$/)) {
+//		  return src.replace('ts-','tl-');
+//	  } else if (src.match(/(\-[0-9]+\.)jpg$/)) {
+//		  return src.replace(RegExp.$1, 'jp' + RegExp.$1);
+//	  } else {
+//		  return src.replace('-','jp-');
+//	  }
+//}
+func (dmm *DMM) PreviewSrc(s string) string {
+	if re := regexp.MustCompile(`(p[a-z]\.)jpg`); re.MatchString(s) {
+		return re.ReplaceAllString(s, "pl.jpg")
+	} else if re = regexp.MustCompile(`consumer_game`); re.MatchString(s) {
+		return strings.ReplaceAll(s, "js-", "-")
+	} else if re = regexp.MustCompile(`js-(\d+)\.jpg$`); re.MatchString(s) {
+		return strings.ReplaceAll(s, "js-", "jp-")
+	} else if re = regexp.MustCompile(`ts-(\d+)\.jpg$`); re.MatchString(s) {
+		return strings.ReplaceAll(s, "ts-", "tl-")
+	} else if re = regexp.MustCompile(`(-\d+\.)jpg$`); re.MatchString(s) {
+		return re.ReplaceAllString(s, "jp${1}jpg")
+	} else {
+		return strings.ReplaceAll(s, "-", "jp-")
+	}
 }
