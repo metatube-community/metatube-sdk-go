@@ -36,6 +36,10 @@ func NewOnePondo() Provider {
 	}
 }
 
+func (opd *OnePondo) Name() string {
+	return "一本道"
+}
+
 func (opd *OnePondo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return opd.GetMovieInfoByLink(fmt.Sprintf(opd.MovieURL, id))
 }
@@ -52,7 +56,7 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 
 	info = &model.MovieInfo{
 		Homepage:      homepage.String(),
-		Maker:         "一本道",
+		Maker:         opd.Name(),
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},

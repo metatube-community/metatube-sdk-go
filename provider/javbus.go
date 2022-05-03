@@ -32,6 +32,10 @@ func NewJavBus() Provider {
 	}
 }
 
+func (bus *JavBus) Name() string {
+	return "JavBus"
+}
+
 func (bus *JavBus) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return bus.GetMovieInfoByLink(fmt.Sprintf(bus.MovieURL, strings.ToUpper(id)))
 }

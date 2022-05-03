@@ -43,6 +43,10 @@ func NewDMM() Provider {
 	}
 }
 
+func (dmm *DMM) Name() string {
+	return "DMM" // DMM also known as FANZA
+}
+
 func (dmm *DMM) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	for _, homepage := range []string{
 		fmt.Sprintf(dmm.MovieDigitalVideoAURL, id),

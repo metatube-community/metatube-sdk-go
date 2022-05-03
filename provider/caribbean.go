@@ -32,6 +32,10 @@ func NewCaribbean() Provider {
 	}
 }
 
+func (crb *Caribbean) Name() string {
+	return "カリビアンコム"
+}
+
 func (crb *Caribbean) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	for _, homepage := range []string{
 		fmt.Sprintf(crb.MovieURL, id),
@@ -55,7 +59,7 @@ func (crb *Caribbean) GetMovieInfoByLink(link string) (info *model.MovieInfo, er
 		ID:            id,
 		Number:        id,
 		Homepage:      homepage.String(),
-		Maker:         "カリビアンコム",
+		Maker:         crb.Name(),
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},

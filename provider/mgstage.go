@@ -32,6 +32,10 @@ func NewMGStage() Provider {
 	}
 }
 
+func (mgs *MGStage) Name() string {
+	return "MGS"
+}
+
 func (mgs *MGStage) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return mgs.GetMovieInfoByLink(fmt.Sprintf(mgs.MovieURL, strings.ToUpper(id)))
 }

@@ -11,6 +11,9 @@ var (
 )
 
 type Provider interface {
+	// Name returns the provider's name.
+	Name() string
+
 	// GetMovieInfoByID gets movie's info by id.
 	GetMovieInfoByID(id string) (*model.MovieInfo, error)
 

@@ -33,6 +33,10 @@ func NewHeyzo() Provider {
 	}
 }
 
+func (hzo *Heyzo) Name() string {
+	return "HEYZO"
+}
+
 func (hzo *Heyzo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return hzo.GetMovieInfoByLink(fmt.Sprintf(hzo.MovieURL, id))
 }
@@ -48,7 +52,7 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 		ID:            id,
 		Number:        fmt.Sprintf("HEYZO-%s", id),
 		Homepage:      homepage.String(),
-		Maker:         "HEYZO",
+		Maker:         hzo.Name(),
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},

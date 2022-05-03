@@ -29,6 +29,10 @@ func NewFC2() Provider {
 	}
 }
 
+func (fc2 *FC2) Name() string {
+	return "FC2"
+}
+
 func (fc2 *FC2) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return fc2.GetMovieInfoByLink(fmt.Sprintf(fc2.MovieURL, id))
 }
