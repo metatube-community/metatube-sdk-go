@@ -1,15 +1,18 @@
 package provider
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
 	"path"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/grafov/m3u8"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/util"
 )
@@ -17,14 +20,16 @@ import (
 var _ Provider = (*Heyzo)(nil)
 
 type Heyzo struct {
-	BaseURL  string
-	MovieURL string
+	BaseURL   string
+	MovieURL  string
+	SampleURL string
 }
 
 func NewHeyzo() Provider {
 	return &Heyzo{
-		BaseURL:  "https://www.heyzo.com/",
-		MovieURL: "https://www.heyzo.com/moviepages/%04s/index.html",
+		BaseURL:   "https://www.heyzo.com/",
+		MovieURL:  "https://www.heyzo.com/moviepages/%04s/index.html",
+		SampleURL: "https://www.heyzo.com/contents/%s/%s/%s",
 	}
 }
 
@@ -127,13 +132,10 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 
 	// Video+Duration
 	c.OnXML(`//script[@type="text/javascript"]`, func(e *colly.XMLElement) {
-		if info.PreviewVideoURL != "" && info.Duration != 0 {
-			return
-		}
 		// Sample Video
 		if strings.Contains(e.Text, "emvideo") {
 			if sub := regexp.MustCompile(`emvideo = "(.+?)";`).FindStringSubmatch(e.Text); len(sub) == 2 {
-				info.PreviewVideoURL = e.Request.AbsoluteURL(strings.ReplaceAll(sub[1], "_low", ""))
+				info.PreviewVideoURL = e.Request.AbsoluteURL(sub[1])
 			}
 		}
 		// Duration
@@ -146,6 +148,46 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 					info.Duration = util.ParseDuration(data.Full)
 				}
 			}
+		}
+	})
+
+	// Preview Video
+	c.OnXML(`//*[@id="playerContainer"]/script`, func(e *colly.XMLElement) {
+		if !strings.Contains(e.Text, "movieId") {
+			return
+		}
+		var movieID, siteID string
+		if sub := regexp.MustCompile(`movieId\s*=\s*'(\d+?)';`).FindStringSubmatch(e.Text); len(sub) == 2 {
+			movieID = sub[1]
+		}
+		if sub := regexp.MustCompile(`siteID\s*=\s*'(\d+?)';`).FindStringSubmatch(e.Text); len(sub) == 2 {
+			siteID = sub[1]
+		}
+		if movieID == "" || siteID == "" {
+			return
+		}
+		if sub := regexp.MustCompile(`stream\s*=\s*'(.+?)'\+siteID\+'(.+?)'\+movieId\+'(.+?)';`).
+			FindStringSubmatch(e.Text); len(sub) == 4 {
+			d := c.Clone()
+			d.OnResponse(func(r *colly.Response) {
+				playList, ListType, err := m3u8.Decode(*bytes.NewBuffer(r.Body), true)
+				if err == nil && ListType == m3u8.MASTER {
+					masterPL := playList.(*m3u8.MasterPlaylist)
+					if len(masterPL.Variants) < 1 {
+						return
+					}
+					sort.SliceStable(masterPL.Variants, func(i, j int) bool {
+						return masterPL.Variants[i].Bandwidth < masterPL.Variants[j].Bandwidth
+					})
+					uri := masterPL.Variants[len(masterPL.Variants)-1].URI
+					if ss := regexp.MustCompile(`/sample/(\d+)/(\d+)/ts\.(.+?)\.m3u8`).
+						FindStringSubmatch(uri); len(ss) == 4 {
+						info.PreviewVideoURL = fmt.Sprintf(hzo.SampleURL, ss[1], ss[2], ss[3])
+					}
+				}
+			})
+			m3u8Link := e.Request.AbsoluteURL(fmt.Sprintf("%s%s%s%s%s", sub[1], siteID, sub[2], movieID, sub[3]))
+			d.Visit(m3u8Link)
 		}
 	})
 

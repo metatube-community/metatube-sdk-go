@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/gocolly/colly/v2 v2.1.1-0.20220424184721-cf681331964a
+	github.com/grafov/m3u8 v0.11.1
 	github.com/stretchr/testify v1.7.1
 )
 
