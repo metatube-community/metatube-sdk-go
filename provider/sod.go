@@ -35,6 +35,7 @@ func (sod *SOD) Name() string {
 }
 
 func (sod *SOD) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	id = strings.ToUpper(id) // SOD requires uppercase ID
 	return sod.GetMovieInfoByLink(fmt.Sprintf(sod.MovieURL, url.QueryEscape(id)))
 }
 
@@ -134,6 +135,8 @@ func (sod *SOD) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 }
 
 func (sod *SOD) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
+	keyword = strings.ToUpper(keyword) // SOD prefers uppercase
+
 	c := colly.NewCollector(colly.UserAgent(UA))
 
 	c.OnRequest(func(r *colly.Request) {
