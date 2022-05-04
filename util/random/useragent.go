@@ -1,4 +1,4 @@
-package util
+package random
 
 import (
 	"fmt"
@@ -18,11 +18,11 @@ var uaGensMobile = []func() string{
 	genMobileNexus10UA,
 }
 
-func RandomUserAgent() string {
+func UserAgent() string {
 	return uaGens[rand.Intn(len(uaGens))]()
 }
 
-func RandomMobileUserAgent() string {
+func MobileUserAgent() string {
 	return uaGensMobile[rand.Intn(len(uaGensMobile))]()
 }
 

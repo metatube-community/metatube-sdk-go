@@ -4,12 +4,12 @@ import (
 	"errors"
 
 	"github.com/javtube/javtube-sdk-go/model"
-	"github.com/javtube/javtube-sdk-go/util"
+	"github.com/javtube/javtube-sdk-go/util/random"
 )
 
 var (
 	// UA is the default user agent for each collector.
-	UA = util.RandomUserAgent()
+	UA = random.UserAgent()
 )
 
 var (
