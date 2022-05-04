@@ -1,8 +1,6 @@
 package provider
 
 import (
-	"errors"
-
 	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 )
@@ -10,11 +8,6 @@ import (
 var (
 	// UA is the default user agent for each collector.
 	UA = random.UserAgent()
-)
-
-var (
-	ErrNotImplemented = errors.New("not implemented")
-	ErrNotSupported   = errors.New("not supported")
 )
 
 type Provider interface {
