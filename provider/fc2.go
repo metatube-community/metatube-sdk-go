@@ -108,5 +108,5 @@ func (fc2 *FC2) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 }
 
 func (fc2 *FC2) SearchMovie(keyword string) ([]*model.SearchResult, error) {
-	return nil, ErrSearchNotSupported
+	return nil, ErrNotSupported
 }

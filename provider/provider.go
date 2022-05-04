@@ -8,12 +8,13 @@ import (
 )
 
 var (
-	// UA is the default user agent for each provider.
+	// UA is the default user agent for each collector.
 	UA = util.RandomUserAgent()
 )
 
 var (
-	ErrSearchNotSupported = errors.New("search is not supported")
+	ErrNotImplemented = errors.New("not implemented")
+	ErrNotSupported   = errors.New("not supported")
 )
 
 type Provider interface {

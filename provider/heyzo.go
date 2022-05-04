@@ -206,5 +206,5 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 }
 
 func (hzo *Heyzo) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	return nil, ErrSearchNotSupported
+	return nil, ErrNotSupported
 }

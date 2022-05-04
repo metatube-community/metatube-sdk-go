@@ -155,5 +155,5 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 }
 
 func (opd *OnePondo) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	return nil, ErrSearchNotSupported
+	return nil, ErrNotSupported
 }
