@@ -13,6 +13,7 @@ import (
 
 var _ Provider = (*SOD)(nil)
 
+// SOD needs `Referer` header when request to view images and videos.
 type SOD struct {
 	BaseURL   string
 	MovieURL  string
