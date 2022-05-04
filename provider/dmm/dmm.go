@@ -1,4 +1,4 @@
-package provider
+package dmm
 
 import (
 	"encoding/json"
@@ -15,9 +15,10 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
+	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ Provider = (*DMM)(nil)
+var _ provider.Provider = (*DMM)(nil)
 
 type DMM struct {
 	BaseURL                 string
@@ -30,7 +31,7 @@ type DMM struct {
 	MovieMonoAnimeURL       string
 }
 
-func NewDMM() Provider {
+func NewDMM() provider.Provider {
 	return &DMM{
 		BaseURL:                 "https://www.dmm.co.jp/",
 		SearchURL:               "https://www.dmm.co.jp/digital/-/list/search/=/?searchstr=%s",
@@ -78,7 +79,7 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(colly.UserAgent(UA))
+	c := colly.NewCollector(colly.UserAgent(provider.UA))
 
 	c.SetCookies(dmm.BaseURL, []*http.Cookie{
 		{Name: "age_check_done", Value: "1"},
@@ -258,7 +259,7 @@ func (dmm *DMM) SearchMovie(keyword string) (results []*model.SearchResult, err 
 		keyword = strings.ToLower(keyword) /* DMM prefers lowercase */
 	}
 
-	c := colly.NewCollector(colly.UserAgent(UA))
+	c := colly.NewCollector(colly.UserAgent(provider.UA))
 
 	c.SetCookies(dmm.BaseURL, []*http.Cookie{
 		{Name: "age_check_done", Value: "1"},

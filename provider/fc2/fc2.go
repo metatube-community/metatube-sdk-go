@@ -1,4 +1,4 @@
-package provider
+package fc2
 
 import (
 	"fmt"
@@ -10,9 +10,10 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
+	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ Provider = (*FC2)(nil)
+var _ provider.Provider = (*FC2)(nil)
 
 type FC2 struct {
 	BaseURL   string
@@ -20,7 +21,7 @@ type FC2 struct {
 	SampleURL string
 }
 
-func NewFC2() Provider {
+func NewFC2() provider.Provider {
 	return &FC2{
 		BaseURL:   "https://adult.contents.fc2.com/",
 		MovieURL:  "https://adult.contents.fc2.com/article/%s/",
@@ -51,7 +52,7 @@ func (fc2 *FC2) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(colly.UserAgent(UA))
+	c := colly.NewCollector(colly.UserAgent(provider.UA))
 
 	// Headers
 	c.OnXML(`//div[@class="items_article_headerInfo"]`, func(e *colly.XMLElement) {
@@ -108,5 +109,5 @@ func (fc2 *FC2) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 }
 
 func (fc2 *FC2) SearchMovie(keyword string) ([]*model.SearchResult, error) {
-	return nil, ErrNotSupported
+	return nil, provider.ErrNotSupported
 }

@@ -1,4 +1,4 @@
-package provider
+package heyzo
 
 import (
 	"bytes"
@@ -14,9 +14,10 @@ import (
 	"github.com/grafov/m3u8"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
+	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ Provider = (*Heyzo)(nil)
+var _ provider.Provider = (*Heyzo)(nil)
 
 type Heyzo struct {
 	BaseURL   string
@@ -24,7 +25,7 @@ type Heyzo struct {
 	SampleURL string
 }
 
-func NewHeyzo() Provider {
+func NewHeyzo() provider.Provider {
 	return &Heyzo{
 		BaseURL:   "https://www.heyzo.com/",
 		MovieURL:  "https://www.heyzo.com/moviepages/%04s/index.html",
@@ -57,7 +58,7 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(colly.UserAgent(UA))
+	c := colly.NewCollector(colly.UserAgent(provider.UA))
 
 	// JSON
 	c.OnXML(`//script[@type="application/ld+json"]`, func(e *colly.XMLElement) {
@@ -206,5 +207,5 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 }
 
 func (hzo *Heyzo) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	return nil, ErrNotSupported
+	return nil, provider.ErrNotSupported
 }

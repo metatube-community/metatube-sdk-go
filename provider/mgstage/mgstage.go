@@ -1,4 +1,4 @@
-package provider
+package mgstage
 
 import (
 	"encoding/json"
@@ -12,9 +12,10 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
+	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ Provider = (*MGStage)(nil)
+var _ provider.Provider = (*MGStage)(nil)
 
 type MGStage struct {
 	BaseURL   string
@@ -23,7 +24,7 @@ type MGStage struct {
 	SampleURL string
 }
 
-func NewMGStage() Provider {
+func NewMGStage() provider.Provider {
 	return &MGStage{
 		BaseURL:   "https://www.mgstage.com/",
 		MovieURL:  "https://www.mgstage.com/product/product_detail/%s/",
@@ -54,7 +55,7 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(colly.UserAgent(UA))
+	c := colly.NewCollector(colly.UserAgent(provider.UA))
 
 	c.SetCookies(mgs.BaseURL, []*http.Cookie{
 		{Name: "adc", Value: "1"},
@@ -138,7 +139,7 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 }
 
 func (mgs *MGStage) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	c := colly.NewCollector(colly.UserAgent(UA))
+	c := colly.NewCollector(colly.UserAgent(provider.UA))
 
 	c.SetCookies(mgs.BaseURL, []*http.Cookie{
 		{Name: "adc", Value: "1"},

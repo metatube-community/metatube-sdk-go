@@ -1,4 +1,4 @@
-package provider
+package dmm
 
 import (
 	"testing"

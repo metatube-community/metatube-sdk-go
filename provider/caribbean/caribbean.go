@@ -1,4 +1,4 @@
-package provider
+package caribbean
 
 import (
 	"encoding/json"
@@ -14,9 +14,10 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
+	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ Provider = (*Caribbean)(nil)
+var _ provider.Provider = (*Caribbean)(nil)
 
 type Caribbean struct {
 	BaseURL    string
@@ -24,7 +25,7 @@ type Caribbean struct {
 	MoviePRURL string
 }
 
-func NewCaribbean() Provider {
+func NewCaribbean() provider.Provider {
 	return &Caribbean{
 		BaseURL:    "https://www.caribbeancom.com/",
 		MovieURL:   "https://www.caribbeancom.com/moviepages/%s/index.html",
@@ -67,7 +68,7 @@ func (crb *Caribbean) GetMovieInfoByLink(link string) (info *model.MovieInfo, er
 
 	c := colly.NewCollector(
 		colly.DetectCharset(),
-		colly.UserAgent(UA),
+		colly.UserAgent(provider.UA),
 	)
 
 	// Title
@@ -158,5 +159,5 @@ func (crb *Caribbean) GetMovieInfoByLink(link string) (info *model.MovieInfo, er
 }
 
 func (crb *Caribbean) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	return nil, ErrNotSupported
+	return nil, provider.ErrNotSupported
 }

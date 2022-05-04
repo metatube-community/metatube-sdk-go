@@ -1,4 +1,4 @@
-package provider
+package javbus
 
 import (
 	"fmt"
@@ -11,9 +11,10 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
+	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ Provider = (*JavBus)(nil)
+var _ provider.Provider = (*JavBus)(nil)
 
 type JavBus struct {
 	BaseURL, MovieURL              string
@@ -21,7 +22,7 @@ type JavBus struct {
 	ThumbURL, CoverURL             string
 }
 
-func NewJavBus() Provider {
+func NewJavBus() provider.Provider {
 	return &JavBus{
 		BaseURL:             "https://www.javbus.com/",
 		MovieURL:            "https://www.javbus.com/ja/%s",
@@ -52,7 +53,7 @@ func (bus *JavBus) GetMovieInfoByLink(link string) (info *model.MovieInfo, err e
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(colly.UserAgent(UA))
+	c := colly.NewCollector(colly.UserAgent(provider.UA))
 
 	// Image+Title
 	c.OnXML(`//a[@class="bigImage"]/img`, func(e *colly.XMLElement) {
@@ -109,7 +110,7 @@ func (bus *JavBus) GetMovieInfoByLink(link string) (info *model.MovieInfo, err e
 func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
 	c := colly.NewCollector(
 		colly.Async(true),
-		colly.UserAgent(UA),
+		colly.UserAgent(provider.UA),
 	)
 
 	var mu sync.Mutex

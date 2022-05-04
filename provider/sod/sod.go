@@ -1,4 +1,4 @@
-package provider
+package sod
 
 import (
 	"fmt"
@@ -9,9 +9,10 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
+	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ Provider = (*SOD)(nil)
+var _ provider.Provider = (*SOD)(nil)
 
 // SOD needs `Referer` header when request to view images and videos.
 type SOD struct {
@@ -21,7 +22,7 @@ type SOD struct {
 	OnTimeURL string
 }
 
-func NewSOD() Provider {
+func NewSOD() provider.Provider {
 	return &SOD{
 		BaseURL:   "https://ec.sod.co.jp/",
 		MovieURL:  "https://ec.sod.co.jp/prime/videos/?id=%s",
@@ -58,7 +59,7 @@ func (sod *SOD) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		info.Number = info.ID
 	}
 
-	c := colly.NewCollector(colly.UserAgent(UA))
+	c := colly.NewCollector(colly.UserAgent(provider.UA))
 
 	c.OnRequest(func(r *colly.Request) {
 		r.Headers.Set("Referer", fmt.Sprintf(sod.MovieURL, url.QueryEscape(info.ID)))
@@ -137,7 +138,7 @@ func (sod *SOD) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 func (sod *SOD) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
 	keyword = strings.ToUpper(keyword) // SOD prefers uppercase
 
-	c := colly.NewCollector(colly.UserAgent(UA))
+	c := colly.NewCollector(colly.UserAgent(provider.UA))
 
 	c.OnRequest(func(r *colly.Request) {
 		r.Headers.Set("Referer", fmt.Sprintf(sod.SearchURL, url.QueryEscape(keyword)))

@@ -1,4 +1,4 @@
-package provider
+package onepondo
 
 import (
 	"encoding/json"
@@ -12,9 +12,10 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
+	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ Provider = (*OnePondo)(nil)
+var _ provider.Provider = (*OnePondo)(nil)
 
 type OnePondo struct {
 	BaseURL               string
@@ -24,7 +25,7 @@ type OnePondo struct {
 	MovieLegacyGalleryURL string
 }
 
-func NewOnePondo() Provider {
+func NewOnePondo() provider.Provider {
 	return &OnePondo{
 		BaseURL:  "https://www.1pondo.tv/",
 		MovieURL: "https://www.1pondo.tv/movies/%s/",
@@ -65,7 +66,7 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 	}
 
 	c := colly.NewCollector(
-		colly.UserAgent(UA),
+		colly.UserAgent(provider.UA),
 		colly.Headers(map[string]string{
 			"Content-Type": "application/json",
 		}))
@@ -204,5 +205,5 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 }
 
 func (opd *OnePondo) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	return nil, ErrNotSupported
+	return nil, provider.ErrNotSupported
 }
