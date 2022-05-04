@@ -50,8 +50,11 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 	}
 	id := path.Base(homepage.Path)
 
-	movieDetailURL := fmt.Sprintf(opd.MovieDetailURL, id)
-	movieGalleryURL := fmt.Sprintf(opd.MovieGalleryURL, id)
+	var (
+		movieDetailURL        = fmt.Sprintf(opd.MovieDetailURL, id)
+		movieGalleryURL       = fmt.Sprintf(opd.MovieGalleryURL, id)
+		movieLegacyGalleryURL = fmt.Sprintf(opd.MovieLegacyGalleryURL, id)
+	)
 
 	info = &model.MovieInfo{
 		Homepage:      homepage.String(),
@@ -78,6 +81,7 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 			Desc        string
 			Duration    int
 			Gallery     bool
+			HasGallery  bool
 			MovieID     string
 			Release     string
 			Series      string
@@ -125,11 +129,16 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 					break
 				}
 			}
+			// Gallery Code:
+			// Ref: https://www.1pondo.tv/js/movieDetail.0155a1b9.js:formatted#1452
+			//
+			// return Object.prototype.hasOwnProperty.call(this.movieDetail, "Gallery") && this.movieDetail.Gallery ?
+			// this.hasGallery = !0 : this.movieDetail.HasGallery && (this.hasGallery = !0, this.legacyGallery = !0),
+			// e.getMovieGallery(this.movieDetail.MovieID, this.legacyGallery);
 			// Preview Images
 			if data.Gallery {
 				d := c.Clone()
 				d.OnResponse(func(r *colly.Response) {
-					fmt.Println(r.Request.Headers)
 					galleries := struct {
 						Rows []struct {
 							Img       string
@@ -137,6 +146,18 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 						}
 					}{}
 					if json.Unmarshal(r.Body, &galleries) == nil {
+						//for (var c = 0; c < this.gallery.Rows.length; c += 1) {
+						//   this.$set(this.gallery.Rows[c], "idx", c);
+						//   var u = !1;
+						//   (!t || t && i) && (u = !0);
+						//   var d = u || !this.gallery.Rows[c].Protected;
+						//   this.$set(this.gallery.Rows[c], "canViewFull", d);
+						//   var v = "/dyn/dla/images/".concat(this.gallery.Rows[c].Img)
+						//	 , f = "".concat(a, "/dyn/dla/images/").concat(this.gallery.Rows[c].Img);
+						//   this.$set(this.gallery.Rows[c], "PreviewURL", v.replace("member", "sample").replace(/\.jpg/, "__@120.jpg")),
+						//   this.$set(this.gallery.Rows[c], "FullsizeURL", f),
+						//   this.gallery.Rows[c].Protected && d && i && this.$set(this.gallery.Rows[c], "FullsizeURL", f += "?m=".concat(i))
+						//}
 						for _, row := range galleries.Rows {
 							if !row.Protected {
 								info.PreviewImages = append(info.PreviewImages,
@@ -146,6 +167,34 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 					}
 				})
 				d.Visit(movieGalleryURL)
+			} else if data.HasGallery /* Legacy Gallery */ {
+				d := c.Clone()
+				d.OnResponse(func(r *colly.Response) {
+					galleries := struct {
+						Rows []struct {
+							MovieID   string
+							Filename  string
+							Protected bool
+						}
+					}{}
+					if json.Unmarshal(r.Body, &galleries) == nil {
+						//movieGallery: {
+						//   sampleURLs: {
+						//	   preview: "/assets/sample/{MOVIE_ID}/thum_106/{FILENAME}.jpg",
+						//	   fullsize: "/assets/sample/{MOVIE_ID}/popu/{FILENAME}.jpg",
+						//	   movieIdKey: "MovieID"
+						//   }
+						//}
+						for _, row := range galleries.Rows {
+							if !row.Protected {
+								info.PreviewImages = append(info.PreviewImages,
+									r.Request.AbsoluteURL(fmt.Sprintf("/assets/sample/%s/popu/%s",
+										row.MovieID, row.Filename)))
+							}
+						}
+					}
+				})
+				d.Visit(movieLegacyGalleryURL)
 			}
 		}
 	})
