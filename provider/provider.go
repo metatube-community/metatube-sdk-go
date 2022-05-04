@@ -3,8 +3,8 @@ package provider
 import (
 	"errors"
 
+	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
-	"github.com/javtube/javtube-sdk-go/util/random"
 )
 
 var (

@@ -12,8 +12,8 @@ import (
 	"unicode/utf8"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
-	"github.com/javtube/javtube-sdk-go/util/parser"
 )
 
 var _ Provider = (*Caribbean)(nil)
