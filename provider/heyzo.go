@@ -13,7 +13,7 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/grafov/m3u8"
 	"github.com/javtube/javtube-sdk-go/model"
-	"github.com/javtube/javtube-sdk-go/util"
+	"github.com/javtube/javtube-sdk-go/util/parser"
 )
 
 var _ Provider = (*Heyzo)(nil)
@@ -83,9 +83,9 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 			info.CoverURL = e.Request.AbsoluteURL(data.Image)
 			info.ThumbURL = info.CoverURL /* use cover as thumb */
 			info.Publisher = data.Video.Provider
-			info.ReleaseDate = util.ParseDate(data.ReleasedEvent.StartDate)
-			info.Duration = util.ParseDuration(data.Video.Duration)
-			info.Score = util.ParseScore(data.AggregateRating.RatingValue)
+			info.ReleaseDate = parser.ParseDate(data.ReleasedEvent.StartDate)
+			info.Duration = parser.ParseDuration(data.Video.Duration)
+			info.Score = parser.ParseScore(data.AggregateRating.RatingValue)
 			if data.Video.Actor != "" {
 				info.Actors = []string{data.Video.Actor}
 			}
@@ -118,13 +118,13 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 	c.OnXML(`//table[@class="movieInfo"]/tbody/tr`, func(e *colly.XMLElement) {
 		switch e.ChildText(`.//td[1]`) {
 		case "公開日":
-			info.ReleaseDate = util.ParseDate(e.ChildText(`.//td[2]`))
+			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td[2]`))
 		case "出演":
 			info.Actors = e.ChildTexts(`.//td[2]/a/span`)
 		case "シリーズ":
 			info.Series = strings.Trim(e.ChildText(`.//td[2]`), "-")
 		case "評価":
-			info.Score = util.ParseScore(e.ChildText(`.//span[@itemprop="ratingValue"]`))
+			info.Score = parser.ParseScore(e.ChildText(`.//span[@itemprop="ratingValue"]`))
 		}
 	})
 
@@ -148,7 +148,7 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 					Full string `json:"full"`
 				}{}
 				if json.Unmarshal([]byte(sub[1]), &data) == nil {
-					info.Duration = util.ParseDuration(data.Full)
+					info.Duration = parser.ParseDuration(data.Full)
 				}
 			}
 		}

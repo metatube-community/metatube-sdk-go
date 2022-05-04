@@ -11,7 +11,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/model"
-	"github.com/javtube/javtube-sdk-go/util"
+	"github.com/javtube/javtube-sdk-go/util/parser"
 )
 
 var _ Provider = (*MGStage)(nil)
@@ -115,12 +115,12 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 		case "メーカー：":
 			info.Maker = e.ChildText(`.//td`)
 		case "収録時間：":
-			info.Duration = util.ParseDuration(e.ChildText(`.//td`))
+			info.Duration = parser.ParseDuration(e.ChildText(`.//td`))
 		case "品番：":
 			info.Number = e.ChildText(`.//td`)
 		case "配信開始日：", "商品発売日：":
 			if info.ReleaseDate.IsZero() {
-				info.ReleaseDate = util.ParseDate(e.ChildText(`.//td`))
+				info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td`))
 			}
 		case "シリーズ：":
 			info.Series = e.ChildText(`.//td`)
@@ -129,7 +129,7 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 		case "ジャンル：":
 			info.Tags = e.ChildTexts(`.//td/a`)
 		case "評価：":
-			info.Score = util.ParseScore(e.ChildText(`.//td`))
+			info.Score = parser.ParseScore(e.ChildText(`.//td`))
 		}
 	})
 
@@ -153,7 +153,7 @@ func (mgs *MGStage) SearchMovie(keyword string) (results []*model.SearchResult, 
 			Title:    strings.TrimSpace(e.ChildText(`.//a/p`)),
 			ThumbURL: e.Request.AbsoluteURL(mgs.imageSrc(e.ChildAttr(`.//h5/a/img`, "src"), true)),
 			CoverURL: e.Request.AbsoluteURL(mgs.imageSrc(e.ChildAttr(`.//h5/a/img`, "src"), false)),
-			Score:    util.ParseScore(e.ChildText(`.//p[@class="review"]`)),
+			Score:    parser.ParseScore(e.ChildText(`.//p[@class="review"]`)),
 		})
 	})
 

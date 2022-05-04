@@ -8,7 +8,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/model"
-	"github.com/javtube/javtube-sdk-go/util"
+	"github.com/javtube/javtube-sdk-go/util/parser"
 )
 
 var _ Provider = (*SOD)(nil)
@@ -72,7 +72,7 @@ func (sod *SOD) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		case "発売年月日":
 			if ss := regexp.MustCompile(`([\s\d]+)年([\s\d]+)月([\s\d]+)日`).
 				FindStringSubmatch(e.ChildText(`.//td[2]`)); len(ss) == 4 {
-				info.ReleaseDate = util.ParseDate(fmt.Sprintf("%s-%s-%s",
+				info.ReleaseDate = parser.ParseDate(fmt.Sprintf("%s-%s-%s",
 					strings.TrimSpace(ss[1]), strings.TrimSpace(ss[2]), strings.TrimSpace(ss[3])))
 			}
 		case "シリーズ名":
@@ -80,7 +80,7 @@ func (sod *SOD) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		case "出演者":
 			info.Actors = e.ChildTexts(`.//td[2]/a`)
 		case "再生時間":
-			info.Duration = util.ParseDuration(e.ChildText(`.//td[2]`))
+			info.Duration = parser.ParseDuration(e.ChildText(`.//td[2]`))
 		case "監督":
 			info.Director = strings.TrimSpace(e.ChildText(`.//td[2]`))
 		case "メーカー":
@@ -127,7 +127,7 @@ func (sod *SOD) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 
 	// Score
 	c.OnXML(`//*[@id="review_body"]//div[@class="imagestar"]/i`, func(e *colly.XMLElement) {
-		info.Score = util.ParseScore(e.Text)
+		info.Score = parser.ParseScore(e.Text)
 	})
 
 	err = c.Visit(sod.OnTimeURL)
@@ -164,7 +164,7 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.SearchResult, err 
 		// ReleaseDate
 		if ss := regexp.MustCompile(`発売日([\s\d]+)年([\s\d]+)月([\s\d]+)日`).
 			FindStringSubmatch(e.ChildText(`.//div[@class="videis_s_star"]/p`)); len(ss) == 4 {
-			searchResult.ReleaseDate = util.ParseDate(
+			searchResult.ReleaseDate = parser.ParseDate(
 				fmt.Sprintf("%s-%s-%s",
 					strings.TrimSpace(ss[1]),
 					strings.TrimSpace(ss[2]),

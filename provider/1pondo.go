@@ -11,7 +11,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/model"
-	"github.com/javtube/javtube-sdk-go/util"
+	"github.com/javtube/javtube-sdk-go/util/parser"
 )
 
 var _ Provider = (*OnePondo)(nil)
@@ -102,7 +102,7 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 			info.Title = data.Title
 			info.Summary = data.Desc
 			info.Series = data.Series
-			info.ReleaseDate = util.ParseDate(data.Release)
+			info.ReleaseDate = parser.ParseDate(data.Release)
 			info.Duration = time.Duration(data.Duration) * time.Second
 			if data.AvgRating <= 5 {
 				info.Score = data.AvgRating

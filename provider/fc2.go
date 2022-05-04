@@ -9,7 +9,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/model"
-	"github.com/javtube/javtube-sdk-go/util"
+	"github.com/javtube/javtube-sdk-go/util/parser"
 )
 
 var _ Provider = (*FC2)(nil)
@@ -60,11 +60,11 @@ func (fc2 *FC2) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		info.Maker = e.ChildText(`.//ul/li[last()]/a`)
 		{ /* score */
 			class := e.ChildAttr(`.//li[@class="items_article_StarA"]/a/p/span`, "class")
-			info.Score = util.ParseScore(regexp.MustCompile(`(\d+)$`).FindString(class))
+			info.Score = parser.ParseScore(regexp.MustCompile(`(\d+)$`).FindString(class))
 		}
 		{ /* release date */
 			ss := strings.Split(e.ChildText(`.//div[@class="items_article_Releasedate"]/p`), ":")
-			info.ReleaseDate = util.ParseDate(ss[len(ss)-1])
+			info.ReleaseDate = parser.ParseDate(ss[len(ss)-1])
 		}
 	})
 

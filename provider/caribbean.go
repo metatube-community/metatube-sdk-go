@@ -13,7 +13,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/model"
-	"github.com/javtube/javtube-sdk-go/util"
+	"github.com/javtube/javtube-sdk-go/util/parser"
 )
 
 var _ Provider = (*Caribbean)(nil)
@@ -98,9 +98,9 @@ func (crb *Caribbean) GetMovieInfoByLink(link string) (info *model.MovieInfo, er
 				info.Actors = append(info.Actors, strings.TrimSpace(actor))
 			}
 		case "配信日", "販売日":
-			info.ReleaseDate = util.ParseDate(e.ChildText(`.//span[2]`))
+			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//span[2]`))
 		case "再生時間":
-			info.Duration = util.ParseDuration(e.ChildText(`.//span[2]`))
+			info.Duration = parser.ParseDuration(e.ChildText(`.//span[2]`))
 		case "シリーズ":
 			info.Series = e.ChildText(`.//span[2]/a[1]`)
 		case "スタジオ":

@@ -10,7 +10,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/model"
-	"github.com/javtube/javtube-sdk-go/util"
+	"github.com/javtube/javtube-sdk-go/util/parser"
 )
 
 var _ Provider = (*JavBus)(nil)
@@ -70,10 +70,10 @@ func (bus *JavBus) GetMovieInfoByLink(link string) (info *model.MovieInfo, err e
 			info.Number = e.ChildText(`.//span[2]`)
 		case "発売日:":
 			fields := strings.Fields(e.Text)
-			info.ReleaseDate = util.ParseDate(fields[len(fields)-1])
+			info.ReleaseDate = parser.ParseDate(fields[len(fields)-1])
 		case "収録時間:":
 			fields := strings.Fields(e.Text)
-			info.Duration = util.ParseDuration(fields[len(fields)-1])
+			info.Duration = parser.ParseDuration(fields[len(fields)-1])
 		case "監督:":
 			info.Director = e.ChildText(`.//a`)
 		case "メーカー:":
@@ -130,7 +130,7 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, e
 			Homepage:    e.Request.AbsoluteURL(e.Attr("href")),
 			ThumbURL:    thumb,
 			CoverURL:    cover,
-			ReleaseDate: util.ParseDate(e.ChildText(`.//div[2]/span/date[2]`)),
+			ReleaseDate: parser.ParseDate(e.ChildText(`.//div[2]/span/date[2]`)),
 		})
 	})
 

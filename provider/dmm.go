@@ -14,7 +14,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/model"
-	"github.com/javtube/javtube-sdk-go/util"
+	"github.com/javtube/javtube-sdk-go/util/parser"
 )
 
 var _ Provider = (*DMM)(nil)
@@ -123,11 +123,11 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		case "平均評価：":
 			info.Score = dmm.parseScoreFromURL(e.ChildAttr(`.//td[2]/img`, "src"))
 		case "収録時間：":
-			info.Duration = util.ParseDuration(e.ChildText(`.//td[2]`))
+			info.Duration = parser.ParseDuration(e.ChildText(`.//td[2]`))
 		case "監督：":
 			info.Director = strings.Trim(e.ChildText(`.//td[2]`), "-")
 		case "配信開始日：", "商品発売日：", "発売日：":
-			info.ReleaseDate = util.ParseDate(e.ChildText(`.//td[2]`))
+			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td[2]`))
 		}
 	})
 
@@ -169,7 +169,7 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 				info.Tags = data.SubjectOf.Genre
 			}
 			if data.AggregateRating.RatingValue != "" {
-				info.Score = util.ParseScore(data.AggregateRating.RatingValue)
+				info.Score = parser.ParseScore(data.AggregateRating.RatingValue)
 			}
 			if data.SubjectOf.ContentUrl != "" {
 				info.PreviewVideoURL = data.SubjectOf.ContentUrl
@@ -286,7 +286,7 @@ func (dmm *DMM) SearchMovie(keyword string) (results []*model.SearchResult, err 
 			Homepage: e.Request.AbsoluteURL(e.ChildAttr(`.//p[@class="tmb"]/a`, "href")),
 			ThumbURL: e.Request.AbsoluteURL(thumb),
 			CoverURL: e.Request.AbsoluteURL(dmm.PreviewSrc(thumb)),
-			Score:    util.ParseScore(e.ChildText(`.//p[@class="rate"]/span/span`)),
+			Score:    parser.ParseScore(e.ChildText(`.//p[@class="rate"]/span/span`)),
 		})
 	})
 
