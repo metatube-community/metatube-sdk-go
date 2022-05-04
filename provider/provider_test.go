@@ -14,11 +14,12 @@ func TestProvider_GetMovieInfoByID(t *testing.T) {
 	}{
 		//{NewJavBus, "ABP-331"},
 		//{NewMGStage, "300MIUM-731"},
-		//{NewDMM, "vrkm00559"},
+		//{NewDMM, "sqte00412"},
 		//{NewFC2, "2857419"},
-		{NewHeyzo, "1603"},
-		//{NewOnePondo, "011021_001"},
-		//{NewCaribbean, "092112_400"},
+		//{NewHeyzo, "0841"},
+		//{NewOnePondo, "042922_001"},
+		//{NewCaribbean, "120614-753"},
+		{NewSOD, "dldss-077"},
 	} {
 		provider := unit.builder()
 		info, err := provider.GetMovieInfoByID(unit.movieID)
@@ -34,8 +35,9 @@ func TestProvider_SearchMovie(t *testing.T) {
 		keyword string
 	}{
 		//{NewJavBus, "abp"},
-		{NewMGStage, "JAC"},
-		//{NewDMM, "ssis 13"},
+		//{NewMGStage, "ABW 112"},
+		//{NewDMM, "SSIS-002"},
+		{NewSOD, "STARS"},
 	} {
 		provider := unit.builder()
 		results, err := provider.SearchMovie(unit.keyword)
