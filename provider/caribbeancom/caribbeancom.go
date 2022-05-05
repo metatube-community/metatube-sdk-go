@@ -33,6 +33,7 @@ func NewCaribbeancom() *Caribbeancom {
 	return &Caribbeancom{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
+			colly.IgnoreRobotsTxt(),
 			colly.DetectCharset(),
 			colly.UserAgent(provider.UA)),
 	}

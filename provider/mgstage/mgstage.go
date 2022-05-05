@@ -31,6 +31,7 @@ type MGStage struct {
 func NewMGStage() provider.Provider {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
+		colly.IgnoreRobotsTxt(),
 		colly.UserAgent(provider.UA))
 	c.SetCookies(baseURL, []*http.Cookie{
 		{Name: "adc", Value: "1"},

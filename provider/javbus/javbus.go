@@ -31,6 +31,7 @@ func NewJavBus() provider.Provider {
 	return &JavBus{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
+			colly.IgnoreRobotsTxt(),
 			colly.UserAgent(provider.UA)),
 	}
 }

@@ -29,6 +29,7 @@ func NewFC2() *FC2 {
 	return &FC2{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
+			colly.IgnoreRobotsTxt(),
 			colly.UserAgent(provider.UA)),
 	}
 }

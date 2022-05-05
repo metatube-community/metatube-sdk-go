@@ -33,6 +33,7 @@ func NewHeyzo() *Heyzo {
 	return &Heyzo{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
+			colly.IgnoreRobotsTxt(),
 			colly.UserAgent(provider.UA)),
 	}
 }

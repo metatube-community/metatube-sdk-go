@@ -38,6 +38,7 @@ type FANZA struct {
 func NewFANZA() *FANZA {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
+		colly.IgnoreRobotsTxt(),
 		colly.UserAgent(provider.UA))
 	c.SetCookies(baseURL, []*http.Cookie{
 		{Name: "age_check_done", Value: "1"},

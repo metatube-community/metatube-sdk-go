@@ -33,6 +33,7 @@ type OnePondo struct {
 func NewOnePondo() *OnePondo {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
+		colly.IgnoreRobotsTxt(),
 		colly.UserAgent(provider.UA),
 		colly.Headers(map[string]string{
 			"Content-Type": "application/json",
