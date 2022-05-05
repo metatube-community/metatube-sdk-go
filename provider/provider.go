@@ -1,13 +1,7 @@
 package provider
 
 import (
-	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
-)
-
-var (
-	// UA is the default user agent for each collector.
-	UA = random.UserAgent()
 )
 
 type Provider interface {
