@@ -17,20 +17,23 @@ import (
 
 var _ provider.Provider = (*MGStage)(nil)
 
+const (
+	baseURL   = "https://www.mgstage.com/"
+	movieURL  = "https://www.mgstage.com/product/product_detail/%s/"
+	searchURL = "https://www.mgstage.com/search/cSearch.php?search_word=%s"
+	sampleURL = "https://www.mgstage.com/sampleplayer/sampleRespons.php?pid=%s"
+)
+
 type MGStage struct {
-	BaseURL   string
-	MovieURL  string
-	SearchURL string
-	SampleURL string
+	c *colly.Collector
 }
 
 func NewMGStage() provider.Provider {
-	return &MGStage{
-		BaseURL:   "https://www.mgstage.com/",
-		MovieURL:  "https://www.mgstage.com/product/product_detail/%s/",
-		SearchURL: "https://www.mgstage.com/search/cSearch.php?search_word=%s",
-		SampleURL: "https://www.mgstage.com/sampleplayer/sampleRespons.php?pid=%s",
-	}
+	c := colly.NewCollector(colly.UserAgent(provider.UA))
+	c.SetCookies(baseURL, []*http.Cookie{
+		{Name: "adc", Value: "1"},
+	})
+	return &MGStage{c: c}
 }
 
 func (mgs *MGStage) Name() string {
@@ -38,7 +41,7 @@ func (mgs *MGStage) Name() string {
 }
 
 func (mgs *MGStage) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return mgs.GetMovieInfoByLink(fmt.Sprintf(mgs.MovieURL, strings.ToUpper(id)))
+	return mgs.GetMovieInfoByLink(fmt.Sprintf(movieURL, strings.ToUpper(id)))
 }
 
 func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
@@ -55,11 +58,7 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(colly.UserAgent(provider.UA))
-
-	c.SetCookies(mgs.BaseURL, []*http.Cookie{
-		{Name: "adc", Value: "1"},
-	})
+	c := mgs.c.Clone()
 
 	// Title
 	c.OnXML(`//*[@id="center_column"]/div[1]/h1`, func(e *colly.XMLElement) {
@@ -73,7 +72,7 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 
 	// Thumb
 	c.OnXML(`//div[@class="detail_data"]/div/h2/img`, func(e *colly.XMLElement) {
-		info.ThumbURL = e.Request.AbsoluteURL(mgs.imageSrc(e.Attr("src"), true))
+		info.ThumbURL = e.Request.AbsoluteURL(imageSrc(e.Attr("src"), true))
 	})
 
 	// Cover
@@ -94,7 +93,7 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 			}
 		})
 		pid := path.Base(e.ChildAttr(`.//a`, "href"))
-		d.Visit(fmt.Sprintf(mgs.SampleURL, pid))
+		d.Visit(fmt.Sprintf(sampleURL, pid))
 	})
 
 	// Preview Images
@@ -139,11 +138,7 @@ func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err 
 }
 
 func (mgs *MGStage) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	c := colly.NewCollector(colly.UserAgent(provider.UA))
-
-	c.SetCookies(mgs.BaseURL, []*http.Cookie{
-		{Name: "adc", Value: "1"},
-	})
+	c := mgs.c.Clone()
 
 	c.OnXML(`//*[@id="center_column"]/div[2]/div/ul/li`, func(e *colly.XMLElement) {
 		href := e.ChildAttr(`.//h5/a`, "href")
@@ -152,17 +147,17 @@ func (mgs *MGStage) SearchMovie(keyword string) (results []*model.SearchResult, 
 			Number:   path.Base(href), /* same as ID */
 			Homepage: e.Request.AbsoluteURL(href),
 			Title:    strings.TrimSpace(e.ChildText(`.//a/p`)),
-			ThumbURL: e.Request.AbsoluteURL(mgs.imageSrc(e.ChildAttr(`.//h5/a/img`, "src"), true)),
-			CoverURL: e.Request.AbsoluteURL(mgs.imageSrc(e.ChildAttr(`.//h5/a/img`, "src"), false)),
+			ThumbURL: e.Request.AbsoluteURL(imageSrc(e.ChildAttr(`.//h5/a/img`, "src"), true)),
+			CoverURL: e.Request.AbsoluteURL(imageSrc(e.ChildAttr(`.//h5/a/img`, "src"), false)),
 			Score:    parser.ParseScore(e.ChildText(`.//p[@class="review"]`)),
 		})
 	})
 
-	err = c.Visit(fmt.Sprintf(mgs.SearchURL, url.QueryEscape(keyword)))
+	err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword)))
 	return
 }
 
-func (mgs *MGStage) imageSrc(s string, thumb bool) string {
+func imageSrc(s string, thumb bool) string {
 	if re := regexp.MustCompile(`(?i)/p[f|b]_[a-z]\d+?_`); re.MatchString(s) {
 		if thumb {
 			return re.ReplaceAllString(s, "/pf_e_")
