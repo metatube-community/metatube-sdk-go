@@ -24,7 +24,7 @@ func TestProvider_GetMovieInfoByID(t *testing.T) {
 		provider := unit.builder()
 		info, err := provider.GetMovieInfoByID(unit.movieID)
 		data, _ := json.MarshalIndent(info, "", "\t")
-		assert.True(t, assert.Nil(t, err) && assert.True(t, info.Valid()))
+		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
 		t.Logf("%s", data)
 	}
 }
@@ -42,7 +42,7 @@ func TestProvider_SearchMovie(t *testing.T) {
 		provider := unit.builder()
 		results, err := provider.SearchMovie(unit.keyword)
 		data, _ := json.MarshalIndent(results, "", "\t")
-		if assert.Nil(t, err) {
+		if assert.NoError(t, err) {
 			for _, result := range results {
 				assert.True(t, result.Valid())
 			}

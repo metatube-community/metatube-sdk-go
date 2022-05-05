@@ -15,7 +15,7 @@ func TestJavBus_GetMovieInfoByID(t *testing.T) {
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
-		assert.True(t, assert.Nil(t, err) && assert.True(t, info.Valid()))
+		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
 		t.Logf("%s", data)
 	}
 }
@@ -28,7 +28,7 @@ func TestJavBus_SearchMovie(t *testing.T) {
 	} {
 		results, err := provider.SearchMovie(item)
 		data, _ := json.MarshalIndent(results, "", "\t")
-		if assert.Nil(t, err) {
+		if assert.NoError(t, err) {
 			for _, result := range results {
 				assert.True(t, result.Valid())
 			}

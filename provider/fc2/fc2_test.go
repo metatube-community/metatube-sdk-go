@@ -16,7 +16,7 @@ func TestFC2_GetMovieInfoByID(t *testing.T) {
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
-		assert.True(t, assert.Nil(t, err) && assert.True(t, info.Valid()))
+		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
 		t.Logf("%s", data)
 	}
 }
