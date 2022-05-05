@@ -31,7 +31,9 @@ type Heyzo struct {
 
 func NewHeyzo() *Heyzo {
 	return &Heyzo{
-		c: colly.NewCollector(colly.UserAgent(provider.UA)),
+		c: colly.NewCollector(
+			colly.AllowURLRevisit(),
+			colly.UserAgent(provider.UA)),
 	}
 }
 

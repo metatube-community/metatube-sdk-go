@@ -32,6 +32,7 @@ type Caribbeancom struct {
 func NewCaribbeancom() *Caribbeancom {
 	return &Caribbeancom{
 		c: colly.NewCollector(
+			colly.AllowURLRevisit(),
 			colly.DetectCharset(),
 			colly.UserAgent(provider.UA)),
 	}

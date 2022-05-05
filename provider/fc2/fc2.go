@@ -27,7 +27,9 @@ type FC2 struct {
 
 func NewFC2() *FC2 {
 	return &FC2{
-		c: colly.NewCollector(colly.UserAgent(provider.UA)),
+		c: colly.NewCollector(
+			colly.AllowURLRevisit(),
+			colly.UserAgent(provider.UA)),
 	}
 }
 

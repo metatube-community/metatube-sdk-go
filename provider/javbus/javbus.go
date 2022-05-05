@@ -29,7 +29,9 @@ type JavBus struct {
 
 func NewJavBus() provider.Provider {
 	return &JavBus{
-		c: colly.NewCollector(colly.UserAgent(provider.UA)),
+		c: colly.NewCollector(
+			colly.AllowURLRevisit(),
+			colly.UserAgent(provider.UA)),
 	}
 }
 
