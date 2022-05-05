@@ -1,4 +1,4 @@
-package dmm
+package fanza
 
 import (
 	"encoding/json"
@@ -18,58 +18,57 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ provider.Provider = (*DMM)(nil)
+var _ provider.Provider = (*FANZA)(nil)
 
-type DMM struct {
-	BaseURL                 string
-	SearchURL               string
-	MovieDigitalVideoAURL   string
-	MovieDigitalVideoCURL   string
-	MovieDigitalAnimeURL    string
-	MovieDigitalNikkatsuURL string
-	MovieMonoDVDURL         string
-	MovieMonoAnimeURL       string
+const (
+	baseURL                 = "https://www.dmm.co.jp/"
+	searchURL               = "https://www.dmm.co.jp/digital/-/list/search/=/?searchstr=%s"
+	movieDigitalVideoAURL   = "https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=%s/"
+	movieDigitalVideoCURL   = "https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=%s/"
+	movieDigitalAnimeURL    = "https://www.dmm.co.jp/digital/anime/-/detail/=/cid=%s/"
+	movieDigitalNikkatsuURL = "https://www.dmm.co.jp/digital/nikkatsu/-/detail/=/cid=%s/"
+	movieMonoDVDURL         = "https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=%s/"
+	movieMonoAnimeURL       = "https://www.dmm.co.jp/mono/anime/-/detail/=/cid=%s/"
+)
+
+type FANZA struct {
+	c *colly.Collector
 }
 
-func NewDMM() provider.Provider {
-	return &DMM{
-		BaseURL:                 "https://www.dmm.co.jp/",
-		SearchURL:               "https://www.dmm.co.jp/digital/-/list/search/=/?searchstr=%s",
-		MovieDigitalVideoAURL:   "https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=%s/",
-		MovieDigitalVideoCURL:   "https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=%s/",
-		MovieDigitalAnimeURL:    "https://www.dmm.co.jp/digital/anime/-/detail/=/cid=%s/",
-		MovieDigitalNikkatsuURL: "https://www.dmm.co.jp/digital/nikkatsu/-/detail/=/cid=%s/",
-		MovieMonoDVDURL:         "https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=%s/",
-		MovieMonoAnimeURL:       "https://www.dmm.co.jp/mono/anime/-/detail/=/cid=%s/",
-	}
+func NewFANZA() *FANZA {
+	c := colly.NewCollector(colly.UserAgent(provider.UA))
+	c.SetCookies(baseURL, []*http.Cookie{
+		{Name: "age_check_done", Value: "1"},
+	})
+	return &FANZA{c: c}
 }
 
-func (dmm *DMM) Name() string {
-	return "DMM" // DMM also known as FANZA
+func (fz *FANZA) Name() string {
+	return "FANZA" // FANZA also known as DMM
 }
 
-func (dmm *DMM) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	for _, homepage := range []string{
-		fmt.Sprintf(dmm.MovieDigitalVideoAURL, id),
-		fmt.Sprintf(dmm.MovieMonoDVDURL, id),
-		fmt.Sprintf(dmm.MovieDigitalVideoCURL, id),
-		fmt.Sprintf(dmm.MovieDigitalAnimeURL, id),
-		fmt.Sprintf(dmm.MovieMonoAnimeURL, id),
-		fmt.Sprintf(dmm.MovieDigitalNikkatsuURL, id),
+		fmt.Sprintf(movieDigitalVideoAURL, id),
+		fmt.Sprintf(movieMonoDVDURL, id),
+		fmt.Sprintf(movieDigitalVideoCURL, id),
+		fmt.Sprintf(movieDigitalAnimeURL, id),
+		fmt.Sprintf(movieMonoAnimeURL, id),
+		fmt.Sprintf(movieDigitalNikkatsuURL, id),
 	} {
-		if info, err = dmm.GetMovieInfoByLink(homepage); err == nil && info.Valid() {
+		if info, err = fz.GetMovieInfoByLink(homepage); err == nil && info.Valid() {
 			return
 		}
 	}
 	return nil, errors.New(http.StatusText(http.StatusNotFound))
 }
 
-func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
+func (fz *FANZA) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
 	var id string
 	if sub := regexp.MustCompile(`/cid=(.*?)/`).FindStringSubmatch(link); len(sub) == 2 {
 		id = strings.ToLower(sub[1])
 	} else {
-		return nil, fmt.Errorf("invalid DMM link: %s", link)
+		return nil, fmt.Errorf("invalid FANZA link: %s", link)
 	}
 
 	info = &model.MovieInfo{
@@ -79,11 +78,7 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(colly.UserAgent(provider.UA))
-
-	c.SetCookies(dmm.BaseURL, []*http.Cookie{
-		{Name: "age_check_done", Value: "1"},
-	})
+	c := fz.c.Clone()
 
 	// Homepage
 	c.OnRequest(func(r *colly.Request) {
@@ -102,7 +97,7 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 
 	// Cover
 	c.OnXML(fmt.Sprintf(`//*[@id="%s"]`, id), func(e *colly.XMLElement) {
-		info.CoverURL = e.Request.AbsoluteURL(dmm.PreviewSrc(e.Attr("href")))
+		info.CoverURL = e.Request.AbsoluteURL(PreviewSrc(e.Attr("href")))
 	})
 
 	// Fields
@@ -110,7 +105,7 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		switch e.ChildText(`.//td[1]`) {
 		case "品番：":
 			info.ID = e.ChildText(`.//td[2]`)
-			info.Number = dmm.ParseNumber(info.ID)
+			info.Number = ParseNumber(info.ID)
 		case "シリーズ：":
 			info.Series = strings.Trim(e.ChildText(`.//td[2]`), "-")
 		case "メーカー：":
@@ -122,7 +117,7 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		case "名前：":
 			info.Actors = e.ChildTexts(`.//td[2]`)
 		case "平均評価：":
-			info.Score = dmm.parseScoreFromURL(e.ChildAttr(`.//td[2]/img`, "src"))
+			info.Score = fz.parseScoreFromURL(e.ChildAttr(`.//td[2]/img`, "src"))
 		case "収録時間：":
 			info.Duration = parser.ParseDuration(e.ChildText(`.//td[2]`))
 		case "監督：":
@@ -162,7 +157,7 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		}
 		if json.Unmarshal([]byte(e.Text), &data) == nil {
 			info.ID = data.Sku
-			info.Number = dmm.ParseNumber(data.Sku)
+			info.Number = ParseNumber(data.Sku)
 			info.Title = data.Name
 			info.Summary = data.Description
 			info.ThumbURL = e.Request.AbsoluteURL(data.Image)
@@ -238,14 +233,14 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 	// Preview Images
 	c.OnXML(`//*[@id="sample-image-block"]/a`, func(e *colly.XMLElement) {
 		info.PreviewImages = append(info.PreviewImages,
-			e.Request.AbsoluteURL(dmm.PreviewSrc(e.ChildAttr(`.//img`, "src"))))
+			e.Request.AbsoluteURL(PreviewSrc(e.ChildAttr(`.//img`, "src"))))
 	})
 
 	// Final
 	c.OnScraped(func(r *colly.Response) {
 		if info.CoverURL == "" {
 			// use thumb image as cover
-			info.CoverURL = dmm.PreviewSrc(info.ThumbURL)
+			info.CoverURL = PreviewSrc(info.ThumbURL)
 		}
 	})
 
@@ -253,17 +248,13 @@ func (dmm *DMM) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 	return
 }
 
-func (dmm *DMM) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
+func (fz *FANZA) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
 	{ // keyword pre-handling
 		keyword = strings.ReplaceAll(keyword, "-", "00")
-		keyword = strings.ToLower(keyword) /* DMM prefers lowercase */
+		keyword = strings.ToLower(keyword) /* FANZA prefers lowercase */
 	}
 
-	c := colly.NewCollector(colly.UserAgent(provider.UA))
-
-	c.SetCookies(dmm.BaseURL, []*http.Cookie{
-		{Name: "age_check_done", Value: "1"},
-	})
+	c := fz.c.Clone()
 
 	c.OnXML(`//*[@id="list"]/li`, func(e *colly.XMLElement) {
 		pattens := regexp.
@@ -282,29 +273,20 @@ func (dmm *DMM) SearchMovie(keyword string) (results []*model.SearchResult, err 
 
 		results = append(results, &model.SearchResult{
 			ID:       id,
-			Number:   dmm.ParseNumber(id),
+			Number:   ParseNumber(id),
 			Title:    e.ChildAttr(`.//p[@class="tmb"]/a/span[1]/img`, "alt"),
 			Homepage: e.Request.AbsoluteURL(e.ChildAttr(`.//p[@class="tmb"]/a`, "href")),
 			ThumbURL: e.Request.AbsoluteURL(thumb),
-			CoverURL: e.Request.AbsoluteURL(dmm.PreviewSrc(thumb)),
+			CoverURL: e.Request.AbsoluteURL(PreviewSrc(thumb)),
 			Score:    parser.ParseScore(e.ChildText(`.//p[@class="rate"]/span/span`)),
 		})
 	})
 
-	err = c.Visit(fmt.Sprintf(dmm.SearchURL, url.QueryEscape(keyword)))
+	err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword)))
 	return
 }
 
-func (dmm *DMM) ParseNumber(s string) string {
-	s = strings.ToUpper(s)
-	if ss := regexp.MustCompile(`([A-Z]{2,})(\d+)`).FindStringSubmatch(s); len(ss) >= 3 {
-		n, _ := strconv.Atoi(ss[2])
-		return fmt.Sprintf("%s-%03d", ss[1], n)
-	}
-	return ""
-}
-
-func (dmm *DMM) parseScoreFromURL(s string) float64 {
+func (fz *FANZA) parseScoreFromURL(s string) float64 {
 	u, err := url.Parse(s)
 	if err != nil {
 		return 0
@@ -314,6 +296,16 @@ func (dmm *DMM) parseScoreFromURL(s string) float64 {
 	n := gif[:len(gif)-len(ext)]
 	score, _ := strconv.ParseFloat(n, 10)
 	return score
+}
+
+// ParseNumber parses FANZA-formatted id to general ID.
+func ParseNumber(s string) string {
+	s = strings.ToUpper(s)
+	if ss := regexp.MustCompile(`([A-Z]{2,})(\d+)`).FindStringSubmatch(s); len(ss) >= 3 {
+		n, _ := strconv.Atoi(ss[2])
+		return fmt.Sprintf("%s-%03d", ss[1], n)
+	}
+	return ""
 }
 
 // PreviewSrc maximize the preview image.
@@ -336,7 +328,7 @@ func (dmm *DMM) parseScoreFromURL(s string) float64 {
 //		  return src.replace('-','jp-');
 //	  }
 //}
-func (dmm *DMM) PreviewSrc(s string) string {
+func PreviewSrc(s string) string {
 	if re := regexp.MustCompile(`(p[a-z]\.)jpg`); re.MatchString(s) {
 		return re.ReplaceAllString(s, "pl.jpg")
 	} else if re = regexp.MustCompile(`consumer_game`); re.MatchString(s) {

@@ -1,13 +1,43 @@
-package dmm
+package fanza
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDMM_ParseNumber(t *testing.T) {
-	dmm := &DMM{}
+func TestFANZA_GetMovieInfoByID(t *testing.T) {
+	provider := NewFANZA()
+	for _, item := range []string{
+		"ssis00122",
+		"midv00047",
+	} {
+		info, err := provider.GetMovieInfoByID(item)
+		data, _ := json.MarshalIndent(info, "", "\t")
+		assert.True(t, assert.Nil(t, err) && assert.True(t, info.Valid()))
+		t.Logf("%s", data)
+	}
+}
+
+func TestFANZA_SearchMovie(t *testing.T) {
+	provider := NewFANZA()
+	for _, item := range []string{
+		"SSIS-122",
+		"MIDV-047",
+	} {
+		results, err := provider.SearchMovie(item)
+		data, _ := json.MarshalIndent(results, "", "\t")
+		if assert.Nil(t, err) {
+			for _, result := range results {
+				assert.True(t, result.Valid())
+			}
+		}
+		t.Logf("%s", data)
+	}
+}
+
+func TestParseNumber(t *testing.T) {
 	for _, unit := range []struct {
 		id, want string
 	}{
@@ -26,12 +56,11 @@ func TestDMM_ParseNumber(t *testing.T) {
 		{"h_198need00094r18", "NEED-094"},
 		{"1fsdss00131re01", "FSDSS-131"},
 	} {
-		assert.Equal(t, unit.want, dmm.ParseNumber(unit.id))
+		assert.Equal(t, unit.want, ParseNumber(unit.id))
 	}
 }
 
-func TestDMM_PreviewSrc(t *testing.T) {
-	dmm := &DMM{}
+func TestPreviewSrc(t *testing.T) {
 	for _, unit := range []struct {
 		src, want string
 	}{
@@ -59,6 +88,6 @@ func TestDMM_PreviewSrc(t *testing.T) {
 			"https://pics.dmm.co.jp/digital/video/pppd00990/pppd00990jp-23.jpg",
 		},
 	} {
-		assert.Equal(t, unit.want, dmm.PreviewSrc(unit.src))
+		assert.Equal(t, unit.want, PreviewSrc(unit.src))
 	}
 }
