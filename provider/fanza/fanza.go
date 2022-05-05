@@ -51,6 +51,7 @@ func (fz *FANZA) Name() string {
 }
 
 func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	id = strings.ToLower(id)
 	for _, homepage := range []string{
 		fmt.Sprintf(movieDigitalVideoAURL, id),
 		fmt.Sprintf(movieMonoDVDURL, id),
