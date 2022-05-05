@@ -28,7 +28,7 @@ type MGStage struct {
 	c *colly.Collector
 }
 
-func NewMGStage() provider.Provider {
+func NewMGStage() *MGStage {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
 		colly.IgnoreRobotsTxt(),

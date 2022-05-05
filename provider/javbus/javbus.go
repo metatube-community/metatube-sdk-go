@@ -27,7 +27,7 @@ type JavBus struct {
 	c *colly.Collector
 }
 
-func NewJavBus() provider.Provider {
+func NewJavBus() *JavBus {
 	return &JavBus{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),

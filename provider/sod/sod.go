@@ -26,7 +26,7 @@ type SOD struct {
 	c *colly.Collector
 }
 
-func NewSOD() provider.Provider {
+func NewSOD() *SOD {
 	return &SOD{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
