@@ -8,7 +8,7 @@ import (
 )
 
 func TestCaribbean_GetMovieInfoByID(t *testing.T) {
-	provider := NewCaribbean()
+	provider := NewCaribbeancom()
 	for _, item := range []string{
 		"050422-001",
 		"031222-001",

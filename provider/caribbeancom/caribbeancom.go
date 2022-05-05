@@ -17,7 +17,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ provider.Provider = (*Caribbean)(nil)
+var _ provider.Provider = (*Caribbeancom)(nil)
 
 const (
 	baseURL    = "https://www.caribbeancom.com/"
@@ -25,23 +25,23 @@ const (
 	moviePRURL = "https://www.caribbeancompr.com/moviepages/%s/index.html"
 )
 
-type Caribbean struct {
+type Caribbeancom struct {
 	c *colly.Collector
 }
 
-func NewCaribbean() *Caribbean {
-	return &Caribbean{
+func NewCaribbeancom() *Caribbeancom {
+	return &Caribbeancom{
 		c: colly.NewCollector(
 			colly.DetectCharset(),
 			colly.UserAgent(provider.UA)),
 	}
 }
 
-func (crb *Caribbean) Name() string {
+func (crb *Caribbeancom) Name() string {
 	return "Caribbeancom"
 }
 
-func (crb *Caribbean) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+func (crb *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	for _, homepage := range []string{
 		fmt.Sprintf(movieURL, id),
 		// Only for backward matching
@@ -54,7 +54,7 @@ func (crb *Caribbean) GetMovieInfoByID(id string) (info *model.MovieInfo, err er
 	return nil, errors.New(http.StatusText(http.StatusNotFound))
 }
 
-func (crb *Caribbean) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
+func (crb *Caribbeancom) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
 	homepage, err := url.Parse(link)
 	if err != nil {
 		return nil, err
@@ -160,6 +160,6 @@ func (crb *Caribbean) GetMovieInfoByLink(link string) (info *model.MovieInfo, er
 	return
 }
 
-func (crb *Caribbean) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
+func (crb *Caribbeancom) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
 	return nil, provider.ErrNotSupported
 }
