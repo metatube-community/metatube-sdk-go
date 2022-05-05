@@ -19,17 +19,19 @@ import (
 
 var _ provider.Provider = (*Heyzo)(nil)
 
+const (
+	baseURL   = "https://www.heyzo.com/"
+	movieURL  = "https://www.heyzo.com/moviepages/%04s/index.html"
+	sampleURL = "https://www.heyzo.com/contents/%s/%s/%s"
+)
+
 type Heyzo struct {
-	BaseURL   string
-	MovieURL  string
-	SampleURL string
+	c *colly.Collector
 }
 
-func NewHeyzo() provider.Provider {
+func NewHeyzo() *Heyzo {
 	return &Heyzo{
-		BaseURL:   "https://www.heyzo.com/",
-		MovieURL:  "https://www.heyzo.com/moviepages/%04s/index.html",
-		SampleURL: "https://www.heyzo.com/contents/%s/%s/%s",
+		c: colly.NewCollector(colly.UserAgent(provider.UA)),
 	}
 }
 
@@ -38,7 +40,7 @@ func (hzo *Heyzo) Name() string {
 }
 
 func (hzo *Heyzo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return hzo.GetMovieInfoByLink(fmt.Sprintf(hzo.MovieURL, id))
+	return hzo.GetMovieInfoByLink(fmt.Sprintf(movieURL, id))
 }
 
 func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
@@ -58,7 +60,7 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(colly.UserAgent(provider.UA))
+	c := hzo.c.Clone()
 
 	// JSON
 	c.OnXML(`//script[@type="application/ld+json"]`, func(e *colly.XMLElement) {
@@ -186,7 +188,7 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 					uri := masterPL.Variants[len(masterPL.Variants)-1].URI
 					if ss := regexp.MustCompile(`/sample/(\d+)/(\d+)/ts\.(.+?)\.m3u8`).
 						FindStringSubmatch(uri); len(ss) == 4 {
-						info.PreviewVideoURL = fmt.Sprintf(hzo.SampleURL, ss[1], ss[2], ss[3])
+						info.PreviewVideoURL = fmt.Sprintf(sampleURL, ss[1], ss[2], ss[3])
 					}
 				}
 			})
