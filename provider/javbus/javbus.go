@@ -16,18 +16,20 @@ import (
 
 var _ provider.Provider = (*JavBus)(nil)
 
+const (
+	baseURL             = "https://www.javbus.com/"
+	movieURL            = "https://www.javbus.com/ja/%s"
+	searchURL           = "https://www.javbus.com/ja/search/%s"
+	searchUncensoredURL = "https://www.javbus.com/ja/uncensored/search/%s"
+)
+
 type JavBus struct {
-	BaseURL, MovieURL              string
-	SearchURL, SearchUncensoredURL string
-	ThumbURL, CoverURL             string
+	c *colly.Collector
 }
 
 func NewJavBus() provider.Provider {
 	return &JavBus{
-		BaseURL:             "https://www.javbus.com/",
-		MovieURL:            "https://www.javbus.com/ja/%s",
-		SearchURL:           "https://www.javbus.com/ja/search/%s",
-		SearchUncensoredURL: "https://www.javbus.com/ja/uncensored/search/%s",
+		c: colly.NewCollector(colly.UserAgent(provider.UA)),
 	}
 }
 
@@ -36,7 +38,7 @@ func (bus *JavBus) Name() string {
 }
 
 func (bus *JavBus) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return bus.GetMovieInfoByLink(fmt.Sprintf(bus.MovieURL, strings.ToUpper(id)))
+	return bus.GetMovieInfoByLink(fmt.Sprintf(movieURL, strings.ToUpper(id)))
 }
 
 func (bus *JavBus) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
@@ -53,7 +55,7 @@ func (bus *JavBus) GetMovieInfoByLink(link string) (info *model.MovieInfo, err e
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(colly.UserAgent(provider.UA))
+	c := bus.c.Clone()
 
 	// Image+Title
 	c.OnXML(`//a[@class="bigImage"]/img`, func(e *colly.XMLElement) {
@@ -125,7 +127,7 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, e
 		}
 
 		results = append(results, &model.SearchResult{
-			ID:          strings.TrimLeft(e.Attr("href"), bus.BaseURL),
+			ID:          strings.TrimLeft(e.Attr("href"), baseURL),
 			Number:      e.ChildText(`.//div[2]/span/date[1]`),
 			Title:       strings.SplitN(e.ChildText(`.//div[2]/span`), "\n", 2)[0],
 			Homepage:    e.Request.AbsoluteURL(e.Attr("href")),
@@ -136,13 +138,12 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, e
 	})
 
 	for _, u := range []string{
-		fmt.Sprintf(bus.SearchURL, keyword),
-		fmt.Sprintf(bus.SearchUncensoredURL, keyword)} {
+		fmt.Sprintf(searchURL, keyword),
+		fmt.Sprintf(searchUncensoredURL, keyword)} {
 		if err = c.Visit(u); err != nil {
 			return nil, err
 		}
 	}
-
 	c.Wait()
 	return
 }
