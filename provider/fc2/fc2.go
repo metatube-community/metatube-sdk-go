@@ -15,17 +15,19 @@ import (
 
 var _ provider.Provider = (*FC2)(nil)
 
+const (
+	baseURL   = "https://adult.contents.fc2.com/"
+	movieURL  = "https://adult.contents.fc2.com/article/%s/"
+	sampleURL = "https://adult.contents.fc2.com/api/v2/videos/%s/sample"
+)
+
 type FC2 struct {
-	BaseURL   string
-	MovieURL  string
-	SampleURL string
+	c *colly.Collector
 }
 
-func NewFC2() provider.Provider {
+func NewFC2() *FC2 {
 	return &FC2{
-		BaseURL:   "https://adult.contents.fc2.com/",
-		MovieURL:  "https://adult.contents.fc2.com/article/%s/",
-		SampleURL: "https://adult.contents.fc2.com/api/v2/videos/%s/sample",
+		c: colly.NewCollector(colly.UserAgent(provider.UA)),
 	}
 }
 
@@ -34,7 +36,7 @@ func (fc2 *FC2) Name() string {
 }
 
 func (fc2 *FC2) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return fc2.GetMovieInfoByLink(fmt.Sprintf(fc2.MovieURL, id))
+	return fc2.GetMovieInfoByLink(fmt.Sprintf(movieURL, id))
 }
 
 func (fc2 *FC2) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
@@ -52,7 +54,7 @@ func (fc2 *FC2) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(colly.UserAgent(provider.UA))
+	c := fc2.c.Clone()
 
 	// Headers
 	c.OnXML(`//div[@class="items_article_headerInfo"]`, func(e *colly.XMLElement) {
@@ -101,7 +103,7 @@ func (fc2 *FC2) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 	//			info.PreviewVideoURL = data.Path
 	//		}
 	//	})
-	//	d.Visit(fmt.Sprintf(fc2.SampleURL, info.ID))
+	//	d.Visit(fmt.Sprintf(sampleURL, info.ID))
 	//})
 
 	err = c.Visit(info.Homepage)
