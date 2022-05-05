@@ -14,20 +14,24 @@ import (
 
 var _ provider.Provider = (*SOD)(nil)
 
+const (
+	baseURL   = "https://ec.sod.co.jp/prime/"
+	movieURL  = "https://ec.sod.co.jp/prime/videos/?id=%s"
+	searchURL = "https://ec.sod.co.jp/prime/videos/genre/?search_type=1&sodsearch=%s"
+	onTimeURL = "https://ec.sod.co.jp/prime/_ontime.php"
+)
+
 // SOD needs `Referer` header when request to view images and videos.
 type SOD struct {
-	BaseURL   string
-	MovieURL  string
-	SearchURL string
-	OnTimeURL string
+	c *colly.Collector
 }
 
 func NewSOD() provider.Provider {
 	return &SOD{
-		BaseURL:   "https://ec.sod.co.jp/",
-		MovieURL:  "https://ec.sod.co.jp/prime/videos/?id=%s",
-		SearchURL: "https://ec.sod.co.jp/prime/videos/genre/?search_type=1&sodsearch=%s",
-		OnTimeURL: "https://ec.sod.co.jp/prime/_ontime.php",
+		c: colly.NewCollector(
+			colly.AllowURLRevisit(),
+			colly.IgnoreRobotsTxt(),
+			colly.UserAgent(provider.UA)),
 	}
 }
 
@@ -37,7 +41,7 @@ func (sod *SOD) Name() string {
 
 func (sod *SOD) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	id = strings.ToUpper(id) // SOD requires uppercase ID
-	return sod.GetMovieInfoByLink(fmt.Sprintf(sod.MovieURL, url.QueryEscape(id)))
+	return sod.GetMovieInfoByLink(fmt.Sprintf(movieURL, url.QueryEscape(id)))
 }
 
 func (sod *SOD) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
@@ -59,10 +63,19 @@ func (sod *SOD) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		info.Number = info.ID
 	}
 
-	c := colly.NewCollector(colly.UserAgent(provider.UA))
+	c := sod.c.Clone()
+	composedMovieURL := fmt.Sprintf(movieURL, url.QueryEscape(info.ID))
 
-	c.OnRequest(func(r *colly.Request) {
-		r.Headers.Set("Referer", fmt.Sprintf(sod.MovieURL, url.QueryEscape(info.ID)))
+	// Age check
+	c.OnHTML(`#modal > div.pkg_age > div.enter > a`, func(e *colly.HTMLElement) {
+		d := c.Clone()
+		d.OnRequest(func(r *colly.Request) {
+			r.Headers.Set("Referer", composedMovieURL)
+		})
+		d.OnResponse(func(r *colly.Response) {
+			e.Response.Body = r.Body // Replace HTTP body
+		})
+		d.Visit(e.Request.AbsoluteURL(e.Attr("href"))) // onTime
 	})
 
 	// Fields
@@ -131,17 +144,28 @@ func (sod *SOD) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		info.Score = parser.ParseScore(e.Text)
 	})
 
-	err = c.Visit(sod.OnTimeURL)
+	err = c.Visit(composedMovieURL)
 	return
 }
 
 func (sod *SOD) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	keyword = strings.ToUpper(keyword) // SOD prefers uppercase
+	{ // pre-handling keyword
+		keyword = strings.ToUpper(keyword) // SOD prefers uppercase
+	}
 
-	c := colly.NewCollector(colly.UserAgent(provider.UA))
+	c := sod.c.Clone()
+	composedSearchURL := fmt.Sprintf(searchURL, url.QueryEscape(keyword))
 
-	c.OnRequest(func(r *colly.Request) {
-		r.Headers.Set("Referer", fmt.Sprintf(sod.SearchURL, url.QueryEscape(keyword)))
+	// Age check
+	c.OnHTML(`#modal > div.pkg_age > div.enter > a`, func(e *colly.HTMLElement) {
+		d := c.Clone()
+		d.OnRequest(func(r *colly.Request) {
+			r.Headers.Set("Referer", composedSearchURL)
+		})
+		d.OnResponse(func(r *colly.Response) {
+			e.Response.Body = r.Body // Replace HTTP body
+		})
+		d.Visit(e.Request.AbsoluteURL(e.Attr("href"))) // onTime
 	})
 
 	c.OnXML(`//*[@id="videos_s_mainbox"]`, func(e *colly.XMLElement) {
@@ -175,6 +199,6 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.SearchResult, err 
 		results = append(results, searchResult)
 	})
 
-	err = c.Visit(sod.OnTimeURL)
+	err = c.Visit(composedSearchURL)
 	return
 }
