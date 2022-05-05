@@ -29,7 +29,7 @@ type Caribbean struct {
 	c *colly.Collector
 }
 
-func NewCaribbean() provider.Provider {
+func NewCaribbean() *Caribbean {
 	return &Caribbean{
 		c: colly.NewCollector(
 			colly.DetectCharset(),
