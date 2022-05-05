@@ -1,4 +1,4 @@
-package caribbean
+package caribbeancom
 
 import (
 	"encoding/json"
@@ -19,28 +19,33 @@ import (
 
 var _ provider.Provider = (*Caribbean)(nil)
 
+const (
+	baseURL    = "https://www.caribbeancom.com/"
+	movieURL   = "https://www.caribbeancom.com/moviepages/%s/index.html"
+	moviePRURL = "https://www.caribbeancompr.com/moviepages/%s/index.html"
+)
+
 type Caribbean struct {
-	BaseURL    string
-	MovieURL   string
-	MoviePRURL string
+	c *colly.Collector
 }
 
 func NewCaribbean() provider.Provider {
 	return &Caribbean{
-		BaseURL:    "https://www.caribbeancom.com/",
-		MovieURL:   "https://www.caribbeancom.com/moviepages/%s/index.html",
-		MoviePRURL: "https://www.caribbeancompr.com/moviepages/%s/index.html",
+		c: colly.NewCollector(
+			colly.DetectCharset(),
+			colly.UserAgent(provider.UA)),
 	}
 }
 
 func (crb *Caribbean) Name() string {
-	return "Caribbean"
+	return "Caribbeancom"
 }
 
 func (crb *Caribbean) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	for _, homepage := range []string{
-		fmt.Sprintf(crb.MovieURL, id),
-		fmt.Sprintf(crb.MoviePRURL, id),
+		fmt.Sprintf(movieURL, id),
+		// Only for backward matching
+		fmt.Sprintf(moviePRURL, id),
 	} {
 		if info, err = crb.GetMovieInfoByLink(homepage); err == nil && info.Valid() {
 			return
@@ -66,10 +71,7 @@ func (crb *Caribbean) GetMovieInfoByLink(link string) (info *model.MovieInfo, er
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(
-		colly.DetectCharset(),
-		colly.UserAgent(provider.UA),
-	)
+	c := crb.c.Clone()
 
 	// Title
 	c.OnXML(`//h1[@itemprop="name"]`, func(e *colly.XMLElement) {
