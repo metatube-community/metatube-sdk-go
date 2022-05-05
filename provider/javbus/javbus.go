@@ -110,10 +110,8 @@ func (bus *JavBus) GetMovieInfoByLink(link string) (info *model.MovieInfo, err e
 }
 
 func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	c := colly.NewCollector(
-		colly.Async(true),
-		colly.UserAgent(provider.UA),
-	)
+	c := bus.c.Clone()
+	c.Async = true /* ASYNC */
 
 	var mu sync.Mutex
 	c.OnXML(`//a[@class="movie-box"]`, func(e *colly.XMLElement) {
