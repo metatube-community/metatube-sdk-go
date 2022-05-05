@@ -59,3 +59,43 @@ func (mi *MovieInfo) ToSearchResult() *SearchResult {
 		ReleaseDate: mi.ReleaseDate,
 	}
 }
+
+type ActorSearchResult struct {
+	ID       string   `json:"id"`
+	Name     string   `json:"name"`
+	Homepage string   `json:"homepage"`
+	Images   []string `json:"images"`
+}
+
+func (asr *ActorSearchResult) Valid() bool {
+	return asr.ID != "" && asr.Name != "" && asr.Homepage != ""
+}
+
+type ActorInfo struct {
+	ID           string    `json:"id"`
+	Name         string    `json:"name"`
+	Nationality  string    `json:"nationality"`
+	BloodType    string    `json:"blood_type"`
+	CupSize      string    `json:"cup_size"`
+	Measurements string    `json:"measurements"`
+	Homepage     string    `json:"homepage"`
+	Height       int       `json:"height"`
+	Aliases      []string  `json:"aliases"`
+	Images       []string  `json:"images"`
+	Birthday     time.Time `json:"birthday"`
+	DebutDate    time.Time `json:"debut_date"`
+}
+
+func (ai *ActorInfo) Valid() bool {
+	return ai.ID != "" && ai.Name != "" &&
+		ai.Homepage != "" && len(ai.Images) > 0
+}
+
+func (ai *ActorInfo) ToSearchResult() *ActorSearchResult {
+	return &ActorSearchResult{
+		ID:       ai.ID,
+		Name:     ai.Name,
+		Homepage: ai.Homepage,
+		Images:   ai.Images,
+	}
+}

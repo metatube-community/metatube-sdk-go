@@ -17,3 +17,17 @@ type Provider interface {
 	// SearchMovie searches matched movies.
 	SearchMovie(keyword string) ([]*model.SearchResult, error)
 }
+
+type ActorProvider interface {
+	// Name returns the provider's name.
+	Name() string
+
+	// GetActorInfoByID gets actor's info by id.
+	GetActorInfoByID(id string) (*model.ActorInfo, error)
+
+	// GetActorInfoByLink gets actor's info by link.
+	GetActorInfoByLink(link string) (*model.ActorInfo, error)
+
+	// SearchActor searches matched actor/s.
+	SearchActor(keyword string) ([]*model.ActorSearchResult, error)
+}
