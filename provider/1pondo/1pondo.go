@@ -17,23 +17,29 @@ import (
 
 var _ provider.Provider = (*OnePondo)(nil)
 
+// webpack:///src/assets/js/services/Bifrost/API.js:formatted
+const (
+	baseURL               = "https://www.1pondo.tv/"
+	movieURL              = "https://www.1pondo.tv/movies/%s/"
+	movieDetailURL        = "https://www.1pondo.tv/dyn/phpauto/movie_details/movie_id/%s.json"
+	movieGalleryURL       = "https://www.1pondo.tv/dyn/dla/json/movie_gallery/%s.json"
+	movieLegacyGalleryURL = "https://www.1pondo.tv/dyn/phpauto/movie_galleries/movie_id/%s.json"
+)
+
 type OnePondo struct {
-	BaseURL               string
-	MovieURL              string
-	MovieDetailURL        string
-	MovieGalleryURL       string
-	MovieLegacyGalleryURL string
+	c *colly.Collector
 }
 
-func NewOnePondo() provider.Provider {
-	return &OnePondo{
-		BaseURL:  "https://www.1pondo.tv/",
-		MovieURL: "https://www.1pondo.tv/movies/%s/",
-		// webpack:///src/assets/js/services/Bifrost/API.js:formatted
-		MovieDetailURL:        "https://www.1pondo.tv/dyn/phpauto/movie_details/movie_id/%s.json",
-		MovieGalleryURL:       "https://www.1pondo.tv/dyn/dla/json/movie_gallery/%s.json",
-		MovieLegacyGalleryURL: "https://www.1pondo.tv/dyn/phpauto/movie_galleries/movie_id/%s.json",
-	}
+func NewOnePondo() *OnePondo {
+	c := colly.NewCollector(
+		colly.UserAgent(provider.UA),
+		colly.Headers(map[string]string{
+			"Content-Type": "application/json",
+		}))
+	c.SetCookies(baseURL, []*http.Cookie{
+		{Name: "ageCheck", Value: "1"},
+	})
+	return &OnePondo{c: c}
 }
 
 func (opd *OnePondo) Name() string {
@@ -41,7 +47,7 @@ func (opd *OnePondo) Name() string {
 }
 
 func (opd *OnePondo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return opd.GetMovieInfoByLink(fmt.Sprintf(opd.MovieURL, id))
+	return opd.GetMovieInfoByLink(fmt.Sprintf(movieURL, id))
 }
 
 func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
@@ -51,12 +57,6 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 	}
 	id := path.Base(homepage.Path)
 
-	var (
-		movieDetailURL        = fmt.Sprintf(opd.MovieDetailURL, id)
-		movieGalleryURL       = fmt.Sprintf(opd.MovieGalleryURL, id)
-		movieLegacyGalleryURL = fmt.Sprintf(opd.MovieLegacyGalleryURL, id)
-	)
-
 	info = &model.MovieInfo{
 		Homepage:      homepage.String(),
 		Maker:         "一本道",
@@ -65,15 +65,7 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 		Tags:          []string{},
 	}
 
-	c := colly.NewCollector(
-		colly.UserAgent(provider.UA),
-		colly.Headers(map[string]string{
-			"Content-Type": "application/json",
-		}))
-
-	c.SetCookies(opd.BaseURL, []*http.Cookie{
-		{Name: "ageCheck", Value: "1"},
-	})
+	c := opd.c.Clone()
 
 	c.OnResponse(func(r *colly.Response) {
 		data := struct {
@@ -167,7 +159,7 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 						}
 					}
 				})
-				d.Visit(movieGalleryURL)
+				d.Visit(fmt.Sprintf(movieGalleryURL, id))
 			} else if data.HasGallery /* Legacy Gallery */ {
 				d := c.Clone()
 				d.OnResponse(func(r *colly.Response) {
@@ -195,12 +187,12 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 						}
 					}
 				})
-				d.Visit(movieLegacyGalleryURL)
+				d.Visit(fmt.Sprintf(movieLegacyGalleryURL, id))
 			}
 		}
 	})
 
-	err = c.Visit(movieDetailURL)
+	err = c.Visit(fmt.Sprintf(movieDetailURL, id))
 	return
 }
 
