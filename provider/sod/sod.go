@@ -85,11 +85,7 @@ func (sod *SOD) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 		case "品番":
 			info.ID = e.ChildText(`.//td[2]`)
 		case "発売年月日":
-			if ss := regexp.MustCompile(`([\s\d]+)年([\s\d]+)月([\s\d]+)日`).
-				FindStringSubmatch(e.ChildText(`.//td[2]`)); len(ss) == 4 {
-				info.ReleaseDate = parser.ParseDate(fmt.Sprintf("%s-%s-%s",
-					strings.TrimSpace(ss[1]), strings.TrimSpace(ss[2]), strings.TrimSpace(ss[3])))
-			}
+			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td[2]`))
 		case "シリーズ名":
 			info.Series = strings.TrimSpace(e.ChildText(`.//td[2]`))
 		case "出演者":
@@ -171,8 +167,9 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.SearchResult, err 
 
 	c.OnXML(`//*[@id="videos_s_mainbox"]`, func(e *colly.XMLElement) {
 		searchResult := &model.SearchResult{
-			Title:    e.ChildText(`.//div[@class="videis_s_txt"]/h2/a`),
-			Homepage: e.Request.AbsoluteURL(e.ChildAttr(`.//div[@class="videis_s_img"]/a`, "href")),
+			Title:       e.ChildText(`.//div[@class="videis_s_txt"]/h2/a`),
+			Homepage:    e.Request.AbsoluteURL(e.ChildAttr(`.//div[@class="videis_s_img"]/a`, "href")),
+			ReleaseDate: parser.ParseDate(e.ChildText(`.//div[@class="videis_s_star"]/p`)),
 		}
 
 		// ID+Number
@@ -185,16 +182,6 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.SearchResult, err 
 		if thumb := e.ChildAttr(`.//div[@class="videis_s_img"]/a/img`, "src"); thumb != "" {
 			searchResult.ThumbURL = e.Request.AbsoluteURL(thumb)
 			searchResult.CoverURL = strings.ReplaceAll(searchResult.ThumbURL, "_m.jpg", "_l.jpg")
-		}
-
-		// ReleaseDate
-		if ss := regexp.MustCompile(`発売日([\s\d]+)年([\s\d]+)月([\s\d]+)日`).
-			FindStringSubmatch(e.ChildText(`.//div[@class="videis_s_star"]/p`)); len(ss) == 4 {
-			searchResult.ReleaseDate = parser.ParseDate(
-				fmt.Sprintf("%s-%s-%s",
-					strings.TrimSpace(ss[1]),
-					strings.TrimSpace(ss[2]),
-					strings.TrimSpace(ss[3])))
 		}
 
 		results = append(results, searchResult)

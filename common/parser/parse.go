@@ -13,6 +13,13 @@ import (
 // ParseDate parses a string with valid date format into time.Time.
 func ParseDate(s string) time.Time {
 	s = strings.TrimSpace(s)
+	if ss := regexp.MustCompile(`([\s\d]+)年([\s\d]+)月([\s\d]+)日`).
+		FindStringSubmatch(s); len(ss) == 4 {
+		s = fmt.Sprintf("%s-%s-%s",
+			strings.TrimSpace(ss[1]),
+			strings.TrimSpace(ss[2]),
+			strings.TrimSpace(ss[3]))
+	}
 	t, _ := dateparse.ParseAny(s)
 	return t
 }
