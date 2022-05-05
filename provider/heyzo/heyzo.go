@@ -13,6 +13,7 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/grafov/m3u8"
 	"github.com/javtube/javtube-sdk-go/common/parser"
+	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 )
@@ -34,7 +35,7 @@ func NewHeyzo() *Heyzo {
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
-			colly.UserAgent(provider.UA)),
+			colly.UserAgent(random.UserAgent())),
 	}
 }
 

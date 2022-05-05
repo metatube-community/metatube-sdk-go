@@ -11,6 +11,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
+	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 )
@@ -32,7 +33,7 @@ func NewMGStage() *MGStage {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
 		colly.IgnoreRobotsTxt(),
-		colly.UserAgent(provider.UA))
+		colly.UserAgent(random.UserAgent()))
 	c.SetCookies(baseURL, []*http.Cookie{
 		{Name: "adc", Value: "1"},
 	})
