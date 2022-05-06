@@ -10,6 +10,13 @@ import (
 	"github.com/araddon/dateparse"
 )
 
+// ParseInt parses string to int regardless.
+func ParseInt(s string) int {
+	s = strings.TrimSpace(s)
+	n, _ := strconv.ParseInt(s, 10, 64)
+	return int(n)
+}
+
 // ParseDate parses a string with valid date format into time.Time.
 func ParseDate(s string) time.Time {
 	s = strings.TrimSpace(s)
@@ -26,8 +33,8 @@ func ParseDate(s string) time.Time {
 
 // ParseDuration parses a string with valid duration format into time.Duration.
 func ParseDuration(s string) time.Duration {
-	s = strings.ToLower(s)
 	s = strings.TrimSpace(s)
+	s = strings.ToLower(s)
 	s = strings.Replace(s, "分", "m", 1)
 	s = strings.Replace(s, "min", "m", 1)
 	if re := regexp.MustCompile(`(?i)(?:(\d+)[:h])?(\d+)[:m](\d+)s?`); re.MatchString(s) {

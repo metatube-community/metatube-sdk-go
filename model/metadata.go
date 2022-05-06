@@ -87,8 +87,7 @@ type ActorInfo struct {
 }
 
 func (ai *ActorInfo) Valid() bool {
-	return ai.ID != "" && ai.Name != "" &&
-		ai.Homepage != "" && len(ai.Images) > 0
+	return ai.ID != "" && ai.Name != "" && ai.Homepage != ""
 }
 
 func (ai *ActorInfo) ToSearchResult() *ActorSearchResult {
