@@ -43,16 +43,14 @@ func (crb *Caribbeancom) Name() string {
 }
 
 func (crb *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	for _, homepage := range []string{
-		fmt.Sprintf(movieURL, id),
-		// Only for backward matching
-		fmt.Sprintf(moviePRURL, id),
-	} {
-		if info, err = crb.GetMovieInfoByLink(homepage); err == nil && info.Valid() {
-			return
-		}
+	switch {
+	case strings.Contains(id, "-"):
+		return crb.GetMovieInfoByLink(fmt.Sprintf(movieURL, id))
+	case strings.Contains(id, "_"):
+		return crb.GetMovieInfoByLink(fmt.Sprintf(moviePRURL, id))
+	default:
+		return nil, provider.ErrNotFound
 	}
-	return nil, provider.ErrNotFound
 }
 
 func (crb *Caribbeancom) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {

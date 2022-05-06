@@ -11,9 +11,9 @@ func TestCaribbean_GetMovieInfoByID(t *testing.T) {
 	provider := NewCaribbeancom()
 	for _, item := range []string{
 		"050422-001",
-		"031222-001",
-		"061014-618",
-		//"042922_001",
+		//"031222-001",
+		//"061014-618",
+		"042922_001",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
