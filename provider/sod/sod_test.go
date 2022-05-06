@@ -37,3 +37,14 @@ func TestSOD_SearchMovie(t *testing.T) {
 		t.Logf("%s", data)
 	}
 }
+
+func TestSOD_Download(t *testing.T) {
+	provider := NewSOD()
+	for _, item := range []string{
+		"https://dy43ylo5q3vt8.cloudfront.net/_pics/202108/dldss_022/dldss_022_m.jpg",
+	} {
+		data, err := provider.Download(item)
+		assert.NoError(t, err)
+		t.Log(data)
+	}
+}

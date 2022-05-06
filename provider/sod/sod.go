@@ -190,3 +190,16 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.SearchResult, err 
 	err = c.Visit(composedSearchURL)
 	return
 }
+
+func (sod *SOD) Download(link string) (data []byte, err error) {
+	c := sod.c.Clone()
+	c.OnRequest(func(r *colly.Request) {
+		// SOD needs referer header to view image/video
+		r.Headers.Set("Referer", baseURL)
+	})
+	c.OnResponse(func(r *colly.Response) {
+		data = r.Body
+	})
+	err = c.Visit(link)
+	return
+}
