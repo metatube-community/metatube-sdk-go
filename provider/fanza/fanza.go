@@ -65,7 +65,7 @@ func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) 
 			return
 		}
 	}
-	return nil, errors.New(http.StatusText(http.StatusNotFound))
+	return nil, provider.ErrNotFound
 }
 
 func (fz *FANZA) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {

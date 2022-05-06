@@ -2,9 +2,7 @@ package caribbeancom
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"path"
 	"regexp"
@@ -54,7 +52,7 @@ func (crb *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, err
 			return
 		}
 	}
-	return nil, errors.New(http.StatusText(http.StatusNotFound))
+	return nil, provider.ErrNotFound
 }
 
 func (crb *Caribbeancom) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
