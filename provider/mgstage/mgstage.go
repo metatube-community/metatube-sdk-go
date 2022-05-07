@@ -48,11 +48,11 @@ func (mgs *MGStage) Name() string {
 }
 
 func (mgs *MGStage) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return mgs.GetMovieInfoByLink(fmt.Sprintf(movieURL, strings.ToUpper(id)))
+	return mgs.GetMovieInfoByURL(fmt.Sprintf(movieURL, strings.ToUpper(id)))
 }
 
-func (mgs *MGStage) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(link)
+func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
+	homepage, err := url.Parse(u)
 	if err != nil {
 		return nil, err
 	}

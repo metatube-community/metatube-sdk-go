@@ -50,11 +50,11 @@ func (opd *OnePondo) Name() string {
 }
 
 func (opd *OnePondo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return opd.GetMovieInfoByLink(fmt.Sprintf(movieURL, id))
+	return opd.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(link)
+func (opd *OnePondo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
+	homepage, err := url.Parse(u)
 	if err != nil {
 		return nil, err
 	}

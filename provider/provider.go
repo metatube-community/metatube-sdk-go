@@ -7,8 +7,8 @@ import (
 )
 
 type Downloader interface {
-	// Download downloads media resources from link.
-	Download(link string) (io.ReadCloser, error)
+	// Download downloads media resources from url.
+	Download(url string) (io.ReadCloser, error)
 }
 
 type Searcher interface {
@@ -25,14 +25,14 @@ type Provider interface {
 	// GetMovieInfoByID gets movie's info by id.
 	GetMovieInfoByID(id string) (*model.MovieInfo, error)
 
-	// GetMovieInfoByLink gets movie's info by link.
-	GetMovieInfoByLink(link string) (*model.MovieInfo, error)
+	// GetMovieInfoByURL gets movie's info by url.
+	GetMovieInfoByURL(url string) (*model.MovieInfo, error)
 }
 
 type ActorProvider interface {
 	// GetActorInfoByID gets actor's info by id.
 	GetActorInfoByID(id string) (*model.ActorInfo, error)
 
-	// GetActorInfoByLink gets actor's info by link.
-	GetActorInfoByLink(link string) (*model.ActorInfo, error)
+	// GetActorInfoByURL gets actor's info by url.
+	GetActorInfoByURL(url string) (*model.ActorInfo, error)
 }

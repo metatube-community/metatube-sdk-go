@@ -54,7 +54,7 @@ func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
 	}, nil
 }
 
-func (gf *GFriends) GetActorInfoByLink(string) (*model.ActorInfo, error) {
+func (gf *GFriends) GetActorInfoByURL(string) (*model.ActorInfo, error) {
 	return nil, provider.ErrNotSupported
 }
 

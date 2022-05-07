@@ -40,11 +40,11 @@ func (fc2 *FC2) Name() string {
 }
 
 func (fc2 *FC2) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return fc2.GetMovieInfoByLink(fmt.Sprintf(movieURL, id))
+	return fc2.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (fc2 *FC2) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(link)
+func (fc2 *FC2) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
+	homepage, err := url.Parse(u)
 	if err != nil {
 		return nil, err
 	}

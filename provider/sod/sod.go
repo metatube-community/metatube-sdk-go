@@ -49,11 +49,11 @@ func (sod *SOD) Name() string {
 
 func (sod *SOD) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	id = strings.ToUpper(id) // SOD requires uppercase ID
-	return sod.GetMovieInfoByLink(fmt.Sprintf(movieURL, url.QueryEscape(id)))
+	return sod.GetMovieInfoByURL(fmt.Sprintf(movieURL, url.QueryEscape(id)))
 }
 
-func (sod *SOD) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(link)
+func (sod *SOD) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
+	homepage, err := url.Parse(u)
 	if err != nil {
 		return nil, err
 	}
@@ -198,12 +198,12 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.SearchResult, err 
 	return
 }
 
-func (sod *SOD) Download(link string) (_ io.ReadCloser, err error) {
+func (sod *SOD) Download(u string) (_ io.ReadCloser, err error) {
 	var (
 		req  *http.Request
 		resp *http.Response
 	)
-	if req, err = http.NewRequest(http.MethodGet, link, nil); err != nil {
+	if req, err = http.NewRequest(http.MethodGet, u, nil); err != nil {
 		return
 	}
 	// SOD needs referer header to view image/video

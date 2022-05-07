@@ -44,11 +44,11 @@ func (hzo *Heyzo) Name() string {
 }
 
 func (hzo *Heyzo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return hzo.GetMovieInfoByLink(fmt.Sprintf(movieURL, id))
+	return hzo.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(strings.TrimRight(link, "/"))
+func (hzo *Heyzo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
+	homepage, err := url.Parse(strings.TrimRight(u, "/"))
 	if err != nil {
 		return nil, err
 	}

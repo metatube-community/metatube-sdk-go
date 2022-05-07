@@ -45,11 +45,11 @@ func (xsl *XsList) Name() string {
 }
 
 func (xsl *XsList) GetActorInfoByID(id string) (info *model.ActorInfo, err error) {
-	return xsl.GetActorInfoByLink(fmt.Sprintf(actorURL, id))
+	return xsl.GetActorInfoByURL(fmt.Sprintf(actorURL, id))
 }
 
-func (xsl *XsList) GetActorInfoByLink(link string) (info *model.ActorInfo, err error) {
-	homepage, err := url.Parse(link)
+func (xsl *XsList) GetActorInfoByURL(u string) (info *model.ActorInfo, err error) {
+	homepage, err := url.Parse(u)
 	if err != nil {
 		return nil, err
 	}

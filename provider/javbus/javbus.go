@@ -45,11 +45,11 @@ func (bus *JavBus) Name() string {
 }
 
 func (bus *JavBus) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return bus.GetMovieInfoByLink(fmt.Sprintf(movieURL, strings.ToUpper(id)))
+	return bus.GetMovieInfoByURL(fmt.Sprintf(movieURL, strings.ToUpper(id)))
 }
 
-func (bus *JavBus) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(link)
+func (bus *JavBus) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
+	homepage, err := url.Parse(u)
 	if err != nil {
 		return nil, err
 	}

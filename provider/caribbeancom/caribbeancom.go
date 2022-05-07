@@ -45,16 +45,16 @@ func (crb *Caribbeancom) Name() string {
 func (crb *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	switch {
 	case strings.Contains(id, "-"):
-		return crb.GetMovieInfoByLink(fmt.Sprintf(movieURL, id))
+		return crb.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 	case strings.Contains(id, "_"):
-		return crb.GetMovieInfoByLink(fmt.Sprintf(moviePRURL, id))
+		return crb.GetMovieInfoByURL(fmt.Sprintf(moviePRURL, id))
 	default:
 		return nil, provider.ErrNotFound
 	}
 }
 
-func (crb *Caribbeancom) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(link)
+func (crb *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
+	homepage, err := url.Parse(u)
 	if err != nil {
 		return nil, err
 	}

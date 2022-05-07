@@ -64,23 +64,23 @@ func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) 
 		fmt.Sprintf(movieMonoAnimeURL, id),
 		fmt.Sprintf(movieDigitalNikkatsuURL, id),
 	} {
-		if info, err = fz.GetMovieInfoByLink(homepage); err == nil && info.Valid() {
+		if info, err = fz.GetMovieInfoByURL(homepage); err == nil && info.Valid() {
 			return
 		}
 	}
 	return nil, provider.ErrNotFound
 }
 
-func (fz *FANZA) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
+func (fz *FANZA) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 	var id string
-	if sub := regexp.MustCompile(`/cid=(.*?)/`).FindStringSubmatch(link); len(sub) == 2 {
+	if sub := regexp.MustCompile(`/cid=(.*?)/`).FindStringSubmatch(u); len(sub) == 2 {
 		id = strings.ToLower(sub[1])
 	} else {
-		return nil, fmt.Errorf("invalid FANZA link: %s", link)
+		return nil, fmt.Errorf("invalid FANZA url: %s", u)
 	}
 
 	info = &model.MovieInfo{
-		Homepage:      link,
+		Homepage:      u,
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},

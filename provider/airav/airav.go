@@ -48,11 +48,11 @@ func (air *AirAV) Name() string {
 }
 
 func (air *AirAV) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return air.GetMovieInfoByLink(fmt.Sprintf(movieURL, id))
+	return air.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (air *AirAV) GetMovieInfoByLink(link string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(link)
+func (air *AirAV) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
+	homepage, err := url.Parse(u)
 	if err != nil {
 		return nil, err
 	}
