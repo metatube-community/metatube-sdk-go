@@ -32,7 +32,6 @@ const (
 // SOD needs `Referer` header when request to view images and videos.
 type SOD struct {
 	c *colly.Collector
-	d *http.Client
 }
 
 func NewSOD() *SOD {
@@ -41,7 +40,6 @@ func NewSOD() *SOD {
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
 			colly.UserAgent(random.UserAgent())),
-		d: &http.Client{},
 	}
 }
 
@@ -210,7 +208,8 @@ func (sod *SOD) Download(link string) (_ io.ReadCloser, err error) {
 	}
 	// SOD needs referer header to view image/video
 	req.Header.Set("Referer", baseURL)
-	if resp, err = sod.d.Do(req); err != nil {
+	// make request
+	if resp, err = http.DefaultClient.Do(req); err != nil {
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
