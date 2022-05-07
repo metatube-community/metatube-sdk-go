@@ -13,6 +13,11 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider"
 )
 
+var (
+	_ provider.Provider = (*AirAV)(nil)
+	_ provider.Searcher = (*AirAV)(nil)
+)
+
 const (
 	baseURL      = "https://www.airav.wiki/"
 	movieURL     = "https://www.airav.wiki/video/%s"

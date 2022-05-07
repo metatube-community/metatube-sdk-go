@@ -16,7 +16,10 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ provider.Provider = (*MGStage)(nil)
+var (
+	_ provider.Provider = (*MGStage)(nil)
+	_ provider.Searcher = (*MGStage)(nil)
+)
 
 const (
 	baseURL   = "https://www.mgstage.com/"

@@ -198,7 +198,3 @@ func (opd *OnePondo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err
 	err = c.Visit(fmt.Sprintf(movieDetailURL, id))
 	return
 }
-
-func (opd *OnePondo) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	return nil, provider.ErrNotSupported
-}

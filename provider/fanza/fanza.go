@@ -19,7 +19,10 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ provider.Provider = (*FANZA)(nil)
+var (
+	_ provider.Provider = (*FANZA)(nil)
+	_ provider.Searcher = (*FANZA)(nil)
+)
 
 const (
 	baseURL                 = "https://www.dmm.co.jp/"

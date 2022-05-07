@@ -22,7 +22,10 @@ const (
 	searchURL = "https://xslist.org/search?query=%s&lg=zh"
 )
 
-var _ provider.ActorProvider = (*XsList)(nil)
+var (
+	_ provider.ActorProvider = (*XsList)(nil)
+	_ provider.ActorSearcher = (*XsList)(nil)
+)
 
 type XsList struct {
 	c *colly.Collector

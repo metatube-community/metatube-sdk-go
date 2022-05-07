@@ -113,7 +113,3 @@ func (fc2 *FC2) GetMovieInfoByLink(link string) (info *model.MovieInfo, err erro
 	err = c.Visit(info.Homepage)
 	return
 }
-
-func (fc2 *FC2) SearchMovie(keyword string) ([]*model.SearchResult, error) {
-	return nil, provider.ErrNotSupported
-}

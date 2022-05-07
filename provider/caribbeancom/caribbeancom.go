@@ -158,7 +158,3 @@ func (crb *Caribbeancom) GetMovieInfoByLink(link string) (info *model.MovieInfo,
 	err = c.Visit(info.Homepage)
 	return
 }
-
-func (crb *Caribbeancom) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	return nil, provider.ErrNotSupported
-}

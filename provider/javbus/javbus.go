@@ -15,7 +15,10 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ provider.Provider = (*JavBus)(nil)
+var (
+	_ provider.Provider = (*JavBus)(nil)
+	_ provider.Searcher = (*JavBus)(nil)
+)
 
 const (
 	baseURL             = "https://www.javbus.com/"

@@ -211,7 +211,3 @@ func (hzo *Heyzo) GetMovieInfoByLink(link string) (info *model.MovieInfo, err er
 	err = c.Visit(info.Homepage)
 	return
 }
-
-func (hzo *Heyzo) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	return nil, provider.ErrNotSupported
-}
