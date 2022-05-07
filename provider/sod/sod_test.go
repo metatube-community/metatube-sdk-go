@@ -2,6 +2,7 @@ package sod
 
 import (
 	"encoding/json"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -43,8 +44,11 @@ func TestSOD_Download(t *testing.T) {
 	for _, item := range []string{
 		"https://dy43ylo5q3vt8.cloudfront.net/_pics/202108/dldss_022/dldss_022_m.jpg",
 	} {
-		data, err := provider.Download(item)
-		assert.NoError(t, err)
-		t.Log(data)
+		r, err := provider.Download(item)
+		if assert.NoError(t, err) {
+			b, _ := io.ReadAll(r)
+			r.Close()
+			t.Log(b)
+		}
 	}
 }

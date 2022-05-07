@@ -1,8 +1,25 @@
 package provider
 
 import (
+	"io"
+
 	"github.com/javtube/javtube-sdk-go/model"
 )
+
+type Downloader interface {
+	// Download downloads media resources from link.
+	Download(link string) (io.ReadCloser, error)
+}
+
+type Searcher interface {
+	// SearchMovie searches matched movies.
+	SearchMovie(keyword string) ([]*model.SearchResult, error)
+}
+
+type ActorSearcher interface {
+	// SearchActor searches matched actor/s.
+	SearchActor(keyword string) ([]*model.ActorSearchResult, error)
+}
 
 type Provider interface {
 	// Name returns the provider's name.
@@ -13,9 +30,6 @@ type Provider interface {
 
 	// GetMovieInfoByLink gets movie's info by link.
 	GetMovieInfoByLink(link string) (*model.MovieInfo, error)
-
-	// SearchMovie searches matched movies.
-	SearchMovie(keyword string) ([]*model.SearchResult, error)
 }
 
 type ActorProvider interface {
@@ -27,7 +41,4 @@ type ActorProvider interface {
 
 	// GetActorInfoByLink gets actor's info by link.
 	GetActorInfoByLink(link string) (*model.ActorInfo, error)
-
-	// SearchActor searches matched actor/s.
-	SearchActor(keyword string) ([]*model.ActorSearchResult, error)
 }

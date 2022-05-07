@@ -1,7 +1,10 @@
 package sod
 
 import (
+	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
@@ -13,7 +16,11 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ provider.Provider = (*SOD)(nil)
+var (
+	_ provider.Provider   = (*SOD)(nil)
+	_ provider.Searcher   = (*SOD)(nil)
+	_ provider.Downloader = (*SOD)(nil)
+)
 
 const (
 	baseURL   = "https://ec.sod.co.jp/prime/"
@@ -25,6 +32,7 @@ const (
 // SOD needs `Referer` header when request to view images and videos.
 type SOD struct {
 	c *colly.Collector
+	d *http.Client
 }
 
 func NewSOD() *SOD {
@@ -33,6 +41,7 @@ func NewSOD() *SOD {
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
 			colly.UserAgent(random.UserAgent())),
+		d: &http.Client{},
 	}
 }
 
@@ -191,15 +200,22 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.SearchResult, err 
 	return
 }
 
-func (sod *SOD) Download(link string) (data []byte, err error) {
-	c := sod.c.Clone()
-	c.OnRequest(func(r *colly.Request) {
-		// SOD needs referer header to view image/video
-		r.Headers.Set("Referer", baseURL)
-	})
-	c.OnResponse(func(r *colly.Response) {
-		data = r.Body
-	})
-	err = c.Visit(link)
-	return
+func (sod *SOD) Download(link string) (_ io.ReadCloser, err error) {
+	var (
+		req  *http.Request
+		resp *http.Response
+	)
+	if req, err = http.NewRequest(http.MethodGet, link, nil); err != nil {
+		return
+	}
+	// SOD needs referer header to view image/video
+	req.Header.Set("Referer", baseURL)
+	if resp, err = sod.d.Do(req); err != nil {
+		return
+	}
+	if resp.StatusCode != http.StatusOK {
+		defer resp.Body.Close()
+		return nil, errors.New(http.StatusText(resp.StatusCode))
+	}
+	return resp.Body, nil
 }
