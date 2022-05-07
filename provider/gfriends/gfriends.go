@@ -58,14 +58,6 @@ func (gf *GFriends) GetActorInfoByLink(string) (*model.ActorInfo, error) {
 	return nil, provider.ErrNotSupported
 }
 
-func (gf *GFriends) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
-	var info *model.ActorInfo
-	if info, err = gf.GetActorInfoByID(keyword); err == nil {
-		results = []*model.ActorSearchResult{info.ToSearchResult()}
-	}
-	return
-}
-
 type fileTree struct {
 	mu      sync.RWMutex
 	last    time.Time
