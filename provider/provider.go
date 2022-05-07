@@ -16,17 +16,17 @@ type Searcher interface {
 	SearchMovie(keyword string) ([]*model.SearchResult, error)
 }
 
-type ActorSearcher interface {
-	// SearchActor searches matched actor/s.
-	SearchActor(keyword string) ([]*model.ActorSearchResult, error)
-}
-
 type Provider interface {
 	// GetMovieInfoByID gets movie's info by id.
 	GetMovieInfoByID(id string) (*model.MovieInfo, error)
 
 	// GetMovieInfoByURL gets movie's info by url.
 	GetMovieInfoByURL(url string) (*model.MovieInfo, error)
+}
+
+type ActorSearcher interface {
+	// SearchActor searches matched actor/s.
+	SearchActor(keyword string) ([]*model.ActorSearchResult, error)
 }
 
 type ActorProvider interface {
