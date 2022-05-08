@@ -4,6 +4,8 @@ go 1.18
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
+	github.com/esimov/pigo v1.4.5
+	github.com/gin-gonic/gin v1.7.7
 	github.com/gocolly/colly/v2 v2.1.1-0.20220424184721-cf681331964a
 	github.com/grafov/m3u8 v0.11.1
 	github.com/iancoleman/orderedmap v0.2.0
@@ -20,7 +22,6 @@ require (
 	github.com/bits-and-blooms/bitset v1.2.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-gonic/gin v1.7.7 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.11.0 // indirect
