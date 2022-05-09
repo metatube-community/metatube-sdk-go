@@ -20,7 +20,7 @@ var (
 	_ provider.ActorSearcher = (*GFriends)(nil)
 )
 
-const Name = "gfriends"
+const name = "gfriends"
 
 const (
 	baseURL    = "https://github.com/xinxin8816/gfriends"
@@ -32,14 +32,14 @@ type GFriends struct {
 	fileTree *fileTree
 }
 
-func New() *GFriends {
+func New() provider.ActorProvider {
 	return &GFriends{
 		fileTree: newFileTree(time.Hour),
 	}
 }
 
 func (gf *GFriends) Name() string {
-	return Name
+	return name
 }
 
 func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
@@ -53,7 +53,7 @@ func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
 	return &model.ActorInfo{
 		ID:       id,
 		Name:     id,
-		Provider: Name,
+		Provider: name,
 		Homepage: baseURL,
 		Aliases:  []string{},
 		Images:   images,

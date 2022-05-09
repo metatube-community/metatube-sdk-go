@@ -21,7 +21,7 @@ var (
 	_ provider.ActorSearcher = (*XsList)(nil)
 )
 
-const Name = "xslist"
+const name = "xslist"
 
 const (
 	baseURL   = "https://xslist.org/"
@@ -33,7 +33,7 @@ type XsList struct {
 	c *colly.Collector
 }
 
-func New() *XsList {
+func New() provider.ActorProvider {
 	return &XsList{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
@@ -43,7 +43,7 @@ func New() *XsList {
 }
 
 func (xsl *XsList) Name() string {
-	return Name
+	return name
 }
 
 func (xsl *XsList) GetActorInfoByID(id string) (info *model.ActorInfo, err error) {
@@ -62,7 +62,7 @@ func (xsl *XsList) GetActorInfoByURL(u string) (info *model.ActorInfo, err error
 
 	info = &model.ActorInfo{
 		ID:       id,
-		Provider: Name,
+		Provider: name,
 		Homepage: homepage.String(),
 		Aliases:  []string{},
 		Images:   []string{},
@@ -160,7 +160,7 @@ func (xsl *XsList) SearchActor(keyword string) (results []*model.ActorSearchResu
 			ID:       id,
 			Name:     name,
 			Images:   images,
-			Provider: Name,
+			Provider: name,
 			Homepage: homepage.String(),
 		})
 	})
