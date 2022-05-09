@@ -15,7 +15,10 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ provider.ActorProvider = (*GFriends)(nil)
+var (
+	_ provider.ActorProvider = (*GFriends)(nil)
+	_ provider.ActorSearcher = (*GFriends)(nil)
+)
 
 const Name = "gfriends"
 
@@ -59,6 +62,14 @@ func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
 
 func (gf *GFriends) GetActorInfoByURL(string) (*model.ActorInfo, error) {
 	return nil, provider.ErrNotSupported
+}
+
+func (gf *GFriends) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
+	var info *model.ActorInfo
+	if info, err = gf.GetActorInfoByID(keyword); err == nil {
+		results = []*model.ActorSearchResult{info.ToSearchResult()}
+	}
+	return
 }
 
 type fileTree struct {

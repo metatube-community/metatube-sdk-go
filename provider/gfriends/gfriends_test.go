@@ -19,3 +19,19 @@ func TestGFriends_GetActorInfoByID(t *testing.T) {
 		t.Logf("%s", data)
 	}
 }
+
+func TestGFriends_SearchActor(t *testing.T) {
+	provider := New()
+	for _, item := range []string{
+		"美竹すず",
+	} {
+		results, err := provider.SearchActor(item)
+		data, _ := json.MarshalIndent(results, "", "\t")
+		if assert.NoError(t, err) {
+			for _, result := range results {
+				assert.True(t, result.Valid())
+			}
+		}
+		t.Logf("%s", data)
+	}
+}
