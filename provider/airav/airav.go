@@ -159,12 +159,6 @@ func (air *AirAV) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 }
 
 func (air *AirAV) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	if s, ok := preHandleSearch(keyword); !ok {
-		return nil, provider.ErrNotSupported
-	} else {
-		keyword = s
-	}
-
 	c := air.c.Clone()
 
 	c.OnResponse(func(r *colly.Response) {
@@ -194,10 +188,6 @@ func (air *AirAV) SearchMovie(keyword string) (results []*model.SearchResult, er
 		}
 	})
 
-	err = c.Visit(fmt.Sprintf(searchAPIURL, keyword))
+	err = c.Visit(fmt.Sprintf(searchAPIURL, url.QueryEscape(keyword)))
 	return
-}
-
-func preHandleSearch(keyword string) (string, bool) {
-	return url.QueryEscape(keyword), true
 }
