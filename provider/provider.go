@@ -6,11 +6,6 @@ import (
 	"github.com/javtube/javtube-sdk-go/model"
 )
 
-type Downloader interface {
-	// Download downloads media resources from url.
-	Download(url string) (io.ReadCloser, error)
-}
-
 type Searcher interface {
 	// SearchMovie searches matched movies.
 	SearchMovie(keyword string) ([]*model.SearchResult, error)
@@ -35,4 +30,9 @@ type ActorProvider interface {
 
 	// GetActorInfoByURL gets actor's info by url.
 	GetActorInfoByURL(url string) (*model.ActorInfo, error)
+}
+
+type Downloader interface {
+	// Download downloads media resources from url.
+	Download(url string) (io.ReadCloser, error)
 }
