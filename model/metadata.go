@@ -6,6 +6,7 @@ type SearchResult struct {
 	ID          string    `json:"id"`
 	Number      string    `json:"number"`
 	Title       string    `json:"title"`
+	Provider    string    `json:"provider"`
 	Homepage    string    `json:"homepage"`
 	ThumbURL    string    `json:"thumb_url"`
 	CoverURL    string    `json:"cover_url"`
@@ -14,7 +15,7 @@ type SearchResult struct {
 }
 
 func (sr *SearchResult) Valid() bool {
-	return sr.ID != "" && sr.Number != "" && sr.Title != "" && sr.Homepage != ""
+	return sr.ID != "" && sr.Number != "" && sr.Title != "" && sr.Provider != "" && sr.Homepage != ""
 }
 
 type MovieInfo struct {
@@ -22,6 +23,7 @@ type MovieInfo struct {
 	Number   string `json:"number"`
 	Title    string `json:"title"`
 	Summary  string `json:"summary"`
+	Provider string `json:"provider"`
 	Homepage string `json:"homepage"`
 
 	Director string   `json:"director"`
@@ -44,7 +46,7 @@ type MovieInfo struct {
 
 func (mi *MovieInfo) Valid() bool {
 	return mi.ID != "" && mi.Number != "" && mi.Title != "" &&
-		mi.CoverURL != "" && mi.Homepage != ""
+		mi.CoverURL != "" && mi.Provider != "" && mi.Homepage != ""
 }
 
 func (mi *MovieInfo) ToSearchResult() *SearchResult {
@@ -52,6 +54,7 @@ func (mi *MovieInfo) ToSearchResult() *SearchResult {
 		ID:          mi.ID,
 		Number:      mi.Number,
 		Title:       mi.Title,
+		Provider:    mi.Provider,
 		Homepage:    mi.Homepage,
 		ThumbURL:    mi.ThumbURL,
 		CoverURL:    mi.CoverURL,
@@ -63,22 +66,24 @@ func (mi *MovieInfo) ToSearchResult() *SearchResult {
 type ActorSearchResult struct {
 	ID       string   `json:"id"`
 	Name     string   `json:"name"`
+	Provider string   `json:"provider"`
 	Homepage string   `json:"homepage"`
 	Images   []string `json:"images"`
 }
 
 func (asr *ActorSearchResult) Valid() bool {
-	return asr.ID != "" && asr.Name != "" && asr.Homepage != ""
+	return asr.ID != "" && asr.Name != "" && asr.Provider != "" && asr.Homepage != ""
 }
 
 type ActorInfo struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"name"`
+	Provider     string    `json:"provider"`
+	Homepage     string    `json:"homepage"`
 	Nationality  string    `json:"nationality"`
 	BloodType    string    `json:"blood_type"`
 	CupSize      string    `json:"cup_size"`
 	Measurements string    `json:"measurements"`
-	Homepage     string    `json:"homepage"`
 	Height       int       `json:"height"`
 	Aliases      []string  `json:"aliases"`
 	Images       []string  `json:"images"`
@@ -87,13 +92,14 @@ type ActorInfo struct {
 }
 
 func (ai *ActorInfo) Valid() bool {
-	return ai.ID != "" && ai.Name != "" && ai.Homepage != ""
+	return ai.ID != "" && ai.Name != "" && ai.Provider != "" && ai.Homepage != ""
 }
 
 func (ai *ActorInfo) ToSearchResult() *ActorSearchResult {
 	return &ActorSearchResult{
 		ID:       ai.ID,
 		Name:     ai.Name,
+		Provider: ai.Provider,
 		Homepage: ai.Homepage,
 		Images:   ai.Images,
 	}
