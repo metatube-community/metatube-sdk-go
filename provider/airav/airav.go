@@ -18,6 +18,8 @@ var (
 	_ provider.Searcher = (*AirAV)(nil)
 )
 
+const Name = "airav"
+
 const (
 	baseURL      = "https://www.airav.wiki/"
 	movieURL     = "https://www.airav.wiki/video/%s"
@@ -44,7 +46,7 @@ func NewAirAV() *AirAV {
 }
 
 func (air *AirAV) Name() string {
-	return "AirAV"
+	return Name
 }
 
 func (air *AirAV) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -59,6 +61,7 @@ func (air *AirAV) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 	id := path.Base(homepage.Path)
 
 	info = &model.MovieInfo{
+		Provider:      Name,
 		Homepage:      homepage.String(),
 		Actors:        []string{},
 		PreviewImages: []string{},
@@ -182,6 +185,7 @@ func (air *AirAV) SearchMovie(keyword string) (results []*model.SearchResult, er
 					ID:       result.Barcode,
 					Number:   result.Barcode,
 					Title:    result.Name,
+					Provider: Name,
 					Homepage: fmt.Sprintf(movieURL, result.Barcode),
 					ThumbURL: result.ImgURL,
 					CoverURL: result.ImgURL,

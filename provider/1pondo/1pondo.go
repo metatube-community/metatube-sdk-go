@@ -18,6 +18,8 @@ import (
 
 var _ provider.Provider = (*OnePondo)(nil)
 
+const Name = "1pondo"
+
 // webpack:///src/assets/js/services/Bifrost/API.js:formatted
 const (
 	baseURL               = "https://www.1pondo.tv/"
@@ -46,7 +48,7 @@ func NewOnePondo() *OnePondo {
 }
 
 func (opd *OnePondo) Name() string {
-	return "1pondo"
+	return Name
 }
 
 func (opd *OnePondo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -61,6 +63,7 @@ func (opd *OnePondo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 	id := path.Base(homepage.Path)
 
 	info = &model.MovieInfo{
+		Provider:      Name,
 		Homepage:      homepage.String(),
 		Maker:         "一本道",
 		Actors:        []string{},

@@ -20,6 +20,8 @@ var (
 	_ provider.Searcher = (*JavBus)(nil)
 )
 
+const Name = "javbus"
+
 const (
 	baseURL             = "https://www.javbus.com/"
 	movieURL            = "https://www.javbus.com/ja/%s"
@@ -41,7 +43,7 @@ func NewJavBus() *JavBus {
 }
 
 func (bus *JavBus) Name() string {
-	return "JavBus"
+	return Name
 }
 
 func (bus *JavBus) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -56,6 +58,7 @@ func (bus *JavBus) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error
 
 	info = &model.MovieInfo{
 		ID:            strings.ToUpper(path.Base(homepage.Path)),
+		Provider:      Name,
 		Homepage:      homepage.String(),
 		Actors:        []string{},
 		PreviewImages: []string{},
@@ -135,6 +138,7 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, e
 			ID:          strings.TrimLeft(e.Attr("href"), baseURL),
 			Number:      e.ChildText(`.//div[2]/span/date[1]`),
 			Title:       strings.SplitN(e.ChildText(`.//div[2]/span`), "\n", 2)[0],
+			Provider:    Name,
 			Homepage:    e.Request.AbsoluteURL(e.Attr("href")),
 			ThumbURL:    thumb,
 			CoverURL:    cover,

@@ -20,6 +20,8 @@ import (
 
 var _ provider.Provider = (*Heyzo)(nil)
 
+const Name = "heyzo"
+
 const (
 	baseURL   = "https://www.heyzo.com/"
 	movieURL  = "https://www.heyzo.com/moviepages/%04s/index.html"
@@ -40,7 +42,7 @@ func NewHeyzo() *Heyzo {
 }
 
 func (hzo *Heyzo) Name() string {
-	return "HEYZO"
+	return Name
 }
 
 func (hzo *Heyzo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -57,6 +59,7 @@ func (hzo *Heyzo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 	info = &model.MovieInfo{
 		ID:            id,
 		Number:        fmt.Sprintf("HEYZO-%s", id),
+		Provider:      Name,
 		Homepage:      homepage.String(),
 		Maker:         "HEYZO",
 		Actors:        []string{},

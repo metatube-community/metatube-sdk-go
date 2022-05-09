@@ -18,6 +18,8 @@ import (
 
 var _ provider.Provider = (*Caribbeancom)(nil)
 
+const Name = "caribbeancom"
+
 const (
 	baseURL    = "https://www.caribbeancom.com/"
 	movieURL   = "https://www.caribbeancom.com/moviepages/%s/index.html"
@@ -39,7 +41,7 @@ func NewCaribbeancom() *Caribbeancom {
 }
 
 func (crb *Caribbeancom) Name() string {
-	return "Caribbeancom"
+	return Name
 }
 
 func (crb *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -63,6 +65,7 @@ func (crb *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, err
 	info = &model.MovieInfo{
 		ID:            id,
 		Number:        id,
+		Provider:      Name,
 		Homepage:      homepage.String(),
 		Maker:         "カリビアンコム",
 		Actors:        []string{},

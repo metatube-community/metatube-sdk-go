@@ -16,6 +16,8 @@ import (
 
 var _ provider.Provider = (*FC2)(nil)
 
+const Name = "fc2"
+
 const (
 	baseURL   = "https://adult.contents.fc2.com/"
 	movieURL  = "https://adult.contents.fc2.com/article/%s/"
@@ -36,7 +38,7 @@ func NewFC2() *FC2 {
 }
 
 func (fc2 *FC2) Name() string {
-	return "FC2"
+	return Name
 }
 
 func (fc2 *FC2) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -52,6 +54,7 @@ func (fc2 *FC2) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 	info = &model.MovieInfo{
 		ID:            path.Base(homepage.Path),
 		Number:        fmt.Sprintf("FC2-%s", path.Base(homepage.Path)),
+		Provider:      Name,
 		Homepage:      homepage.String(),
 		Actors:        []string{},
 		PreviewImages: []string{},

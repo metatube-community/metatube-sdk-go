@@ -22,6 +22,8 @@ var (
 	_ provider.Downloader = (*SOD)(nil)
 )
 
+const Name = "sod"
+
 const (
 	baseURL   = "https://ec.sod.co.jp/prime/"
 	movieURL  = "https://ec.sod.co.jp/prime/videos/?id=%s"
@@ -44,7 +46,7 @@ func NewSOD() *SOD {
 }
 
 func (sod *SOD) Name() string {
-	return "SOD"
+	return Name
 }
 
 func (sod *SOD) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -59,6 +61,7 @@ func (sod *SOD) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 	}
 
 	info = &model.MovieInfo{
+		Provider:      Name,
 		Homepage:      homepage.String(),
 		Actors:        []string{},
 		PreviewImages: []string{},
@@ -175,6 +178,7 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.SearchResult, err 
 	c.OnXML(`//*[@id="videos_s_mainbox"]`, func(e *colly.XMLElement) {
 		searchResult := &model.SearchResult{
 			Title:       e.ChildText(`.//div[@class="videis_s_txt"]/h2/a`),
+			Provider:    Name,
 			Homepage:    e.Request.AbsoluteURL(e.ChildAttr(`.//div[@class="videis_s_img"]/a`, "href")),
 			ReleaseDate: parser.ParseDate(e.ChildText(`.//div[@class="videis_s_star"]/p`)),
 		}

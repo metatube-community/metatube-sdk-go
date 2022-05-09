@@ -21,6 +21,8 @@ var (
 	_ provider.Searcher = (*MGStage)(nil)
 )
 
+const Name = "mgstage"
+
 const (
 	baseURL   = "https://www.mgstage.com/"
 	movieURL  = "https://www.mgstage.com/product/product_detail/%s/"
@@ -44,7 +46,7 @@ func NewMGStage() *MGStage {
 }
 
 func (mgs *MGStage) Name() string {
-	return "MGS"
+	return Name
 }
 
 func (mgs *MGStage) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -59,6 +61,7 @@ func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 
 	info = &model.MovieInfo{
 		ID:            strings.ToUpper(path.Base(homepage.Path)),
+		Provider:      Name,
 		Homepage:      homepage.String(),
 		Actors:        []string{},
 		PreviewImages: []string{},
@@ -152,6 +155,7 @@ func (mgs *MGStage) SearchMovie(keyword string) (results []*model.SearchResult, 
 		results = append(results, &model.SearchResult{
 			ID:       path.Base(href),
 			Number:   path.Base(href), /* same as ID */
+			Provider: Name,
 			Homepage: e.Request.AbsoluteURL(href),
 			Title:    strings.TrimSpace(e.ChildText(`.//a/p`)),
 			ThumbURL: e.Request.AbsoluteURL(imageSrc(e.ChildAttr(`.//h5/a/img`, "src"), true)),

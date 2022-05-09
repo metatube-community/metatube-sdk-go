@@ -15,13 +15,15 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider"
 )
 
+var _ provider.ActorProvider = (*GFriends)(nil)
+
+const Name = "gfriends"
+
 const (
 	baseURL    = "https://github.com/xinxin8816/gfriends"
 	contentURL = "https://raw.githubusercontent.com/xinxin8816/gfriends/master/Content/%s"
 	jsonURL    = "https://raw.githubusercontent.com/xinxin8816/gfriends/master/Filetree.json"
 )
-
-var _ provider.ActorProvider = (*GFriends)(nil)
 
 type GFriends struct {
 	fileTree *fileTree
@@ -34,7 +36,7 @@ func NewGFriends() *GFriends {
 }
 
 func (gf *GFriends) Name() string {
-	return "GFriends"
+	return Name
 }
 
 func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
@@ -48,6 +50,7 @@ func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
 	return &model.ActorInfo{
 		ID:       id,
 		Name:     id,
+		Provider: Name,
 		Homepage: baseURL,
 		Aliases:  []string{},
 		Images:   images,

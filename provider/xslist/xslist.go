@@ -16,15 +16,17 @@ import (
 	"golang.org/x/net/html"
 )
 
+var (
+	_ provider.ActorProvider = (*XsList)(nil)
+	_ provider.ActorSearcher = (*XsList)(nil)
+)
+
+const Name = "xslist"
+
 const (
 	baseURL   = "https://xslist.org/"
 	actorURL  = "https://xslist.org/zh/model/%s.html"
 	searchURL = "https://xslist.org/search?query=%s&lg=zh"
-)
-
-var (
-	_ provider.ActorProvider = (*XsList)(nil)
-	_ provider.ActorSearcher = (*XsList)(nil)
 )
 
 type XsList struct {
@@ -41,7 +43,7 @@ func NewXsList() *XsList {
 }
 
 func (xsl *XsList) Name() string {
-	return "XsList"
+	return Name
 }
 
 func (xsl *XsList) GetActorInfoByID(id string) (info *model.ActorInfo, err error) {
@@ -60,6 +62,7 @@ func (xsl *XsList) GetActorInfoByURL(u string) (info *model.ActorInfo, err error
 
 	info = &model.ActorInfo{
 		ID:       id,
+		Provider: Name,
 		Homepage: homepage.String(),
 		Aliases:  []string{},
 		Images:   []string{},
@@ -157,6 +160,7 @@ func (xsl *XsList) SearchActor(keyword string) (results []*model.ActorSearchResu
 			ID:       id,
 			Name:     name,
 			Images:   images,
+			Provider: Name,
 			Homepage: homepage.String(),
 		})
 	})
