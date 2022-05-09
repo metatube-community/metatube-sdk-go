@@ -21,9 +21,9 @@ var _ provider.Provider = (*Caribbeancom)(nil)
 const Name = "caribbeancom"
 
 const (
-	baseURL    = "https://www.caribbeancom.com/"
-	movieURL   = "https://www.caribbeancom.com/moviepages/%s/index.html"
-	moviePRURL = "https://www.caribbeancompr.com/moviepages/%s/index.html"
+	baseURL         = "https://www.caribbeancom.com/"
+	movieURL        = "https://www.caribbeancom.com/moviepages/%s/index.html"
+	moviePremiumURL = "https://www.caribbeancompr.com/moviepages/%s/index.html"
 )
 
 type Caribbeancom struct {
@@ -49,7 +49,7 @@ func (crb *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, err
 	case strings.Contains(id, "-"):
 		return crb.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 	case strings.Contains(id, "_"):
-		return crb.GetMovieInfoByURL(fmt.Sprintf(moviePRURL, id))
+		return crb.GetMovieInfoByURL(fmt.Sprintf(moviePremiumURL, id))
 	default:
 		return nil, provider.ErrNotFound
 	}
