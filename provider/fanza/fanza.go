@@ -41,7 +41,7 @@ type FANZA struct {
 	c *colly.Collector
 }
 
-func NewFANZA() *FANZA {
+func New() *FANZA {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
 		colly.IgnoreRobotsTxt(),

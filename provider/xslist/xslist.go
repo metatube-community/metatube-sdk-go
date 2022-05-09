@@ -33,7 +33,7 @@ type XsList struct {
 	c *colly.Collector
 }
 
-func NewXsList() *XsList {
+func New() *XsList {
 	return &XsList{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),

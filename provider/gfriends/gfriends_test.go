@@ -8,7 +8,7 @@ import (
 )
 
 func TestGFriends_GetActorInfoByID(t *testing.T) {
-	provider := NewGFriends()
+	provider := New()
 	for _, item := range []string{
 		"小松凛花",
 		"谷あづさ",

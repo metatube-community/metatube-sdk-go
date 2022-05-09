@@ -8,7 +8,7 @@ import (
 )
 
 func TestOnePondo_GetMovieInfoByID(t *testing.T) {
-	provider := NewOnePondo()
+	provider := New()
 	for _, item := range []string{
 		"042922_001",
 		"080812_401",

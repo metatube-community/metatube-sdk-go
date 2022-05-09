@@ -28,7 +28,7 @@ type FC2 struct {
 	c *colly.Collector
 }
 
-func NewFC2() *FC2 {
+func New() *FC2 {
 	return &FC2{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),

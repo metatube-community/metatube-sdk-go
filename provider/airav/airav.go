@@ -32,7 +32,7 @@ type AirAV struct {
 	c *colly.Collector
 }
 
-func NewAirAV() *AirAV {
+func New() *AirAV {
 	return &AirAV{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),

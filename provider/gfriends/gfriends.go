@@ -29,7 +29,7 @@ type GFriends struct {
 	fileTree *fileTree
 }
 
-func NewGFriends() *GFriends {
+func New() *GFriends {
 	return &GFriends{
 		fileTree: newFileTree(time.Hour),
 	}

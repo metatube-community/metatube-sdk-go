@@ -30,7 +30,7 @@ type Caribbeancom struct {
 	c *colly.Collector
 }
 
-func NewCaribbeancom() *Caribbeancom {
+func New() *Caribbeancom {
 	return &Caribbeancom{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),

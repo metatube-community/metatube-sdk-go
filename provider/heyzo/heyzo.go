@@ -32,7 +32,7 @@ type Heyzo struct {
 	c *colly.Collector
 }
 
-func NewHeyzo() *Heyzo {
+func New() *Heyzo {
 	return &Heyzo{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),

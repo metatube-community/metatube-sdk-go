@@ -33,7 +33,7 @@ type JavBus struct {
 	c *colly.Collector
 }
 
-func NewJavBus() *JavBus {
+func New() *JavBus {
 	return &JavBus{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),

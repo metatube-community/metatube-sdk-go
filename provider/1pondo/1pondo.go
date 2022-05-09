@@ -33,7 +33,7 @@ type OnePondo struct {
 	c *colly.Collector
 }
 
-func NewOnePondo() *OnePondo {
+func New() *OnePondo {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
 		colly.IgnoreRobotsTxt(),
