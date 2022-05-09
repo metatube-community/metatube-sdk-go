@@ -16,7 +16,7 @@ import (
 
 var _ provider.Provider = (*TokyoHot)(nil)
 
-const Name = "tokyo-hot"
+const name = "tokyo-hot"
 
 const (
 	baseURL   = "https://my.tokyo-hot.com/"
@@ -28,7 +28,7 @@ type TokyoHot struct {
 	c *colly.Collector
 }
 
-func New() *TokyoHot {
+func New() provider.Provider {
 	return &TokyoHot{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
@@ -50,7 +50,7 @@ func (th *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 
 	info = &model.MovieInfo{
 		ID:            id,
-		Provider:      Name,
+		Provider:      name,
 		Homepage:      homepage.String(),
 		Maker:         "TOKYO-HOT",
 		Actors:        []string{},
@@ -140,7 +140,7 @@ func (th *TokyoHot) SearchMovie(keyword string) (results []*model.SearchResult, 
 			Title:    e.ChildText(`.//div[@class="title"]`),
 			ThumbURL: e.Request.AbsoluteURL(img),
 			CoverURL: e.Request.AbsoluteURL(img),
-			Provider: Name,
+			Provider: name,
 			Homepage: homepage.String(),
 		})
 	})

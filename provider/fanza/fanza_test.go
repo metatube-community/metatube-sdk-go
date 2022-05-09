@@ -8,7 +8,7 @@ import (
 )
 
 func TestFANZA_GetMovieInfoByID(t *testing.T) {
-	provider := New()
+	provider := New().(*FANZA)
 	for _, item := range []string{
 		"ssis00122",
 		"midv00047",
@@ -21,7 +21,7 @@ func TestFANZA_GetMovieInfoByID(t *testing.T) {
 }
 
 func TestFANZA_SearchMovie(t *testing.T) {
-	provider := New()
+	provider := New().(*FANZA)
 	for _, item := range []string{
 		"SSIS-122",
 		"MIDV-047",

@@ -8,7 +8,7 @@ import (
 )
 
 func TestAirAV_GetMovieInfoByID(t *testing.T) {
-	provider := New()
+	provider := New().(*AirAV)
 	for _, item := range []string{
 		"STARS-381",
 		"FC2-PPV-2480488",
@@ -21,7 +21,7 @@ func TestAirAV_GetMovieInfoByID(t *testing.T) {
 }
 
 func TestAirAV_SearchMovie(t *testing.T) {
-	provider := New()
+	provider := New().(*AirAV)
 	for _, item := range []string{
 		// "STARS",
 		"FC2",

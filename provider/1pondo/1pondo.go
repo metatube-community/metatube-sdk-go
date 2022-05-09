@@ -18,7 +18,7 @@ import (
 
 var _ provider.Provider = (*OnePondo)(nil)
 
-const Name = "1pondo"
+const name = "1pondo"
 
 // webpack:///src/assets/js/services/Bifrost/API.js:formatted
 const (
@@ -33,7 +33,7 @@ type OnePondo struct {
 	c *colly.Collector
 }
 
-func New() *OnePondo {
+func New() provider.Provider {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
 		colly.IgnoreRobotsTxt(),
@@ -48,7 +48,7 @@ func New() *OnePondo {
 }
 
 func (opd *OnePondo) Name() string {
-	return Name
+	return name
 }
 
 func (opd *OnePondo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -63,7 +63,7 @@ func (opd *OnePondo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 	id := path.Base(homepage.Path)
 
 	info = &model.MovieInfo{
-		Provider:      Name,
+		Provider:      name,
 		Homepage:      homepage.String(),
 		Maker:         "一本道",
 		Actors:        []string{},

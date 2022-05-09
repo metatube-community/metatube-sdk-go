@@ -21,7 +21,7 @@ var (
 	_ provider.Searcher = (*MGStage)(nil)
 )
 
-const Name = "mgstage"
+const name = "mgstage"
 
 const (
 	baseURL   = "https://www.mgstage.com/"
@@ -34,7 +34,7 @@ type MGStage struct {
 	c *colly.Collector
 }
 
-func New() *MGStage {
+func New() provider.Provider {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
 		colly.IgnoreRobotsTxt(),
@@ -46,7 +46,7 @@ func New() *MGStage {
 }
 
 func (mgs *MGStage) Name() string {
-	return Name
+	return name
 }
 
 func (mgs *MGStage) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -61,7 +61,7 @@ func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 
 	info = &model.MovieInfo{
 		ID:            strings.ToUpper(path.Base(homepage.Path)),
-		Provider:      Name,
+		Provider:      name,
 		Homepage:      homepage.String(),
 		Actors:        []string{},
 		PreviewImages: []string{},
@@ -155,7 +155,7 @@ func (mgs *MGStage) SearchMovie(keyword string) (results []*model.SearchResult, 
 		results = append(results, &model.SearchResult{
 			ID:       path.Base(href),
 			Number:   path.Base(href), /* same as ID */
-			Provider: Name,
+			Provider: name,
 			Homepage: e.Request.AbsoluteURL(href),
 			Title:    strings.TrimSpace(e.ChildText(`.//a/p`)),
 			ThumbURL: e.Request.AbsoluteURL(imageSrc(e.ChildAttr(`.//h5/a/img`, "src"), true)),

@@ -8,7 +8,7 @@ import (
 )
 
 func TestJavBus_GetMovieInfoByID(t *testing.T) {
-	provider := New()
+	provider := New().(*JavBus)
 	for _, item := range []string{
 		"SSNI-776",
 		"ABP-331",
@@ -21,7 +21,7 @@ func TestJavBus_GetMovieInfoByID(t *testing.T) {
 }
 
 func TestJavBus_SearchMovie(t *testing.T) {
-	provider := New()
+	provider := New().(*JavBus)
 	for _, item := range []string{
 		"SSIS-033",
 		"MIDE-154",

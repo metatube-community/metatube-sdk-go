@@ -20,7 +20,7 @@ import (
 
 var _ provider.Provider = (*Heyzo)(nil)
 
-const Name = "heyzo"
+const name = "heyzo"
 
 const (
 	baseURL   = "https://www.heyzo.com/"
@@ -32,7 +32,7 @@ type Heyzo struct {
 	c *colly.Collector
 }
 
-func New() *Heyzo {
+func New() provider.Provider {
 	return &Heyzo{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
@@ -42,7 +42,7 @@ func New() *Heyzo {
 }
 
 func (hzo *Heyzo) Name() string {
-	return Name
+	return name
 }
 
 func (hzo *Heyzo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -59,7 +59,7 @@ func (hzo *Heyzo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 	info = &model.MovieInfo{
 		ID:            id,
 		Number:        fmt.Sprintf("HEYZO-%s", id),
-		Provider:      Name,
+		Provider:      name,
 		Homepage:      homepage.String(),
 		Maker:         "HEYZO",
 		Actors:        []string{},

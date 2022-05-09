@@ -24,7 +24,7 @@ var (
 	_ provider.Searcher = (*FANZA)(nil)
 )
 
-const Name = "fanza"
+const name = "fanza"
 
 const (
 	baseURL                 = "https://www.dmm.co.jp/"
@@ -41,7 +41,7 @@ type FANZA struct {
 	c *colly.Collector
 }
 
-func New() *FANZA {
+func New() provider.Provider {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
 		colly.IgnoreRobotsTxt(),
@@ -53,7 +53,7 @@ func New() *FANZA {
 }
 
 func (fz *FANZA) Name() string {
-	return Name // FANZA also known as DMM
+	return name // FANZA also known as DMM
 }
 
 func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -82,7 +82,7 @@ func (fz *FANZA) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 	}
 
 	info = &model.MovieInfo{
-		Provider:      Name,
+		Provider:      name,
 		Homepage:      u,
 		Actors:        []string{},
 		PreviewImages: []string{},
@@ -286,7 +286,7 @@ func (fz *FANZA) SearchMovie(keyword string) (results []*model.SearchResult, err
 			ID:       id,
 			Number:   ParseNumber(id),
 			Title:    e.ChildAttr(`.//p[@class="tmb"]/a/span[1]/img`, "alt"),
-			Provider: Name,
+			Provider: name,
 			Homepage: e.Request.AbsoluteURL(e.ChildAttr(`.//p[@class="tmb"]/a`, "href")),
 			ThumbURL: e.Request.AbsoluteURL(thumb),
 			CoverURL: e.Request.AbsoluteURL(PreviewSrc(thumb)),

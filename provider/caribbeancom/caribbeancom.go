@@ -18,7 +18,7 @@ import (
 
 var _ provider.Provider = (*Caribbeancom)(nil)
 
-const Name = "caribbeancom"
+const name = "caribbeancom"
 
 const (
 	baseURL         = "https://www.caribbeancom.com/"
@@ -30,7 +30,7 @@ type Caribbeancom struct {
 	c *colly.Collector
 }
 
-func New() *Caribbeancom {
+func New() provider.Provider {
 	return &Caribbeancom{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
@@ -41,7 +41,7 @@ func New() *Caribbeancom {
 }
 
 func (crb *Caribbeancom) Name() string {
-	return Name
+	return name
 }
 
 func (crb *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -65,7 +65,7 @@ func (crb *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, err
 	info = &model.MovieInfo{
 		ID:            id,
 		Number:        id,
-		Provider:      Name,
+		Provider:      name,
 		Homepage:      homepage.String(),
 		Maker:         "カリビアンコム",
 		Actors:        []string{},

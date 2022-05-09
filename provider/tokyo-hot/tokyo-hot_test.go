@@ -8,7 +8,7 @@ import (
 )
 
 func TestTokyoHot_GetMovieInfoByID(t *testing.T) {
-	provider := New()
+	provider := New().(*TokyoHot)
 	for _, item := range []string{
 		"n1624",
 		"kb1624",
@@ -21,7 +21,7 @@ func TestTokyoHot_GetMovieInfoByID(t *testing.T) {
 }
 
 func TestTokyoHot_SearchMovie(t *testing.T) {
-	provider := New()
+	provider := New().(*TokyoHot)
 	for _, item := range []string{
 		"1624",
 	} {
