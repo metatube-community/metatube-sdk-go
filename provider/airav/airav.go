@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"strings"
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
@@ -102,7 +103,7 @@ func (air *AirAV) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 		}{}
 		if err = json.Unmarshal(r.Body, &data); err == nil && data.Count > 0 {
 			info.ID = data.Result.Barcode
-			info.Number = data.Result.Barcode
+			info.Number = ParseNumber(data.Result.Barcode)
 			info.Title = data.Result.Name
 			info.Summary = data.Result.Description
 			info.ThumbURL = data.Result.ImgURL
@@ -177,7 +178,7 @@ func (air *AirAV) SearchMovie(keyword string) (results []*model.SearchResult, er
 			for _, result := range data.Result {
 				results = append(results, &model.SearchResult{
 					ID:       result.Barcode,
-					Number:   result.Barcode,
+					Number:   ParseNumber(result.Barcode),
 					Title:    result.Name,
 					Provider: Name,
 					Homepage: fmt.Sprintf(movieURL, result.Barcode),
@@ -190,4 +191,12 @@ func (air *AirAV) SearchMovie(keyword string) (results []*model.SearchResult, er
 
 	err = c.Visit(fmt.Sprintf(searchAPIURL, url.QueryEscape(keyword)))
 	return
+}
+
+// ParseNumber parses barcode to standard movie number.
+func ParseNumber(s string) string {
+	s = strings.ToUpper(s)
+	// Use `FC2` directly here
+	s = strings.ReplaceAll(s, "FC2-PPV-", "FC2-")
+	return s
 }

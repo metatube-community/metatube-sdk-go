@@ -11,7 +11,7 @@ func TestAirAV_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"STARS-381",
-		//"DLDSS-077",
+		"FC2-PPV-2480488",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
@@ -23,9 +23,8 @@ func TestAirAV_GetMovieInfoByID(t *testing.T) {
 func TestAirAV_SearchMovie(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
-		"STARS",
+		// "STARS",
 		"FC2",
-		"DLDSS",
 	} {
 		results, err := provider.SearchMovie(item)
 		data, _ := json.MarshalIndent(results, "", "\t")
