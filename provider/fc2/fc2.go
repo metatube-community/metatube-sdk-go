@@ -28,7 +28,7 @@ type FC2 struct {
 	c *colly.Collector
 }
 
-func New() provider.Provider {
+func New() *FC2 {
 	return &FC2{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
@@ -115,4 +115,8 @@ func (fc2 *FC2) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 
 	err = c.Visit(info.Homepage)
 	return
+}
+
+func init() {
+	provider.RegisterFactory(name, New)
 }

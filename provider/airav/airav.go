@@ -33,7 +33,7 @@ type AirAV struct {
 	c *colly.Collector
 }
 
-func New() provider.Provider {
+func New() *AirAV {
 	return &AirAV{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
@@ -199,4 +199,8 @@ func ParseNumber(s string) string {
 	// Use `FC2` directly here
 	s = strings.ReplaceAll(s, "FC2-PPV-", "FC2-")
 	return s
+}
+
+func init() {
+	provider.RegisterFactory(name, New)
 }

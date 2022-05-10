@@ -8,7 +8,7 @@ import (
 )
 
 func TestHeyzo_GetMovieInfoByID(t *testing.T) {
-	provider := New().(*Heyzo)
+	provider := New()
 	for _, item := range []string{
 		"0841",
 		"0805",

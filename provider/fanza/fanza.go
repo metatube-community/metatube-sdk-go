@@ -41,7 +41,7 @@ type FANZA struct {
 	c *colly.Collector
 }
 
-func New() provider.Provider {
+func New() *FANZA {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
 		colly.IgnoreRobotsTxt(),
@@ -354,4 +354,8 @@ func PreviewSrc(s string) string {
 	} else {
 		return strings.ReplaceAll(s, "-", "jp-")
 	}
+}
+
+func init() {
+	provider.RegisterFactory(name, New)
 }

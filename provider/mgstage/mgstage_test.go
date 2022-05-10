@@ -8,7 +8,7 @@ import (
 )
 
 func TestMGStage_GetMovieInfoByID(t *testing.T) {
-	provider := New().(*MGStage)
+	provider := New()
 	for _, item := range []string{
 		"ABP-169",
 		"261ARA-539",
@@ -21,7 +21,7 @@ func TestMGStage_GetMovieInfoByID(t *testing.T) {
 }
 
 func TestMGStage_SearchMovie(t *testing.T) {
-	provider := New().(*MGStage)
+	provider := New()
 	for _, item := range []string{
 		"ABP-177",
 		"200GANA-2701",

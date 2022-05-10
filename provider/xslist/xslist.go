@@ -33,7 +33,7 @@ type XsList struct {
 	c *colly.Collector
 }
 
-func New() provider.ActorProvider {
+func New() *XsList {
 	return &XsList{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
@@ -176,4 +176,8 @@ func parseDebutDate(s string) time.Time {
 			1, 0, 0, 0, 0, time.UTC)
 	}
 	return parser.ParseDate(s)
+}
+
+func init() {
+	provider.RegisterActorFactory(name, New)
 }

@@ -8,7 +8,7 @@ import (
 )
 
 func TestGFriends_GetActorInfoByID(t *testing.T) {
-	provider := New().(*GFriends)
+	provider := New()
 	for _, item := range []string{
 		"小松凛花",
 		"谷あづさ",
@@ -21,7 +21,7 @@ func TestGFriends_GetActorInfoByID(t *testing.T) {
 }
 
 func TestGFriends_SearchActor(t *testing.T) {
-	provider := New().(*GFriends)
+	provider := New()
 	for _, item := range []string{
 		"美竹すず",
 	} {

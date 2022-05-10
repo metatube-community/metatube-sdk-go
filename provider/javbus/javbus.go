@@ -33,7 +33,7 @@ type JavBus struct {
 	c *colly.Collector
 }
 
-func New() provider.Provider {
+func New() *JavBus {
 	return &JavBus{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
@@ -155,4 +155,8 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, e
 	}
 	c.Wait()
 	return
+}
+
+func init() {
+	provider.RegisterFactory(name, New)
 }

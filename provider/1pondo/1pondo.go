@@ -33,7 +33,7 @@ type OnePondo struct {
 	c *colly.Collector
 }
 
-func New() provider.Provider {
+func New() *OnePondo {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
 		colly.IgnoreRobotsTxt(),
@@ -200,4 +200,8 @@ func (opd *OnePondo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 
 	err = c.Visit(fmt.Sprintf(movieDetailURL, id))
 	return
+}
+
+func init() {
+	provider.RegisterFactory(name, New)
 }

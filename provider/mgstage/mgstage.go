@@ -34,7 +34,7 @@ type MGStage struct {
 	c *colly.Collector
 }
 
-func New() provider.Provider {
+func New() *MGStage {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
 		colly.IgnoreRobotsTxt(),
@@ -176,4 +176,8 @@ func imageSrc(s string, thumb bool) string {
 		return re.ReplaceAllString(s, "/pb_e_")
 	}
 	return s
+}
+
+func init() {
+	provider.RegisterFactory(name, New)
 }

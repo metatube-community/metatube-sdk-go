@@ -9,7 +9,7 @@ import (
 )
 
 func TestSOD_GetMovieInfoByID(t *testing.T) {
-	provider := New().(*SOD)
+	provider := New()
 	for _, item := range []string{
 		"STARS-381",
 		"DLDSS-077",
@@ -22,7 +22,7 @@ func TestSOD_GetMovieInfoByID(t *testing.T) {
 }
 
 func TestSOD_SearchMovie(t *testing.T) {
-	provider := New().(*SOD)
+	provider := New()
 	for _, item := range []string{
 		"STAR-399",
 		"IENF-209",
@@ -40,7 +40,7 @@ func TestSOD_SearchMovie(t *testing.T) {
 }
 
 func TestSOD_Download(t *testing.T) {
-	provider := New().(*SOD)
+	provider := New()
 	for _, item := range []string{
 		"https://dy43ylo5q3vt8.cloudfront.net/_pics/202108/dldss_022/dldss_022_m.jpg",
 	} {

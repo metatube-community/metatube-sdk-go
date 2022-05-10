@@ -32,7 +32,7 @@ type Heyzo struct {
 	c *colly.Collector
 }
 
-func New() provider.Provider {
+func New() *Heyzo {
 	return &Heyzo{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
@@ -213,4 +213,8 @@ func (hzo *Heyzo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 
 	err = c.Visit(info.Homepage)
 	return
+}
+
+func init() {
+	provider.RegisterFactory(name, New)
 }

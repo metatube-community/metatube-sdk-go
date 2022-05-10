@@ -30,7 +30,7 @@ type Caribbeancom struct {
 	c *colly.Collector
 }
 
-func New() provider.Provider {
+func New() *Caribbeancom {
 	return &Caribbeancom{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
@@ -160,4 +160,8 @@ func (crb *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, err
 
 	err = c.Visit(info.Homepage)
 	return
+}
+
+func init() {
+	provider.RegisterFactory(name, New)
 }

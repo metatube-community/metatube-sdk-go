@@ -28,7 +28,7 @@ type TokyoHot struct {
 	c *colly.Collector
 }
 
-func New() provider.Provider {
+func New() *TokyoHot {
 	return &TokyoHot{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
@@ -147,4 +147,8 @@ func (th *TokyoHot) SearchMovie(keyword string) (results []*model.SearchResult, 
 
 	err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword)))
 	return
+}
+
+func init() {
+	provider.RegisterFactory(name, New)
 }

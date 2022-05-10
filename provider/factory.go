@@ -18,9 +18,9 @@ var (
 	actorFactories = make(map[string]ActorFactory)
 )
 
-func RegisterFactory(name string, factory Factory) {
+func RegisterFactory[T Provider](name string, factory func() T) {
 	factoryMu.Lock()
-	factories[name] = factory
+	factories[name] = func() Provider { return factory() }
 	factoryMu.Unlock()
 }
 
@@ -32,9 +32,9 @@ func RangeFactory(f func(string, Factory)) {
 	factoryMu.RUnlock()
 }
 
-func RegisterActorFactory(name string, factory ActorFactory) {
+func RegisterActorFactory[T ActorProvider](name string, factory func() T) {
 	actorFactoryMu.Lock()
-	actorFactories[name] = factory
+	actorFactories[name] = func() ActorProvider { return factory() }
 	actorFactoryMu.Unlock()
 }
 

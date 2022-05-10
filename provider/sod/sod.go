@@ -36,7 +36,7 @@ type SOD struct {
 	c *colly.Collector
 }
 
-func New() provider.Provider {
+func New() *SOD {
 	return &SOD{
 		c: colly.NewCollector(
 			colly.AllowURLRevisit(),
@@ -221,4 +221,8 @@ func (sod *SOD) Download(u string) (_ io.ReadCloser, err error) {
 		return nil, errors.New(http.StatusText(resp.StatusCode))
 	}
 	return resp.Body, nil
+}
+
+func init() {
+	provider.RegisterFactory(name, New)
 }

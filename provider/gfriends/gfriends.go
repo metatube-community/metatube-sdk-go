@@ -32,7 +32,7 @@ type GFriends struct {
 	fileTree *fileTree
 }
 
-func New() provider.ActorProvider {
+func New() *GFriends {
 	return &GFriends{
 		fileTree: newFileTree(time.Hour),
 	}
@@ -131,4 +131,8 @@ func reverse[T any](array []T) []T {
 		array[i], array[j] = array[j], array[i]
 	}
 	return array
+}
+
+func init() {
+	provider.RegisterActorFactory(name, New)
 }
