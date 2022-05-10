@@ -10,38 +10,38 @@ type (
 )
 
 var (
-	// Mutexes
-	factoryMu      sync.Mutex
-	actorFactoryMu sync.Mutex
+	// RW Mutexes
+	factoryMu      sync.RWMutex
+	actorFactoryMu sync.RWMutex
 	// Factories
 	factories      = make(map[string]Factory)
 	actorFactories = make(map[string]ActorFactory)
 )
 
-func RegisterFactory(name string, f Factory) {
+func RegisterFactory(name string, factory Factory) {
 	factoryMu.Lock()
-	factories[name] = f
+	factories[name] = factory
 	factoryMu.Unlock()
 }
 
 func RangeFactory(f func(string, Factory)) {
-	factoryMu.Lock()
+	factoryMu.RLock()
 	for name, factory := range factories {
 		f(name, factory)
 	}
-	factoryMu.Unlock()
+	factoryMu.RUnlock()
 }
 
-func RegisterActorFactory(name string, f ActorFactory) {
+func RegisterActorFactory(name string, factory ActorFactory) {
 	actorFactoryMu.Lock()
-	actorFactories[name] = f
+	actorFactories[name] = factory
 	actorFactoryMu.Unlock()
 }
 
 func RangeActorFactory(f func(string, ActorFactory)) {
-	actorFactoryMu.Lock()
+	actorFactoryMu.RLock()
 	for name, factory := range actorFactories {
 		f(name, factory)
 	}
-	actorFactoryMu.Unlock()
+	actorFactoryMu.RUnlock()
 }
