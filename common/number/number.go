@@ -23,7 +23,7 @@ func Trim(s string) string {
 	}
 	s = regexp.MustCompile(`(?i)[-_\s](fhd|hd|sd|1080p|720p|4K|x264|x265|uncensored|leak)`).
 		ReplaceAllString(s, "") // trim tags
-	s = regexp.MustCompile(`^(?i)(cari|carib|caribean|1Pondo|heydouga|pacopacomama|muramura|Tokyo.*Hot)[-_\s]`).
+	s = regexp.MustCompile(`^(?i)\s*(cari|carib|caribean|1Pondo|heydouga|pacopacomama|muramura|Tokyo.*Hot)[-_\s]`).
 		ReplaceAllString(s, "") // trim prefixes
 	s = s[:findFirstNonASCII(s)] // trim unicode content
 	s = strings.Fields(s)[0]     // trim possible alpha started title
