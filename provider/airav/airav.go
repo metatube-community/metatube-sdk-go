@@ -34,28 +34,20 @@ const (
 )
 
 type AirAV struct {
-	c *colly.Collector
+	*provider.Scraper
 }
 
 func New() *AirAV {
 	return &AirAV{
-		c: colly.NewCollector(
+		Scraper: provider.NewScraper(name, priority, colly.NewCollector(
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
 			colly.UserAgent(random.UserAgent()),
 			colly.Headers(map[string]string{
 				"Origin":  baseURL,
 				"Referer": baseURL,
-			})),
+			}))),
 	}
-}
-
-func (air *AirAV) Name() string {
-	return name
-}
-
-func (air *AirAV) Priority() int {
-	return priority
 }
 
 func (air *AirAV) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -77,7 +69,7 @@ func (air *AirAV) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 		Tags:          []string{},
 	}
 
-	c := air.c.Clone()
+	c := air.Collector()
 
 	// JSON
 	c.OnResponse(func(r *colly.Response) {
@@ -174,7 +166,7 @@ func (air *AirAV) SearchMovie(keyword string) (results []*model.MovieSearchResul
 		}
 	}
 
-	c := air.c.Clone()
+	c := air.Collector()
 
 	c.OnResponse(func(r *colly.Response) {
 		data := struct {
