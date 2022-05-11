@@ -12,6 +12,9 @@ type Searcher interface {
 }
 
 type Provider interface {
+	// Name returns name of the provider.
+	Name() string
+
 	// GetMovieInfoByID gets movie's info by id.
 	GetMovieInfoByID(id string) (*model.MovieInfo, error)
 
@@ -25,6 +28,9 @@ type ActorSearcher interface {
 }
 
 type ActorProvider interface {
+	// Name returns name of the provider.
+	Name() string
+
 	// GetActorInfoByID gets actor's info by id.
 	GetActorInfoByID(id string) (*model.ActorInfo, error)
 
