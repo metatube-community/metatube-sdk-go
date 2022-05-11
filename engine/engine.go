@@ -52,7 +52,7 @@ func (e *Engine) SearchMovie(keyword string) ([]*model.SearchResult, error) {
 	}
 
 	type response struct {
-		priority int
+		provider javtube.Provider
 		results  []*model.SearchResult
 		err      error
 	}
@@ -66,7 +66,7 @@ func (e *Engine) SearchMovie(keyword string) ([]*model.SearchResult, error) {
 			defer wg.Done()
 			results, err := e.searchMovie(provider, keyword)
 			respCh <- response{
-				priority: provider.Priority(),
+				provider: provider,
 				results:  results,
 				err:      err,
 			}
@@ -93,7 +93,7 @@ func (e *Engine) SearchMovie(keyword string) ([]*model.SearchResult, error) {
 			}
 			items = append(items, item{
 				// calculate priority.
-				priority: float64(resp.priority) *
+				priority: float64(resp.provider.Priority()) *
 					number.Similarity(keyword, result.Number),
 				result: result,
 			})
@@ -104,7 +104,7 @@ func (e *Engine) SearchMovie(keyword string) ([]*model.SearchResult, error) {
 		// higher priority comes first.
 		return items[i].priority > items[j].priority
 	})
-	//
+	// refine search results.
 	var results []*model.SearchResult
 	for _, i := range items {
 		results = append(results, i.result)
