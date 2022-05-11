@@ -17,21 +17,18 @@ type Engine struct {
 	actorProviders map[string]javtube.ActorProvider
 }
 
-func New() *Engine {
-	var (
-		movieProviders = make(map[string]javtube.Provider)
-		actorProviders = make(map[string]javtube.ActorProvider)
-	)
+func New() (engine *Engine) {
+	engine = &Engine{
+		movieProviders: make(map[string]javtube.Provider),
+		actorProviders: make(map[string]javtube.ActorProvider),
+	}
 	javtube.RangeFactory(func(name string, factory javtube.Factory) {
-		movieProviders[name] = factory()
+		engine.movieProviders[name] = factory()
 	})
 	javtube.RangeActorFactory(func(name string, factory javtube.ActorFactory) {
-		actorProviders[name] = factory()
+		engine.actorProviders[name] = factory()
 	})
-	return &Engine{
-		movieProviders: movieProviders,
-		actorProviders: actorProviders,
-	}
+	return
 }
 
 func (e *Engine) searchMovie(provider javtube.Provider, keyword string) (results []*model.SearchResult, err error) {
