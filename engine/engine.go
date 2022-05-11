@@ -29,19 +29,18 @@ func New() (engine *Engine) {
 	return
 }
 
-func (e *Engine) searchMovie(provider javtube.MovieProvider, keyword string) (results []*model.SearchResult, err error) {
-	// query DB first (by number)
+func (e *Engine) searchMovie(provider javtube.MovieProvider, keyword string) ([]*model.SearchResult, error) {
 	if searcher, ok := provider.(javtube.MovieSearcher); ok {
 		return searcher.SearchMovie(keyword)
 	}
-	var info *model.MovieInfo
-	if info, err = e.getMovieInfoByID(provider, keyword); err == nil && info.Valid() {
-		return []*model.SearchResult{info.ToSearchResult()}, nil
+	info, err := e.getMovieInfoByID(provider, keyword)
+	if err != nil {
+		return nil, err
 	}
-	return
+	return []*model.SearchResult{info.ToSearchResult()}, nil
 }
 
-func (e *Engine) SearchMovie(name string, keyword string) (results []*model.SearchResult, err error) {
+func (e *Engine) SearchMovie(name string, keyword string) ([]*model.SearchResult, error) {
 	if keyword = number.Trim(keyword); keyword == "" {
 		return nil, javtube.ErrInvalidKeyword
 	}
