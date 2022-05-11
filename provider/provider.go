@@ -6,17 +6,21 @@ import (
 	"github.com/javtube/javtube-sdk-go/model"
 )
 
+type Provider interface {
+	// Name returns name of the provider.
+	Name() string
+
+	// Priority returns matching priority of the provider.
+	Priority() int
+}
+
 type MovieSearcher interface {
 	// SearchMovie searches matched movies.
 	SearchMovie(keyword string) ([]*model.SearchResult, error)
 }
 
 type MovieProvider interface {
-	// Name returns name of the provider.
-	Name() string
-
-	// Priority returns matching priority of the provider.
-	Priority() int
+	Provider
 
 	// GetMovieInfoByID gets movie's info by id.
 	GetMovieInfoByID(id string) (*model.MovieInfo, error)
