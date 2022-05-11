@@ -1,6 +1,8 @@
 package provider
 
 import (
+	"time"
+
 	"github.com/gocolly/colly/v2"
 )
 
@@ -28,6 +30,12 @@ func (s *Scraper) Priority() int {
 	return s.priority
 }
 
+// Collector returns cloned internal collector.
 func (s *Scraper) Collector() *colly.Collector {
 	return s.c.Clone()
+}
+
+// SetRequestTimeout sets timeout for HTTP requests.
+func (s *Scraper) SetRequestTimeout(timeout time.Duration) {
+	s.c.SetRequestTimeout(timeout)
 }
