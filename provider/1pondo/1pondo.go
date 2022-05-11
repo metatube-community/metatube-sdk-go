@@ -34,7 +34,7 @@ const (
 )
 
 type OnePondo struct {
-	c *colly.Collector
+	*provider.Scraper
 }
 
 func New() *OnePondo {
@@ -48,15 +48,7 @@ func New() *OnePondo {
 	c.SetCookies(baseURL, []*http.Cookie{
 		{Name: "ageCheck", Value: "1"},
 	})
-	return &OnePondo{c: c}
-}
-
-func (opd *OnePondo) Name() string {
-	return name
-}
-
-func (opd *OnePondo) Priority() int {
-	return priority
+	return &OnePondo{provider.NewScraper(name, priority, c)}
 }
 
 func (opd *OnePondo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -82,7 +74,7 @@ func (opd *OnePondo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 		Tags:          []string{},
 	}
 
-	c := opd.c.Clone()
+	c := opd.Collector()
 
 	c.OnResponse(func(r *colly.Response) {
 		data := struct {
