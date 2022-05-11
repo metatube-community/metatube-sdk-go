@@ -32,24 +32,16 @@ const (
 )
 
 type Heyzo struct {
-	c *colly.Collector
+	*provider.Scraper
 }
 
 func New() *Heyzo {
 	return &Heyzo{
-		c: colly.NewCollector(
+		Scraper: provider.NewScraper(name, priority, colly.NewCollector(
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
-			colly.UserAgent(random.UserAgent())),
+			colly.UserAgent(random.UserAgent()))),
 	}
-}
-
-func (hzo *Heyzo) Name() string {
-	return name
-}
-
-func (hzo *Heyzo) Priority() int {
-	return priority
 }
 
 func (hzo *Heyzo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -77,7 +69,7 @@ func (hzo *Heyzo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 		Tags:          []string{},
 	}
 
-	c := hzo.c.Clone()
+	c := hzo.Collector()
 
 	// JSON
 	c.OnXML(`//script[@type="application/ld+json"]`, func(e *colly.XMLElement) {

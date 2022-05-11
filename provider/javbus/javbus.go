@@ -34,7 +34,7 @@ const (
 )
 
 type JavBus struct {
-	c *colly.Collector
+	*provider.Scraper
 }
 
 func New() *JavBus {
@@ -46,15 +46,7 @@ func New() *JavBus {
 		// existmag=all
 		{Name: "existmag", Value: "all"},
 	})
-	return &JavBus{c: c}
-}
-
-func (bus *JavBus) Name() string {
-	return name
-}
-
-func (bus *JavBus) Priority() int {
-	return priority
+	return &JavBus{provider.NewScraper(name, priority, c)}
 }
 
 func (bus *JavBus) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -76,7 +68,7 @@ func (bus *JavBus) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error
 		Tags:          []string{},
 	}
 
-	c := bus.c.Clone()
+	c := bus.Collector()
 
 	// Image+Title
 	c.OnXML(`//a[@class="bigImage"]/img`, func(e *colly.XMLElement) {
@@ -138,7 +130,7 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.MovieSearchResu
 		keyword = strings.ToUpper(keyword)
 	}
 
-	c := bus.c.Clone()
+	c := bus.Collector()
 	c.Async = true /* ASYNC */
 
 	var mu sync.Mutex

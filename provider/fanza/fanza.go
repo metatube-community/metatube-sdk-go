@@ -42,7 +42,7 @@ const (
 )
 
 type FANZA struct {
-	c *colly.Collector
+	*provider.Scraper
 }
 
 func New() *FANZA {
@@ -53,14 +53,7 @@ func New() *FANZA {
 	c.SetCookies(baseURL, []*http.Cookie{
 		{Name: "age_check_done", Value: "1"},
 	})
-	return &FANZA{c: c}
-}
-
-func (fz *FANZA) Name() string {
-	return name // FANZA also known as DMM
-}
-func (fz *FANZA) Priority() int {
-	return priority
+	return &FANZA{provider.NewScraper(name, priority, c)}
 }
 
 func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -96,7 +89,7 @@ func (fz *FANZA) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 		Tags:          []string{},
 	}
 
-	c := fz.c.Clone()
+	c := fz.Collector()
 
 	// Homepage
 	c.OnRequest(func(r *colly.Request) {
@@ -275,7 +268,7 @@ func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult
 		keyword = strings.ToLower(keyword) /* FANZA prefers lowercase */
 	}
 
-	c := fz.c.Clone()
+	c := fz.Collector()
 
 	c.OnXML(`//*[@id="list"]/li`, func(e *colly.XMLElement) {
 		pattens := regexp.

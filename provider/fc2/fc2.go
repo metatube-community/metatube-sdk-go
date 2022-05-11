@@ -28,23 +28,16 @@ const (
 )
 
 type FC2 struct {
-	c *colly.Collector
+	*provider.Scraper
 }
 
 func New() *FC2 {
 	return &FC2{
-		c: colly.NewCollector(
+		Scraper: provider.NewScraper(name, priority, colly.NewCollector(
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
-			colly.UserAgent(random.UserAgent())),
+			colly.UserAgent(random.UserAgent()))),
 	}
-}
-
-func (fc2 *FC2) Name() string {
-	return name
-}
-func (fc2 *FC2) Priority() int {
-	return priority
 }
 
 func (fc2 *FC2) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -70,7 +63,7 @@ func (fc2 *FC2) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 		Tags:          []string{},
 	}
 
-	c := fc2.c.Clone()
+	c := fc2.Collector()
 
 	// Headers
 	c.OnXML(`//div[@class="items_article_headerInfo"]`, func(e *colly.XMLElement) {

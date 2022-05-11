@@ -30,24 +30,17 @@ const (
 )
 
 type Caribbeancom struct {
-	c *colly.Collector
+	*provider.Scraper
 }
 
 func New() *Caribbeancom {
 	return &Caribbeancom{
-		c: colly.NewCollector(
+		Scraper: provider.NewScraper(name, priority, colly.NewCollector(
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
 			colly.DetectCharset(),
-			colly.UserAgent(random.UserAgent())),
+			colly.UserAgent(random.UserAgent()))),
 	}
-}
-
-func (carib *Caribbeancom) Name() string {
-	return name
-}
-func (carib *Caribbeancom) Priority() int {
-	return priority
 }
 
 func (carib *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -82,7 +75,7 @@ func (carib *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, e
 		Tags:          []string{},
 	}
 
-	c := carib.c.Clone()
+	c := carib.Collector()
 
 	// Title
 	c.OnXML(`//h1[@itemprop="name"]`, func(e *colly.XMLElement) {

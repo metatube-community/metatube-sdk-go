@@ -29,24 +29,16 @@ const (
 )
 
 type TokyoHot struct {
-	c *colly.Collector
+	*provider.Scraper
 }
 
 func New() *TokyoHot {
 	return &TokyoHot{
-		c: colly.NewCollector(
+		Scraper: provider.NewScraper(name, priority, colly.NewCollector(
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
-			colly.UserAgent(random.UserAgent())),
+			colly.UserAgent(random.UserAgent()))),
 	}
-}
-
-func (th *TokyoHot) Name() string {
-	return name
-}
-
-func (th *TokyoHot) Priority() int {
-	return priority
 }
 
 func (th *TokyoHot) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -70,7 +62,7 @@ func (th *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 		Tags:          []string{},
 	}
 
-	c := th.c.Clone()
+	c := th.Collector()
 
 	// Title
 	c.OnXML(`//*[@id="main"]//div[@class="contents"]/h2`, func(e *colly.XMLElement) {
@@ -147,7 +139,7 @@ func (th *TokyoHot) SearchMovie(keyword string) (results []*model.MovieSearchRes
 		keyword = strings.ToLower(keyword)
 	}
 
-	c := th.c.Clone()
+	c := th.Collector()
 
 	c.OnXML(`//*[@id="main"]/ul/li`, func(e *colly.XMLElement) {
 		img := e.ChildAttr(`.//a/img`, "src")

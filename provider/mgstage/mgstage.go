@@ -35,7 +35,7 @@ const (
 )
 
 type MGStage struct {
-	c *colly.Collector
+	*provider.Scraper
 }
 
 func New() *MGStage {
@@ -46,15 +46,7 @@ func New() *MGStage {
 	c.SetCookies(baseURL, []*http.Cookie{
 		{Name: "adc", Value: "1"},
 	})
-	return &MGStage{c: c}
-}
-
-func (mgs *MGStage) Name() string {
-	return name
-}
-
-func (mgs *MGStage) Priority() int {
-	return priority
+	return &MGStage{provider.NewScraper(name, priority, c)}
 }
 
 func (mgs *MGStage) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -76,7 +68,7 @@ func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 		Tags:          []string{},
 	}
 
-	c := mgs.c.Clone()
+	c := mgs.Collector()
 
 	// Title
 	c.OnXML(`//*[@id="center_column"]/div[1]/h1`, func(e *colly.XMLElement) {
@@ -163,7 +155,7 @@ func (mgs *MGStage) SearchMovie(keyword string) (results []*model.MovieSearchRes
 		keyword = strings.ToUpper(keyword)
 	}
 
-	c := mgs.c.Clone()
+	c := mgs.Collector()
 
 	c.OnXML(`//*[@id="center_column"]/div[2]/div/ul/li`, func(e *colly.XMLElement) {
 		href := e.ChildAttr(`.//h5/a`, "href")

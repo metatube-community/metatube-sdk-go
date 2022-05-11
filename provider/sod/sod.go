@@ -37,24 +37,16 @@ const (
 
 // SOD needs `Referer` header when request to view images and videos.
 type SOD struct {
-	c *colly.Collector
+	*provider.Scraper
 }
 
 func New() *SOD {
 	return &SOD{
-		c: colly.NewCollector(
+		Scraper: provider.NewScraper(name, priority, colly.NewCollector(
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
-			colly.UserAgent(random.UserAgent())),
+			colly.UserAgent(random.UserAgent()))),
 	}
-}
-
-func (sod *SOD) Name() string {
-	return name
-}
-
-func (sod *SOD) Priority() int {
-	return priority
 }
 
 func (sod *SOD) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -82,7 +74,7 @@ func (sod *SOD) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 		info.Number = info.ID
 	}
 
-	c := sod.c.Clone()
+	c := sod.Collector()
 	composedMovieURL := fmt.Sprintf(movieURL, url.QueryEscape(info.ID))
 
 	// Age check
@@ -171,7 +163,7 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 		keyword = strings.ToUpper(keyword) // SOD prefers uppercase
 	}
 
-	c := sod.c.Clone()
+	c := sod.Collector()
 	composedSearchURL := fmt.Sprintf(searchURL, url.QueryEscape(keyword))
 
 	// Age check
