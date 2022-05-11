@@ -18,8 +18,8 @@ import (
 )
 
 var (
-	_ provider.Provider = (*MGStage)(nil)
-	_ provider.Searcher = (*MGStage)(nil)
+	_ provider.Provider      = (*MGStage)(nil)
+	_ provider.MovieSearcher = (*MGStage)(nil)
 )
 
 const (

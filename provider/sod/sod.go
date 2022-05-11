@@ -18,9 +18,9 @@ import (
 )
 
 var (
-	_ provider.Provider   = (*SOD)(nil)
-	_ provider.Searcher   = (*SOD)(nil)
-	_ provider.Downloader = (*SOD)(nil)
+	_ provider.Provider      = (*SOD)(nil)
+	_ provider.MovieSearcher = (*SOD)(nil)
+	_ provider.Downloader    = (*SOD)(nil)
 )
 
 const (

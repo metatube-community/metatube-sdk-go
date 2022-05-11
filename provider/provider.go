@@ -6,7 +6,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/model"
 )
 
-type Searcher interface {
+type MovieSearcher interface {
 	// SearchMovie searches matched movies.
 	SearchMovie(keyword string) ([]*model.SearchResult, error)
 }

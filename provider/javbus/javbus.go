@@ -17,8 +17,8 @@ import (
 )
 
 var (
-	_ provider.Provider = (*JavBus)(nil)
-	_ provider.Searcher = (*JavBus)(nil)
+	_ provider.Provider      = (*JavBus)(nil)
+	_ provider.MovieSearcher = (*JavBus)(nil)
 )
 
 const (

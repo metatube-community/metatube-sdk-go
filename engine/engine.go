@@ -31,7 +31,7 @@ func New() (engine *Engine) {
 
 func (e *Engine) searchMovie(provider javtube.Provider, keyword string) (results []*model.SearchResult, err error) {
 	// query DB first (by number)
-	if searcher, ok := provider.(javtube.Searcher); ok {
+	if searcher, ok := provider.(javtube.MovieSearcher); ok {
 		return searcher.SearchMovie(keyword)
 	}
 	var info *model.MovieInfo
