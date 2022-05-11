@@ -196,8 +196,7 @@ func (air *AirAV) SearchMovie(keyword string) (results []*model.SearchResult, er
 // ParseNumber parses barcode to standard movie number.
 func ParseNumber(s string) string {
 	s = strings.ToUpper(s)
-	// Use `FC2` directly here
-	s = strings.ReplaceAll(s, "FC2-PPV-", "FC2-")
+	s = strings.ReplaceAll(s, "FC2-PPV-", "FC2-") // Use `FC2` directly
 	return s
 }
 
