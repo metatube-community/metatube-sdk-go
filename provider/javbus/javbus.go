@@ -2,6 +2,7 @@ package javbus
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"path"
 	"regexp"
@@ -37,12 +38,15 @@ type JavBus struct {
 }
 
 func New() *JavBus {
-	return &JavBus{
-		c: colly.NewCollector(
-			colly.AllowURLRevisit(),
-			colly.IgnoreRobotsTxt(),
-			colly.UserAgent(random.UserAgent())),
-	}
+	c := colly.NewCollector(
+		colly.AllowURLRevisit(),
+		colly.IgnoreRobotsTxt(),
+		colly.UserAgent(random.UserAgent()))
+	c.SetCookies(baseURL, []*http.Cookie{
+		// existmag=all
+		{Name: "existmag", Value: "all"},
+	})
+	return &JavBus{c: c}
 }
 
 func (bus *JavBus) Name() string {

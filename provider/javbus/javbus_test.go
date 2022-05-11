@@ -24,7 +24,7 @@ func TestJavBus_SearchMovie(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"SSIS-033",
-		"MIDE-154",
+		"MIDV-005",
 	} {
 		results, err := provider.SearchMovie(item)
 		data, _ := json.MarshalIndent(results, "", "\t")
