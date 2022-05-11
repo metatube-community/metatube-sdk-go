@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 	"sync"
+	"time"
 
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/model"
@@ -15,15 +16,23 @@ type Engine struct {
 	actorProviders map[string]javtube.ActorProvider
 }
 
-func New() (engine *Engine) {
+func New(timeout time.Duration) (engine *Engine) {
 	engine = &Engine{
 		movieProviders: make(map[string]javtube.MovieProvider),
 		actorProviders: make(map[string]javtube.ActorProvider),
 	}
 	javtube.RangeMovieFactory(func(name string, factory javtube.MovieFactory) {
-		engine.movieProviders[name] = factory()
+		provider := factory()
+		if s, ok := provider.(javtube.RequestTimeoutSetter); ok {
+			s.SetRequestTimeout(timeout)
+		}
+		engine.movieProviders[name] = provider
 	})
 	javtube.RangeActorFactory(func(name string, factory javtube.ActorFactory) {
+		provider := factory()
+		if s, ok := provider.(javtube.RequestTimeoutSetter); ok {
+			s.SetRequestTimeout(timeout)
+		}
 		engine.actorProviders[name] = factory()
 	})
 	return

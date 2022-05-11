@@ -3,13 +3,14 @@ package engine
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	_ "github.com/javtube/javtube-sdk-go/provider/1pondo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestEngine_SearchMovieAll(t *testing.T) {
-	engine := New()
+	engine := New(10 * time.Second)
 	for _, item := range []string{
 		"SSIS-033",
 		"MIDV-003",
