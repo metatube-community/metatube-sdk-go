@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
@@ -163,7 +164,10 @@ func (sod *SOD) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 }
 
 func (sod *SOD) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
-	{ // pre-handling keyword
+	{ // pre-handle keyword
+		if number.IsUncensored(keyword) {
+			return nil, provider.ErrInvalidKeyword
+		}
 		keyword = strings.ToUpper(keyword) // SOD prefers uppercase
 	}
 
