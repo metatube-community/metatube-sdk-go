@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"regexp"
 	"sort"
 	"time"
 
@@ -59,6 +60,9 @@ func (opd *OnePondo) Priority() int {
 }
 
 func (opd *OnePondo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	if !regexp.MustCompile(`^\d{6}_\d{3}$`).MatchString(id) {
+		return nil, provider.ErrInvalidID
+	}
 	return opd.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
