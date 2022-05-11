@@ -51,6 +51,9 @@ func (carib *Caribbeancom) Priority() int {
 }
 
 func (carib *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	if !regexp.MustCompile(`^\d{6}[-_]\d{3}$`).MatchString(id) {
+		return nil, provider.ErrInvalidID
+	}
 	switch {
 	case strings.Contains(id, "-"):
 		return carib.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
