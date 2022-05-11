@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"regexp"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
@@ -139,6 +140,13 @@ func (th *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 }
 
 func (th *TokyoHot) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
+	{ // pre-handle keyword
+		if !regexp.MustCompile(`^(?i)[a-z]*\d+`).MatchString(keyword) {
+			return nil, provider.ErrInvalidKeyword
+		}
+		keyword = strings.ToLower(keyword)
+	}
+
 	c := th.c.Clone()
 
 	c.OnXML(`//*[@id="main"]/ul/li`, func(e *colly.XMLElement) {
