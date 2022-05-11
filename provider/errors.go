@@ -6,7 +6,7 @@ import (
 
 var (
 	ErrInvalidID      = errors.New("invalid id")
+	ErrInvalidKeyword = errors.New("invalid keyword")
 	ErrNotFound       = errors.New("not found")
-	ErrNotImplemented = errors.New("not implemented")
 	ErrNotSupported   = errors.New("not supported")
 )
