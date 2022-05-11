@@ -16,7 +16,7 @@ type Provider interface {
 
 type MovieSearcher interface {
 	// SearchMovie searches matched movies.
-	SearchMovie(keyword string) ([]*model.SearchResult, error)
+	SearchMovie(keyword string) ([]*model.MovieSearchResult, error)
 }
 
 type MovieProvider interface {

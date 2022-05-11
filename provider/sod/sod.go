@@ -163,7 +163,7 @@ func (sod *SOD) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 	return
 }
 
-func (sod *SOD) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
+func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	{ // pre-handle keyword
 		if number.IsUncensored(keyword) {
 			return nil, provider.ErrInvalidKeyword
@@ -187,7 +187,7 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.SearchResult, err 
 	})
 
 	c.OnXML(`//*[@id="videos_s_mainbox"]`, func(e *colly.XMLElement) {
-		searchResult := &model.SearchResult{
+		searchResult := &model.MovieSearchResult{
 			Title:       e.ChildText(`.//div[@class="videis_s_txt"]/h2/a`),
 			Provider:    name,
 			Homepage:    e.Request.AbsoluteURL(e.ChildAttr(`.//div[@class="videis_s_img"]/a`, "href")),

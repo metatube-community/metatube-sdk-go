@@ -155,7 +155,7 @@ func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 	return
 }
 
-func (mgs *MGStage) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
+func (mgs *MGStage) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	{ // pre-handle keyword
 		if number.IsUncensored(keyword) {
 			return nil, provider.ErrInvalidKeyword
@@ -167,7 +167,7 @@ func (mgs *MGStage) SearchMovie(keyword string) (results []*model.SearchResult, 
 
 	c.OnXML(`//*[@id="center_column"]/div[2]/div/ul/li`, func(e *colly.XMLElement) {
 		href := e.ChildAttr(`.//h5/a`, "href")
-		results = append(results, &model.SearchResult{
+		results = append(results, &model.MovieSearchResult{
 			ID:       path.Base(href),
 			Number:   path.Base(href), /* same as ID */
 			Provider: mgs.Name(),

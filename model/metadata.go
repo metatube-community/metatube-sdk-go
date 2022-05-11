@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-type SearchResult struct {
+type MovieSearchResult struct {
 	ID          string    `json:"id"`
 	Number      string    `json:"number"`
 	Title       string    `json:"title"`
@@ -14,7 +14,7 @@ type SearchResult struct {
 	ReleaseDate time.Time `json:"release_date"`
 }
 
-func (sr *SearchResult) Valid() bool {
+func (sr *MovieSearchResult) Valid() bool {
 	return sr.ID != "" && sr.Number != "" && sr.Title != "" && sr.Provider != "" && sr.Homepage != ""
 }
 
@@ -49,8 +49,8 @@ func (mi *MovieInfo) Valid() bool {
 		mi.CoverURL != "" && mi.Provider != "" && mi.Homepage != ""
 }
 
-func (mi *MovieInfo) ToSearchResult() *SearchResult {
-	return &SearchResult{
+func (mi *MovieInfo) ToSearchResult() *MovieSearchResult {
+	return &MovieSearchResult{
 		ID:          mi.ID,
 		Number:      mi.Number,
 		Title:       mi.Title,

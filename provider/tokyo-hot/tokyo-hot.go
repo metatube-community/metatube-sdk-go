@@ -139,7 +139,7 @@ func (th *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 	return
 }
 
-func (th *TokyoHot) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
+func (th *TokyoHot) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	{ // pre-handle keyword
 		if !regexp.MustCompile(`^(?i)[a-z]*\d+`).MatchString(keyword) {
 			return nil, provider.ErrInvalidKeyword
@@ -153,7 +153,7 @@ func (th *TokyoHot) SearchMovie(keyword string) (results []*model.SearchResult, 
 		img := e.ChildAttr(`.//a/img`, "src")
 		href := e.ChildAttr(`.//a`, "href")
 		homepage, _ := url.Parse(e.Request.AbsoluteURL(href))
-		results = append(results, &model.SearchResult{
+		results = append(results, &model.MovieSearchResult{
 			ID:       path.Base(homepage.Path),
 			Number:   path.Base(homepage.Path),
 			Title:    e.ChildText(`.//div[@class="title"]`),

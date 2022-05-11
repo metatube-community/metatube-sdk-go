@@ -266,7 +266,7 @@ func (fz *FANZA) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 	return
 }
 
-func (fz *FANZA) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
+func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	{ // keyword pre-handling
 		if number.IsUncensored(keyword) {
 			return nil, provider.ErrInvalidKeyword
@@ -292,7 +292,7 @@ func (fz *FANZA) SearchMovie(keyword string) (results []*model.SearchResult, err
 			thumb = re.ReplaceAllString(thumb, "ps.jpg")
 		}
 
-		results = append(results, &model.SearchResult{
+		results = append(results, &model.MovieSearchResult{
 			ID:       id,
 			Number:   ParseNumber(id),
 			Title:    e.ChildAttr(`.//p[@class="tmb"]/a/span[1]/img`, "alt"),

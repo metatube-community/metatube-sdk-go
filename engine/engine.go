@@ -29,7 +29,7 @@ func New() (engine *Engine) {
 	return
 }
 
-func (e *Engine) searchMovie(provider javtube.MovieProvider, keyword string) ([]*model.SearchResult, error) {
+func (e *Engine) searchMovie(provider javtube.MovieProvider, keyword string) ([]*model.MovieSearchResult, error) {
 	if searcher, ok := provider.(javtube.MovieSearcher); ok {
 		return searcher.SearchMovie(keyword)
 	}
@@ -37,10 +37,10 @@ func (e *Engine) searchMovie(provider javtube.MovieProvider, keyword string) ([]
 	if err != nil {
 		return nil, err
 	}
-	return []*model.SearchResult{info.ToSearchResult()}, nil
+	return []*model.MovieSearchResult{info.ToSearchResult()}, nil
 }
 
-func (e *Engine) SearchMovie(name string, keyword string) ([]*model.SearchResult, error) {
+func (e *Engine) SearchMovie(name string, keyword string) ([]*model.MovieSearchResult, error) {
 	if keyword = number.Trim(keyword); keyword == "" {
 		return nil, javtube.ErrInvalidKeyword
 	}
@@ -52,14 +52,14 @@ func (e *Engine) SearchMovie(name string, keyword string) ([]*model.SearchResult
 }
 
 // SearchMovieAll searches the keyword from all providers.
-func (e *Engine) SearchMovieAll(keyword string) ([]*model.SearchResult, error) {
+func (e *Engine) SearchMovieAll(keyword string) ([]*model.MovieSearchResult, error) {
 	if keyword = number.Trim(keyword); keyword == "" {
 		return nil, javtube.ErrInvalidKeyword
 	}
 
 	type response struct {
 		provider javtube.MovieProvider
-		results  []*model.SearchResult
+		results  []*model.MovieSearchResult
 		err      error
 	}
 	respCh := make(chan response)
@@ -86,7 +86,7 @@ func (e *Engine) SearchMovieAll(keyword string) ([]*model.SearchResult, error) {
 
 	type item struct {
 		priority float64
-		result   *model.SearchResult
+		result   *model.MovieSearchResult
 	}
 	var items []item
 	for resp := range respCh {
@@ -111,7 +111,7 @@ func (e *Engine) SearchMovieAll(keyword string) ([]*model.SearchResult, error) {
 		return items[i].priority > items[j].priority
 	})
 	// refine search results.
-	var results []*model.SearchResult
+	var results []*model.MovieSearchResult
 	for _, i := range items {
 		results = append(results, i.result)
 	}

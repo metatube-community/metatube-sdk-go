@@ -167,7 +167,7 @@ func (air *AirAV) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 	return
 }
 
-func (air *AirAV) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
+func (air *AirAV) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	{ // pre-handle keyword
 		if ss := regexp.MustCompile(`^(?i)FC2-.*?(\d+)$`).FindStringSubmatch(keyword); len(ss) == 2 {
 			keyword = fmt.Sprintf("FC2-PPV-%s", ss[1])
@@ -190,7 +190,7 @@ func (air *AirAV) SearchMovie(keyword string) (results []*model.SearchResult, er
 		}{}
 		if json.Unmarshal(r.Body, &data) == nil {
 			for _, result := range data.Result {
-				results = append(results, &model.SearchResult{
+				results = append(results, &model.MovieSearchResult{
 					ID:       result.Barcode,
 					Number:   ParseNumber(result.Barcode),
 					Title:    result.Name,

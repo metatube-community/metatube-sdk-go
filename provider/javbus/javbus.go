@@ -130,7 +130,7 @@ func (bus *JavBus) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error
 	return
 }
 
-func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
+func (bus *JavBus) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	{ // pre-handle keyword
 		if regexp.MustCompile(`^(?i)FC2-`).MatchString(keyword) {
 			return nil, provider.ErrInvalidKeyword
@@ -152,7 +152,7 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, e
 			cover = re.ReplaceAllString(thumb, "/cover/${1}_b.${2}") // guess
 		}
 
-		results = append(results, &model.SearchResult{
+		results = append(results, &model.MovieSearchResult{
 			ID:          strings.TrimLeft(e.Attr("href"), baseURL),
 			Number:      e.ChildText(`.//div[2]/span/date[1]`),
 			Title:       strings.SplitN(e.ChildText(`.//div[2]/span`), "\n", 2)[0],
