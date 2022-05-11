@@ -5,6 +5,9 @@ import (
 	"regexp"
 	"strings"
 	"unicode"
+
+	"github.com/adrg/strutil"
+	"github.com/adrg/strutil/metrics"
 )
 
 func findFirstNonASCII(s string) int {
@@ -38,4 +41,14 @@ func IsUncensored(s string) bool {
 	return regexp.
 		MustCompile(`^(?i)[\d-]{4,}|\d{6}_\d{2,3}|(cz|gedo|k|n|kb|red-|se)\d{2,4}|heyzo.+|fc2-.+|xxx-av-.+|heydouga-.+$`).
 		MatchString(s)
+}
+
+// Similarity returns the similarity between two numbers.
+func Similarity(a, b string) float64 {
+	m := metrics.NewLevenshtein()
+	m.CaseSensitive = false
+	m.InsertCost = 1
+	m.DeleteCost = 1
+	m.ReplaceCost = 2
+	return strutil.Similarity(a, b, m)
 }
