@@ -21,7 +21,10 @@ var (
 	_ provider.Searcher = (*MGStage)(nil)
 )
 
-const name = "mgstage"
+const (
+	name     = "mgstage"
+	priority = 10
+)
 
 const (
 	baseURL   = "https://www.mgstage.com/"
@@ -47,6 +50,10 @@ func New() *MGStage {
 
 func (mgs *MGStage) Name() string {
 	return name
+}
+
+func (mgs *MGStage) Priority() int {
+	return priority
 }
 
 func (mgs *MGStage) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {

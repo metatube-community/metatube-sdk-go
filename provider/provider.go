@@ -15,6 +15,9 @@ type Provider interface {
 	// Name returns name of the provider.
 	Name() string
 
+	// Priority returns matching priority of the provider.
+	Priority() int
+
 	// GetMovieInfoByID gets movie's info by id.
 	GetMovieInfoByID(id string) (*model.MovieInfo, error)
 

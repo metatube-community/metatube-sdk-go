@@ -20,7 +20,10 @@ import (
 
 var _ provider.Provider = (*Heyzo)(nil)
 
-const name = "heyzo"
+const (
+	name     = "heyzo"
+	priority = 10
+)
 
 const (
 	baseURL   = "https://www.heyzo.com/"
@@ -43,6 +46,10 @@ func New() *Heyzo {
 
 func (hzo *Heyzo) Name() string {
 	return name
+}
+
+func (hzo *Heyzo) Priority() int {
+	return priority
 }
 
 func (hzo *Heyzo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {

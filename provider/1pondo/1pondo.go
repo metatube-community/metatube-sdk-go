@@ -18,7 +18,10 @@ import (
 
 var _ provider.Provider = (*OnePondo)(nil)
 
-const name = "1pondo"
+const (
+	name     = "1pondo"
+	priority = 10
+)
 
 // webpack:///src/assets/js/services/Bifrost/API.js:formatted
 const (
@@ -49,6 +52,10 @@ func New() *OnePondo {
 
 func (opd *OnePondo) Name() string {
 	return name
+}
+
+func (opd *OnePondo) Priority() int {
+	return priority
 }
 
 func (opd *OnePondo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {

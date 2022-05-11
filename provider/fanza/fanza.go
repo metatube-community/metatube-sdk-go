@@ -24,7 +24,10 @@ var (
 	_ provider.Searcher = (*FANZA)(nil)
 )
 
-const name = "fanza"
+const (
+	name     = "fanza"
+	priority = 10
+)
 
 const (
 	baseURL                 = "https://www.dmm.co.jp/"
@@ -54,6 +57,9 @@ func New() *FANZA {
 
 func (fz *FANZA) Name() string {
 	return name // FANZA also known as DMM
+}
+func (fz *FANZA) Priority() int {
+	return priority
 }
 
 func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {

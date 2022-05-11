@@ -16,7 +16,10 @@ import (
 
 var _ provider.Provider = (*TokyoHot)(nil)
 
-const name = "tokyo-hot"
+const (
+	name     = "tokyo-hot"
+	priority = 8
+)
 
 const (
 	baseURL   = "https://my.tokyo-hot.com/"
@@ -39,6 +42,10 @@ func New() *TokyoHot {
 
 func (th *TokyoHot) Name() string {
 	return name
+}
+
+func (th *TokyoHot) Priority() int {
+	return priority
 }
 
 func (th *TokyoHot) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {

@@ -20,7 +20,10 @@ var (
 	_ provider.Searcher = (*JavBus)(nil)
 )
 
-const name = "javbus"
+const (
+	name     = "javbus"
+	priority = 4
+)
 
 const (
 	baseURL             = "https://www.javbus.com/"
@@ -44,6 +47,10 @@ func New() *JavBus {
 
 func (bus *JavBus) Name() string {
 	return name
+}
+
+func (bus *JavBus) Priority() int {
+	return priority
 }
 
 func (bus *JavBus) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {

@@ -19,7 +19,10 @@ var (
 	_ provider.Searcher = (*AirAV)(nil)
 )
 
-const name = "airav"
+const (
+	name     = "airav"
+	priority = 5 // unofficial provider gets lower priority.
+)
 
 const (
 	baseURL      = "https://www.airav.wiki/"
@@ -48,6 +51,10 @@ func New() *AirAV {
 
 func (air *AirAV) Name() string {
 	return name
+}
+
+func (air *AirAV) Priority() int {
+	return priority
 }
 
 func (air *AirAV) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {

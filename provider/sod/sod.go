@@ -22,7 +22,10 @@ var (
 	_ provider.Downloader = (*SOD)(nil)
 )
 
-const name = "sod"
+const (
+	name     = "sod"
+	priority = 10
+)
 
 const (
 	baseURL   = "https://ec.sod.co.jp/prime/"
@@ -47,6 +50,10 @@ func New() *SOD {
 
 func (sod *SOD) Name() string {
 	return name
+}
+
+func (sod *SOD) Priority() int {
+	return priority
 }
 
 func (sod *SOD) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {

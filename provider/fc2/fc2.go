@@ -16,7 +16,10 @@ import (
 
 var _ provider.Provider = (*FC2)(nil)
 
-const name = "fc2"
+const (
+	name     = "fc2"
+	priority = 10
+)
 
 const (
 	baseURL   = "https://adult.contents.fc2.com/"
@@ -39,6 +42,9 @@ func New() *FC2 {
 
 func (fc2 *FC2) Name() string {
 	return name
+}
+func (fc2 *FC2) Priority() int {
+	return priority
 }
 
 func (fc2 *FC2) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {

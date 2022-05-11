@@ -18,7 +18,10 @@ import (
 
 var _ provider.Provider = (*Caribbeancom)(nil)
 
-const name = "caribbeancom"
+const (
+	name     = "caribbeancom"
+	priority = 9
+)
 
 const (
 	baseURL         = "https://www.caribbeancom.com/"
@@ -42,6 +45,9 @@ func New() *Caribbeancom {
 
 func (carib *Caribbeancom) Name() string {
 	return name
+}
+func (carib *Caribbeancom) Priority() int {
+	return priority
 }
 
 func (carib *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
