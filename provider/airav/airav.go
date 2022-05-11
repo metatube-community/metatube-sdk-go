@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	_ provider.Provider      = (*AirAV)(nil)
+	_ provider.MovieProvider = (*AirAV)(nil)
 	_ provider.MovieSearcher = (*AirAV)(nil)
 )
 

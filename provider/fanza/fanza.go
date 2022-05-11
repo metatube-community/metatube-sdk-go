@@ -21,7 +21,7 @@ import (
 )
 
 var (
-	_ provider.Provider      = (*FANZA)(nil)
+	_ provider.MovieProvider = (*FANZA)(nil)
 	_ provider.MovieSearcher = (*FANZA)(nil)
 )
 

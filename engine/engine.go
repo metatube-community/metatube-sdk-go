@@ -11,13 +11,13 @@ import (
 )
 
 type Engine struct {
-	movieProviders map[string]javtube.Provider
+	movieProviders map[string]javtube.MovieProvider
 	actorProviders map[string]javtube.ActorProvider
 }
 
 func New() (engine *Engine) {
 	engine = &Engine{
-		movieProviders: make(map[string]javtube.Provider),
+		movieProviders: make(map[string]javtube.MovieProvider),
 		actorProviders: make(map[string]javtube.ActorProvider),
 	}
 	javtube.RangeFactory(func(name string, factory javtube.Factory) {
@@ -29,7 +29,7 @@ func New() (engine *Engine) {
 	return
 }
 
-func (e *Engine) searchMovie(provider javtube.Provider, keyword string) (results []*model.SearchResult, err error) {
+func (e *Engine) searchMovie(provider javtube.MovieProvider, keyword string) (results []*model.SearchResult, err error) {
 	// query DB first (by number)
 	if searcher, ok := provider.(javtube.MovieSearcher); ok {
 		return searcher.SearchMovie(keyword)
@@ -59,7 +59,7 @@ func (e *Engine) SearchMovieAll(keyword string) ([]*model.SearchResult, error) {
 	}
 
 	type response struct {
-		provider javtube.Provider
+		provider javtube.MovieProvider
 		results  []*model.SearchResult
 		err      error
 	}
@@ -69,7 +69,7 @@ func (e *Engine) SearchMovieAll(keyword string) ([]*model.SearchResult, error) {
 	for _, provider := range e.movieProviders {
 		wg.Add(1)
 		// Async searching.
-		go func(provider javtube.Provider) {
+		go func(provider javtube.MovieProvider) {
 			defer wg.Done()
 			results, err := e.searchMovie(provider, keyword)
 			respCh <- response{
@@ -119,7 +119,7 @@ func (e *Engine) SearchMovieAll(keyword string) ([]*model.SearchResult, error) {
 	return results, nil
 }
 
-func (e *Engine) getMovieInfoByID(provider javtube.Provider, id string) (info *model.MovieInfo, err error) {
+func (e *Engine) getMovieInfoByID(provider javtube.MovieProvider, id string) (info *model.MovieInfo, err error) {
 	// query DB (by id)
 	//
 	// defer save

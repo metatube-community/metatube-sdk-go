@@ -17,7 +17,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ provider.Provider = (*OnePondo)(nil)
+var _ provider.MovieProvider = (*OnePondo)(nil)
 
 const (
 	name     = "1pondo"

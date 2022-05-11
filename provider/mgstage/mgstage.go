@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	_ provider.Provider      = (*MGStage)(nil)
+	_ provider.MovieProvider = (*MGStage)(nil)
 	_ provider.MovieSearcher = (*MGStage)(nil)
 )
 

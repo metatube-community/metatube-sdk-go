@@ -11,7 +11,7 @@ type MovieSearcher interface {
 	SearchMovie(keyword string) ([]*model.SearchResult, error)
 }
 
-type Provider interface {
+type MovieProvider interface {
 	// Name returns name of the provider.
 	Name() string
 

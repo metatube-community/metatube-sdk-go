@@ -14,7 +14,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ provider.Provider = (*FC2)(nil)
+var _ provider.MovieProvider = (*FC2)(nil)
 
 const (
 	name     = "fc2"

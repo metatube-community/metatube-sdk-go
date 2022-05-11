@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	Factory      = func() Provider
+	Factory      = func() MovieProvider
 	ActorFactory = func() ActorProvider
 )
 
@@ -18,9 +18,9 @@ var (
 	actorFactories = make(map[string]ActorFactory)
 )
 
-func RegisterFactory[T Provider](name string, factory func() T) {
+func RegisterFactory[T MovieProvider](name string, factory func() T) {
 	factoryMu.Lock()
-	factories[name] = func() Provider { return factory() }
+	factories[name] = func() MovieProvider { return factory() }
 	factoryMu.Unlock()
 }
 

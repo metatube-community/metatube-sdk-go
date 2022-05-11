@@ -18,7 +18,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider"
 )
 
-var _ provider.Provider = (*Heyzo)(nil)
+var _ provider.MovieProvider = (*Heyzo)(nil)
 
 const (
 	name     = "heyzo"
