@@ -8,11 +8,9 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/model"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
-	"gorm.io/gorm"
 )
 
 type Engine struct {
-	db             *gorm.DB
 	movieProviders map[string]javtube.Provider
 	actorProviders map[string]javtube.ActorProvider
 }
@@ -43,7 +41,19 @@ func (e *Engine) searchMovie(provider javtube.Provider, keyword string) (results
 	return
 }
 
-func (e *Engine) SearchMovie(keyword string) ([]*model.SearchResult, error) {
+func (e *Engine) SearchMovie(name string, keyword string) (results []*model.SearchResult, err error) {
+	if keyword = number.Trim(keyword); keyword == "" {
+		return nil, javtube.ErrInvalidKeyword
+	}
+	provider, ok := e.movieProviders[name]
+	if !ok {
+		return nil, fmt.Errorf("provider not found: %s", name)
+	}
+	return e.searchMovie(provider, keyword)
+}
+
+// SearchMovieAll searches the keyword from all providers.
+func (e *Engine) SearchMovieAll(keyword string) ([]*model.SearchResult, error) {
 	if keyword = number.Trim(keyword); keyword == "" {
 		return nil, javtube.ErrInvalidKeyword
 	}

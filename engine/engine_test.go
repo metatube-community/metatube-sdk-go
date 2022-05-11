@@ -8,14 +8,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestEngine_SearchMovie(t *testing.T) {
+func TestEngine_SearchMovieAll(t *testing.T) {
 	engine := New()
 	for _, item := range []string{
 		"SSIS-033",
 		"MIDV-003",
 		"stars-138",
 	} {
-		results, err := engine.SearchMovie(item)
+		results, err := engine.SearchMovieAll(item)
 		data, _ := json.MarshalIndent(results, "", "\t")
 		if assert.NoError(t, err) {
 			for _, result := range results {
