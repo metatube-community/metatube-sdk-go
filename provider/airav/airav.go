@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"regexp"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
@@ -167,6 +168,12 @@ func (air *AirAV) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 }
 
 func (air *AirAV) SearchMovie(keyword string) (results []*model.SearchResult, err error) {
+	{ // pre-handle keyword
+		if ss := regexp.MustCompile(`^(?i)FC2-.*?(\d+)$`).FindStringSubmatch(keyword); len(ss) == 2 {
+			keyword = fmt.Sprintf("FC2-PPV-%s", ss[1])
+		}
+	}
+
 	c := air.c.Clone()
 
 	c.OnResponse(func(r *colly.Response) {

@@ -24,7 +24,7 @@ func TestAirAV_SearchMovie(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		// "STARS",
-		"FC2",
+		"FC2-2735315",
 	} {
 		results, err := provider.SearchMovie(item)
 		data, _ := json.MarshalIndent(results, "", "\t")
