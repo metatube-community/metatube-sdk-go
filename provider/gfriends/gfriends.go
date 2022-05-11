@@ -20,7 +20,10 @@ var (
 	_ provider.ActorSearcher = (*GFriends)(nil)
 )
 
-const name = "gfriends"
+const (
+	name     = "gfriends"
+	priority = 9
+)
 
 const (
 	baseURL    = "https://github.com/xinxin8816/gfriends"
@@ -40,6 +43,10 @@ func New() *GFriends {
 
 func (gf *GFriends) Name() string {
 	return name
+}
+
+func (gf *GFriends) Priority() int {
+	return priority
 }
 
 func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {

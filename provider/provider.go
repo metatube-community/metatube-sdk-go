@@ -36,8 +36,8 @@ type ActorSearcher interface {
 }
 
 type ActorProvider interface {
-	// Name returns name of the provider.
-	Name() string
+	// Provider should be implemented.
+	Provider
 
 	// GetActorInfoByID gets actor's info by id.
 	GetActorInfoByID(id string) (*model.ActorInfo, error)

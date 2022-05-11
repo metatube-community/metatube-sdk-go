@@ -21,7 +21,10 @@ var (
 	_ provider.ActorSearcher = (*XsList)(nil)
 )
 
-const name = "xslist"
+const (
+	name     = "xslist"
+	priority = 10
+)
 
 const (
 	baseURL   = "https://xslist.org/"
@@ -30,20 +33,16 @@ const (
 )
 
 type XsList struct {
-	c *colly.Collector
+	*provider.Scraper
 }
 
 func New() *XsList {
 	return &XsList{
-		c: colly.NewCollector(
+		Scraper: provider.NewScraper(name, priority, colly.NewCollector(
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
-			colly.UserAgent(random.UserAgent())),
+			colly.UserAgent(random.UserAgent()))),
 	}
-}
-
-func (xsl *XsList) Name() string {
-	return name
 }
 
 func (xsl *XsList) GetActorInfoByID(id string) (info *model.ActorInfo, err error) {
@@ -68,7 +67,7 @@ func (xsl *XsList) GetActorInfoByURL(u string) (info *model.ActorInfo, err error
 		Images:   []string{},
 	}
 
-	c := xsl.c.Clone()
+	c := xsl.Collector()
 
 	// Name
 	c.OnXML(`//*[@id="sss1"]/header/h1/span`, func(e *colly.XMLElement) {
@@ -138,7 +137,7 @@ func (xsl *XsList) GetActorInfoByURL(u string) (info *model.ActorInfo, err error
 }
 
 func (xsl *XsList) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
-	c := xsl.c.Clone()
+	c := xsl.Collector()
 
 	c.OnXML(`//ul/li`, func(e *colly.XMLElement) {
 		homepage, _ := url.Parse(e.ChildAttr(`.//h3/a`, "href"))
