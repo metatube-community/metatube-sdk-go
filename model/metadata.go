@@ -71,8 +71,8 @@ type ActorSearchResult struct {
 	Images   []string `json:"images"`
 }
 
-func (asr *ActorSearchResult) Valid() bool {
-	return asr.ID != "" && asr.Name != "" && asr.Provider != "" && asr.Homepage != ""
+func (sr *ActorSearchResult) Valid() bool {
+	return sr.ID != "" && sr.Name != "" && sr.Provider != "" && sr.Homepage != ""
 }
 
 type ActorInfo struct {
