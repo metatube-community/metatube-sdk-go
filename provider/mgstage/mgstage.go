@@ -194,5 +194,5 @@ func imageSrc(s string, thumb bool) string {
 }
 
 func init() {
-	provider.RegisterFactory(name, New)
+	provider.RegisterMovieFactory(name, New)
 }

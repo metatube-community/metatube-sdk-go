@@ -127,5 +127,5 @@ func (fc2 *FC2) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 }
 
 func init() {
-	provider.RegisterFactory(name, New)
+	provider.RegisterMovieFactory(name, New)
 }

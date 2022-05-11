@@ -20,7 +20,7 @@ func New() (engine *Engine) {
 		movieProviders: make(map[string]javtube.MovieProvider),
 		actorProviders: make(map[string]javtube.ActorProvider),
 	}
-	javtube.RangeFactory(func(name string, factory javtube.Factory) {
+	javtube.RangeMovieFactory(func(name string, factory javtube.MovieFactory) {
 		engine.movieProviders[name] = factory()
 	})
 	javtube.RangeActorFactory(func(name string, factory javtube.ActorFactory) {

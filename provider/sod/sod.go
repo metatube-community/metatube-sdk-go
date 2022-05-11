@@ -235,5 +235,5 @@ func (sod *SOD) Download(u string) (_ io.ReadCloser, err error) {
 }
 
 func init() {
-	provider.RegisterFactory(name, New)
+	provider.RegisterMovieFactory(name, New)
 }

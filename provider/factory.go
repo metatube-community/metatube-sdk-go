@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	Factory      = func() MovieProvider
+	MovieFactory = func() MovieProvider
 	ActorFactory = func() ActorProvider
 )
 
@@ -14,19 +14,19 @@ var (
 	factoryMu      sync.RWMutex
 	actorFactoryMu sync.RWMutex
 	// Factories
-	factories      = make(map[string]Factory)
+	movieFactories = make(map[string]MovieFactory)
 	actorFactories = make(map[string]ActorFactory)
 )
 
-func RegisterFactory[T MovieProvider](name string, factory func() T) {
+func RegisterMovieFactory[T MovieProvider](name string, factory func() T) {
 	factoryMu.Lock()
-	factories[name] = func() MovieProvider { return factory() }
+	movieFactories[name] = func() MovieProvider { return factory() }
 	factoryMu.Unlock()
 }
 
-func RangeFactory(f func(string, Factory)) {
+func RangeMovieFactory(f func(string, MovieFactory)) {
 	factoryMu.RLock()
-	for name, factory := range factories {
+	for name, factory := range movieFactories {
 		f(name, factory)
 	}
 	factoryMu.RUnlock()

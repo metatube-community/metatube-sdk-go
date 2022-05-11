@@ -226,5 +226,5 @@ func (hzo *Heyzo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 }
 
 func init() {
-	provider.RegisterFactory(name, New)
+	provider.RegisterMovieFactory(name, New)
 }

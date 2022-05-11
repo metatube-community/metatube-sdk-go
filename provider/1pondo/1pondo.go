@@ -214,5 +214,5 @@ func (opd *OnePondo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 }
 
 func init() {
-	provider.RegisterFactory(name, New)
+	provider.RegisterMovieFactory(name, New)
 }

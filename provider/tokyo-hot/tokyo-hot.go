@@ -169,5 +169,5 @@ func (th *TokyoHot) SearchMovie(keyword string) (results []*model.SearchResult, 
 }
 
 func init() {
-	provider.RegisterFactory(name, New)
+	provider.RegisterMovieFactory(name, New)
 }

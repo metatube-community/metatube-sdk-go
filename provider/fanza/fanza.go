@@ -367,5 +367,5 @@ func PreviewSrc(s string) string {
 }
 
 func init() {
-	provider.RegisterFactory(name, New)
+	provider.RegisterMovieFactory(name, New)
 }

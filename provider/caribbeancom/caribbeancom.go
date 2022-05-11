@@ -172,5 +172,5 @@ func (carib *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, e
 }
 
 func init() {
-	provider.RegisterFactory(name, New)
+	provider.RegisterMovieFactory(name, New)
 }

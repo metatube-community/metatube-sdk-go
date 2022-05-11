@@ -176,5 +176,5 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.SearchResult, e
 }
 
 func init() {
-	provider.RegisterFactory(name, New)
+	provider.RegisterMovieFactory(name, New)
 }
