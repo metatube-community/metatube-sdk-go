@@ -53,7 +53,7 @@ func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
 	return &model.ActorInfo{
 		ID:       id,
 		Name:     id,
-		Provider: name,
+		Provider: gf.Name(),
 		Homepage: baseURL,
 		Aliases:  []string{},
 		Images:   images,

@@ -82,7 +82,7 @@ func (fz *FANZA) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 	}
 
 	info = &model.MovieInfo{
-		Provider:      name,
+		Provider:      fz.Name(),
 		Homepage:      u,
 		Actors:        []string{},
 		PreviewImages: []string{},
@@ -286,7 +286,7 @@ func (fz *FANZA) SearchMovie(keyword string) (results []*model.SearchResult, err
 			ID:       id,
 			Number:   ParseNumber(id),
 			Title:    e.ChildAttr(`.//p[@class="tmb"]/a/span[1]/img`, "alt"),
-			Provider: name,
+			Provider: fz.Name(),
 			Homepage: e.Request.AbsoluteURL(e.ChildAttr(`.//p[@class="tmb"]/a`, "href")),
 			ThumbURL: e.Request.AbsoluteURL(thumb),
 			CoverURL: e.Request.AbsoluteURL(PreviewSrc(thumb)),

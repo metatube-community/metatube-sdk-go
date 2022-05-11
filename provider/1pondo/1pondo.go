@@ -63,7 +63,7 @@ func (opd *OnePondo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 	id := path.Base(homepage.Path)
 
 	info = &model.MovieInfo{
-		Provider:      name,
+		Provider:      opd.Name(),
 		Homepage:      homepage.String(),
 		Maker:         "一本道",
 		Actors:        []string{},

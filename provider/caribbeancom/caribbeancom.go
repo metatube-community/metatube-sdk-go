@@ -65,7 +65,7 @@ func (carib *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, e
 	info = &model.MovieInfo{
 		ID:            id,
 		Number:        id,
-		Provider:      name,
+		Provider:      carib.Name(),
 		Homepage:      homepage.String(),
 		Maker:         "カリビアンコム",
 		Actors:        []string{},

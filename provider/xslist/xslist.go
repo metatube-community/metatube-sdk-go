@@ -62,7 +62,7 @@ func (xsl *XsList) GetActorInfoByURL(u string) (info *model.ActorInfo, err error
 
 	info = &model.ActorInfo{
 		ID:       id,
-		Provider: name,
+		Provider: xsl.Name(),
 		Homepage: homepage.String(),
 		Aliases:  []string{},
 		Images:   []string{},
@@ -147,9 +147,9 @@ func (xsl *XsList) SearchActor(keyword string) (results []*model.ActorSearchResu
 			id = id[:len(id)-len(ext)]
 		}
 		// Name
-		name := e.ChildAttr(`.//h3/a`, "title")
-		if ss := strings.SplitN(name, "-", 2); len(ss) == 2 {
-			name = strings.TrimSpace(ss[1])
+		actor := e.ChildAttr(`.//h3/a`, "title")
+		if ss := strings.SplitN(actor, "-", 2); len(ss) == 2 {
+			actor = strings.TrimSpace(ss[1])
 		}
 		// Images
 		var images []string
@@ -158,9 +158,9 @@ func (xsl *XsList) SearchActor(keyword string) (results []*model.ActorSearchResu
 		}
 		results = append(results, &model.ActorSearchResult{
 			ID:       id,
-			Name:     name,
+			Name:     actor,
 			Images:   images,
-			Provider: name,
+			Provider: xsl.Name(),
 			Homepage: homepage.String(),
 		})
 	})

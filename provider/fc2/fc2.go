@@ -54,7 +54,7 @@ func (fc2 *FC2) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 	info = &model.MovieInfo{
 		ID:            path.Base(homepage.Path),
 		Number:        fmt.Sprintf("FC2-%s", path.Base(homepage.Path)),
-		Provider:      name,
+		Provider:      fc2.Name(),
 		Homepage:      homepage.String(),
 		Actors:        []string{},
 		PreviewImages: []string{},

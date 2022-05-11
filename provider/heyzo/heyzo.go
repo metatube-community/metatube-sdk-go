@@ -59,7 +59,7 @@ func (hzo *Heyzo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 	info = &model.MovieInfo{
 		ID:            id,
 		Number:        fmt.Sprintf("HEYZO-%s", id),
-		Provider:      name,
+		Provider:      hzo.Name(),
 		Homepage:      homepage.String(),
 		Maker:         "HEYZO",
 		Actors:        []string{},

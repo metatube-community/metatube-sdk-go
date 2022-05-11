@@ -61,7 +61,7 @@ func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 
 	info = &model.MovieInfo{
 		ID:            strings.ToUpper(path.Base(homepage.Path)),
-		Provider:      name,
+		Provider:      mgs.Name(),
 		Homepage:      homepage.String(),
 		Actors:        []string{},
 		PreviewImages: []string{},
@@ -155,7 +155,7 @@ func (mgs *MGStage) SearchMovie(keyword string) (results []*model.SearchResult, 
 		results = append(results, &model.SearchResult{
 			ID:       path.Base(href),
 			Number:   path.Base(href), /* same as ID */
-			Provider: name,
+			Provider: mgs.Name(),
 			Homepage: e.Request.AbsoluteURL(href),
 			Title:    strings.TrimSpace(e.ChildText(`.//a/p`)),
 			ThumbURL: e.Request.AbsoluteURL(imageSrc(e.ChildAttr(`.//h5/a/img`, "src"), true)),

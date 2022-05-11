@@ -37,6 +37,10 @@ func New() *TokyoHot {
 	}
 }
 
+func (th *TokyoHot) Name() string {
+	return name
+}
+
 func (th *TokyoHot) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return th.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
@@ -50,7 +54,7 @@ func (th *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 
 	info = &model.MovieInfo{
 		ID:            id,
-		Provider:      name,
+		Provider:      th.Name(),
 		Homepage:      homepage.String(),
 		Maker:         "TOKYO-HOT",
 		Actors:        []string{},
@@ -140,7 +144,7 @@ func (th *TokyoHot) SearchMovie(keyword string) (results []*model.SearchResult, 
 			Title:    e.ChildText(`.//div[@class="title"]`),
 			ThumbURL: e.Request.AbsoluteURL(img),
 			CoverURL: e.Request.AbsoluteURL(img),
-			Provider: name,
+			Provider: th.Name(),
 			Homepage: homepage.String(),
 		})
 	})

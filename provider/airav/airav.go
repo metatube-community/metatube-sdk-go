@@ -62,7 +62,7 @@ func (air *AirAV) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 	id := path.Base(homepage.Path)
 
 	info = &model.MovieInfo{
-		Provider:      name,
+		Provider:      air.Name(),
 		Homepage:      homepage.String(),
 		Actors:        []string{},
 		PreviewImages: []string{},
@@ -180,7 +180,7 @@ func (air *AirAV) SearchMovie(keyword string) (results []*model.SearchResult, er
 					ID:       result.Barcode,
 					Number:   ParseNumber(result.Barcode),
 					Title:    result.Name,
-					Provider: name,
+					Provider: air.Name(),
 					Homepage: fmt.Sprintf(movieURL, result.Barcode),
 					ThumbURL: result.ImgURL,
 					CoverURL: result.ImgURL,
