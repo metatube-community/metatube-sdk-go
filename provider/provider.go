@@ -20,6 +20,7 @@ type MovieSearcher interface {
 }
 
 type MovieProvider interface {
+	// Provider should be implemented.
 	Provider
 
 	// GetMovieInfoByID gets movie's info by id.
