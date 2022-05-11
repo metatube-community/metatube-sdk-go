@@ -35,7 +35,7 @@ func (e *Engine) searchMovie(provider javtube.Provider, keyword string) (results
 		return searcher.SearchMovie(keyword)
 	}
 	var info *model.MovieInfo
-	if info, err = provider.GetMovieInfoByID(keyword); err == nil && info.Valid() {
+	if info, err = e.getMovieInfoByID(provider, keyword); err == nil && info.Valid() {
 		return []*model.SearchResult{info.ToSearchResult()}, nil
 	}
 	return
@@ -119,11 +119,7 @@ func (e *Engine) SearchMovieAll(keyword string) ([]*model.SearchResult, error) {
 	return results, nil
 }
 
-func (e *Engine) getMovieInfoFromDB(name, id string) (info *model.MovieInfo, err error) {
-	return nil, err
-}
-
-func (e *Engine) GetMovieInfo(name, id string) (info *model.MovieInfo, err error) {
+func (e *Engine) getMovieInfoByID(provider javtube.Provider, id string) (info *model.MovieInfo, err error) {
 	// query DB (by id)
 	//
 	// defer save
@@ -132,11 +128,18 @@ func (e *Engine) GetMovieInfo(name, id string) (info *model.MovieInfo, err error
 			// save to DB
 		}
 	}()
+	return provider.GetMovieInfoByID(id)
+}
+
+func (e *Engine) GetMovieInfoByID(name, id string) (info *model.MovieInfo, err error) {
+	// query DB (by id)
+	//
+	// defer save
 	provider, ok := e.movieProviders[name]
 	if !ok {
 		return nil, fmt.Errorf("provider not found: %s", name)
 	}
-	return provider.GetMovieInfoByID(id)
+	return e.getMovieInfoByID(provider, id)
 }
 
 func (e *Engine) SearchActor() {
