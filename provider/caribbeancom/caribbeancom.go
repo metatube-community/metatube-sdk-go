@@ -40,22 +40,22 @@ func New() *Caribbeancom {
 	}
 }
 
-func (crb *Caribbeancom) Name() string {
+func (carib *Caribbeancom) Name() string {
 	return name
 }
 
-func (crb *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+func (carib *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	switch {
 	case strings.Contains(id, "-"):
-		return crb.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
+		return carib.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 	case strings.Contains(id, "_"):
-		return crb.GetMovieInfoByURL(fmt.Sprintf(moviePremiumURL, id))
+		return carib.GetMovieInfoByURL(fmt.Sprintf(moviePremiumURL, id))
 	default:
 		return nil, provider.ErrNotFound
 	}
 }
 
-func (crb *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
+func (carib *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 	homepage, err := url.Parse(u)
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (crb *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, err
 		Tags:          []string{},
 	}
 
-	c := crb.c.Clone()
+	c := carib.c.Clone()
 
 	// Title
 	c.OnXML(`//h1[@itemprop="name"]`, func(e *colly.XMLElement) {
