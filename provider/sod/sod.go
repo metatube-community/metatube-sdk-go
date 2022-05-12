@@ -101,7 +101,7 @@ func (sod *SOD) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 		case "出演者":
 			info.Actors = e.ChildTexts(`.//td[2]/a`)
 		case "再生時間":
-			info.Duration = parser.ParseDuration(e.ChildText(`.//td[2]`))
+			info.Runtime = parser.ParseRuntime(e.ChildText(`.//td[2]`))
 		case "監督":
 			info.Director = strings.TrimSpace(e.ChildText(`.//td[2]`))
 		case "メーカー":

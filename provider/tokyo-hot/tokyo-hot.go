@@ -120,7 +120,7 @@ func (th *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 			case "配信開始日":
 				info.ReleaseDate = parser.ParseDate(e.ChildText(fmt.Sprintf(`.//dd[%d]`, i+1)))
 			case "収録時間":
-				info.Duration = parser.ParseDuration(e.ChildText(fmt.Sprintf(`.//dd[%d]`, i+1)))
+				info.Runtime = parser.ParseRuntime(e.ChildText(fmt.Sprintf(`.//dd[%d]`, i+1)))
 			case "作品番号":
 				info.Number = e.ChildText(fmt.Sprintf(`.//dd[%d]`, i+1))
 			}

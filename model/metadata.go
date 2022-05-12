@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	dt "github.com/javtube/javtube-sdk-go/model/datatypes"
+)
 
 type MovieSearchResult struct {
 	ID          string    `json:"id"`
@@ -40,8 +44,8 @@ type MovieInfo struct {
 	Tags      []string `json:"tags"`
 	Score     float64  `json:"score"`
 
-	Duration    time.Duration `json:"duration"`
-	ReleaseDate time.Time     `json:"release_date"`
+	Runtime     dt.Runtime `json:"runtime"`
+	ReleaseDate time.Time  `json:"release_date"`
 }
 
 func (mi *MovieInfo) Valid() bool {

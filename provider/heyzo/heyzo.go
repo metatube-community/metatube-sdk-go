@@ -96,7 +96,7 @@ func (hzo *Heyzo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 			info.ThumbURL = info.CoverURL /* use cover as thumb */
 			info.Publisher = data.Video.Provider
 			info.ReleaseDate = parser.ParseDate(data.ReleasedEvent.StartDate)
-			info.Duration = parser.ParseDuration(data.Video.Duration)
+			info.Runtime = parser.ParseRuntime(data.Video.Duration)
 			info.Score = parser.ParseScore(data.AggregateRating.RatingValue)
 			if data.Video.Actor != "" {
 				info.Actors = []string{data.Video.Actor}
@@ -145,7 +145,7 @@ func (hzo *Heyzo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 		info.Tags = e.ChildTexts(`.//li/a`)
 	})
 
-	// Video+Duration
+	// Video+Runtime
 	c.OnXML(`//script[@type="text/javascript"]`, func(e *colly.XMLElement) {
 		// Sample Video
 		if strings.Contains(e.Text, "emvideo") {
@@ -153,14 +153,14 @@ func (hzo *Heyzo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 				info.PreviewVideoURL = e.Request.AbsoluteURL(sub[1])
 			}
 		}
-		// Duration
+		// Runtime
 		if strings.Contains(e.Text, "o = {") {
 			if sub := regexp.MustCompile(`o = (\{.+?});`).FindStringSubmatch(e.Text); len(sub) == 2 {
 				data := struct {
 					Full string `json:"full"`
 				}{}
 				if json.Unmarshal([]byte(sub[1]), &data) == nil {
-					info.Duration = parser.ParseDuration(data.Full)
+					info.Runtime = parser.ParseRuntime(data.Full)
 				}
 			}
 		}

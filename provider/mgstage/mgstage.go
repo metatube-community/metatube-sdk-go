@@ -125,7 +125,7 @@ func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 		case "メーカー：":
 			info.Maker = e.ChildText(`.//td`)
 		case "収録時間：":
-			info.Duration = parser.ParseDuration(e.ChildText(`.//td`))
+			info.Runtime = parser.ParseRuntime(e.ChildText(`.//td`))
 		case "品番：":
 			info.Number = e.ChildText(`.//td`)
 		case "配信開始日：", "商品発売日：":

@@ -89,7 +89,7 @@ func (bus *JavBus) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error
 			info.ReleaseDate = parser.ParseDate(fields[len(fields)-1])
 		case "収録時間:":
 			fields := strings.Fields(e.Text)
-			info.Duration = parser.ParseDuration(fields[len(fields)-1])
+			info.Runtime = parser.ParseRuntime(fields[len(fields)-1])
 		case "監督:":
 			info.Director = e.ChildText(`.//a`)
 		case "メーカー:":

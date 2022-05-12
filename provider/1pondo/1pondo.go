@@ -105,7 +105,7 @@ func (opd *OnePondo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 			info.Summary = data.Desc
 			info.Series = data.Series
 			info.ReleaseDate = parser.ParseDate(data.Release)
-			info.Duration = time.Duration(data.Duration) * time.Second
+			info.Runtime = int((time.Duration(data.Duration) * time.Second).Minutes())
 			if data.AvgRating <= 5 {
 				info.Score = data.AvgRating
 			}

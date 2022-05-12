@@ -107,7 +107,7 @@ func (carib *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, e
 		case "配信日", "販売日":
 			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//span[2]`))
 		case "再生時間":
-			info.Duration = parser.ParseDuration(e.ChildText(`.//span[2]`))
+			info.Runtime = parser.ParseRuntime(e.ChildText(`.//span[2]`))
 		case "シリーズ":
 			info.Series = e.ChildText(`.//span[2]/a[1]`)
 		case "スタジオ":

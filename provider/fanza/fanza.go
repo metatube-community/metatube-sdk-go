@@ -130,7 +130,7 @@ func (fz *FANZA) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 		case "平均評価：":
 			info.Score = fz.parseScoreFromURL(e.ChildAttr(`.//td[2]/img`, "src"))
 		case "収録時間：":
-			info.Duration = parser.ParseDuration(e.ChildText(`.//td[2]`))
+			info.Runtime = parser.ParseRuntime(e.ChildText(`.//td[2]`))
 		case "監督：":
 			info.Director = strings.Trim(e.ChildText(`.//td[2]`), "-")
 		case "配信開始日：", "商品発売日：", "発売日：":

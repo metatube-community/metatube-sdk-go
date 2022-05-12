@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/araddon/dateparse"
+	dt "github.com/javtube/javtube-sdk-go/model/datatypes"
 )
 
 // ParseInt parses string to int regardless.
@@ -44,6 +45,11 @@ func ParseDuration(s string) time.Duration {
 	}
 	d, _ := time.ParseDuration(s)
 	return d
+}
+
+// ParseRuntime parses a string with valid duration format into Runtime.
+func ParseRuntime(s string) dt.Runtime {
+	return int(ParseDuration(s).Minutes())
 }
 
 // ParseScore parses a string into float-based score.
