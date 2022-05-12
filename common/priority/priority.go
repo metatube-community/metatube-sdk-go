@@ -29,7 +29,7 @@ func (s *Slice[_, U]) Underlying() []U {
 }
 
 func (s *Slice[_, _]) Len() int {
-	return len(s.underlying)
+	return len(s.priorities)
 }
 
 func (s *Slice[_, _]) Swap(i int, j int) {
