@@ -8,6 +8,7 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/number"
@@ -129,7 +130,7 @@ func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 		case "品番：":
 			info.Number = e.ChildText(`.//td`)
 		case "配信開始日：", "商品発売日：":
-			if info.ReleaseDate.IsZero() {
+			if time.Time(info.ReleaseDate).IsZero() {
 				info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td`))
 			}
 		case "シリーズ：":

@@ -12,6 +12,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
+	dt "github.com/javtube/javtube-sdk-go/model/datatypes"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"golang.org/x/net/html"
 )
@@ -168,11 +169,11 @@ func (xsl *XsList) SearchActor(keyword string) (results []*model.ActorSearchResu
 	return
 }
 
-func parseDebutDate(s string) time.Time {
+func parseDebutDate(s string) dt.Date {
 	if ss := regexp.MustCompile(`^([\s\d]+)年([\s\d]+)月$`).
 		FindStringSubmatch(s); len(ss) == 3 {
-		return time.Date(parser.ParseInt(ss[1]), time.Month(parser.ParseInt(ss[2])),
-			1, 0, 0, 0, 0, time.UTC)
+		return dt.Date(time.Date(parser.ParseInt(ss[1]), time.Month(parser.ParseInt(ss[2])),
+			1, 0, 0, 0, 0, time.UTC))
 	}
 	return parser.ParseDate(s)
 }
