@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/araddon/dateparse"
-	dt "github.com/javtube/javtube-sdk-go/model/datatypes"
+	dt "gorm.io/datatypes"
 )
 
 // ParseInt parses string to int regardless.
