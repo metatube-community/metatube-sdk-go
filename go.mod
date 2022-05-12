@@ -29,6 +29,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
+	github.com/lib/pq v1.10.5 // indirect
 	github.com/nlnwa/whatwg-url v0.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect

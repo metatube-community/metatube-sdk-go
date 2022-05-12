@@ -30,19 +30,19 @@ type MovieInfo struct {
 	Provider string `json:"provider"`
 	Homepage string `json:"homepage"`
 
-	Director string   `json:"director"`
-	Actors   []string `json:"actors"`
+	Director string         `json:"director"`
+	Actors   dt.StringArray `json:"actors"`
 
-	ThumbURL        string   `json:"thumb_url"`
-	CoverURL        string   `json:"cover_url"`
-	PreviewVideoURL string   `json:"preview_video_url"`
-	PreviewImages   []string `json:"preview_images"`
+	ThumbURL        string         `json:"thumb_url"`
+	CoverURL        string         `json:"cover_url"`
+	PreviewVideoURL string         `json:"preview_video_url"`
+	PreviewImages   dt.StringArray `json:"preview_images"`
 
-	Maker     string   `json:"maker"`
-	Publisher string   `json:"publisher"`
-	Series    string   `json:"series"`
-	Tags      []string `json:"tags"`
-	Score     float64  `json:"score"`
+	Maker     string         `json:"maker"`
+	Publisher string         `json:"publisher"`
+	Series    string         `json:"series"`
+	Tags      dt.StringArray `json:"tags"`
+	Score     float64        `json:"score"`
 
 	Runtime     dt.Runtime `json:"runtime"`
 	ReleaseDate time.Time  `json:"release_date"`
@@ -68,11 +68,11 @@ func (mi *MovieInfo) ToSearchResult() *MovieSearchResult {
 }
 
 type ActorSearchResult struct {
-	ID       string   `json:"id"`
-	Name     string   `json:"name"`
-	Provider string   `json:"provider"`
-	Homepage string   `json:"homepage"`
-	Images   []string `json:"images"`
+	ID       string         `json:"id"`
+	Name     string         `json:"name"`
+	Provider string         `json:"provider"`
+	Homepage string         `json:"homepage"`
+	Images   dt.StringArray `json:"images"`
 }
 
 func (sr *ActorSearchResult) Valid() bool {
@@ -80,19 +80,19 @@ func (sr *ActorSearchResult) Valid() bool {
 }
 
 type ActorInfo struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	Provider     string    `json:"provider"`
-	Homepage     string    `json:"homepage"`
-	Nationality  string    `json:"nationality"`
-	BloodType    string    `json:"blood_type"`
-	CupSize      string    `json:"cup_size"`
-	Measurements string    `json:"measurements"`
-	Height       int       `json:"height"`
-	Aliases      []string  `json:"aliases"`
-	Images       []string  `json:"images"`
-	Birthday     time.Time `json:"birthday"`
-	DebutDate    time.Time `json:"debut_date"`
+	ID           string         `json:"id"`
+	Name         string         `json:"name"`
+	Provider     string         `json:"provider"`
+	Homepage     string         `json:"homepage"`
+	Nationality  string         `json:"nationality"`
+	BloodType    string         `json:"blood_type"`
+	CupSize      string         `json:"cup_size"`
+	Measurements string         `json:"measurements"`
+	Height       int            `json:"height"`
+	Aliases      dt.StringArray `json:"aliases"`
+	Images       dt.StringArray `json:"images"`
+	Birthday     time.Time      `json:"birthday"`
+	DebutDate    time.Time      `json:"debut_date"`
 }
 
 func (ai *ActorInfo) Valid() bool {
