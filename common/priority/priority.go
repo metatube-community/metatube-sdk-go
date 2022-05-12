@@ -14,6 +14,16 @@ func (s *Slice[T, U]) Append(priority T, item U) {
 	s.underlying = append(s.underlying, item)
 }
 
+func (s *Slice[T, U]) Sort() *Slice[T, U] {
+	sort.Sort(s)
+	return s
+}
+
+func (s *Slice[T, U]) Reverse() *Slice[T, U] {
+	sort.Sort(sort.Reverse(s))
+	return s
+}
+
 func (s *Slice[_, U]) Underlying() []U {
 	return s.underlying
 }
