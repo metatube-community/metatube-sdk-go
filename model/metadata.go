@@ -87,7 +87,9 @@ type ActorInfo struct {
 	Name         string         `json:"name"`
 	Provider     string         `json:"provider" gorm:"primaryKey"`
 	Homepage     string         `json:"homepage"`
+	Summary      string         `json:"summary"`
 	Nationality  string         `json:"nationality"`
+	Hobby        string         `json:"hobby"`
 	BloodType    string         `json:"blood_type"`
 	CupSize      string         `json:"cup_size"`
 	Measurements string         `json:"measurements"`
