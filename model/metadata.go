@@ -6,10 +6,10 @@ import (
 )
 
 type MovieSearchResult struct {
-	ID          string  `json:"id"`
+	ID          string  `json:"id" gorm:"primaryKey"`
 	Number      string  `json:"number"`
 	Title       string  `json:"title"`
-	Provider    string  `json:"provider"`
+	Provider    string  `json:"provider" gorm:"primaryKey"`
 	Homepage    string  `json:"homepage"`
 	ThumbURL    string  `json:"thumb_url"`
 	CoverURL    string  `json:"cover_url"`
@@ -22,25 +22,25 @@ func (sr *MovieSearchResult) Valid() bool {
 }
 
 type MovieInfo struct {
-	ID       string `json:"id"`
+	ID       string `json:"id" gorm:"primaryKey"`
 	Number   string `json:"number"`
 	Title    string `json:"title"`
 	Summary  string `json:"summary"`
-	Provider string `json:"provider"`
+	Provider string `json:"provider" gorm:"primaryKey"`
 	Homepage string `json:"homepage"`
 
 	Director string         `json:"director"`
-	Actors   pq.StringArray `json:"actors"`
+	Actors   pq.StringArray `json:"actors" gorm:"type:text[]"`
 
 	ThumbURL        string         `json:"thumb_url"`
 	CoverURL        string         `json:"cover_url"`
 	PreviewVideoURL string         `json:"preview_video_url"`
-	PreviewImages   pq.StringArray `json:"preview_images"`
+	PreviewImages   pq.StringArray `json:"preview_images" gorm:"type:text[]"`
 
 	Maker     string         `json:"maker"`
 	Publisher string         `json:"publisher"`
 	Series    string         `json:"series"`
-	Tags      pq.StringArray `json:"tags"`
+	Tags      pq.StringArray `json:"tags" gorm:"type:text[]"`
 	Score     float64        `json:"score"`
 
 	Runtime     int     `json:"runtime"`
@@ -67,11 +67,11 @@ func (mi *MovieInfo) ToSearchResult() *MovieSearchResult {
 }
 
 type ActorSearchResult struct {
-	ID       string         `json:"id"`
+	ID       string         `json:"id" gorm:"primaryKey"`
 	Name     string         `json:"name"`
-	Provider string         `json:"provider"`
+	Provider string         `json:"provider" gorm:"primaryKey"`
 	Homepage string         `json:"homepage"`
-	Images   pq.StringArray `json:"images"`
+	Images   pq.StringArray `json:"images" gorm:"type:text[]"`
 }
 
 func (sr *ActorSearchResult) Valid() bool {
@@ -79,17 +79,17 @@ func (sr *ActorSearchResult) Valid() bool {
 }
 
 type ActorInfo struct {
-	ID           string         `json:"id"`
+	ID           string         `json:"id" gorm:"primaryKey"`
 	Name         string         `json:"name"`
-	Provider     string         `json:"provider"`
+	Provider     string         `json:"provider" gorm:"primaryKey"`
 	Homepage     string         `json:"homepage"`
 	Nationality  string         `json:"nationality"`
 	BloodType    string         `json:"blood_type"`
 	CupSize      string         `json:"cup_size"`
 	Measurements string         `json:"measurements"`
 	Height       int            `json:"height"`
-	Aliases      pq.StringArray `json:"aliases"`
-	Images       pq.StringArray `json:"images"`
+	Aliases      pq.StringArray `json:"aliases" gorm:"type:text[]"`
+	Images       pq.StringArray `json:"images" gorm:"type:text[]"`
 	Birthday     dt.Date        `json:"birthday"`
 	DebutDate    dt.Date        `json:"debut_date"`
 }
