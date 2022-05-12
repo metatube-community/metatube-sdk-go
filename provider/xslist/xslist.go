@@ -38,11 +38,13 @@ type XsList struct {
 }
 
 func New() *XsList {
+	c := colly.NewCollector(
+		colly.AllowURLRevisit(),
+		colly.IgnoreRobotsTxt(),
+		colly.UserAgent(random.UserAgent()))
+	c.DisableCookies()
 	return &XsList{
-		Scraper: provider.NewScraper(name, priority, colly.NewCollector(
-			colly.AllowURLRevisit(),
-			colly.IgnoreRobotsTxt(),
-			colly.UserAgent(random.UserAgent()))),
+		Scraper: provider.NewScraper(name, priority, c),
 	}
 }
 
