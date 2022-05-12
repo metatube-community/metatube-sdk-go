@@ -42,8 +42,8 @@ type MovieInfo struct {
 	Tags      dt.StringArray `json:"tags"`
 	Score     float64        `json:"score"`
 
-	Runtime     dt.Runtime `json:"runtime"`
-	ReleaseDate dt.Date    `json:"release_date"`
+	Runtime     int     `json:"runtime"`
+	ReleaseDate dt.Date `json:"release_date"`
 }
 
 func (mi *MovieInfo) Valid() bool {

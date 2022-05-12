@@ -53,7 +53,7 @@ func ParseDuration(s string) time.Duration {
 }
 
 // ParseRuntime parses a string with valid duration format into Runtime.
-func ParseRuntime(s string) dt.Runtime {
+func ParseRuntime(s string) int {
 	return int(ParseDuration(s).Minutes())
 }
 
