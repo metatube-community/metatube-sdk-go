@@ -52,7 +52,7 @@ func ParseDuration(s string) time.Duration {
 	return d
 }
 
-// ParseRuntime parses a string with valid duration format into Runtime.
+// ParseRuntime parses a string into time.Duration and converts it to minutes as integer.
 func ParseRuntime(s string) int {
 	return int(ParseDuration(s).Minutes())
 }
