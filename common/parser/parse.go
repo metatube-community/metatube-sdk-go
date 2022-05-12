@@ -18,8 +18,8 @@ func ParseInt(s string) int {
 	return int(n)
 }
 
-// ParseDate parses a string with valid date format into time.Time.
-func ParseDate(s string) time.Time {
+// ParseTime parses a string with valid time format into time.Time.
+func ParseTime(s string) time.Time {
 	s = strings.TrimSpace(s)
 	if ss := regexp.MustCompile(`([\s\d]+)年([\s\d]+)月([\s\d]+)日`).
 		FindStringSubmatch(s); len(ss) == 4 {
@@ -30,6 +30,11 @@ func ParseDate(s string) time.Time {
 	}
 	t, _ := dateparse.ParseAny(s)
 	return t
+}
+
+// ParseDate parses a string with valid date format into Date.
+func ParseDate(s string) dt.Date {
+	return dt.Date(ParseTime(s))
 }
 
 // ParseDuration parses a string with valid duration format into time.Duration.

@@ -1,21 +1,19 @@
 package model
 
 import (
-	"time"
-
 	dt "github.com/javtube/javtube-sdk-go/model/datatypes"
 )
 
 type MovieSearchResult struct {
-	ID          string    `json:"id"`
-	Number      string    `json:"number"`
-	Title       string    `json:"title"`
-	Provider    string    `json:"provider"`
-	Homepage    string    `json:"homepage"`
-	ThumbURL    string    `json:"thumb_url"`
-	CoverURL    string    `json:"cover_url"`
-	Score       float64   `json:"score"`
-	ReleaseDate time.Time `json:"release_date"`
+	ID          string  `json:"id"`
+	Number      string  `json:"number"`
+	Title       string  `json:"title"`
+	Provider    string  `json:"provider"`
+	Homepage    string  `json:"homepage"`
+	ThumbURL    string  `json:"thumb_url"`
+	CoverURL    string  `json:"cover_url"`
+	Score       float64 `json:"score"`
+	ReleaseDate dt.Date `json:"release_date"`
 }
 
 func (sr *MovieSearchResult) Valid() bool {
@@ -45,7 +43,7 @@ type MovieInfo struct {
 	Score     float64        `json:"score"`
 
 	Runtime     dt.Runtime `json:"runtime"`
-	ReleaseDate time.Time  `json:"release_date"`
+	ReleaseDate dt.Date    `json:"release_date"`
 }
 
 func (mi *MovieInfo) Valid() bool {
@@ -91,8 +89,8 @@ type ActorInfo struct {
 	Height       int            `json:"height"`
 	Aliases      dt.StringArray `json:"aliases"`
 	Images       dt.StringArray `json:"images"`
-	Birthday     time.Time      `json:"birthday"`
-	DebutDate    time.Time      `json:"debut_date"`
+	Birthday     dt.Date        `json:"birthday"`
+	DebutDate    dt.Date        `json:"debut_date"`
 }
 
 func (ai *ActorInfo) Valid() bool {
