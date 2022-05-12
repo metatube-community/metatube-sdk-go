@@ -76,9 +76,6 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 		}
 		results = append(results, resp.Results...)
 	}
-	if len(results) == 0 {
-		err = javtube.ErrNotFound
-	}
 	return
 }
 
@@ -88,21 +85,39 @@ func (e *Engine) SearchMovieAll(keyword string, lazy bool) (results []*model.Mov
 		return nil, javtube.ErrInvalidKeyword
 	}
 
-	results, err = e.searchMovieAll(keyword)
-	if err != nil {
-		return nil, err
+	defer func() {
+		if err != nil {
+			return
+		}
+		if len(results) == 0 {
+			err = javtube.ErrNotFound
+			return
+		}
+		// post-processing
+		var ps = new(priority.Slice[float64, *model.MovieSearchResult])
+		for _, result := range results {
+			if !result.Valid() /* validation check */ {
+				continue
+			}
+			ps.Append(number.Similarity(keyword, result.Number)*
+				float64(e.movieProviders[result.Provider].Priority()), result)
+		}
+		// sort according to priority.
+		results = ps.Sort().Underlying()
+	}()
+
+	if lazy {
+		var multiInfo = make([]*model.MovieInfo, 0)
+		if result := e.db.Where("number = ?", keyword).Find(&multiInfo); result.Error == nil && len(multiInfo) > 0 {
+			for _, info := range multiInfo {
+				results = append(results, info.ToSearchResult())
+			}
+			return
+		}
 	}
 
-	var ps = new(priority.Slice[float64, *model.MovieSearchResult])
-	for _, result := range results {
-		if !result.Valid() {
-			continue
-		}
-		ps.Append(number.Similarity(keyword, result.Number)*
-			float64(e.movieProviders[result.Provider].Priority()), result)
-	}
-	// sort according to priority.
-	return ps.Sort().Underlying(), nil
+	results, err = e.searchMovieAll(keyword)
+	return
 }
 
 func (e *Engine) getMovieInfoByID(id string, provider javtube.MovieProvider, lazy bool) (info *model.MovieInfo, err error) {
