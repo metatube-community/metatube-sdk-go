@@ -1,7 +1,8 @@
 package model
 
 import (
-	dt "github.com/javtube/javtube-sdk-go/model/datatypes"
+	"github.com/lib/pq"
+	dt "gorm.io/datatypes"
 )
 
 type MovieSearchResult struct {
@@ -29,17 +30,17 @@ type MovieInfo struct {
 	Homepage string `json:"homepage"`
 
 	Director string         `json:"director"`
-	Actors   dt.StringArray `json:"actors"`
+	Actors   pq.StringArray `json:"actors"`
 
 	ThumbURL        string         `json:"thumb_url"`
 	CoverURL        string         `json:"cover_url"`
 	PreviewVideoURL string         `json:"preview_video_url"`
-	PreviewImages   dt.StringArray `json:"preview_images"`
+	PreviewImages   pq.StringArray `json:"preview_images"`
 
 	Maker     string         `json:"maker"`
 	Publisher string         `json:"publisher"`
 	Series    string         `json:"series"`
-	Tags      dt.StringArray `json:"tags"`
+	Tags      pq.StringArray `json:"tags"`
 	Score     float64        `json:"score"`
 
 	Runtime     int     `json:"runtime"`
@@ -70,7 +71,7 @@ type ActorSearchResult struct {
 	Name     string         `json:"name"`
 	Provider string         `json:"provider"`
 	Homepage string         `json:"homepage"`
-	Images   dt.StringArray `json:"images"`
+	Images   pq.StringArray `json:"images"`
 }
 
 func (sr *ActorSearchResult) Valid() bool {
@@ -87,8 +88,8 @@ type ActorInfo struct {
 	CupSize      string         `json:"cup_size"`
 	Measurements string         `json:"measurements"`
 	Height       int            `json:"height"`
-	Aliases      dt.StringArray `json:"aliases"`
-	Images       dt.StringArray `json:"images"`
+	Aliases      pq.StringArray `json:"aliases"`
+	Images       pq.StringArray `json:"images"`
 	Birthday     dt.Date        `json:"birthday"`
 	DebutDate    dt.Date        `json:"debut_date"`
 }

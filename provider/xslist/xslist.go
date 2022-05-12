@@ -12,9 +12,9 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
-	dt "github.com/javtube/javtube-sdk-go/model/datatypes"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"golang.org/x/net/html"
+	dt "gorm.io/datatypes"
 )
 
 var (
