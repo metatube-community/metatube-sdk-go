@@ -23,7 +23,7 @@ func TestAirAV_GetMovieInfoByID(t *testing.T) {
 func TestAirAV_SearchMovie(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
-		// "STARS",
+		"ssni-278",
 		"FC2-2735315",
 	} {
 		results, err := provider.SearchMovie(item)
