@@ -55,7 +55,7 @@ func (mgs *MGStage) NormalizeID(id string) string {
 }
 
 func (mgs *MGStage) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return mgs.GetMovieInfoByURL(fmt.Sprintf(movieURL, strings.ToUpper(id)))
+	return mgs.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
 func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {

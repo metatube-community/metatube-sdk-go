@@ -73,7 +73,7 @@ func (sod *SOD) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 
 	// ID+Number
 	if ss := regexp.MustCompile(`id=(.+?)$`).FindStringSubmatch(info.Homepage); len(ss) == 2 {
-		info.ID = ss[1]
+		info.ID = strings.ToUpper(ss[1])
 		info.Number = info.ID
 	}
 

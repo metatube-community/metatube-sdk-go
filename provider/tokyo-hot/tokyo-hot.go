@@ -57,7 +57,7 @@ func (th *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 	id := path.Base(homepage.Path)
 
 	info = &model.MovieInfo{
-		ID:            id,
+		ID:            strings.ToUpper(id),
 		Provider:      th.Name(),
 		Homepage:      homepage.String(),
 		Maker:         "TOKYO-HOT",
