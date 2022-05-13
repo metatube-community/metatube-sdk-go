@@ -168,6 +168,7 @@ func (air *AirAV) SearchMovie(keyword string) (results []*model.MovieSearchResul
 		if ss := regexp.MustCompile(`^(?i)FC2-.*?(\d+)$`).FindStringSubmatch(keyword); len(ss) == 2 {
 			keyword = fmt.Sprintf("FC2-PPV-%s", ss[1])
 		}
+		keyword = strings.ToUpper(keyword)
 	}
 
 	c := air.Collector()
