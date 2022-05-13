@@ -8,6 +8,7 @@ import (
 	// Movie
 	_ "github.com/javtube/javtube-sdk-go/provider/1pondo"
 	_ "github.com/javtube/javtube-sdk-go/provider/airav"
+	_ "github.com/javtube/javtube-sdk-go/provider/arzon"
 	_ "github.com/javtube/javtube-sdk-go/provider/caribbeancom"
 	_ "github.com/javtube/javtube-sdk-go/provider/fanza"
 	_ "github.com/javtube/javtube-sdk-go/provider/fc2"
