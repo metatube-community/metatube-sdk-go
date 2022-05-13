@@ -1,15 +1,14 @@
 package sod
 
 import (
-	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/javtube/javtube-sdk-go/common/fetch"
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/common/random"
@@ -209,24 +208,7 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 }
 
 func (sod *SOD) Download(u string) (_ io.ReadCloser, err error) {
-	var (
-		req  *http.Request
-		resp *http.Response
-	)
-	if req, err = http.NewRequest(http.MethodGet, u, nil); err != nil {
-		return
-	}
-	// SOD needs referer header to view image/video
-	req.Header.Set("Referer", baseURL)
-	// make request
-	if resp, err = http.DefaultClient.Do(req); err != nil {
-		return
-	}
-	if resp.StatusCode != http.StatusOK {
-		defer resp.Body.Close()
-		return nil, errors.New(http.StatusText(resp.StatusCode))
-	}
-	return resp.Body, nil
+	return fetch.Fetch(u, fetch.WithReferer(baseURL))
 }
 
 func init() {
