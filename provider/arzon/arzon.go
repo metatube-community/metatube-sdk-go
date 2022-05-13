@@ -112,18 +112,25 @@ func (az *ARZON) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 	})
 
 	// Preview Images
-	c.OnXML(`//*[@id="detail_new"]/div[@class="sample_img"]/img`, func(e *colly.XMLElement) {
+	c.OnXML(`//*[@id="detail_new"]//div[@class="sample_img"]/img`, func(e *colly.XMLElement) {
 		info.PreviewImages = append(info.PreviewImages, e.Request.AbsoluteURL(e.Attr("src")))
+	})
+
+	// Score
+	c.OnXML(`//*[@id="detail_new"]//div[@class="value"]//li[@class="review"]/img`, func(e *colly.XMLElement) {
+		if ss := regexp.MustCompile(`star(\d+)\.gif`).FindStringSubmatch(e.Attr("src")); len(ss) == 2 {
+			info.Score = parser.ParseScore(ss[1])
+		}
 	})
 
 	// Fields
 	c.OnXML(`//*[@id="detail_new"]/table/tbody/tr/td[1]/table/tbody/tr[3]/td/div/table/tbody/tr`, func(e *colly.XMLElement) {
 		switch e.ChildText(`.//td[1]`) {
-		case "AV女優：":
+		case "AV女優：", "タレント：":
 			info.Actors = e.ChildTexts(`.//td[2]/a`)
-		case "AVメーカー：":
+		case "AVメーカー：", "アニメメーカー：", "イメージメーカー：":
 			info.Maker = e.ChildText(`.//td[2]`)
-		case "AVレーベル：":
+		case "AVレーベル：", "アニメレーベル：", "イメージレーベル：":
 			info.Publisher = e.ChildText(`.//td[2]`)
 		case "シリーズ：":
 			info.Series = e.ChildText(`.//td[2]`)
