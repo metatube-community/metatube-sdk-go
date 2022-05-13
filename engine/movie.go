@@ -12,16 +12,21 @@ import (
 )
 
 func (e *Engine) searchMovie(keyword string, provider javtube.MovieProvider, lazy bool) ([]*model.MovieSearchResult, error) {
-	// Query DB first (by number).
-	if info := new(model.MovieInfo); lazy {
-		if result := e.db.Where("number = ? AND provider = ?", keyword, provider.Name()).
-			First(info); result.Error == nil && info.Valid() /* must be valid */ {
-			return []*model.MovieSearchResult{info.ToSearchResult()}, nil
-		} // ignore DB query error.
-	}
 	// Regular keyword searching.
 	if searcher, ok := provider.(javtube.MovieSearcher); ok {
-		// auto save all search result's metadata
+		// Query DB first (by number).
+		if info := new(model.MovieInfo); lazy {
+			if result := e.db.
+				Where("provider = ?", provider.Name()).
+				Where(e.db.
+					// Use UPPER to perform case-insensitive match here.
+					// It's inefficient, but it works.
+					Where("UPPER(number) = UPPER(?)", keyword).
+					Or("UPPER(id) = UPPER(?)", keyword)).
+				First(info); result.Error == nil && info.Valid() /* must be valid */ {
+				return []*model.MovieSearchResult{info.ToSearchResult()}, nil
+			} // ignore DB query error.
+		}
 		return searcher.SearchMovie(keyword)
 	}
 	// Fallback to movie info querying.
@@ -108,7 +113,12 @@ func (e *Engine) SearchMovieAll(keyword string, lazy bool) (results []*model.Mov
 
 	if lazy {
 		var multiInfo = make([]*model.MovieInfo, 0)
-		if result := e.db.Where("number = ?", keyword).Find(&multiInfo); result.Error == nil && len(multiInfo) > 0 {
+		if result := e.db.
+			// Note: keyword might be an ID or just a regular number, so we should
+			// query both of them for best match. Also, case should not mater.
+			Where("UPPER(number) = UPPER(?)", keyword).
+			Or("UPPER(id) = UPPER(?)", keyword).
+			Find(&multiInfo); result.Error == nil && result.RowsAffected > 0 {
 			for _, info := range multiInfo {
 				results = append(results, info.ToSearchResult())
 			}
@@ -121,9 +131,15 @@ func (e *Engine) SearchMovieAll(keyword string, lazy bool) (results []*model.Mov
 }
 
 func (e *Engine) getMovieInfoByID(id string, provider javtube.MovieProvider, lazy bool) (info *model.MovieInfo, err error) {
+	if id = provider.NormalizeID(id); id == "" {
+		return nil, javtube.ErrInvalidID
+	}
 	// Query DB first (by id).
 	if info = new(model.MovieInfo); lazy {
-		if result := e.db.Where("id = ? AND provider = ?", id, provider.Name()).
+		if result := e.db.
+			// Exact match here.
+			Where("id = ?", id).
+			Where("provider = ?", provider.Name()).
 			First(info); result.Error == nil && info.Valid() {
 			return
 		} // ignore DB query error.
