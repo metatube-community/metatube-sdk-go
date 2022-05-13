@@ -2,15 +2,14 @@ package gfriends
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"path"
 	"sync"
 	"time"
 
 	"github.com/iancoleman/orderedmap"
+	"github.com/javtube/javtube-sdk-go/common/fetch"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 )
@@ -124,15 +123,13 @@ func (ft *fileTree) query(s string) (images []string, err error) {
 }
 
 func (ft *fileTree) update() error {
-	resp, err := http.Get(jsonURL)
+	rc, err := fetch.Fetch(jsonURL)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusOK {
-		return json.NewDecoder(resp.Body).Decode(ft)
-	}
-	return errors.New(http.StatusText(resp.StatusCode))
+	defer rc.Close()
+	return json.NewDecoder(rc).Decode(ft)
+
 }
 
 func reverse[T any](array []T) []T {
