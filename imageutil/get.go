@@ -1,11 +1,12 @@
 package imageutil
 
 import (
-	"errors"
 	"image"
-	"net/http"
+	"io"
 	"net/url"
 	"os"
+
+	"github.com/javtube/javtube-sdk-go/common/fetch"
 )
 
 // GetImage gets image from url or path.
@@ -27,21 +28,12 @@ func GetImageByPath(p string) (image.Image, string, error) {
 
 // GetImageByURL gets image from url.
 func GetImageByURL(u string) (_ image.Image, _ string, err error) {
-	var (
-		req  *http.Request
-		resp *http.Response
-	)
-	if req, err = http.NewRequest(http.MethodGet, u, nil); err != nil {
+	var rc io.ReadCloser
+	if rc, err = fetch.Fetch(u); err != nil {
 		return
 	}
-	if resp, err = http.DefaultClient.Do(req); err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, "", errors.New(http.StatusText(resp.StatusCode))
-	}
-	return image.Decode(resp.Body)
+	defer rc.Close()
+	return image.Decode(rc)
 }
 
 func isValidURL(s string) bool {
