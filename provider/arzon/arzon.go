@@ -49,13 +49,6 @@ func New() *ARZON {
 	}
 }
 
-func (az *ARZON) NormalizeID(id string) string {
-	if regexp.MustCompile(`^\d+$`).MatchString(id) {
-		return id
-	}
-	return ""
-}
-
 func (az *ARZON) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return az.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }

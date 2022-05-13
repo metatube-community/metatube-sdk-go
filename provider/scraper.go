@@ -6,6 +6,8 @@ import (
 	"github.com/gocolly/colly/v2"
 )
 
+var _ Provider = (*Scraper)(nil)
+
 // Scraper implements basic Provider interface.
 type Scraper struct {
 	name     string
@@ -29,6 +31,8 @@ func (s *Scraper) Name() string {
 func (s *Scraper) Priority() int {
 	return s.priority
 }
+
+func (s *Scraper) NormalizeID(id string) string { return id /* AS IS */ }
 
 // Collector returns cloned internal collector.
 func (s *Scraper) Collector() *colly.Collector {
