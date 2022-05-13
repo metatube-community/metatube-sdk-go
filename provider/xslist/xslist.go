@@ -48,6 +48,8 @@ func New() *XsList {
 	}
 }
 
+func (xsl *XsList) TidyID(id string) string { return id /* AS IS */ }
+
 func (xsl *XsList) GetActorInfoByID(id string) (info *model.ActorInfo, err error) {
 	return xsl.GetActorInfoByURL(fmt.Sprintf(actorURL, id))
 }

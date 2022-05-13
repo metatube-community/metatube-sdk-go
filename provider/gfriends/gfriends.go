@@ -49,6 +49,8 @@ func (gf *GFriends) Priority() int {
 	return priority
 }
 
+func (gf *GFriends) TidyID(id string) string { return id /* AS IS */ }
+
 func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
 	images, err := gf.fileTree.query(id)
 	if err != nil {
