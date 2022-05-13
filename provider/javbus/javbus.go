@@ -54,7 +54,7 @@ func (bus *JavBus) NormalizeID(id string) string {
 }
 
 func (bus *JavBus) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return bus.GetMovieInfoByURL(fmt.Sprintf(movieURL, strings.ToUpper(id)))
+	return bus.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
 func (bus *JavBus) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
