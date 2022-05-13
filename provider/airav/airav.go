@@ -50,6 +50,10 @@ func New() *AirAV {
 	}
 }
 
+func (air *AirAV) TidyID(id string) string {
+	return strings.ToUpper(id)
+}
+
 func (air *AirAV) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return air.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }

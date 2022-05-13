@@ -43,10 +43,14 @@ func New() *Caribbeancom {
 	}
 }
 
-func (carib *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	if !regexp.MustCompile(`^\d{6}[-_]\d{3}$`).MatchString(id) {
-		return nil, provider.ErrInvalidID
+func (carib *Caribbeancom) TidyID(id string) string {
+	if regexp.MustCompile(`^\d{6}[-_]\d{3}$`).MatchString(id) {
+		return id
 	}
+	return ""
+}
+
+func (carib *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	switch {
 	case strings.Contains(id, "-"):
 		return carib.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))

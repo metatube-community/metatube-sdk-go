@@ -51,10 +51,14 @@ func New() *OnePondo {
 	return &OnePondo{provider.NewScraper(name, priority, c)}
 }
 
-func (opd *OnePondo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	if !regexp.MustCompile(`^\d{6}_\d{3}$`).MatchString(id) {
-		return nil, provider.ErrInvalidID
+func (opd *OnePondo) TidyID(id string) string {
+	if regexp.MustCompile(`^\d{6}_\d{3}$`).MatchString(id) {
+		return id
 	}
+	return ""
+}
+
+func (opd *OnePondo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return opd.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 

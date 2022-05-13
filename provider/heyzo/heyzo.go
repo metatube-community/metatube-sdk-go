@@ -44,11 +44,15 @@ func New() *Heyzo {
 	}
 }
 
-func (hzo *Heyzo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+func (hzo *Heyzo) TidyID(id string) string {
 	if ss := regexp.MustCompile(`^(?i)(?:heyzo-)?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
-		return hzo.GetMovieInfoByURL(fmt.Sprintf(movieURL, ss[1]))
+		return ss[1]
 	}
-	return nil, provider.ErrInvalidID
+	return ""
+}
+
+func (hzo *Heyzo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	return hzo.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
 func (hzo *Heyzo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {

@@ -40,11 +40,15 @@ func New() *FC2 {
 	}
 }
 
-func (fc2 *FC2) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+func (fc2 *FC2) TidyID(id string) string {
 	if ss := regexp.MustCompile(`^(?i)(?:FC2-.*?)?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
-		return fc2.GetMovieInfoByURL(fmt.Sprintf(movieURL, ss[1]))
+		return ss[1]
 	}
-	return nil, provider.ErrInvalidID
+	return ""
+}
+
+func (fc2 *FC2) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	return fc2.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
 func (fc2 *FC2) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {

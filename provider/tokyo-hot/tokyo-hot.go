@@ -41,6 +41,10 @@ func New() *TokyoHot {
 	}
 }
 
+func (th *TokyoHot) TidyID(id string) string {
+	return strings.ToLower(id) // Tokyo-Hot uses lowercase ID.
+}
+
 func (th *TokyoHot) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return th.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }

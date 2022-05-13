@@ -49,6 +49,10 @@ func New() *JavBus {
 	return &JavBus{provider.NewScraper(name, priority, c)}
 }
 
+func (bus *JavBus) TidyID(id string) string {
+	return strings.ToUpper(id)
+}
+
 func (bus *JavBus) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return bus.GetMovieInfoByURL(fmt.Sprintf(movieURL, strings.ToUpper(id)))
 }

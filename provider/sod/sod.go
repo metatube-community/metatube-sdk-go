@@ -49,8 +49,11 @@ func New() *SOD {
 	}
 }
 
+func (sod *SOD) TidyID(id string) string {
+	return strings.ToUpper(id) // SOD requires uppercase ID.
+}
+
 func (sod *SOD) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	id = strings.ToUpper(id) // SOD requires uppercase ID
 	return sod.GetMovieInfoByURL(fmt.Sprintf(movieURL, url.QueryEscape(id)))
 }
 
