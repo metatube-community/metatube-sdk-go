@@ -93,7 +93,7 @@ func (sod *SOD) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 	c.OnXML(`//*[@id="v_introduction"]/tbody/tr`, func(e *colly.XMLElement) {
 		switch e.ChildText(`.//td[1]`) {
 		case "品番":
-			info.ID = e.ChildText(`.//td[2]`)
+			info.Number = strings.TrimSpace(e.ChildText(`.//td[2]`))
 		case "発売年月日":
 			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td[2]`))
 		case "シリーズ名":
