@@ -43,7 +43,7 @@ func New() *Caribbeancom {
 	}
 }
 
-func (carib *Caribbeancom) TidyID(id string) string {
+func (carib *Caribbeancom) NormalizeID(id string) string {
 	if regexp.MustCompile(`^\d{6}[-_]\d{3}$`).MatchString(id) {
 		return id
 	}

@@ -50,7 +50,7 @@ func New() *AirAV {
 	}
 }
 
-func (air *AirAV) TidyID(id string) string {
+func (air *AirAV) NormalizeID(id string) string {
 	return strings.ToUpper(id)
 }
 

@@ -49,7 +49,7 @@ func New() *SOD {
 	}
 }
 
-func (sod *SOD) TidyID(id string) string {
+func (sod *SOD) NormalizeID(id string) string {
 	return strings.ToUpper(id) // SOD requires uppercase ID.
 }
 

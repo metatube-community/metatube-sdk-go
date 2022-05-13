@@ -49,7 +49,7 @@ func New() *JavBus {
 	return &JavBus{provider.NewScraper(name, priority, c)}
 }
 
-func (bus *JavBus) TidyID(id string) string {
+func (bus *JavBus) NormalizeID(id string) string {
 	return strings.ToUpper(id)
 }
 

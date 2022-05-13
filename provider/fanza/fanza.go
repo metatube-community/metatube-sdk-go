@@ -56,7 +56,7 @@ func New() *FANZA {
 	return &FANZA{provider.NewScraper(name, priority, c)}
 }
 
-func (fz *FANZA) TidyID(id string) string {
+func (fz *FANZA) NormalizeID(id string) string {
 	return strings.ToLower(id) // FANZA uses lowercase ID.
 }
 

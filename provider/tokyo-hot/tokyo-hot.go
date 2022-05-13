@@ -41,7 +41,7 @@ func New() *TokyoHot {
 	}
 }
 
-func (th *TokyoHot) TidyID(id string) string {
+func (th *TokyoHot) NormalizeID(id string) string {
 	return strings.ToLower(id) // Tokyo-Hot uses lowercase ID.
 }
 

@@ -40,7 +40,7 @@ func New() *FC2 {
 	}
 }
 
-func (fc2 *FC2) TidyID(id string) string {
+func (fc2 *FC2) NormalizeID(id string) string {
 	if ss := regexp.MustCompile(`^(?i)(?:FC2-.*?)?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}

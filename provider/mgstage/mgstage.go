@@ -50,7 +50,7 @@ func New() *MGStage {
 	return &MGStage{provider.NewScraper(name, priority, c)}
 }
 
-func (mgs *MGStage) TidyID(id string) string {
+func (mgs *MGStage) NormalizeID(id string) string {
 	return strings.ToUpper(id)
 }
 

@@ -13,6 +13,9 @@ type Provider interface {
 
 	// Priority returns matching priority of the provider.
 	Priority() int
+
+	// NormalizeID normalizes ID to conform to standard.
+	NormalizeID(id string) string
 }
 
 type MovieSearcher interface {
