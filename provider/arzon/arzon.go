@@ -32,7 +32,7 @@ const (
 const (
 	baseURL   = "https://www.arzon.jp/"
 	movieURL  = "https://www.arzon.jp/item_%s.html"
-	searchURL = "https://www.arzon.jp/itemlist.html?&q=%s&t=all&m=all&s=all&mkt=all&disp=120&sort=-udate"
+	searchURL = "https://www.arzon.jp/itemlist.html?&q=%s&t=all&m=all&s=all&mkt=all&disp=30&sort=-udate"
 )
 
 // ARZON needs `Referer` header when request to view resources.
