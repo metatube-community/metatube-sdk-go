@@ -23,6 +23,8 @@ func TestTrim(t *testing.T) {
 		{"rctd-461-cd3.mp4", "rctd-461"},
 		{"rctd-461-Cd3-C.mp4", "rctd-461"},
 		{"rctd-461_Cd39-C.mp4", "rctd-461"},
+		{"FC2-PPV-123456", "FC2-PPV-123456"},
+		{"FC2-PPV-123456-C.mp4", "FC2-PPV-123456"},
 		{"ssis00123.mp4", "ssis00123"},
 		{"SDDE-625_uncensored_C.mp4", "SDDE-625"},
 		{"SDDE-625_uncensored_leak_C.mp4", "SDDE-625"},
