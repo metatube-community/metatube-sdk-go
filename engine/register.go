@@ -3,7 +3,7 @@ package engine
 // Register Providers
 import (
 	// Actor
-	_ "github.com/javtube/javtube-sdk-go/engine/xslistplus"
+	_ "github.com/javtube/javtube-sdk-go/internal/xslist"
 	_ "github.com/javtube/javtube-sdk-go/provider/gfriends"
 	// Movie
 	_ "github.com/javtube/javtube-sdk-go/provider/1pondo"
