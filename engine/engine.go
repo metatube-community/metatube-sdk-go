@@ -15,6 +15,9 @@ type Options struct {
 	// DSN the Data Source Name.
 	DSN string
 
+	// DisableAutomaticPing as it is.
+	DisableAutomaticPing bool
+
 	// Timeout for each request.
 	Timeout time.Duration
 }
@@ -29,6 +32,12 @@ func New(opts *Options) (engine *Engine, err error) {
 	var db *gorm.DB
 	if db, err = openDB(opts.DSN); err != nil {
 		return
+	}
+
+	if !opts.DisableAutomaticPing {
+		if pinger, ok := db.ConnPool.(interface{ Ping() error }); ok {
+			go pinger.Ping() // Async ping.
+		}
 	}
 
 	engine = &Engine{
