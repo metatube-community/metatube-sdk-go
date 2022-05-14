@@ -77,5 +77,7 @@ func openDB(dsn string) (*gorm.DB, error) {
 		dialector = sqlite.Open(dsn)
 	}
 
-	return gorm.Open(dialector, &gorm.Config{})
+	return gorm.Open(dialector, &gorm.Config{
+		DisableAutomaticPing: true,
+	})
 }
