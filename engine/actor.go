@@ -70,15 +70,6 @@ func (e *Engine) getActorInfoByID(id string, provider javtube.ActorProvider, laz
 	if id = provider.NormalizeID(id); id == "" {
 		return nil, javtube.ErrInvalidID
 	}
-	defer func() {
-		// Note: extra processing for xslist, we use the
-		// gfriends' pics to replace the original pics.
-		if provider.Name() == "xslist" && err == nil && info.Valid() {
-			if gInfo, gErr := e.GetActorInfoByID(info.Name, "gfriends", true); gErr == nil && gInfo.Valid() {
-				info.Images = append(gInfo.Images, info.Images...)
-			}
-		}
-	}()
 	// Query DB first (by id).
 	if info = new(model.ActorInfo); lazy {
 		if result := e.db.
@@ -89,7 +80,7 @@ func (e *Engine) getActorInfoByID(id string, provider javtube.ActorProvider, laz
 			return
 		}
 	}
-	// delayed info auto-save.
+	// Delayed info auto-save.
 	defer func() {
 		if err == nil && info.Valid() {
 			// Make sure we save the original info here.
