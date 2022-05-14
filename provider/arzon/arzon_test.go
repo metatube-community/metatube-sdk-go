@@ -2,6 +2,7 @@ package arzon
 
 import (
 	"encoding/json"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -36,5 +37,19 @@ func TestARZON_SearchMovie(t *testing.T) {
 			}
 		}
 		t.Logf("%s", data)
+	}
+}
+
+func TestARZON_Download(t *testing.T) {
+	provider := New()
+	for _, item := range []string{
+		"https://img.arzon.jp/image/1/1663/1663651L.jpg",
+	} {
+		r, err := provider.Download(item)
+		if assert.NoError(t, err) {
+			b, _ := io.ReadAll(r)
+			r.Close()
+			t.Log(b)
+		}
 	}
 }
