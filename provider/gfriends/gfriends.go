@@ -31,13 +31,10 @@ const (
 )
 
 type GFriends struct {
-	fileTree *fileTree
 }
 
 func New() *GFriends {
-	return &GFriends{
-		fileTree: newFileTree(time.Hour),
-	}
+	return &GFriends{}
 }
 
 func (gf *GFriends) Name() string {
@@ -51,7 +48,7 @@ func (gf *GFriends) Priority() int {
 func (gf *GFriends) NormalizeID(id string) string { return id /* AS IS */ }
 
 func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
-	images, err := gf.fileTree.query(id)
+	images, err := defaultFileTree.query(id)
 	if err != nil {
 		return nil, err
 	}
@@ -79,6 +76,8 @@ func (gf *GFriends) SearchActor(keyword string) (results []*model.ActorSearchRes
 	}
 	return
 }
+
+var defaultFileTree = newFileTree(2 * time.Hour)
 
 type fileTree struct {
 	mu      sync.RWMutex
