@@ -1,9 +1,11 @@
 package engine
 
 import (
+	"net/http"
 	"strings"
 	"time"
 
+	"github.com/javtube/javtube-sdk-go/common/fetch"
 	"github.com/javtube/javtube-sdk-go/model"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 	"gorm.io/driver/postgres"
@@ -68,6 +70,15 @@ func (e *Engine) AutoMigrate() error {
 	return e.db.AutoMigrate(
 		&model.MovieInfo{},
 		&model.ActorInfo{})
+}
+
+func (e *Engine) Fetch(url string, provider javtube.Provider) (*http.Response, error) {
+	// Provider which implements Fetcher interface should be
+	// used to fetch all its corresponding resources.
+	if fetcher, ok := provider.(javtube.Fetcher); ok {
+		return fetcher.Fetch(url)
+	}
+	return fetch.Fetch(url)
 }
 
 func openDB(dsn string) (*gorm.DB, error) {
