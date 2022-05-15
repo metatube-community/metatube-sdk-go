@@ -131,6 +131,12 @@ func (e *Engine) SearchMovieAll(keyword string, lazy bool) (results []*model.Mov
 }
 
 func (e *Engine) getMovieInfoByID(id string, provider javtube.MovieProvider, lazy bool) (info *model.MovieInfo, err error) {
+	defer func() {
+		// metadata validation check.
+		if err == nil && (info == nil || !info.Valid()) {
+			err = javtube.ErrInvalidMetadata
+		}
+	}()
 	if id = provider.NormalizeID(id); id == "" {
 		return nil, javtube.ErrInvalidID
 	}

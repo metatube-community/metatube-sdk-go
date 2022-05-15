@@ -52,7 +52,7 @@ func (e *Engine) SearchActorAll(keyword string) (results []*model.ActorSearchRes
 			defer wg.Done()
 			if innerResults, innerErr := e.searchActor(keyword, provider, true); innerErr == nil {
 				for _, result := range innerResults {
-					if result.Valid() {
+					if result.Valid() /* validation check */ {
 						mu.Lock()
 						results = append(results, result)
 						mu.Unlock()
@@ -71,6 +71,12 @@ func (e *Engine) SearchActorAll(keyword string) (results []*model.ActorSearchRes
 }
 
 func (e *Engine) getActorInfoByID(id string, provider javtube.ActorProvider, lazy bool) (info *model.ActorInfo, err error) {
+	defer func() {
+		// metadata validation check.
+		if err == nil && (info == nil || !info.Valid()) {
+			err = javtube.ErrInvalidMetadata
+		}
+	}()
 	if id = provider.NormalizeID(id); id == "" {
 		return nil, javtube.ErrInvalidID
 	}

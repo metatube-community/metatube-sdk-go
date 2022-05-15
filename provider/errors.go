@@ -5,8 +5,9 @@ import (
 )
 
 var (
-	ErrInvalidID      = errors.New("invalid id")
-	ErrInvalidKeyword = errors.New("invalid keyword")
-	ErrNotFound       = errors.New("not found")
-	ErrNotSupported   = errors.New("not supported")
+	ErrInvalidID       = errors.New("invalid id")
+	ErrInvalidKeyword  = errors.New("invalid keyword")
+	ErrInvalidMetadata = errors.New("invalid metadata")
+	ErrNotFound        = errors.New("not found")
+	ErrNotSupported    = errors.New("not supported")
 )
