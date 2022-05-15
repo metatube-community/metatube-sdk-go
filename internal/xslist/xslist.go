@@ -48,5 +48,5 @@ func (xsl *xsList) SearchActor(keyword string) (results []*model.ActorSearchResu
 func init() {
 	// We use a little hack here to override the original
 	// xslist provider factory.
-	provider.RegisterActorFactory("xslist", newXsList)
+	provider.RegisterActorFactory(xslist.Name, newXsList)
 }

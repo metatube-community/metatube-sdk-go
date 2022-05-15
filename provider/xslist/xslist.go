@@ -23,8 +23,8 @@ var (
 )
 
 const (
-	name     = "xslist"
-	priority = 10
+	Name     = "xslist"
+	Priority = 10
 )
 
 const (
@@ -44,7 +44,7 @@ func New() *XsList {
 		colly.UserAgent(random.UserAgent()))
 	c.DisableCookies()
 	return &XsList{
-		Scraper: provider.NewScraper(name, priority, c),
+		Scraper: provider.NewScraper(Name, Priority, c),
 	}
 }
 
@@ -181,5 +181,5 @@ func parseDebutDate(s string) dt.Date {
 }
 
 func init() {
-	provider.RegisterActorFactory(name, New)
+	provider.RegisterActorFactory(Name, New)
 }
