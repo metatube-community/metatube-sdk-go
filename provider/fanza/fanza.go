@@ -32,7 +32,9 @@ const (
 
 const (
 	baseURL                 = "https://www.dmm.co.jp/"
-	searchURL               = "https://www.dmm.co.jp/digital/-/list/search/=/?searchstr=%s"
+	baseDigitalURL          = "https://www.dmm.co.jp/digital/"
+	baseMonoURL             = "https://www.dmm.co.jp/mono/"
+	searchURL               = "https://www.dmm.co.jp/search/=/searchstr=%s/limit=120/sort=rankprofile/"
 	movieDigitalVideoAURL   = "https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=%s/"
 	movieDigitalVideoCURL   = "https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=%s/"
 	movieDigitalAnimeURL    = "https://www.dmm.co.jp/digital/anime/-/detail/=/cid=%s/"
@@ -136,7 +138,7 @@ func (fz *FANZA) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 			info.Runtime = parser.ParseRuntime(e.ChildText(`.//td[2]`))
 		case "監督：":
 			info.Director = strings.Trim(e.ChildText(`.//td[2]`), "-")
-		case "配信開始日：", "商品発売日：", "発売日：":
+		case "配信開始日：", "商品発売日：", "発売日：", "貸出開始日：":
 			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td[2]`))
 		}
 	})
@@ -267,16 +269,20 @@ func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult
 		if number.IsUncensored(keyword) {
 			return nil, provider.ErrInvalidKeyword
 		}
+		/* FANZA cannot search hyphened number */
 		keyword = strings.ReplaceAll(keyword, "-", "00")
-		keyword = strings.ToLower(keyword) /* FANZA prefers lowercase */
+		/* FANZA prefers lowercase */
+		keyword = strings.ToLower(keyword)
 	}
 
 	c := fz.Collector()
 
 	c.OnXML(`//*[@id="list"]/li`, func(e *colly.XMLElement) {
-		pattens := regexp.
-			MustCompile(`/cid=(.+?)/`).
-			FindStringSubmatch(e.ChildAttr(`.//p[@class="tmb"]/a`, "href"))
+		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//p[@class="tmb"]/a`, "href"))
+		if !strings.HasPrefix(homepage, baseDigitalURL) && !strings.HasPrefix(homepage, baseMonoURL) {
+			return // ignore other contents.
+		}
+		pattens := regexp.MustCompile(`/cid=(.+?)/`).FindStringSubmatch(homepage)
 		if len(pattens) != 2 {
 			err = errors.New("find id error")
 			return
@@ -293,7 +299,7 @@ func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult
 			Number:   ParseNumber(id),
 			Title:    e.ChildAttr(`.//p[@class="tmb"]/a/span[1]/img`, "alt"),
 			Provider: fz.Name(),
-			Homepage: e.Request.AbsoluteURL(e.ChildAttr(`.//p[@class="tmb"]/a`, "href")),
+			Homepage: homepage,
 			ThumbURL: e.Request.AbsoluteURL(thumb),
 			CoverURL: e.Request.AbsoluteURL(PreviewSrc(thumb)),
 			Score:    parser.ParseScore(e.ChildText(`.//p[@class="rate"]/span/span`)),

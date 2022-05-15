@@ -10,7 +10,7 @@ import (
 func TestFANZA_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
-		"h_068mxgs1184",
+		"118abw031",
 		//"midv00047",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
@@ -23,8 +23,9 @@ func TestFANZA_GetMovieInfoByID(t *testing.T) {
 func TestFANZA_SearchMovie(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
-		"SSIS-122",
-		"MIDV-047",
+		//"SSIS-122",
+		//"MIDV-047",
+		"abw",
 	} {
 		results, err := provider.SearchMovie(item)
 		data, _ := json.MarshalIndent(results, "", "\t")
