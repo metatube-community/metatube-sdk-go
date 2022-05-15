@@ -2,7 +2,7 @@ package sod
 
 import (
 	"fmt"
-	"io"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
@@ -207,7 +207,7 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 	return
 }
 
-func (sod *SOD) Download(u string) (_ io.ReadCloser, err error) {
+func (sod *SOD) Download(u string) (*http.Response, error) {
 	return fetch.Fetch(u, fetch.WithReferer(baseURL))
 }
 

@@ -45,10 +45,10 @@ func TestARZON_Download(t *testing.T) {
 	for _, item := range []string{
 		"https://img.arzon.jp/image/1/1663/1663651L.jpg",
 	} {
-		r, err := provider.Download(item)
+		resp, err := provider.Download(item)
 		if assert.NoError(t, err) {
-			b, _ := io.ReadAll(r)
-			r.Close()
+			b, _ := io.ReadAll(resp.Body)
+			resp.Body.Close()
 			t.Log(b)
 		}
 	}

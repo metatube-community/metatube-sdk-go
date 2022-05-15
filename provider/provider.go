@@ -1,7 +1,7 @@
 package provider
 
 import (
-	"io"
+	"net/http"
 	"time"
 
 	"github.com/javtube/javtube-sdk-go/model"
@@ -52,7 +52,7 @@ type ActorProvider interface {
 
 type Downloader interface {
 	// Download downloads media resources from url.
-	Download(url string) (io.ReadCloser, error)
+	Download(url string) (*http.Response, error)
 }
 
 type RequestTimeoutSetter interface {

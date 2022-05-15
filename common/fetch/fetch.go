@@ -2,7 +2,6 @@ package fetch
 
 import (
 	"errors"
-	"io"
 	"net/http"
 )
 
@@ -21,10 +20,9 @@ func WithHeader(key, value string) Option {
 }
 
 // Fetch fetches resources from url.
-func Fetch(u string, opts ...Option) (_ io.ReadCloser, err error) {
+func Fetch(u string, opts ...Option) (resp *http.Response, err error) {
 	var (
-		req  *http.Request
-		resp *http.Response
+		req *http.Request
 	)
 	if req, err = http.NewRequest(http.MethodGet, u, nil); err != nil {
 		return
@@ -41,5 +39,5 @@ func Fetch(u string, opts ...Option) (_ io.ReadCloser, err error) {
 		defer resp.Body.Close()
 		return nil, errors.New(http.StatusText(resp.StatusCode))
 	}
-	return resp.Body, nil
+	return
 }

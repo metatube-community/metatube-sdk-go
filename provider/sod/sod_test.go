@@ -44,10 +44,10 @@ func TestSOD_Download(t *testing.T) {
 	for _, item := range []string{
 		"https://dy43ylo5q3vt8.cloudfront.net/_pics/202108/dldss_022/dldss_022_m.jpg",
 	} {
-		r, err := provider.Download(item)
+		resp, err := provider.Download(item)
 		if assert.NoError(t, err) {
-			b, _ := io.ReadAll(r)
-			r.Close()
+			b, _ := io.ReadAll(resp.Body)
+			resp.Body.Close()
 			t.Log(b)
 		}
 	}

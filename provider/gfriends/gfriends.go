@@ -122,12 +122,12 @@ func (ft *fileTree) query(s string) (images []string, err error) {
 }
 
 func (ft *fileTree) update() error {
-	rc, err := fetch.Fetch(jsonURL)
+	resp, err := fetch.Fetch(jsonURL)
 	if err != nil {
 		return err
 	}
-	defer rc.Close()
-	return json.NewDecoder(rc).Decode(ft)
+	defer resp.Body.Close()
+	return json.NewDecoder(resp.Body).Decode(ft)
 
 }
 

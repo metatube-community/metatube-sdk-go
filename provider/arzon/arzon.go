@@ -2,7 +2,7 @@ package arzon
 
 import (
 	"fmt"
-	"io"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
@@ -192,7 +192,7 @@ func (az *ARZON) SearchMovie(keyword string) (results []*model.MovieSearchResult
 	return
 }
 
-func (az *ARZON) Download(u string) (_ io.ReadCloser, err error) {
+func (az *ARZON) Download(u string) (*http.Response, error) {
 	return fetch.Fetch(u, fetch.WithReferer(baseURL))
 }
 
