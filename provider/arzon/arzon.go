@@ -21,7 +21,7 @@ import (
 var (
 	_ provider.MovieProvider = (*ARZON)(nil)
 	_ provider.MovieSearcher = (*ARZON)(nil)
-	_ provider.Downloader    = (*ARZON)(nil)
+	_ provider.Fetcher       = (*ARZON)(nil)
 )
 
 const (
@@ -192,7 +192,7 @@ func (az *ARZON) SearchMovie(keyword string) (results []*model.MovieSearchResult
 	return
 }
 
-func (az *ARZON) Download(u string) (*http.Response, error) {
+func (az *ARZON) Fetch(u string) (*http.Response, error) {
 	return fetch.Fetch(u, fetch.WithReferer(baseURL))
 }
 

@@ -50,9 +50,9 @@ type ActorProvider interface {
 	GetActorInfoByURL(url string) (*model.ActorInfo, error)
 }
 
-type Downloader interface {
-	// Download downloads media resources from url.
-	Download(url string) (*http.Response, error)
+type Fetcher interface {
+	// Fetch fetches media resources from url.
+	Fetch(url string) (*http.Response, error)
 }
 
 type RequestTimeoutSetter interface {

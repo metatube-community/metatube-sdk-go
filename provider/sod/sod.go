@@ -19,7 +19,7 @@ import (
 var (
 	_ provider.MovieProvider = (*SOD)(nil)
 	_ provider.MovieSearcher = (*SOD)(nil)
-	_ provider.Downloader    = (*SOD)(nil)
+	_ provider.Fetcher       = (*SOD)(nil)
 )
 
 const (
@@ -207,7 +207,7 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 	return
 }
 
-func (sod *SOD) Download(u string) (*http.Response, error) {
+func (sod *SOD) Fetch(u string) (*http.Response, error) {
 	return fetch.Fetch(u, fetch.WithReferer(baseURL))
 }
 
