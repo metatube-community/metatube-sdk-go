@@ -128,7 +128,7 @@ func (sod *SOD) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 		info.Summary = strings.TrimSpace(e.Text)
 	})
 
-	// Summary
+	// Preview Video
 	c.OnXML(`//div[@class="videos_textli"]//div[@class="videos_sampb"]/a`, func(e *colly.XMLElement) {
 		d := c.Clone()
 		d.OnXML(`//*[@id="moviebox"]/video/source`, func(e *colly.XMLElement) {
