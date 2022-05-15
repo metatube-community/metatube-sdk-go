@@ -192,11 +192,15 @@ func (fz *FANZA) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 	// Summary (fallback)
 	c.OnXML(`//div[@class="mg-b20 lh4"]`, func(e *colly.XMLElement) {
 		if info.Summary == "" {
-			if summary := e.ChildText(`.//p`); summary != "" {
-				info.Summary = strings.TrimSpace(summary)
-				return
+			var summary string
+			if summary = strings.TrimSpace(e.ChildText(`.//p[@class="mg-b20"]`)); summary != "" {
+				// nop
+			} else if summary = strings.TrimSpace(e.ChildText(`.//p`)); summary != "" {
+				// nop
+			} else if summary = strings.TrimSpace(e.Text); summary != "" {
+				// nop
 			}
-			info.Summary = strings.TrimSpace(e.Text)
+			info.Summary = summary
 		}
 	})
 
