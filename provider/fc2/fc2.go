@@ -17,8 +17,8 @@ import (
 var _ provider.MovieProvider = (*FC2)(nil)
 
 const (
-	name     = "fc2"
-	priority = 10
+	Name     = "fc2"
+	Priority = 10
 )
 
 const (
@@ -33,7 +33,7 @@ type FC2 struct {
 
 func New() *FC2 {
 	return &FC2{
-		Scraper: provider.NewScraper(name, priority, colly.NewCollector(
+		Scraper: provider.NewScraper(Name, Priority, colly.NewCollector(
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
 			colly.UserAgent(random.UserAgent()))),
@@ -124,5 +124,5 @@ func (fc2 *FC2) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 }
 
 func init() {
-	provider.RegisterMovieFactory(name, New)
+	provider.RegisterMovieFactory(Name, New)
 }

@@ -22,8 +22,8 @@ var (
 )
 
 const (
-	name     = "javbus"
-	priority = 4
+	Name     = "javbus"
+	Priority = 4
 )
 
 const (
@@ -46,7 +46,7 @@ func New() *JavBus {
 		// existmag=all
 		{Name: "existmag", Value: "all"},
 	})
-	return &JavBus{provider.NewScraper(name, priority, c)}
+	return &JavBus{provider.NewScraper(Name, Priority, c)}
 }
 
 func (bus *JavBus) NormalizeID(id string) string {
@@ -172,5 +172,5 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.MovieSearchResu
 }
 
 func init() {
-	provider.RegisterMovieFactory(name, New)
+	provider.RegisterMovieFactory(Name, New)
 }

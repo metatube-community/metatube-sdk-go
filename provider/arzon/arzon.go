@@ -25,8 +25,8 @@ var (
 )
 
 const (
-	name     = "arzon"
-	priority = 6
+	Name     = "arzon"
+	Priority = 6
 )
 
 const (
@@ -42,7 +42,7 @@ type ARZON struct {
 
 func New() *ARZON {
 	return &ARZON{
-		Scraper: provider.NewScraper(name, priority, colly.NewCollector(
+		Scraper: provider.NewScraper(Name, Priority, colly.NewCollector(
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
 			colly.UserAgent(random.UserAgent()))),
@@ -61,7 +61,7 @@ func (az *ARZON) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 
 	info = &model.MovieInfo{
 		ID:            az.parseID(homepage.Path),
-		Provider:      name,
+		Provider:      az.Name(),
 		Homepage:      homepage.String(),
 		Actors:        []string{},
 		PreviewImages: []string{},
@@ -204,5 +204,5 @@ func (az *ARZON) parseID(s string) string {
 }
 
 func init() {
-	provider.RegisterMovieFactory(name, New)
+	provider.RegisterMovieFactory(Name, New)
 }

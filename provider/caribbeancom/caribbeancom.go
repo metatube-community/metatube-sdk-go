@@ -19,8 +19,8 @@ import (
 var _ provider.MovieProvider = (*Caribbeancom)(nil)
 
 const (
-	name     = "caribbeancom"
-	priority = 9
+	Name     = "caribbeancom"
+	Priority = 9
 )
 
 const (
@@ -35,7 +35,7 @@ type Caribbeancom struct {
 
 func New() *Caribbeancom {
 	return &Caribbeancom{
-		Scraper: provider.NewScraper(name, priority, colly.NewCollector(
+		Scraper: provider.NewScraper(Name, Priority, colly.NewCollector(
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
 			colly.DetectCharset(),
@@ -169,5 +169,5 @@ func (carib *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, e
 }
 
 func init() {
-	provider.RegisterMovieFactory(name, New)
+	provider.RegisterMovieFactory(Name, New)
 }

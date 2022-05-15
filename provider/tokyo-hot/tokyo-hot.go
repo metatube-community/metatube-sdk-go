@@ -18,8 +18,8 @@ import (
 var _ provider.MovieProvider = (*TokyoHot)(nil)
 
 const (
-	name     = "tokyo-hot"
-	priority = 8
+	Name     = "tokyo-hot"
+	Priority = 8
 )
 
 const (
@@ -34,7 +34,7 @@ type TokyoHot struct {
 
 func New() *TokyoHot {
 	return &TokyoHot{
-		Scraper: provider.NewScraper(name, priority, colly.NewCollector(
+		Scraper: provider.NewScraper(Name, Priority, colly.NewCollector(
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
 			colly.UserAgent(random.UserAgent()))),
@@ -165,5 +165,5 @@ func (th *TokyoHot) SearchMovie(keyword string) (results []*model.MovieSearchRes
 }
 
 func init() {
-	provider.RegisterMovieFactory(name, New)
+	provider.RegisterMovieFactory(Name, New)
 }

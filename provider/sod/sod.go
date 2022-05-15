@@ -23,8 +23,8 @@ var (
 )
 
 const (
-	name     = "sod"
-	priority = 10
+	Name     = "sod"
+	Priority = 10
 )
 
 const (
@@ -41,7 +41,7 @@ type SOD struct {
 
 func New() *SOD {
 	return &SOD{
-		Scraper: provider.NewScraper(name, priority, colly.NewCollector(
+		Scraper: provider.NewScraper(Name, Priority, colly.NewCollector(
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
 			colly.UserAgent(random.UserAgent()))),
@@ -63,7 +63,7 @@ func (sod *SOD) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 	}
 
 	info = &model.MovieInfo{
-		Provider:      name,
+		Provider:      sod.Name(),
 		Homepage:      homepage.String(),
 		Actors:        []string{},
 		PreviewImages: []string{},
@@ -183,7 +183,7 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 	c.OnXML(`//*[@id="videos_s_mainbox"]`, func(e *colly.XMLElement) {
 		searchResult := &model.MovieSearchResult{
 			Title:       e.ChildText(`.//div[@class="videis_s_txt"]/h2/a`),
-			Provider:    name,
+			Provider:    sod.Name(),
 			Homepage:    e.Request.AbsoluteURL(e.ChildAttr(`.//div[@class="videis_s_img"]/a`, "href")),
 			ReleaseDate: parser.ParseDate(e.ChildText(`.//div[@class="videis_s_star"]/p`)),
 		}
@@ -212,5 +212,5 @@ func (sod *SOD) Download(u string) (_ io.ReadCloser, err error) {
 }
 
 func init() {
-	provider.RegisterMovieFactory(name, New)
+	provider.RegisterMovieFactory(Name, New)
 }

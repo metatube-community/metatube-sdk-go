@@ -24,8 +24,8 @@ var (
 )
 
 const (
-	name     = "mgstage"
-	priority = 10
+	Name     = "mgstage"
+	Priority = 10
 )
 
 const (
@@ -47,7 +47,7 @@ func New() *MGStage {
 	c.SetCookies(baseURL, []*http.Cookie{
 		{Name: "adc", Value: "1"},
 	})
-	return &MGStage{provider.NewScraper(name, priority, c)}
+	return &MGStage{provider.NewScraper(Name, Priority, c)}
 }
 
 func (mgs *MGStage) NormalizeID(id string) string {
@@ -191,5 +191,5 @@ func imageSrc(s string, thumb bool) string {
 }
 
 func init() {
-	provider.RegisterMovieFactory(name, New)
+	provider.RegisterMovieFactory(Name, New)
 }

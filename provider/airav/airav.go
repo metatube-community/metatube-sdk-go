@@ -21,8 +21,8 @@ var (
 )
 
 const (
-	name     = "airav"
-	priority = 5 // unofficial provider gets lower priority.
+	Name     = "airav"
+	Priority = 5 // unofficial provider gets lower priority.
 )
 
 const (
@@ -39,7 +39,7 @@ type AirAV struct {
 
 func New() *AirAV {
 	return &AirAV{
-		Scraper: provider.NewScraper(name, priority, colly.NewCollector(
+		Scraper: provider.NewScraper(Name, Priority, colly.NewCollector(
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
 			colly.UserAgent(random.UserAgent()),
@@ -212,5 +212,5 @@ func ParseNumber(s string) string {
 }
 
 func init() {
-	provider.RegisterMovieFactory(name, New)
+	provider.RegisterMovieFactory(Name, New)
 }

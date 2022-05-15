@@ -20,8 +20,8 @@ import (
 var _ provider.MovieProvider = (*OnePondo)(nil)
 
 const (
-	name     = "1pondo"
-	priority = 10
+	Name     = "1pondo"
+	Priority = 10
 )
 
 // webpack:///src/assets/js/services/Bifrost/API.js:formatted
@@ -48,7 +48,7 @@ func New() *OnePondo {
 	c.SetCookies(baseURL, []*http.Cookie{
 		{Name: "ageCheck", Value: "1"},
 	})
-	return &OnePondo{provider.NewScraper(name, priority, c)}
+	return &OnePondo{provider.NewScraper(Name, Priority, c)}
 }
 
 func (opd *OnePondo) NormalizeID(id string) string {
@@ -210,5 +210,5 @@ func (opd *OnePondo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 }
 
 func init() {
-	provider.RegisterMovieFactory(name, New)
+	provider.RegisterMovieFactory(Name, New)
 }

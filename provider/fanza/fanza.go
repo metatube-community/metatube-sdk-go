@@ -26,8 +26,8 @@ var (
 )
 
 const (
-	name     = "fanza"
-	priority = 10
+	Name     = "fanza"
+	Priority = 10
 )
 
 const (
@@ -53,7 +53,7 @@ func New() *FANZA {
 	c.SetCookies(baseURL, []*http.Cookie{
 		{Name: "age_check_done", Value: "1"},
 	})
-	return &FANZA{provider.NewScraper(name, priority, c)}
+	return &FANZA{provider.NewScraper(Name, Priority, c)}
 }
 
 func (fz *FANZA) NormalizeID(id string) string {
@@ -363,5 +363,5 @@ func PreviewSrc(s string) string {
 }
 
 func init() {
-	provider.RegisterMovieFactory(name, New)
+	provider.RegisterMovieFactory(Name, New)
 }

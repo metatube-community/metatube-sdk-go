@@ -21,8 +21,8 @@ import (
 var _ provider.MovieProvider = (*Heyzo)(nil)
 
 const (
-	name     = "heyzo"
-	priority = 10
+	Name     = "heyzo"
+	Priority = 10
 )
 
 const (
@@ -37,7 +37,7 @@ type Heyzo struct {
 
 func New() *Heyzo {
 	return &Heyzo{
-		Scraper: provider.NewScraper(name, priority, colly.NewCollector(
+		Scraper: provider.NewScraper(Name, Priority, colly.NewCollector(
 			colly.AllowURLRevisit(),
 			colly.IgnoreRobotsTxt(),
 			colly.UserAgent(random.UserAgent()))),
@@ -222,5 +222,5 @@ func (hzo *Heyzo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 }
 
 func init() {
-	provider.RegisterMovieFactory(name, New)
+	provider.RegisterMovieFactory(Name, New)
 }
