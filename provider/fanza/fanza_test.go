@@ -10,8 +10,8 @@ import (
 func TestFANZA_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
-		"ssis00122",
-		"midv00047",
+		"h_068mxgs1184",
+		//"midv00047",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
@@ -55,6 +55,7 @@ func TestParseNumber(t *testing.T) {
 		{"scute1192", "SCUTE-1192"},
 		{"h_198need00094r18", "NEED-094"},
 		{"1fsdss00131re01", "FSDSS-131"},
+		{"h_068mxgs1184bod", "MXGS-1184"},
 	} {
 		assert.Equal(t, unit.want, ParseNumber(unit.id))
 	}
