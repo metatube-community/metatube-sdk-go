@@ -104,6 +104,14 @@ func (fc2 *FC2) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 		info.PreviewImages = append(info.PreviewImages, e.Request.AbsoluteURL(e.ChildAttr(`.//a`, "href")))
 	})
 
+	c.OnScraped(func(_ *colly.Response) {
+		if len(info.PreviewImages) > 0 {
+			// Use first preview image as cover due to
+			// thumb image poor resolution.
+			info.CoverURL = info.PreviewImages[0]
+		}
+	})
+
 	// Preview Video
 	//c.OnScraped(func(r *colly.Response) {
 	//	d := c.Clone()
