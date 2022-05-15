@@ -8,13 +8,10 @@ import (
 	"github.com/javtube/javtube-sdk-go/internal/math"
 )
 
-type CropableImage interface {
-	image.Image
-	SubImage(image.Rectangle) image.Image
-}
-
 func CropImage(img image.Image, rect image.Rectangle) image.Image {
-	return img.(CropableImage).SubImage(rect)
+	return img.(interface {
+		SubImage(image.Rectangle) image.Image
+	}).SubImage(rect)
 }
 
 const (
