@@ -20,8 +20,8 @@ var (
 )
 
 const (
-	name     = "gfriends"
-	priority = 9
+	Name     = "gfriends"
+	Priority = 9
 )
 
 const (
@@ -38,11 +38,11 @@ func New() *GFriends {
 }
 
 func (gf *GFriends) Name() string {
-	return name
+	return Name
 }
 
 func (gf *GFriends) Priority() int {
-	return priority
+	return Priority
 }
 
 func (gf *GFriends) NormalizeID(id string) string { return id /* AS IS */ }
@@ -139,5 +139,5 @@ func reverse[T any](array []T) []T {
 }
 
 func init() {
-	provider.RegisterActorFactory(name, New)
+	provider.RegisterActorFactory(Name, New)
 }

@@ -7,10 +7,14 @@ import (
 
 	"github.com/javtube/javtube-sdk-go/model"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/gfriends"
 	"gorm.io/gorm/clause"
 )
 
 func (e *Engine) searchActor(keyword string, provider javtube.Provider, lazy bool) (results []*model.ActorSearchResult, err error) {
+	if provider.Name() == gfriends.Name {
+		return provider.(javtube.ActorSearcher).SearchActor(keyword)
+	}
 	if searcher, ok := provider.(javtube.ActorSearcher); ok {
 		// Query DB first (by name or id).
 		if info := new(model.ActorInfo); lazy {
@@ -69,6 +73,9 @@ func (e *Engine) SearchActorAll(keyword string) (results []*model.ActorSearchRes
 func (e *Engine) getActorInfoByID(id string, provider javtube.ActorProvider, lazy bool) (info *model.ActorInfo, err error) {
 	if id = provider.NormalizeID(id); id == "" {
 		return nil, javtube.ErrInvalidID
+	}
+	if provider.Name() == gfriends.Name {
+		return provider.GetActorInfoByID(id)
 	}
 	// Query DB first (by id).
 	if info = new(model.ActorInfo); lazy {
