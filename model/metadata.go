@@ -6,10 +6,10 @@ import (
 )
 
 type MovieSearchResult struct {
-	ID          string  `json:"id" gorm:"primaryKey"`
+	ID          string  `json:"id"`
 	Number      string  `json:"number"`
 	Title       string  `json:"title"`
-	Provider    string  `json:"provider" gorm:"primaryKey"`
+	Provider    string  `json:"provider"`
 	Homepage    string  `json:"homepage"`
 	ThumbURL    string  `json:"thumb_url"`
 	CoverURL    string  `json:"cover_url"`
@@ -18,7 +18,8 @@ type MovieSearchResult struct {
 }
 
 func (sr *MovieSearchResult) Valid() bool {
-	return sr.ID != "" && sr.Number != "" && sr.Title != "" && sr.Provider != "" && sr.Homepage != ""
+	return sr.ID != "" && sr.Number != "" && sr.Title != "" &&
+		sr.Provider != "" && sr.Homepage != ""
 }
 
 type MovieInfo struct {
@@ -71,15 +72,16 @@ func (mi *MovieInfo) ToSearchResult() *MovieSearchResult {
 }
 
 type ActorSearchResult struct {
-	ID       string         `json:"id" gorm:"primaryKey"`
+	ID       string         `json:"id"`
 	Name     string         `json:"name"`
-	Provider string         `json:"provider" gorm:"primaryKey"`
+	Provider string         `json:"provider"`
 	Homepage string         `json:"homepage"`
-	Images   pq.StringArray `json:"images" gorm:"type:text[]"`
+	Images   pq.StringArray `json:"images"`
 }
 
 func (sr *ActorSearchResult) Valid() bool {
-	return sr.ID != "" && sr.Name != "" && sr.Provider != "" && sr.Homepage != ""
+	return sr.ID != "" && sr.Name != "" &&
+		sr.Provider != "" && sr.Homepage != ""
 }
 
 type ActorInfo struct {
