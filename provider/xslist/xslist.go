@@ -13,6 +13,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/gfriends"
 	"golang.org/x/net/html"
 	dt "gorm.io/datatypes"
 )
@@ -35,6 +36,7 @@ const (
 
 type XsList struct {
 	*provider.Scraper
+	gFriends *gfriends.GFriends
 }
 
 func New() *XsList {
@@ -44,7 +46,8 @@ func New() *XsList {
 		colly.UserAgent(random.UserAgent()))
 	c.DisableCookies()
 	return &XsList{
-		Scraper: provider.NewScraper(Name, Priority, c),
+		Scraper:  provider.NewScraper(Name, Priority, c),
+		gFriends: gfriends.New(),
 	}
 }
 
@@ -135,6 +138,14 @@ func (xsl *XsList) GetActorInfoByURL(u string) (info *model.ActorInfo, err error
 		info.Nationality = strings.ReplaceAll(e.Text, "n/a", "")
 	})
 
+	{ // GFriends Add-on
+		c.OnScraped(func(_ *colly.Response) {
+			if gInfo, gErr := xsl.gFriends.GetActorInfoByID(info.Name); gErr == nil && gInfo.Valid() {
+				info.Images = append(gInfo.Images, info.Images...)
+			}
+		})
+	}
+
 	err = c.Visit(info.Homepage)
 	return
 }
@@ -155,9 +166,14 @@ func (xsl *XsList) SearchActor(keyword string) (results []*model.ActorSearchResu
 		}
 		// Images
 		var images []string
-		if img := e.ChildAttr(`.//div[1]/img`, "src"); img != "" {
-			images = []string{e.Request.AbsoluteURL(img)}
+		{ // GFriends Add-on
+			if gInfo, gErr := xsl.gFriends.GetActorInfoByID(actor); gErr == nil && gInfo.Valid() {
+				images = gInfo.Images
+			} else if img := e.ChildAttr(`.//div[1]/img`, "src"); img != "" {
+				images = []string{e.Request.AbsoluteURL(img)}
+			}
 		}
+
 		results = append(results, &model.ActorSearchResult{
 			ID:       id,
 			Name:     actor,
