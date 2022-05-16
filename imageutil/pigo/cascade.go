@@ -1,4 +1,4 @@
-package face
+package pigo
 
 import _ "embed"
 

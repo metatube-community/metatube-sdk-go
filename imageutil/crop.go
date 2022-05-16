@@ -2,9 +2,8 @@ package imageutil
 
 import (
 	"image"
-	"sort"
 
-	"github.com/javtube/javtube-sdk-go/imageutil/face"
+	"github.com/javtube/javtube-sdk-go/imageutil/pigo"
 	"github.com/javtube/javtube-sdk-go/internal/math"
 )
 
@@ -40,19 +39,6 @@ func CropImagePosition(img image.Image, ratio float64, pos float64) image.Image 
 }
 
 func CropImageFaceDetection(img image.Image, ratio float64, pos float64) image.Image {
-	if dets := face.DetectFaces(img); len(dets) > 0 {
-		sort.SliceStable(dets, func(i, j int) bool {
-			return float32(dets[i].Scale)*dets[i].Q > float32(dets[j].Scale)*dets[j].Q
-		})
-		var (
-			width  = img.Bounds().Dx()
-			height = img.Bounds().Dy()
-		)
-		if int(float64(height)*ratio) < width {
-			pos = float64(dets[0].Col) / float64(width)
-		} else {
-			pos = float64(dets[0].Row) / float64(height)
-		}
-	}
-	return CropImagePosition(img, ratio, pos)
+	return CropImagePosition(img, ratio,
+		pigo.CalculatePosition(img, ratio, pos))
 }
