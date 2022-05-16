@@ -30,7 +30,7 @@ func Trim(s string) string {
 		ReplaceAllString(s, "") // trim prefixes
 	s = s[:findFirstNonASCII(s)] // trim unicode content
 	s = strings.Fields(s)[0]     // trim possible alpha started title
-	for re := regexp.MustCompile(`(?i)([-_](c|cd\d{1,2})|ch)\s*$`); re.MatchString(s); {
+	for re := regexp.MustCompile(`(?i)([-_](c|ch|cd\d{1,2})|ch)\s*$`); re.MatchString(s); {
 		s = re.ReplaceAllString(s, "") // repeatedly trim suffixes
 	}
 	return strings.TrimSpace(s)

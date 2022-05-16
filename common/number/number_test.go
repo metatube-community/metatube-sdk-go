@@ -19,6 +19,8 @@ func TestTrim(t *testing.T) {
 		{"[22sht.me]ABP-358_C.mkv", "ABP-358"},
 		{"ABP-030-C-c_c-C-Cd1-cd4.mp4", "ABP-030"},
 		{"rctd-460ch.mp4", "rctd-460"},
+		{"rctd-460-ch.mp4", "rctd-460"},
+		{"rctd-460ch-ch.mp4", "rctd-460"},
 		{"rctd-461-C-cD4.mp4", "rctd-461"},
 		{"rctd-461-cd3.mp4", "rctd-461"},
 		{"rctd-461-Cd3-C.mp4", "rctd-461"},
