@@ -97,18 +97,19 @@ func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 
 	// Preview Video
 	c.OnXML(`//div[@class="detail_data"]//p[@class="sample_movie_btn"]`, func(e *colly.XMLElement) {
-		d := c.Clone()
-		d.OnResponse(func(r *colly.Response) {
-			data := make(map[string]string)
-			if json.Unmarshal(r.Body, &data) == nil {
-				if u, ok := data["url"]; ok {
-					info.PreviewVideoURL = regexp.MustCompile(`\.ism/request?.+$`).
-						ReplaceAllString(u, ".mp4")
+		if pid := path.Base(e.ChildAttr(`.//a`, "href")); pid != "" {
+			d := c.Clone()
+			d.OnResponse(func(r *colly.Response) {
+				data := make(map[string]string)
+				if json.Unmarshal(r.Body, &data) == nil {
+					if sample, ok := data["url"]; ok {
+						info.PreviewVideoURL = regexp.MustCompile(`\.ism/request?.+$`).
+							ReplaceAllString(sample, ".mp4")
+					}
 				}
-			}
-		})
-		pid := path.Base(e.ChildAttr(`.//a`, "href"))
-		d.Visit(fmt.Sprintf(sampleURL, pid))
+			})
+			d.Visit(fmt.Sprintf(sampleURL, pid))
+		}
 	})
 
 	// Preview Images
