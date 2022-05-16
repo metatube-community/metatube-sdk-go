@@ -331,12 +331,11 @@ func (fz *FANZA) parseScoreFromURL(s string) float64 {
 
 // ParseNumber parses FANZA-formatted id to general ID.
 func ParseNumber(s string) string {
-	s = strings.ToUpper(s)
-	if ss := regexp.MustCompile(`([A-Z]{2,})(\d+)`).FindStringSubmatch(s); len(ss) >= 3 {
+	if ss := regexp.MustCompile(`([A-Z]{2,})(\d+)`).FindStringSubmatch(strings.ToUpper(s)); len(ss) >= 3 {
 		n, _ := strconv.Atoi(ss[2])
 		return fmt.Sprintf("%s-%03d", ss[1], n)
 	}
-	return ""
+	return s
 }
 
 // PreviewSrc maximize the preview image.
