@@ -162,10 +162,10 @@ func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 				})
 				// see if image exists.
 				switch {
-				case strings.Contains(*p, "/pf_p"): // thumb
-					_ = d.Head(strings.ReplaceAll(*p, "/pf_p", "/pf"))
-				case strings.Contains(*p, "/pb_e"): // cover
-					_ = d.Head(strings.ReplaceAll(*p, "/pb_e", "/pb"))
+				case strings.Contains(*p, "/pf_p_"): // thumb
+					_ = d.Head(strings.ReplaceAll(*p, "/pf_p_", "/pf_"))
+				case strings.Contains(*p, "/pb_e_"): // cover
+					_ = d.Head(strings.ReplaceAll(*p, "/pb_e_", "/pb_"))
 				}
 			}(p)
 		}
