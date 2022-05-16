@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/number"
@@ -139,7 +140,9 @@ func (fz *FANZA) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 		case "監督：":
 			info.Director = strings.Trim(e.ChildText(`.//td[2]`), "-")
 		case "配信開始日：", "商品発売日：", "発売日：", "貸出開始日：":
-			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td[2]`))
+			if time.Time(info.ReleaseDate).IsZero() {
+				info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td[2]`))
+			}
 		}
 	})
 
