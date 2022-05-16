@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"unicode"
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/number"
@@ -114,21 +115,26 @@ func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 		}
 	})
 
+	// Actor
+	c.OnXML(`//dt[text()='出演：']/following-sibling::dd[1]`, func(e *colly.XMLElement) {
+		var getActor func(*html.Node)
+		getActor = func(n *html.Node) {
+			if n.Type == html.TextNode {
+				if actor := replaceSpaceAll(n.Data); actor != "" {
+					info.Actors = append(info.Actors, actor)
+				}
+			}
+			for n := n.FirstChild; n != nil; n = n.NextSibling {
+				getActor(n)
+			}
+		}
+		getActor(e.DOM.(*html.Node))
+	})
+
 	// Fields
 	c.OnXML(`//div[@class="product_detail_layout_01"]//dl[@class="spec_layout"]`, func(e *colly.XMLElement) {
 		for i, dt := range e.ChildTexts(`.//dt`) {
 			switch dt {
-			case "出演：":
-				for _, actor := range e.ChildTexts(fmt.Sprintf(`.//dd[%d]/a`, i+1)) {
-					// prestige has space in actor names, so we need to get rid of them.
-					if actor = strings.ReplaceAll(actor, " ", ""); actor != "" {
-						info.Actors = append(info.Actors, actor)
-					}
-				}
-				if len(info.Actors) == 0 /* fallback */ {
-					info.Actors = []string{
-						strings.ReplaceAll(e.ChildText(fmt.Sprintf(`.//dd[%d]`, i+1)), " ", "")}
-				}
 			case "収録時間：":
 				info.Runtime = parser.ParseRuntime(e.ChildText(fmt.Sprintf(`.//dd[%d]`, i+1)))
 			case "発売日：":
@@ -215,6 +221,17 @@ func (pst *PRESTIGE) SearchMovie(keyword string) (results []*model.MovieSearchRe
 func trimTitle(s string) string {
 	t := strings.Split(s, "\t")
 	return strings.TrimSpace(t[len(t)-1])
+}
+
+func replaceSpaceAll(s string) string {
+	var b strings.Builder
+	b.Grow(len(s))
+	for _, c := range s {
+		if !unicode.IsSpace(c) {
+			b.WriteRune(c)
+		}
+	}
+	return b.String()
 }
 
 func imageSrc(s string, thumb bool) string {
