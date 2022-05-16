@@ -2,19 +2,19 @@ package model
 
 import (
 	"github.com/lib/pq"
-	dt "gorm.io/datatypes"
+	"gorm.io/datatypes"
 )
 
 type MovieSearchResult struct {
-	ID          string  `json:"id"`
-	Number      string  `json:"number"`
-	Title       string  `json:"title"`
-	Provider    string  `json:"provider"`
-	Homepage    string  `json:"homepage"`
-	ThumbURL    string  `json:"thumb_url"`
-	CoverURL    string  `json:"cover_url"`
-	Score       float64 `json:"score"`
-	ReleaseDate dt.Date `json:"release_date"`
+	ID          string         `json:"id"`
+	Number      string         `json:"number"`
+	Title       string         `json:"title"`
+	Provider    string         `json:"provider"`
+	Homepage    string         `json:"homepage"`
+	ThumbURL    string         `json:"thumb_url"`
+	CoverURL    string         `json:"cover_url"`
+	Score       float64        `json:"score"`
+	ReleaseDate datatypes.Date `json:"release_date"`
 }
 
 func (sr *MovieSearchResult) Valid() bool {
@@ -44,8 +44,8 @@ type MovieInfo struct {
 	Tags      pq.StringArray `json:"tags" gorm:"type:text[]"`
 	Score     float64        `json:"score"`
 
-	Runtime     int     `json:"runtime"`
-	ReleaseDate dt.Date `json:"release_date"`
+	Runtime     int            `json:"runtime"`
+	ReleaseDate datatypes.Date `json:"release_date"`
 }
 
 func (MovieInfo) TableName() string {
@@ -98,8 +98,8 @@ type ActorInfo struct {
 	Height       int            `json:"height"`
 	Aliases      pq.StringArray `json:"aliases" gorm:"type:text[]"`
 	Images       pq.StringArray `json:"images" gorm:"type:text[]"`
-	Birthday     dt.Date        `json:"birthday"`
-	DebutDate    dt.Date        `json:"debut_date"`
+	Birthday     datatypes.Date `json:"birthday"`
+	DebutDate    datatypes.Date `json:"debut_date"`
 }
 
 func (ActorInfo) TableName() string {
