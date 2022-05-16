@@ -15,7 +15,10 @@ import (
 	"golang.org/x/net/html"
 )
 
-var _ provider.MovieProvider = (*TokyoHot)(nil)
+var (
+	_ provider.MovieProvider = (*TokyoHot)(nil)
+	_ provider.MovieSearcher = (*TokyoHot)(nil)
+)
 
 const (
 	Name     = "tokyo-hot"
