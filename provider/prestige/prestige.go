@@ -9,6 +9,7 @@ import (
 	"sync"
 	"unicode"
 
+	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/parser"
@@ -202,12 +203,23 @@ func (pst *PRESTIGE) SearchMovie(keyword string) (results []*model.MovieSearchRe
 			return // ignore this one.
 		}
 
+		var title string // colly.XMLElement takes all texts from elem, so we need to filter extra texts.
+		for n := htmlquery.FindOne(e.DOM.(*html.Node), `.//a/span`).
+			FirstChild; n != nil; n = n.NextSibling {
+			if n.Type == html.TextNode {
+				// Normally, the last child is the title.
+				title = strings.TrimSpace(n.Data)
+			}
+		}
+		if title == "" /* fallback */ {
+			title = trimTitle(e.ChildText(`.//a/span`))
+		}
+
 		results = append(results, &model.MovieSearchResult{
 			ID:       id,
 			Number:   id,
 			Provider: pst.Name(),
-			// colly.XMLElement takes all texts from elem, so we need to filter extra texts.
-			Title:    trimTitle(e.ChildText(`.//a/span`)),
+			Title:    title,
 			ThumbURL: e.Request.AbsoluteURL(imageSrc(thumb, true)),
 			CoverURL: e.Request.AbsoluteURL(imageSrc(thumb, false)),
 			Homepage: e.Request.AbsoluteURL(href),
