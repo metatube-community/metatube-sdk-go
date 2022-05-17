@@ -24,7 +24,7 @@ var (
 
 const (
 	Name     = "sod"
-	Priority = 1000 + 1
+	Priority = 1000 - 1
 )
 
 const (
