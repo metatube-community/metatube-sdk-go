@@ -19,6 +19,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"golang.org/x/net/html"
 )
 
 var (
@@ -148,9 +149,7 @@ func (fz *FANZA) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 
 	// Actors
 	c.OnXML(`//*[@id="performer"]`, func(e *colly.XMLElement) {
-		if actors := e.ChildTexts(`.//a`); len(actors) > 0 {
-			info.Actors = actors
-		}
+		parser.ParseTexts(e.DOM.(*html.Node), (*[]string)(&info.Actors))
 	})
 
 	// JSON
