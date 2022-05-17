@@ -118,18 +118,16 @@ func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 
 	// Actor
 	c.OnXML(`//dt[text()='出演：']/following-sibling::dd[1]`, func(e *colly.XMLElement) {
-		var getActor func(*html.Node)
-		getActor = func(n *html.Node) {
-			if n.Type == html.TextNode {
-				if actor := replaceSpaceAll(n.Data); actor != "" {
+		var actors []string
+		parser.ParseTexts(e.DOM.(*html.Node), &actors)
+		for _, actor := range actors {
+			for _, actor = range strings.Split(actor, "\u00a0" /* nbsp */) {
+				// Remove redundant space from actor name.
+				if actor = replaceSpaceAll(actor); actor != "" {
 					info.Actors = append(info.Actors, actor)
 				}
 			}
-			for n := n.FirstChild; n != nil; n = n.NextSibling {
-				getActor(n)
-			}
 		}
-		getActor(e.DOM.(*html.Node))
 	})
 
 	// Fields

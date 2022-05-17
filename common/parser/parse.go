@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/araddon/dateparse"
+	"golang.org/x/net/html"
 	dt "gorm.io/datatypes"
 )
 
@@ -67,4 +68,16 @@ func ParseScore(s string) float64 {
 	s = strings.TrimSpace(fields[0])
 	n, _ := strconv.ParseFloat(s, 10)
 	return n
+}
+
+// ParseTexts parses all plaintext from the given *html.Node.
+func ParseTexts(n *html.Node, texts *[]string) {
+	if n.Type == html.TextNode {
+		if actor := strings.TrimSpace(n.Data); actor != "" {
+			*texts = append(*texts, actor)
+		}
+	}
+	for n := n.FirstChild; n != nil; n = n.NextSibling {
+		ParseTexts(n, texts)
+	}
 }
