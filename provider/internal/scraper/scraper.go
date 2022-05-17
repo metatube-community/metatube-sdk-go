@@ -24,7 +24,10 @@ func NewScraper(name string, priority int, opts ...Option) *Scraper {
 		c:        colly.NewCollector(),
 	}
 	for _, opt := range opts {
-		opt(s) // Apply options.
+		// Apply options.
+		if err := opt(s); err != nil {
+			panic(err)
+		}
 	}
 	return s
 }
