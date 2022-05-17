@@ -37,7 +37,7 @@ type Caribbeancom struct {
 
 func New() *Caribbeancom {
 	return &Caribbeancom{
-		Scraper:      scraper.NewScraper(Name, Priority, scraper.DetectCharset()),
+		Scraper:      scraper.NewDefaultScraper(Name, Priority, scraper.DetectCharset()),
 		DefaultMaker: "カリビアンコム",
 	}
 }

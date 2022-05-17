@@ -38,7 +38,7 @@ type JavBus struct {
 }
 
 func New() *JavBus {
-	return &JavBus{scraper.NewScraper(Name, Priority,
+	return &JavBus{scraper.NewDefaultScraper(Name, Priority,
 		scraper.WithCookies(baseURL, []*http.Cookie{
 			// existmag=all
 			{Name: "existmag", Value: "all"},

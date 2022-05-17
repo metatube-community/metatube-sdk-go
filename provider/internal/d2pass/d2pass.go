@@ -41,7 +41,7 @@ type Core struct {
 }
 
 func (core *Core) Init() {
-	core.Scraper = scraper.NewScraper(core.DefaultName, core.DefaultPriority,
+	core.Scraper = scraper.NewDefaultScraper(core.DefaultName, core.DefaultPriority,
 		scraper.WithHeaders(map[string]string{
 			"Content-Type": "application/json",
 		}),

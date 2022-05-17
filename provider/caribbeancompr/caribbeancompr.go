@@ -30,7 +30,7 @@ func New() *CaribbeancomPremium {
 	return &CaribbeancomPremium{
 		// Simply use Caribbeancom provider to scrape contents.
 		Caribbeancom: &caribbeancom.Caribbeancom{
-			Scraper:      scraper.NewScraper(Name, Priority, scraper.DetectCharset()),
+			Scraper:      scraper.NewDefaultScraper(Name, Priority, scraper.DetectCharset()),
 			DefaultMaker: "カリビアンコムプレミアム",
 		},
 	}

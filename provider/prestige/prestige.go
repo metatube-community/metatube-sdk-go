@@ -40,7 +40,7 @@ type PRESTIGE struct {
 }
 
 func New() *PRESTIGE {
-	return &PRESTIGE{scraper.NewScraper(Name, Priority,
+	return &PRESTIGE{scraper.NewDefaultScraper(Name, Priority,
 		scraper.WithCookies(baseURL, []*http.Cookie{
 			{Name: "coc", Value: "1"},
 			{Name: "age_auth", Value: "1"},

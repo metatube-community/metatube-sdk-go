@@ -42,7 +42,7 @@ type MGStage struct {
 }
 
 func New() *MGStage {
-	return &MGStage{scraper.NewScraper(Name, Priority,
+	return &MGStage{scraper.NewDefaultScraper(Name, Priority,
 		scraper.WithCookies(baseURL, []*http.Cookie{
 			{Name: "adc", Value: "1"},
 		})),

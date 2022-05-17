@@ -17,24 +17,25 @@ type Scraper struct {
 }
 
 // NewScraper returns Provider implemented *Scraper.
-func NewScraper(name string, priority int, options ...Option) *Scraper {
+func NewScraper(name string, priority int, opts ...Option) *Scraper {
 	s := &Scraper{
 		name:     name,
 		priority: priority,
 		c:        colly.NewCollector(),
 	}
-
-	// default options.
-	opts := []Option{
-		AllowURLRevisit(),
-		IgnoreRobotsTxt(),
-		WithRandomUserAgent(),
-	}
-
-	for _, opt := range append(opts, options...) {
+	for _, opt := range opts {
 		opt(s) // Apply options.
 	}
 	return s
+}
+
+// NewDefaultScraper returns a *Scraper with default options enabled.
+func NewDefaultScraper(name string, priority int, opts ...Option) *Scraper {
+	return NewScraper(name, priority, append([]Option{
+		AllowURLRevisit(),
+		IgnoreRobotsTxt(),
+		WithRandomUserAgent(),
+	}, opts...)...)
 }
 
 func (s *Scraper) Name() string { return s.name }

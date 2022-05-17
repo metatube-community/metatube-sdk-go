@@ -42,7 +42,7 @@ type SOD struct {
 }
 
 func New() *SOD {
-	return &SOD{scraper.NewScraper(Name, Priority)}
+	return &SOD{scraper.NewDefaultScraper(Name, Priority)}
 }
 
 func (sod *SOD) NormalizeID(id string) string {

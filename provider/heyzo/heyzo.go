@@ -36,7 +36,7 @@ type Heyzo struct {
 }
 
 func New() *Heyzo {
-	return &Heyzo{scraper.NewScraper(Name, Priority)}
+	return &Heyzo{scraper.NewDefaultScraper(Name, Priority)}
 }
 
 func (hzo *Heyzo) NormalizeID(id string) string {
