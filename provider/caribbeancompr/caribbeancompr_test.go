@@ -1,4 +1,4 @@
-package caribbeancom
+package caribbeancompr
 
 import (
 	"encoding/json"
@@ -7,12 +7,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCaribbean_GetMovieInfoByID(t *testing.T) {
+func TestCaribbeancomPR_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
-		"050422-001",
-		//"031222-001",
-		//"061014-618",
+		"042922_001",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")

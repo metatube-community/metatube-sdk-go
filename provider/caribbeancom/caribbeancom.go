@@ -20,13 +20,12 @@ var _ provider.MovieProvider = (*Caribbeancom)(nil)
 
 const (
 	Name     = "CARIBBEANCOM"
-	Priority = 1000 - 1 // slightly lower than 1pondo.
+	Priority = 1000
 )
 
 const (
-	baseURL         = "https://www.caribbeancom.com/"
-	movieURL        = "https://www.caribbeancom.com/moviepages/%s/index.html"
-	moviePremiumURL = "https://www.caribbeancompr.com/moviepages/%s/index.html"
+	baseURL  = "https://www.caribbeancom.com/"
+	movieURL = "https://www.caribbeancom.com/moviepages/%s/index.html"
 )
 
 type Caribbeancom struct {
@@ -44,21 +43,14 @@ func New() *Caribbeancom {
 }
 
 func (carib *Caribbeancom) NormalizeID(id string) string {
-	if regexp.MustCompile(`^\d{6}[-_]\d{3}$`).MatchString(id) {
+	if regexp.MustCompile(`^\d{6}-\d{3}$`).MatchString(id) {
 		return id
 	}
 	return ""
 }
 
 func (carib *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	switch {
-	case strings.Contains(id, "-"):
-		return carib.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
-	case strings.Contains(id, "_"):
-		return carib.GetMovieInfoByURL(fmt.Sprintf(moviePremiumURL, id))
-	default:
-		return nil, provider.ErrNotFound
-	}
+	return carib.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
 func (carib *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
