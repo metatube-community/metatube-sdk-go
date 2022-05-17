@@ -44,15 +44,15 @@ func New() *TokyoHot {
 	}
 }
 
-func (th *TokyoHot) NormalizeID(id string) string {
+func (tht *TokyoHot) NormalizeID(id string) string {
 	return strings.ToLower(id) // Tokyo-Hot uses lowercase ID.
 }
 
-func (th *TokyoHot) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return th.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
+func (tht *TokyoHot) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	return tht.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (th *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
+func (tht *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 	homepage, err := url.Parse(u)
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (th *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 
 	info = &model.MovieInfo{
 		ID:            strings.ToUpper(id),
-		Provider:      th.Name(),
+		Provider:      tht.Name(),
 		Homepage:      homepage.String(),
 		Maker:         "TOKYO-HOT",
 		Actors:        []string{},
@@ -69,7 +69,7 @@ func (th *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 		Tags:          []string{},
 	}
 
-	c := th.Collector()
+	c := tht.Collector()
 
 	// Title
 	c.OnXML(`//*[@id="main"]//div[@class="contents"]/h2`, func(e *colly.XMLElement) {
@@ -138,15 +138,15 @@ func (th *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 	return
 }
 
-func (th *TokyoHot) TidyKeyword(keyword string) string {
+func (tht *TokyoHot) TidyKeyword(keyword string) string {
 	if regexp.MustCompile(`^(?i)[a-z_]*\d+`).MatchString(keyword) {
 		return strings.ToLower(keyword)
 	}
 	return ""
 }
 
-func (th *TokyoHot) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	c := th.Collector()
+func (tht *TokyoHot) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
+	c := tht.Collector()
 
 	c.OnXML(`//*[@id="main"]/ul/li`, func(e *colly.XMLElement) {
 		img := e.ChildAttr(`.//a/img`, "src")
@@ -158,7 +158,7 @@ func (th *TokyoHot) SearchMovie(keyword string) (results []*model.MovieSearchRes
 			Title:    e.ChildText(`.//div[@class="title"]`),
 			ThumbURL: e.Request.AbsoluteURL(img),
 			CoverURL: e.Request.AbsoluteURL(img),
-			Provider: th.Name(),
+			Provider: tht.Name(),
 			Homepage: homepage.String(),
 		})
 	})
