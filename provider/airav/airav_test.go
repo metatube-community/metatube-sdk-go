@@ -26,7 +26,7 @@ func TestAirAV_SearchMovie(t *testing.T) {
 		"ssni-278",
 		"FC2-2735315",
 	} {
-		results, err := provider.SearchMovie(item)
+		results, err := provider.SearchMovie(provider.TidyKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
 		if assert.NoError(t, err) {
 			for _, result := range results {

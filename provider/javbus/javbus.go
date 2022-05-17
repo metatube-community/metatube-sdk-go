@@ -126,14 +126,14 @@ func (bus *JavBus) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error
 	return
 }
 
-func (bus *JavBus) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	{ // pre-handle keyword
-		if regexp.MustCompile(`^(?i)FC2-`).MatchString(keyword) {
-			return nil, provider.ErrInvalidKeyword
-		}
-		keyword = strings.ToUpper(keyword)
+func (bus *JavBus) TidyKeyword(keyword string) string {
+	if regexp.MustCompile(`^(?i)FC2-`).MatchString(keyword) {
+		return "" // JavBus has no FC2 contents.
 	}
+	return strings.ToUpper(keyword)
+}
 
+func (bus *JavBus) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	c := bus.Collector()
 	c.Async = true /* ASYNC */
 

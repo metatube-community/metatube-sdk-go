@@ -163,14 +163,14 @@ func (air *AirAV) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 	return
 }
 
-func (air *AirAV) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	{ // pre-handle keyword
-		if ss := regexp.MustCompile(`^(?i)FC2-.*?(\d+)$`).FindStringSubmatch(keyword); len(ss) == 2 {
-			keyword = fmt.Sprintf("FC2-PPV-%s", ss[1])
-		}
-		keyword = strings.ToUpper(keyword)
+func (air *AirAV) TidyKeyword(keyword string) string {
+	if ss := regexp.MustCompile(`^(?i)FC2-.*?(\d+)$`).FindStringSubmatch(keyword); len(ss) == 2 {
+		return fmt.Sprintf("FC2-PPV-%s", ss[1])
 	}
+	return strings.ToUpper(keyword)
+}
 
+func (air *AirAV) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	c := air.Collector()
 
 	c.OnResponse(func(r *colly.Response) {

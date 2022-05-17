@@ -270,17 +270,18 @@ func (fz *FANZA) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 	return
 }
 
-func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	{ // keyword pre-handling
-		if number.IsUncensored(keyword) {
-			return nil, provider.ErrInvalidKeyword
-		}
-		/* FANZA cannot search hyphened number */
-		keyword = strings.ReplaceAll(keyword, "-", "00")
-		/* FANZA prefers lowercase */
-		keyword = strings.ToLower(keyword)
+func (fz *FANZA) TidyKeyword(keyword string) string {
+	if number.IsUncensored(keyword) {
+		return ""
 	}
+	return strings.ReplaceAll(
+		/* FANZA prefers lowercase */
+		strings.ToLower(keyword),
+		/* FANZA cannot search hyphened number */
+		"-", "00")
+}
 
+func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	c := fz.Collector()
 
 	c.OnXML(`//*[@id="list"]/li`, func(e *colly.XMLElement) {

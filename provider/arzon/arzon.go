@@ -144,14 +144,14 @@ func (az *ARZON) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 	return
 }
 
-func (az *ARZON) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	{ // pre-handle keyword
-		if number.IsUncensored(keyword) {
-			return nil, provider.ErrInvalidKeyword
-		}
-		keyword = strings.ToUpper(keyword)
+func (az *ARZON) TidyKeyword(keyword string) string {
+	if !number.IsUncensored(keyword) {
+		return strings.ToUpper(keyword)
 	}
+	return ""
+}
 
+func (az *ARZON) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	c := az.Collector()
 
 	// Age check
