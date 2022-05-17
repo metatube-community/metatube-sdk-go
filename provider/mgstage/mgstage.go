@@ -10,12 +10,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"golang.org/x/net/html"
 )
 
 var (
@@ -121,13 +123,8 @@ func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 	c.OnXML(`//tr`, func(e *colly.XMLElement) {
 		switch e.ChildText(`.//th`) {
 		case "出演：":
-			if actors := e.ChildTexts(`.//td/a`); len(actors) > 0 {
-				info.Actors = actors
-			} else if actors = e.ChildTexts(`.//td`); len(actors) > 0 {
-				for _, actor := range actors {
-					info.Actors = append(info.Actors, strings.TrimSpace(actor))
-				}
-			}
+			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `.//td`),
+				(*[]string)(&info.Actors))
 		case "メーカー：":
 			info.Maker = e.ChildText(`.//td`)
 		case "収録時間：":

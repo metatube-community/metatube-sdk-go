@@ -10,8 +10,9 @@ import (
 func TestMGStage_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
-		"ABP-169",
-		"261ARA-539",
+		//"TAP-002",
+		"SIRO-2219",
+		"300MAAN-778",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
