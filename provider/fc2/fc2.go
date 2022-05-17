@@ -9,7 +9,6 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 )
@@ -32,12 +31,7 @@ type FC2 struct {
 }
 
 func New() *FC2 {
-	return &FC2{
-		Scraper: provider.NewScraper(Name, Priority, colly.NewCollector(
-			colly.AllowURLRevisit(),
-			colly.IgnoreRobotsTxt(),
-			colly.UserAgent(random.UserAgent()))),
-	}
+	return &FC2{provider.NewScraper(Name, Priority, colly.NewCollector())}
 }
 
 func (fc2 *FC2) NormalizeID(id string) string {

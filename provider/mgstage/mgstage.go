@@ -14,7 +14,6 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"golang.org/x/net/html"
@@ -42,10 +41,7 @@ type MGStage struct {
 }
 
 func New() *MGStage {
-	c := colly.NewCollector(
-		colly.AllowURLRevisit(),
-		colly.IgnoreRobotsTxt(),
-		colly.UserAgent(random.UserAgent()))
+	c := colly.NewCollector()
 	c.SetCookies(baseURL, []*http.Cookie{
 		{Name: "adc", Value: "1"},
 	})

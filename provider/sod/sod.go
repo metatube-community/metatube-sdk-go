@@ -12,7 +12,6 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/fetch"
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"golang.org/x/net/html"
@@ -42,12 +41,7 @@ type SOD struct {
 }
 
 func New() *SOD {
-	return &SOD{
-		Scraper: provider.NewScraper(Name, Priority, colly.NewCollector(
-			colly.AllowURLRevisit(),
-			colly.IgnoreRobotsTxt(),
-			colly.UserAgent(random.UserAgent()))),
-	}
+	return &SOD{provider.NewScraper(Name, Priority, colly.NewCollector())}
 }
 
 func (sod *SOD) NormalizeID(id string) string {

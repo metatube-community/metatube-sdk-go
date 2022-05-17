@@ -10,7 +10,6 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/gfriends"
@@ -40,10 +39,7 @@ type XsList struct {
 }
 
 func New() *XsList {
-	c := colly.NewCollector(
-		colly.AllowURLRevisit(),
-		colly.IgnoreRobotsTxt(),
-		colly.UserAgent(random.UserAgent()))
+	c := colly.NewCollector()
 	c.DisableCookies()
 	return &XsList{
 		Scraper:  provider.NewScraper(Name, Priority, c),

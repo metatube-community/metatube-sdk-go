@@ -13,7 +13,6 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"golang.org/x/net/html"
@@ -40,10 +39,7 @@ type PRESTIGE struct {
 }
 
 func New() *PRESTIGE {
-	c := colly.NewCollector(
-		colly.AllowURLRevisit(),
-		colly.IgnoreRobotsTxt(),
-		colly.UserAgent(random.UserAgent()))
+	c := colly.NewCollector()
 	c.SetCookies(baseURL, []*http.Cookie{
 		{Name: "coc", Value: "1"},
 		{Name: "age_auth", Value: "1"},

@@ -13,7 +13,6 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/grafov/m3u8"
 	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 )
@@ -36,12 +35,7 @@ type Heyzo struct {
 }
 
 func New() *Heyzo {
-	return &Heyzo{
-		Scraper: provider.NewScraper(Name, Priority, colly.NewCollector(
-			colly.AllowURLRevisit(),
-			colly.IgnoreRobotsTxt(),
-			colly.UserAgent(random.UserAgent()))),
-	}
+	return &Heyzo{provider.NewScraper(Name, Priority, colly.NewCollector())}
 }
 
 func (hzo *Heyzo) NormalizeID(id string) string {

@@ -9,7 +9,6 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"golang.org/x/net/html"
@@ -36,12 +35,7 @@ type TokyoHot struct {
 }
 
 func New() *TokyoHot {
-	return &TokyoHot{
-		Scraper: provider.NewScraper(Name, Priority, colly.NewCollector(
-			colly.AllowURLRevisit(),
-			colly.IgnoreRobotsTxt(),
-			colly.UserAgent(random.UserAgent()))),
-	}
+	return &TokyoHot{provider.NewScraper(Name, Priority, colly.NewCollector())}
 }
 
 func (tht *TokyoHot) NormalizeID(id string) string {

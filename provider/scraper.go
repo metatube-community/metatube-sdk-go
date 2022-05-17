@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/javtube/javtube-sdk-go/common/random"
 )
 
 var _ Provider = (*Scraper)(nil)
@@ -17,6 +18,11 @@ type Scraper struct {
 
 // NewScraper returns Provider implemented *Scraper.
 func NewScraper(name string, priority int, c *colly.Collector) *Scraper {
+	{ // default settings
+		c.AllowURLRevisit = true
+		c.IgnoreRobotsTxt = true
+		c.UserAgent = random.UserAgent()
+	}
 	return &Scraper{
 		name:     name,
 		priority: priority,

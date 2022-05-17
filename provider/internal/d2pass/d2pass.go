@@ -12,7 +12,6 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/fetch"
 	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 )
@@ -43,9 +42,6 @@ type Core struct {
 
 func (core *Core) Init() {
 	c := colly.NewCollector(
-		colly.AllowURLRevisit(),
-		colly.IgnoreRobotsTxt(),
-		colly.UserAgent(random.UserAgent()),
 		colly.Headers(map[string]string{
 			"Content-Type": "application/json",
 		}))

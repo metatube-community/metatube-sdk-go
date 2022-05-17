@@ -11,7 +11,6 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 )
@@ -38,10 +37,7 @@ type JavBus struct {
 }
 
 func New() *JavBus {
-	c := colly.NewCollector(
-		colly.AllowURLRevisit(),
-		colly.IgnoreRobotsTxt(),
-		colly.UserAgent(random.UserAgent()))
+	c := colly.NewCollector()
 	c.SetCookies(baseURL, []*http.Cookie{
 		// existmag=all
 		{Name: "existmag", Value: "all"},

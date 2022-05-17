@@ -12,7 +12,6 @@ import (
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"golang.org/x/net/html"
@@ -37,11 +36,7 @@ type Caribbeancom struct {
 
 func New() *Caribbeancom {
 	return &Caribbeancom{
-		Scraper: provider.NewScraper(Name, Priority, colly.NewCollector(
-			colly.AllowURLRevisit(),
-			colly.IgnoreRobotsTxt(),
-			colly.DetectCharset(),
-			colly.UserAgent(random.UserAgent()))),
+		Scraper:      provider.NewScraper(Name, Priority, colly.NewCollector(colly.DetectCharset())),
 		DefaultMaker: "カリビアンコム",
 	}
 }
