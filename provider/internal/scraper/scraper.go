@@ -32,8 +32,8 @@ func NewScraper(name string, priority int, opts ...Option) *Scraper {
 // NewDefaultScraper returns a *Scraper with default options enabled.
 func NewDefaultScraper(name string, priority int, opts ...Option) *Scraper {
 	return NewScraper(name, priority, append([]Option{
-		AllowURLRevisit(),
-		IgnoreRobotsTxt(),
+		WithAllowURLRevisit(),
+		WithIgnoreRobotsTxt(),
 		WithRandomUserAgent(),
 	}, opts...)...)
 }

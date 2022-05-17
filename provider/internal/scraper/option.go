@@ -9,31 +9,19 @@ import (
 
 type Option func(*Scraper)
 
-func AllowURLRevisit() Option {
+func WithAllowURLRevisit() Option {
 	return func(s *Scraper) {
 		colly.AllowURLRevisit()(s.c)
 	}
 }
 
-func WithCookies(url string, cookies []*http.Cookie) Option {
-	return func(s *Scraper) {
-		s.c.SetCookies(url, cookies)
-	}
-}
-
-func WithDisableCookies() Option {
-	return func(s *Scraper) {
-		s.c.DisableCookies()
-	}
-}
-
-func DetectCharset() Option {
+func WithDetectCharset() Option {
 	return func(s *Scraper) {
 		colly.DetectCharset()(s.c)
 	}
 }
 
-func IgnoreRobotsTxt() Option {
+func WithIgnoreRobotsTxt() Option {
 	return func(s *Scraper) {
 		colly.IgnoreRobotsTxt()(s.c)
 	}
@@ -53,4 +41,16 @@ func WithUserAgent(ua string) Option {
 
 func WithRandomUserAgent() Option {
 	return WithUserAgent(random.UserAgent())
+}
+
+func WithCookies(url string, cookies []*http.Cookie) Option {
+	return func(s *Scraper) {
+		s.c.SetCookies(url, cookies)
+	}
+}
+
+func WithDisableCookies() Option {
+	return func(s *Scraper) {
+		s.c.DisableCookies()
+	}
 }
