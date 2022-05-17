@@ -19,12 +19,12 @@ const (
 	movieURL = "https://www.10musume.com/movies/%s/"
 )
 
+// sampleURLs: {
+//   preview: "/assets/sample/{MOVIE_ID}/{FILENAME}",
+//   fullsize: "/assets/sample/{MOVIE_ID}/{FILENAME}",
+//   movieIdKey: "MovieID"
+//}
 const (
-	// sampleURLs: {
-	//   preview: "/assets/sample/{MOVIE_ID}/{FILENAME}",
-	//   fullsize: "/assets/sample/{MOVIE_ID}/{FILENAME}",
-	//   movieIdKey: "MovieID"
-	//},
 	galleryPath       = "/dyn/dla/images/%s"
 	legacyGalleryPath = "/assets/sample/%s/%s"
 )

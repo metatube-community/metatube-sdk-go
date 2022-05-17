@@ -19,12 +19,12 @@ const (
 	movieURL = "https://www.1pondo.tv/movies/%s/"
 )
 
+//sampleURLs: {
+//   preview: "/assets/sample/{MOVIE_ID}/thum_106/{FILENAME}.jpg",
+//   fullsize: "/assets/sample/{MOVIE_ID}/popu/{FILENAME}.jpg",
+//   movieIdKey: "MovieID"
+//}
 const (
-	//sampleURLs: {
-	//   preview: "/assets/sample/{MOVIE_ID}/thum_106/{FILENAME}.jpg",
-	//   fullsize: "/assets/sample/{MOVIE_ID}/popu/{FILENAME}.jpg",
-	//   movieIdKey: "MovieID"
-	//}
 	galleryPath       = "/dyn/dla/images/%s"
 	legacyGalleryPath = "/assets/sample/%s/popu/%s"
 )
