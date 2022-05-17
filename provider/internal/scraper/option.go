@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly/v2/debug"
 	"github.com/javtube/javtube-sdk-go/common/random"
 )
 
@@ -12,6 +13,13 @@ type Option func(*Scraper) error
 func WithAllowURLRevisit() Option {
 	return func(s *Scraper) error {
 		colly.AllowURLRevisit()(s.c)
+		return nil
+	}
+}
+
+func WithLogDebugger() Option {
+	return func(s *Scraper) error {
+		colly.Debugger(&debug.LogDebugger{})
 		return nil
 	}
 }
