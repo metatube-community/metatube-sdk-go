@@ -13,6 +13,7 @@ func TestOnePondo_GetMovieInfoByID(t *testing.T) {
 		"042922_001",
 		"080812_401",
 		"071912_387",
+		"050522_001",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")

@@ -19,7 +19,6 @@ import (
 
 // API Paths
 const (
-	moviePath              = "/movies/%s/"
 	movieDetailPath        = "/dyn/phpauto/movie_details/movie_id/%s.json"
 	movieGalleryPath       = "/dyn/dla/json/movie_gallery/%s.json"
 	movieLegacyGalleryPath = "/dyn/phpauto/movie_galleries/movie_id/%s.json"
@@ -36,7 +35,8 @@ type Core struct {
 	DefaultName     string
 	DefaultMaker    string
 
-	// Gallery paths
+	// URL paths
+	MoviePath         string
 	GalleryPath       string
 	LegacyGalleryPath string
 }
@@ -56,7 +56,7 @@ func (core *Core) Init() {
 }
 
 func (core *Core) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return core.GetMovieInfoByURL(fetch.JoinURL(core.BaseURL, fmt.Sprintf(moviePath, id)))
+	return core.GetMovieInfoByURL(fetch.JoinURL(core.BaseURL, fmt.Sprintf(core.MoviePath, id)))
 }
 
 func (core *Core) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
@@ -181,13 +181,6 @@ func (core *Core) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 						}
 					}{}
 					if json.Unmarshal(r.Body, &galleries) == nil {
-						//movieGallery: {
-						//   sampleURLs: {
-						//	   preview: "/assets/sample/{MOVIE_ID}/thum_106/{FILENAME}.jpg",
-						//	   fullsize: "/assets/sample/{MOVIE_ID}/popu/{FILENAME}.jpg",
-						//	   movieIdKey: "MovieID"
-						//   }
-						//}
 						for _, row := range galleries.Rows {
 							if !row.Protected {
 								info.PreviewImages = append(info.PreviewImages,
