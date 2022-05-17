@@ -139,8 +139,8 @@ func (opd *OnePondo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 				data.ThumbMed, data.ThumbLow,
 			} {
 				if thumb != "" {
-					info.ThumbURL = r.Request.AbsoluteURL(thumb)
-					info.CoverURL = info.ThumbURL /* use thumb as cover */
+					info.CoverURL = r.Request.AbsoluteURL(thumb)
+					info.ThumbURL = info.CoverURL /* use thumb as cover */
 					break
 				}
 			}
