@@ -11,6 +11,8 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider/caribbeancom"
 )
 
+var _ provider.MovieProvider = (*CaribbeancomPremium)(nil)
+
 const (
 	Name     = "CARIBBEANCOMPR"
 	Priority = 1000 - 1 //slightly lower than 1pondo.
@@ -34,6 +36,7 @@ func New() *CaribbeancomPremium {
 				colly.IgnoreRobotsTxt(),
 				colly.DetectCharset(),
 				colly.UserAgent(random.UserAgent()))),
+			DefaultMaker: "カリビアンコムプレミアム",
 		},
 	}
 }

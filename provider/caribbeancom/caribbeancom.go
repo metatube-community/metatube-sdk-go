@@ -32,6 +32,7 @@ const (
 
 type Caribbeancom struct {
 	*provider.Scraper
+	DefaultMaker string
 }
 
 func New() *Caribbeancom {
@@ -41,6 +42,7 @@ func New() *Caribbeancom {
 			colly.IgnoreRobotsTxt(),
 			colly.DetectCharset(),
 			colly.UserAgent(random.UserAgent()))),
+		DefaultMaker: "カリビアンコム",
 	}
 }
 
@@ -67,7 +69,7 @@ func (carib *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, e
 		Number:        id,
 		Provider:      carib.Name(),
 		Homepage:      homepage.String(),
-		Maker:         "カリビアンコム",
+		Maker:         carib.DefaultMaker,
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},
