@@ -10,6 +10,7 @@ import (
 	_ "github.com/javtube/javtube-sdk-go/provider/airav"
 	_ "github.com/javtube/javtube-sdk-go/provider/arzon"
 	_ "github.com/javtube/javtube-sdk-go/provider/caribbeancom"
+	_ "github.com/javtube/javtube-sdk-go/provider/caribbeancompr"
 	_ "github.com/javtube/javtube-sdk-go/provider/fanza"
 	_ "github.com/javtube/javtube-sdk-go/provider/fc2"
 	_ "github.com/javtube/javtube-sdk-go/provider/heyzo"
