@@ -40,10 +40,8 @@ type XsList struct {
 }
 
 func New() *XsList {
-	c := colly.NewCollector()
-	c.DisableCookies()
 	return &XsList{
-		Scraper:  scraper.NewScraper(Name, Priority, c),
+		Scraper:  scraper.NewScraper(Name, Priority, scraper.WithDisableCookies()),
 		gFriends: gfriends.New(),
 	}
 }

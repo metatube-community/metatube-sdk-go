@@ -32,7 +32,7 @@ type FC2 struct {
 }
 
 func New() *FC2 {
-	return &FC2{scraper.NewScraper(Name, Priority, colly.NewCollector())}
+	return &FC2{scraper.NewScraper(Name, Priority)}
 }
 
 func (fc2 *FC2) NormalizeID(id string) string {

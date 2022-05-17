@@ -38,12 +38,12 @@ type JavBus struct {
 }
 
 func New() *JavBus {
-	c := colly.NewCollector()
-	c.SetCookies(baseURL, []*http.Cookie{
-		// existmag=all
-		{Name: "existmag", Value: "all"},
-	})
-	return &JavBus{scraper.NewScraper(Name, Priority, c)}
+	return &JavBus{scraper.NewScraper(Name, Priority,
+		scraper.WithCookies(baseURL, []*http.Cookie{
+			// existmag=all
+			{Name: "existmag", Value: "all"},
+		})),
+	}
 }
 
 func (bus *JavBus) NormalizeID(id string) string {

@@ -41,14 +41,14 @@ type Core struct {
 }
 
 func (core *Core) Init() {
-	c := colly.NewCollector(
-		colly.Headers(map[string]string{
+	core.Scraper = scraper.NewScraper(core.DefaultName, core.DefaultPriority,
+		scraper.WithHeaders(map[string]string{
 			"Content-Type": "application/json",
-		}))
-	c.SetCookies(core.BaseURL, []*http.Cookie{
-		{Name: "ageCheck", Value: "1"},
-	})
-	core.Scraper = scraper.NewScraper(core.DefaultName, core.DefaultPriority, c)
+		}),
+		scraper.WithCookies(core.BaseURL, []*http.Cookie{
+			{Name: "ageCheck", Value: "1"},
+		}),
+	)
 }
 
 func (core *Core) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {

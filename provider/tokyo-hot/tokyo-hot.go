@@ -36,7 +36,7 @@ type TokyoHot struct {
 }
 
 func New() *TokyoHot {
-	return &TokyoHot{scraper.NewScraper(Name, Priority, colly.NewCollector())}
+	return &TokyoHot{scraper.NewScraper(Name, Priority)}
 }
 
 func (tht *TokyoHot) NormalizeID(id string) string {

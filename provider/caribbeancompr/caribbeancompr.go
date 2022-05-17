@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/caribbeancom"
@@ -31,7 +30,7 @@ func New() *CaribbeancomPremium {
 	return &CaribbeancomPremium{
 		// Simply use Caribbeancom provider to scrape contents.
 		Caribbeancom: &caribbeancom.Caribbeancom{
-			Scraper:      scraper.NewScraper(Name, Priority, colly.NewCollector(colly.DetectCharset())),
+			Scraper:      scraper.NewScraper(Name, Priority, scraper.DetectCharset()),
 			DefaultMaker: "カリビアンコムプレミアム",
 		},
 	}

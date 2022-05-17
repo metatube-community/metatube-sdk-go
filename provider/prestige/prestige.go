@@ -40,12 +40,12 @@ type PRESTIGE struct {
 }
 
 func New() *PRESTIGE {
-	c := colly.NewCollector()
-	c.SetCookies(baseURL, []*http.Cookie{
-		{Name: "coc", Value: "1"},
-		{Name: "age_auth", Value: "1"},
-	})
-	return &PRESTIGE{scraper.NewScraper(Name, Priority, c)}
+	return &PRESTIGE{scraper.NewScraper(Name, Priority,
+		scraper.WithCookies(baseURL, []*http.Cookie{
+			{Name: "coc", Value: "1"},
+			{Name: "age_auth", Value: "1"},
+		})),
+	}
 }
 
 func (pst *PRESTIGE) NormalizeID(id string) string {

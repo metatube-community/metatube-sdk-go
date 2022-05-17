@@ -42,11 +42,11 @@ type MGStage struct {
 }
 
 func New() *MGStage {
-	c := colly.NewCollector()
-	c.SetCookies(baseURL, []*http.Cookie{
-		{Name: "adc", Value: "1"},
-	})
-	return &MGStage{scraper.NewScraper(Name, Priority, c)}
+	return &MGStage{scraper.NewScraper(Name, Priority,
+		scraper.WithCookies(baseURL, []*http.Cookie{
+			{Name: "adc", Value: "1"},
+		})),
+	}
 }
 
 func (mgs *MGStage) NormalizeID(id string) string {

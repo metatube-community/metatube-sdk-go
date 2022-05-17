@@ -50,11 +50,11 @@ type FANZA struct {
 }
 
 func New() *FANZA {
-	c := colly.NewCollector()
-	c.SetCookies(baseURL, []*http.Cookie{
-		{Name: "age_check_done", Value: "1"},
-	})
-	return &FANZA{scraper.NewScraper(Name, Priority, c)}
+	return &FANZA{scraper.NewScraper(Name, Priority,
+		scraper.WithCookies(baseURL, []*http.Cookie{
+			{Name: "age_check_done", Value: "1"},
+		})),
+	}
 }
 
 func (fz *FANZA) NormalizeID(id string) string {

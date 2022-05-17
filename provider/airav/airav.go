@@ -39,11 +39,11 @@ type AirAV struct {
 
 func New() *AirAV {
 	return &AirAV{
-		Scraper: scraper.NewScraper(Name, Priority, colly.NewCollector(
-			colly.Headers(map[string]string{
+		Scraper: scraper.NewScraper(Name, Priority,
+			scraper.WithHeaders(map[string]string{
 				"Origin":  baseURL,
 				"Referer": baseURL,
-			}))),
+			})),
 	}
 }
 
