@@ -214,7 +214,7 @@ func (opd *OnePondo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 		}
 	})
 
-	err = c.Visit(fetch.JoinURL(baseURL, fmt.Sprintf(movieDetailPath, id)))
+	err = c.Visit(fetch.JoinURL(info.Homepage, fmt.Sprintf(movieDetailPath, id)))
 	return
 }
 
