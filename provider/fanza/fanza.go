@@ -28,7 +28,7 @@ var (
 )
 
 const (
-	Name     = "fanza"
+	Name     = "FANZA"
 	Priority = 1000
 )
 

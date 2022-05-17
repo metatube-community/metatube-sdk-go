@@ -19,7 +19,7 @@ import (
 var _ provider.MovieProvider = (*Caribbeancom)(nil)
 
 const (
-	Name     = "caribbeancom"
+	Name     = "CARIBBEANCOM"
 	Priority = 1000 - 1 // slightly lower than 1pondo.
 )
 
@@ -44,7 +44,7 @@ func New() *Caribbeancom {
 }
 
 func (carib *Caribbeancom) NormalizeID(id string) string {
-	if regexp.MustCompile(`^\d{6}[-_]\d{2,3}$`).MatchString(id) {
+	if regexp.MustCompile(`^\d{6}[-_]\d{3}$`).MatchString(id) {
 		return id
 	}
 	return ""

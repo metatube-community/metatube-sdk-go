@@ -17,7 +17,7 @@ import (
 var _ provider.MovieProvider = (*FC2)(nil)
 
 const (
-	Name     = "fc2"
+	Name     = "FC2"
 	Priority = 1000
 )
 

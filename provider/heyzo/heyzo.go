@@ -21,7 +21,7 @@ import (
 var _ provider.MovieProvider = (*Heyzo)(nil)
 
 const (
-	Name     = "heyzo"
+	Name     = "HEYZO"
 	Priority = 1000
 )
 

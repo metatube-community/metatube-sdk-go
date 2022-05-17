@@ -21,7 +21,7 @@ var (
 )
 
 const (
-	Name     = "tokyo-hot"
+	Name     = "TOKYO-HOT"
 	Priority = 1000 - 2
 )
 

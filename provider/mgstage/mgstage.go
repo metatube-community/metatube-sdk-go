@@ -26,7 +26,7 @@ var (
 )
 
 const (
-	Name     = "mgstage"
+	Name     = "MGSTAGE"
 	Priority = 1000 - 1
 )
 
