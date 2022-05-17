@@ -14,11 +14,12 @@ const (
 	Priority = 1000
 )
 
-const baseURL = "https://www.1pondo.tv/"
+const (
+	baseURL  = "https://www.1pondo.tv/"
+	movieURL = "https://www.1pondo.tv/movies/%s/"
+)
 
 const (
-	moviePath = "/movies/%s/"
-
 	//sampleURLs: {
 	//   preview: "/assets/sample/{MOVIE_ID}/thum_106/{FILENAME}.jpg",
 	//   fullsize: "/assets/sample/{MOVIE_ID}/popu/{FILENAME}.jpg",
@@ -35,10 +36,10 @@ type OnePondo struct {
 func New() *OnePondo {
 	core := &d2pass.Core{
 		BaseURL:           baseURL,
+		MovieURL:          movieURL,
 		DefaultName:       Name,
 		DefaultPriority:   Priority,
 		DefaultMaker:      "一本道",
-		MoviePath:         moviePath,
 		GalleryPath:       galleryPath,
 		LegacyGalleryPath: legacyGalleryPath,
 	}

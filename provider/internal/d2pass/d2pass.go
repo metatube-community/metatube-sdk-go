@@ -27,16 +27,16 @@ const (
 type Core struct {
 	*provider.Scraper
 
-	// BaseURL is the base URL of provider website.
-	BaseURL string
+	// URLs
+	BaseURL  string
+	MovieURL string
 
-	// Default values
+	// Values
 	DefaultPriority int
 	DefaultName     string
 	DefaultMaker    string
 
-	// URL paths
-	MoviePath         string
+	// Paths
 	GalleryPath       string
 	LegacyGalleryPath string
 }
@@ -56,7 +56,7 @@ func (core *Core) Init() {
 }
 
 func (core *Core) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return core.GetMovieInfoByURL(fetch.JoinURL(core.BaseURL, fmt.Sprintf(core.MoviePath, id)))
+	return core.GetMovieInfoByURL(fmt.Sprintf(core.MovieURL, id))
 }
 
 func (core *Core) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
