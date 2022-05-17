@@ -47,8 +47,8 @@ func (s *Scraper) Priority() int { return s.priority }
 
 func (s *Scraper) NormalizeID(id string) string { return id /* AS IS */ }
 
-// Collector returns original/internal collector.
-func (s *Scraper) Collector() *colly.Collector { return s.c }
+//// Collector returns original/internal collector.
+//func (s *Scraper) Collector() *colly.Collector { return s.c }
 
 // ClonedCollector returns cloned internal collector.
 func (s *Scraper) ClonedCollector() *colly.Collector { return s.c.Clone() }
