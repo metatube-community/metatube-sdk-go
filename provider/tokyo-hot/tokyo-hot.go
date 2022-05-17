@@ -110,13 +110,13 @@ func (th *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 			switch dt {
 			case "出演者":
 				for _, actor := range e.ChildTexts(fmt.Sprintf(`.//dd[%d]/a`, i+1)) {
-					if actor != "" && actor != "不明" {
+					if actor = strings.TrimSpace(actor); actor != "" && actor != "不明" {
 						info.Actors = append(info.Actors, actor)
 					}
 				}
 			case "プレイ内容":
 				for _, tag := range e.ChildTexts(fmt.Sprintf(`.//dd[%d]/a`, i+1)) {
-					if tag != "" {
+					if tag = strings.TrimSpace(tag); tag != "" {
 						info.Tags = append(info.Tags, tag)
 					}
 				}
