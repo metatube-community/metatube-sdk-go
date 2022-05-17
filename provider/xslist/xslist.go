@@ -25,7 +25,7 @@ var (
 
 const (
 	Name     = "xslist"
-	Priority = 10
+	Priority = 1000
 )
 
 const (

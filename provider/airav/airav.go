@@ -22,7 +22,7 @@ var (
 
 const (
 	Name     = "airav"
-	Priority = 5 // unofficial provider gets lower priority.
+	Priority = 1000 - 5 // unofficial provider gets lower priority.
 )
 
 const (

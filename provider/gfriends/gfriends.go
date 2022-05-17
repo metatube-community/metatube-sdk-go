@@ -21,7 +21,7 @@ var (
 
 const (
 	Name     = "gfriends"
-	Priority = 9
+	Priority = 1000 - 1
 )
 
 const (

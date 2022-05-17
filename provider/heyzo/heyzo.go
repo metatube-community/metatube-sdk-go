@@ -22,7 +22,7 @@ var _ provider.MovieProvider = (*Heyzo)(nil)
 
 const (
 	Name     = "heyzo"
-	Priority = 10
+	Priority = 1000
 )
 
 const (

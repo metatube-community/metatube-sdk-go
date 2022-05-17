@@ -23,7 +23,7 @@ var (
 
 const (
 	Name     = "javbus"
-	Priority = 4
+	Priority = 1000 - 4
 )
 
 const (

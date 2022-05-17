@@ -21,7 +21,7 @@ var _ provider.MovieProvider = (*OnePondo)(nil)
 
 const (
 	Name     = "1pondo"
-	Priority = 10
+	Priority = 1000
 )
 
 // webpack:///src/assets/js/services/Bifrost/API.js:formatted

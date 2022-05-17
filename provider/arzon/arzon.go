@@ -26,7 +26,7 @@ var (
 
 const (
 	Name     = "arzon"
-	Priority = 6
+	Priority = 1000 - 3 // ARZON as secondary provider has lower priority than official ones.
 )
 
 const (

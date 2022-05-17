@@ -18,7 +18,7 @@ var _ provider.MovieProvider = (*FC2)(nil)
 
 const (
 	Name     = "fc2"
-	Priority = 10
+	Priority = 1000
 )
 
 const (
