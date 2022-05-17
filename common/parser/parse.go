@@ -73,8 +73,8 @@ func ParseScore(s string) float64 {
 // ParseTexts parses all plaintext from the given *html.Node.
 func ParseTexts(n *html.Node, texts *[]string) {
 	if n.Type == html.TextNode {
-		if actor := strings.TrimSpace(n.Data); actor != "" {
-			*texts = append(*texts, actor)
+		if text := strings.TrimSpace(n.Data); text != "" {
+			*texts = append(*texts, text)
 		}
 	}
 	for n := n.FirstChild; n != nil; n = n.NextSibling {
