@@ -21,12 +21,12 @@ const (
 	movieURL = "https://www.caribbeancompr.com/moviepages/%s/index.html"
 )
 
-type CaribbeancomPR struct {
+type CaribbeancomPremium struct {
 	*caribbeancom.Caribbeancom
 }
 
-func New() *CaribbeancomPR {
-	return &CaribbeancomPR{
+func New() *CaribbeancomPremium {
+	return &CaribbeancomPremium{
 		// Simply use Caribbeancom provider to scrape contents.
 		Caribbeancom: &caribbeancom.Caribbeancom{
 			Scraper: provider.NewScraper(Name, Priority, colly.NewCollector(
@@ -38,14 +38,14 @@ func New() *CaribbeancomPR {
 	}
 }
 
-func (carib *CaribbeancomPR) NormalizeID(id string) string {
+func (carib *CaribbeancomPremium) NormalizeID(id string) string {
 	if regexp.MustCompile(`^\d{6}_\d{3}$`).MatchString(id) {
 		return id
 	}
 	return ""
 }
 
-func (carib *CaribbeancomPR) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+func (carib *CaribbeancomPremium) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return carib.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
