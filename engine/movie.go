@@ -14,15 +14,17 @@ import (
 func (e *Engine) searchMovie(keyword string, provider javtube.MovieProvider, lazy bool) ([]*model.MovieSearchResult, error) {
 	// Regular keyword searching.
 	if searcher, ok := provider.(javtube.MovieSearcher); ok {
+		if keyword = searcher.TidyKeyword(keyword); keyword == "" {
+			return nil, javtube.ErrInvalidKeyword
+		}
 		// Query DB first (by number).
 		if info := new(model.MovieInfo); lazy {
 			if result := e.db.
 				Where("provider = ?", provider.Name()).
 				Where(e.db.
-					// Use UPPER to perform case-insensitive match here.
-					// It's inefficient, but it works.
-					Where("UPPER(number) = UPPER(?)", keyword).
-					Or("UPPER(id) = UPPER(?)", keyword)).
+					// Exact match.
+					Where("number = ?", keyword).
+					Or("id = ?", keyword)).
 				First(info); result.Error == nil && info.Valid() /* must be valid */ {
 				return []*model.MovieSearchResult{info.ToSearchResult()}, nil
 			} // ignore DB query error.

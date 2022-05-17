@@ -21,6 +21,9 @@ type Provider interface {
 type MovieSearcher interface {
 	// SearchMovie searches matched movies.
 	SearchMovie(keyword string) ([]*model.MovieSearchResult, error)
+
+	// TidyKeyword converts keyword to provider-friendly form.
+	TidyKeyword(Keyword string) string
 }
 
 type MovieProvider interface {
