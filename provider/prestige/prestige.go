@@ -181,14 +181,14 @@ func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 	return
 }
 
-func (pst *PRESTIGE) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	{ // pre-handle keyword
-		if number.IsUncensored(keyword) {
-			return nil, provider.ErrInvalidKeyword
-		}
-		keyword = strings.ToUpper(keyword)
+func (pst *PRESTIGE) TidyKeyword(keyword string) string {
+	if !number.IsUncensored(keyword) {
+		return strings.ToUpper(keyword)
 	}
+	return ""
+}
 
+func (pst *PRESTIGE) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	c := pst.Collector()
 
 	c.OnXML(`//*[@id="body_goods"]/ul/li`, func(e *colly.XMLElement) {

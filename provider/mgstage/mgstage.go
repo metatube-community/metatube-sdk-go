@@ -150,14 +150,14 @@ func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 	return
 }
 
-func (mgs *MGStage) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	{ // pre-handle keyword
-		if number.IsUncensored(keyword) {
-			return nil, provider.ErrInvalidKeyword
-		}
-		keyword = strings.ToUpper(keyword)
+func (mgs *MGStage) TidyKeyword(keyword string) string {
+	if !number.IsUncensored(keyword) {
+		return strings.ToUpper(keyword)
 	}
+	return ""
+}
 
+func (mgs *MGStage) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	c := mgs.Collector()
 
 	c.OnXML(`//*[@id="center_column"]/div[2]/div/ul/li`, func(e *colly.XMLElement) {

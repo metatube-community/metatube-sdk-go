@@ -158,14 +158,14 @@ func (sod *SOD) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 	return
 }
 
-func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	{ // pre-handle keyword
-		if number.IsUncensored(keyword) {
-			return nil, provider.ErrInvalidKeyword
-		}
-		keyword = strings.ToUpper(keyword) // SOD prefers uppercase
+func (sod *SOD) TidyKeyword(keyword string) string {
+	if !number.IsUncensored(keyword) {
+		return strings.ToUpper(keyword)
 	}
+	return ""
+}
 
+func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	c := sod.Collector()
 	composedSearchURL := fmt.Sprintf(searchURL, url.QueryEscape(keyword))
 

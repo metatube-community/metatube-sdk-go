@@ -28,7 +28,7 @@ func TestSOD_SearchMovie(t *testing.T) {
 		"IENF-209",
 		"DLDSS-02",
 	} {
-		results, err := provider.SearchMovie(item)
+		results, err := provider.SearchMovie(provider.TidyKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
 		if assert.NoError(t, err) {
 			for _, result := range results {

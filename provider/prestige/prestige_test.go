@@ -24,7 +24,7 @@ func TestPRESTIGE_SearchMovie(t *testing.T) {
 	for _, item := range []string{
 		"edd-013",
 	} {
-		results, err := provider.SearchMovie(item)
+		results, err := provider.SearchMovie(provider.TidyKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
 		if assert.NoError(t, err) {
 			for _, result := range results {

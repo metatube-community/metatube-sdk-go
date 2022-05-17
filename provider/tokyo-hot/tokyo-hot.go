@@ -138,14 +138,14 @@ func (th *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 	return
 }
 
-func (th *TokyoHot) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	{ // pre-handle keyword
-		if !regexp.MustCompile(`^(?i)[a-z]*\d+`).MatchString(keyword) {
-			return nil, provider.ErrInvalidKeyword
-		}
-		keyword = strings.ToLower(keyword)
+func (th *TokyoHot) TidyKeyword(keyword string) string {
+	if regexp.MustCompile(`^(?i)[a-z_]*\d+`).MatchString(keyword) {
+		return strings.ToLower(keyword)
 	}
+	return ""
+}
 
+func (th *TokyoHot) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	c := th.Collector()
 
 	c.OnXML(`//*[@id="main"]/ul/li`, func(e *colly.XMLElement) {

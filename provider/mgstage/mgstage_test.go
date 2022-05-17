@@ -27,7 +27,7 @@ func TestMGStage_SearchMovie(t *testing.T) {
 		"ABP-177",
 		"200GANA-2701",
 	} {
-		results, err := provider.SearchMovie(item)
+		results, err := provider.SearchMovie(provider.TidyKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
 		if assert.NoError(t, err) {
 			for _, result := range results {
