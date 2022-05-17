@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/fetch"
 	"github.com/javtube/javtube-sdk-go/common/number"
@@ -14,6 +15,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"golang.org/x/net/html"
 )
 
 var (
@@ -101,7 +103,8 @@ func (sod *SOD) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 		case "シリーズ名":
 			info.Series = strings.TrimSpace(e.ChildText(`.//td[2]`))
 		case "出演者":
-			info.Actors = e.ChildTexts(`.//td[2]/a`)
+			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `.//td[2]`),
+				(*[]string)(&info.Actors))
 		case "再生時間":
 			info.Runtime = parser.ParseRuntime(e.ChildText(`.//td[2]`))
 		case "監督":
@@ -111,10 +114,8 @@ func (sod *SOD) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 		case "レーベル":
 			info.Publisher = strings.TrimSpace(e.ChildText(`.//td[2]`))
 		case "ジャンル":
-			info.Tags = e.ChildTexts(`.//td[2]`)
-			if tags := e.ChildTexts(`.//td[2]/a`); len(tags) > 0 {
-				info.Tags = tags
-			}
+			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `.//td[2]`),
+				(*[]string)(&info.Tags))
 		}
 	})
 
