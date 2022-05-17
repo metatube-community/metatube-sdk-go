@@ -35,6 +35,7 @@ const (
 
 type OnePondo struct {
 	*provider.Scraper
+	DefaultMaker string
 }
 
 func New() *OnePondo {
@@ -48,7 +49,10 @@ func New() *OnePondo {
 	c.SetCookies(baseURL, []*http.Cookie{
 		{Name: "ageCheck", Value: "1"},
 	})
-	return &OnePondo{provider.NewScraper(Name, Priority, c)}
+	return &OnePondo{
+		Scraper:      provider.NewScraper(Name, Priority, c),
+		DefaultMaker: "一本道",
+	}
 }
 
 func (opd *OnePondo) NormalizeID(id string) string {
@@ -72,7 +76,7 @@ func (opd *OnePondo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 	info = &model.MovieInfo{
 		Provider:      opd.Name(),
 		Homepage:      homepage.String(),
-		Maker:         "一本道",
+		Maker:         opd.DefaultMaker,
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},
