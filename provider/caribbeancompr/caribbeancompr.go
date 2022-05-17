@@ -27,6 +27,7 @@ type CaribbeancomPR struct {
 
 func New() *CaribbeancomPR {
 	return &CaribbeancomPR{
+		// Simply use Caribbeancom provider to scrape contents.
 		Caribbeancom: &caribbeancom.Caribbeancom{
 			Scraper: provider.NewScraper(Name, Priority, colly.NewCollector(
 				colly.AllowURLRevisit(),

@@ -9,11 +9,13 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"golang.org/x/net/html"
 )
 
 var _ provider.MovieProvider = (*Caribbeancom)(nil)
@@ -97,9 +99,8 @@ func (carib *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, e
 	c.OnXML(`//*[@id="moviepages"]//li`, func(e *colly.XMLElement) {
 		switch e.ChildText(`.//span[1]`) {
 		case "出演":
-			for _, actor := range e.ChildTexts(`.//span[2]/a`) {
-				info.Actors = append(info.Actors, strings.TrimSpace(actor))
-			}
+			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `.//span[2]`),
+				(*[]string)(&info.Actors))
 		case "配信日", "販売日":
 			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//span[2]`))
 		case "再生時間":
@@ -109,7 +110,8 @@ func (carib *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, e
 		case "スタジオ":
 			info.Maker /* studio */ = e.ChildText(`.//span[2]/a[1]`)
 		case "タグ":
-			info.Tags = e.ChildTexts(`.//span[2]/a`)
+			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `.//span[2]`),
+				(*[]string)(&info.Tags))
 		case "ユーザー評価":
 			info.Score = float64(utf8.RuneCountInString(
 				strings.TrimSpace(e.ChildText(`.//span[2]`))))

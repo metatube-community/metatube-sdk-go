@@ -10,6 +10,7 @@ import (
 func TestCaribbeancomPR_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
+		"052121_002",
 		"042922_001",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
