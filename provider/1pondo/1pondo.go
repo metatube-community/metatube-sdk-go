@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/javtube/javtube-sdk-go/common/fetch"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/common/random"
 	"github.com/javtube/javtube-sdk-go/model"
@@ -26,11 +27,15 @@ const (
 
 // webpack:///src/assets/js/services/Bifrost/API.js:formatted
 const (
-	baseURL               = "https://www.1pondo.tv/"
-	movieURL              = "https://www.1pondo.tv/movies/%s/"
-	movieDetailURL        = "https://www.1pondo.tv/dyn/phpauto/movie_details/movie_id/%s.json"
-	movieGalleryURL       = "https://www.1pondo.tv/dyn/dla/json/movie_gallery/%s.json"
-	movieLegacyGalleryURL = "https://www.1pondo.tv/dyn/phpauto/movie_galleries/movie_id/%s.json"
+	baseURL  = "https://www.1pondo.tv/"
+	movieURL = "https://www.1pondo.tv/movies/%s/"
+)
+
+// API Paths
+const (
+	movieDetailPath        = "/dyn/phpauto/movie_details/movie_id/%s.json"
+	movieGalleryPath       = "/dyn/dla/json/movie_gallery/%s.json"
+	movieLegacyGalleryPath = "/dyn/phpauto/movie_galleries/movie_id/%s.json"
 )
 
 type OnePondo struct {
@@ -176,7 +181,7 @@ func (opd *OnePondo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 						}
 					}
 				})
-				d.Visit(fmt.Sprintf(movieGalleryURL, id))
+				d.Visit(r.Request.AbsoluteURL(fmt.Sprintf(movieGalleryPath, id)))
 			} else if data.HasGallery /* Legacy Gallery */ {
 				d := c.Clone()
 				d.OnResponse(func(r *colly.Response) {
@@ -204,12 +209,12 @@ func (opd *OnePondo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 						}
 					}
 				})
-				d.Visit(fmt.Sprintf(movieLegacyGalleryURL, id))
+				d.Visit(r.Request.AbsoluteURL(fmt.Sprintf(movieLegacyGalleryPath, id)))
 			}
 		}
 	})
 
-	err = c.Visit(fmt.Sprintf(movieDetailURL, id))
+	err = c.Visit(fetch.JoinURL(baseURL, fmt.Sprintf(movieDetailPath, id)))
 	return
 }
 
