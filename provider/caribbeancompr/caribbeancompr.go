@@ -13,7 +13,7 @@ import (
 
 const (
 	Name     = "CARIBBEANCOMPR"
-	Priority = 1000
+	Priority = 1000 - 1 //slightly lower than 1pondo.
 )
 
 const (
