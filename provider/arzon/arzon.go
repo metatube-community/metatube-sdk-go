@@ -14,6 +14,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 	"golang.org/x/net/html"
 )
 
@@ -36,11 +37,11 @@ const (
 
 // ARZON needs `Referer` header when request to view resources.
 type ARZON struct {
-	*provider.Scraper
+	*scraper.Scraper
 }
 
 func New() *ARZON {
-	return &ARZON{provider.NewScraper(Name, Priority, colly.NewCollector())}
+	return &ARZON{scraper.NewScraper(Name, Priority, colly.NewCollector())}
 }
 
 func (az *ARZON) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -62,7 +63,7 @@ func (az *ARZON) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 		Tags:          []string{},
 	}
 
-	c := az.Collector()
+	c := az.ClonedCollector()
 
 	// Age check
 	c.OnHTML(`#warn > table > tbody > tr > td.yes > a`, func(e *colly.HTMLElement) {
@@ -146,7 +147,7 @@ func (az *ARZON) TidyKeyword(keyword string) string {
 }
 
 func (az *ARZON) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	c := az.Collector()
+	c := az.ClonedCollector()
 
 	// Age check
 	c.OnHTML(`#warn > table > tbody > tr > td.yes > a`, func(e *colly.HTMLElement) {

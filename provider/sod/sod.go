@@ -14,6 +14,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 	"golang.org/x/net/html"
 )
 
@@ -37,11 +38,11 @@ const (
 
 // SOD needs `Referer` header when request to view images and videos.
 type SOD struct {
-	*provider.Scraper
+	*scraper.Scraper
 }
 
 func New() *SOD {
-	return &SOD{provider.NewScraper(Name, Priority, colly.NewCollector())}
+	return &SOD{scraper.NewScraper(Name, Priority, colly.NewCollector())}
 }
 
 func (sod *SOD) NormalizeID(id string) string {
@@ -72,7 +73,7 @@ func (sod *SOD) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 		info.Number = info.ID
 	}
 
-	c := sod.Collector()
+	c := sod.ClonedCollector()
 	composedMovieURL := fmt.Sprintf(movieURL, url.QueryEscape(info.ID))
 
 	// Age check
@@ -160,7 +161,7 @@ func (sod *SOD) TidyKeyword(keyword string) string {
 }
 
 func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	c := sod.Collector()
+	c := sod.ClonedCollector()
 	composedSearchURL := fmt.Sprintf(searchURL, url.QueryEscape(keyword))
 
 	// Age check

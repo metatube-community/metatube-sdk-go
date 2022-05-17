@@ -11,6 +11,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 	"golang.org/x/net/html"
 )
 
@@ -31,11 +32,11 @@ const (
 )
 
 type TokyoHot struct {
-	*provider.Scraper
+	*scraper.Scraper
 }
 
 func New() *TokyoHot {
-	return &TokyoHot{provider.NewScraper(Name, Priority, colly.NewCollector())}
+	return &TokyoHot{scraper.NewScraper(Name, Priority, colly.NewCollector())}
 }
 
 func (tht *TokyoHot) NormalizeID(id string) string {
@@ -63,7 +64,7 @@ func (tht *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 		Tags:          []string{},
 	}
 
-	c := tht.Collector()
+	c := tht.ClonedCollector()
 
 	// Title
 	c.OnXML(`//*[@id="main"]//div[@class="contents"]/h2`, func(e *colly.XMLElement) {
@@ -140,7 +141,7 @@ func (tht *TokyoHot) TidyKeyword(keyword string) string {
 }
 
 func (tht *TokyoHot) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	c := tht.Collector()
+	c := tht.ClonedCollector()
 
 	c.OnXML(`//*[@id="main"]/ul/li`, func(e *colly.XMLElement) {
 		img := e.ChildAttr(`.//a/img`, "src")

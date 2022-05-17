@@ -15,6 +15,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 	"golang.org/x/net/html"
 )
 
@@ -35,7 +36,7 @@ const (
 )
 
 type PRESTIGE struct {
-	*provider.Scraper
+	*scraper.Scraper
 }
 
 func New() *PRESTIGE {
@@ -44,7 +45,7 @@ func New() *PRESTIGE {
 		{Name: "coc", Value: "1"},
 		{Name: "age_auth", Value: "1"},
 	})
-	return &PRESTIGE{provider.NewScraper(Name, Priority, c)}
+	return &PRESTIGE{scraper.NewScraper(Name, Priority, c)}
 }
 
 func (pst *PRESTIGE) NormalizeID(id string) string {
@@ -75,7 +76,7 @@ func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 		return nil, provider.ErrInvalidID
 	}
 
-	c := pst.Collector()
+	c := pst.ClonedCollector()
 
 	// Title
 	c.OnXML(`//div[@class="product_title_layout_01"]/h1`, func(e *colly.XMLElement) {
@@ -185,7 +186,7 @@ func (pst *PRESTIGE) TidyKeyword(keyword string) string {
 }
 
 func (pst *PRESTIGE) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	c := pst.Collector()
+	c := pst.ClonedCollector()
 
 	c.OnXML(`//*[@id="body_goods"]/ul/li`, func(e *colly.XMLElement) {
 		href := e.ChildAttr(`.//a`, "href")

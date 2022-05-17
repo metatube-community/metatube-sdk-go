@@ -15,6 +15,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 )
 
 var _ provider.MovieProvider = (*Heyzo)(nil)
@@ -31,11 +32,11 @@ const (
 )
 
 type Heyzo struct {
-	*provider.Scraper
+	*scraper.Scraper
 }
 
 func New() *Heyzo {
-	return &Heyzo{provider.NewScraper(Name, Priority, colly.NewCollector())}
+	return &Heyzo{scraper.NewScraper(Name, Priority, colly.NewCollector())}
 }
 
 func (hzo *Heyzo) NormalizeID(id string) string {
@@ -67,7 +68,7 @@ func (hzo *Heyzo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 		Tags:          []string{},
 	}
 
-	c := hzo.Collector()
+	c := hzo.ClonedCollector()
 
 	// JSON
 	c.OnXML(`//script[@type="application/ld+json"]`, func(e *colly.XMLElement) {

@@ -16,6 +16,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 	"golang.org/x/net/html"
 )
 
@@ -37,7 +38,7 @@ const (
 )
 
 type MGStage struct {
-	*provider.Scraper
+	*scraper.Scraper
 }
 
 func New() *MGStage {
@@ -45,7 +46,7 @@ func New() *MGStage {
 	c.SetCookies(baseURL, []*http.Cookie{
 		{Name: "adc", Value: "1"},
 	})
-	return &MGStage{provider.NewScraper(Name, Priority, c)}
+	return &MGStage{scraper.NewScraper(Name, Priority, c)}
 }
 
 func (mgs *MGStage) NormalizeID(id string) string {
@@ -71,7 +72,7 @@ func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 		Tags:          []string{},
 	}
 
-	c := mgs.Collector()
+	c := mgs.ClonedCollector()
 
 	// Title
 	c.OnXML(`//*[@id="center_column"]/div[1]/h1`, func(e *colly.XMLElement) {
@@ -154,7 +155,7 @@ func (mgs *MGStage) TidyKeyword(keyword string) string {
 }
 
 func (mgs *MGStage) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	c := mgs.Collector()
+	c := mgs.ClonedCollector()
 
 	c.OnXML(`//*[@id="center_column"]/div[2]/div/ul/li`, func(e *colly.XMLElement) {
 		href := e.ChildAttr(`.//h5/a`, "href")

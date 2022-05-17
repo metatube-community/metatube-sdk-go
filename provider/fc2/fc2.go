@@ -11,6 +11,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 )
 
 var _ provider.MovieProvider = (*FC2)(nil)
@@ -27,11 +28,11 @@ const (
 )
 
 type FC2 struct {
-	*provider.Scraper
+	*scraper.Scraper
 }
 
 func New() *FC2 {
-	return &FC2{provider.NewScraper(Name, Priority, colly.NewCollector())}
+	return &FC2{scraper.NewScraper(Name, Priority, colly.NewCollector())}
 }
 
 func (fc2 *FC2) NormalizeID(id string) string {
@@ -61,7 +62,7 @@ func (fc2 *FC2) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 		Tags:          []string{},
 	}
 
-	c := fc2.Collector()
+	c := fc2.ClonedCollector()
 
 	// Headers
 	c.OnXML(`//div[@class="items_article_headerInfo"]`, func(e *colly.XMLElement) {

@@ -8,6 +8,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/caribbeancom"
+	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 )
 
 var _ provider.MovieProvider = (*CaribbeancomPremium)(nil)
@@ -30,7 +31,7 @@ func New() *CaribbeancomPremium {
 	return &CaribbeancomPremium{
 		// Simply use Caribbeancom provider to scrape contents.
 		Caribbeancom: &caribbeancom.Caribbeancom{
-			Scraper:      provider.NewScraper(Name, Priority, colly.NewCollector(colly.DetectCharset())),
+			Scraper:      scraper.NewScraper(Name, Priority, colly.NewCollector(colly.DetectCharset())),
 			DefaultMaker: "カリビアンコムプレミアム",
 		},
 	}

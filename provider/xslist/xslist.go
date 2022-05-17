@@ -13,6 +13,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/gfriends"
+	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 	"golang.org/x/net/html"
 	dt "gorm.io/datatypes"
 )
@@ -34,7 +35,7 @@ const (
 )
 
 type XsList struct {
-	*provider.Scraper
+	*scraper.Scraper
 	gFriends *gfriends.GFriends
 }
 
@@ -42,7 +43,7 @@ func New() *XsList {
 	c := colly.NewCollector()
 	c.DisableCookies()
 	return &XsList{
-		Scraper:  provider.NewScraper(Name, Priority, c),
+		Scraper:  scraper.NewScraper(Name, Priority, c),
 		gFriends: gfriends.New(),
 	}
 }
@@ -69,7 +70,7 @@ func (xsl *XsList) GetActorInfoByURL(u string) (info *model.ActorInfo, err error
 		Images:   []string{},
 	}
 
-	c := xsl.Collector()
+	c := xsl.ClonedCollector()
 
 	// Name
 	c.OnXML(`//*[@id="sss1"]/header/h1/span`, func(e *colly.XMLElement) {
@@ -147,7 +148,7 @@ func (xsl *XsList) GetActorInfoByURL(u string) (info *model.ActorInfo, err error
 }
 
 func (xsl *XsList) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
-	c := xsl.Collector()
+	c := xsl.ClonedCollector()
 
 	c.OnXML(`//ul/li`, func(e *colly.XMLElement) {
 		homepage, _ := url.Parse(e.ChildAttr(`.//h3/a`, "href"))

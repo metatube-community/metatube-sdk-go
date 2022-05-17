@@ -18,6 +18,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 	"golang.org/x/net/html"
 )
 
@@ -45,7 +46,7 @@ const (
 )
 
 type FANZA struct {
-	*provider.Scraper
+	*scraper.Scraper
 }
 
 func New() *FANZA {
@@ -53,7 +54,7 @@ func New() *FANZA {
 	c.SetCookies(baseURL, []*http.Cookie{
 		{Name: "age_check_done", Value: "1"},
 	})
-	return &FANZA{provider.NewScraper(Name, Priority, c)}
+	return &FANZA{scraper.NewScraper(Name, Priority, c)}
 }
 
 func (fz *FANZA) NormalizeID(id string) string {
@@ -92,7 +93,7 @@ func (fz *FANZA) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 		Tags:          []string{},
 	}
 
-	c := fz.Collector()
+	c := fz.ClonedCollector()
 
 	// Homepage
 	c.OnRequest(func(r *colly.Request) {
@@ -278,7 +279,7 @@ func (fz *FANZA) TidyKeyword(keyword string) string {
 }
 
 func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	c := fz.Collector()
+	c := fz.ClonedCollector()
 
 	c.OnXML(`//*[@id="list"]/li`, func(e *colly.XMLElement) {
 		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//p[@class="tmb"]/a`, "href"))

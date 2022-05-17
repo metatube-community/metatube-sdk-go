@@ -13,7 +13,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/fetch"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
-	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 )
 
 // API Paths
@@ -24,7 +24,7 @@ const (
 )
 
 type Core struct {
-	*provider.Scraper
+	*scraper.Scraper
 
 	// URLs
 	BaseURL  string
@@ -48,7 +48,7 @@ func (core *Core) Init() {
 	c.SetCookies(core.BaseURL, []*http.Cookie{
 		{Name: "ageCheck", Value: "1"},
 	})
-	core.Scraper = provider.NewScraper(core.DefaultName, core.DefaultPriority, c)
+	core.Scraper = scraper.NewScraper(core.DefaultName, core.DefaultPriority, c)
 }
 
 func (core *Core) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -71,7 +71,7 @@ func (core *Core) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 		Tags:          []string{},
 	}
 
-	c := core.Collector()
+	c := core.ClonedCollector()
 
 	c.OnResponse(func(r *colly.Response) {
 		data := struct {

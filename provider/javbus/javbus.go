@@ -13,6 +13,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 )
 
 var (
@@ -33,7 +34,7 @@ const (
 )
 
 type JavBus struct {
-	*provider.Scraper
+	*scraper.Scraper
 }
 
 func New() *JavBus {
@@ -42,7 +43,7 @@ func New() *JavBus {
 		// existmag=all
 		{Name: "existmag", Value: "all"},
 	})
-	return &JavBus{provider.NewScraper(Name, Priority, c)}
+	return &JavBus{scraper.NewScraper(Name, Priority, c)}
 }
 
 func (bus *JavBus) NormalizeID(id string) string {
@@ -68,7 +69,7 @@ func (bus *JavBus) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error
 		Tags:          []string{},
 	}
 
-	c := bus.Collector()
+	c := bus.ClonedCollector()
 
 	// Image+Title
 	c.OnXML(`//a[@class="bigImage"]/img`, func(e *colly.XMLElement) {
@@ -130,7 +131,7 @@ func (bus *JavBus) TidyKeyword(keyword string) string {
 }
 
 func (bus *JavBus) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	c := bus.Collector()
+	c := bus.ClonedCollector()
 	c.Async = true /* ASYNC */
 
 	var mu sync.Mutex

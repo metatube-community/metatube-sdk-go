@@ -12,6 +12,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 )
 
 var (
@@ -33,12 +34,12 @@ const (
 )
 
 type AirAV struct {
-	*provider.Scraper
+	*scraper.Scraper
 }
 
 func New() *AirAV {
 	return &AirAV{
-		Scraper: provider.NewScraper(Name, Priority, colly.NewCollector(
+		Scraper: scraper.NewScraper(Name, Priority, colly.NewCollector(
 			colly.Headers(map[string]string{
 				"Origin":  baseURL,
 				"Referer": baseURL,
@@ -69,7 +70,7 @@ func (air *AirAV) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 		Tags:          []string{},
 	}
 
-	c := air.Collector()
+	c := air.ClonedCollector()
 
 	// JSON
 	c.OnResponse(func(r *colly.Response) {
@@ -167,7 +168,7 @@ func (air *AirAV) TidyKeyword(keyword string) string {
 }
 
 func (air *AirAV) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	c := air.Collector()
+	c := air.ClonedCollector()
 
 	c.OnResponse(func(r *colly.Response) {
 		data := struct {
