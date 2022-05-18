@@ -93,6 +93,11 @@ func (ave *AVE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 		info.PreviewImages = []string{e.Request.AbsoluteURL(e.Attr("src"))}
 	})
 
+	// Preview Video
+	c.OnXML(`//*[@id="player1"]/source`, func(e *colly.XMLElement) {
+		info.PreviewVideoURL = e.Request.AbsoluteURL(e.Attr("src"))
+	})
+
 	// Fields
 	c.OnXML(`//*[@id="MyBody"]//div[@class="product-info-block-rev mt-20"]/div[@class="single-info"]`, func(e *colly.XMLElement) {
 		switch e.ChildText(`.//span[1]`) {

@@ -11,9 +11,9 @@ func TestAVE_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"9865",
-		//"10161",
-		//"140930",
-		//"115855",
+		"10161",
+		"140930",
+		"115855",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
@@ -25,8 +25,8 @@ func TestAVE_GetMovieInfoByID(t *testing.T) {
 func TestAVE_SearchMovie(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
-		"lldv",
-		"mcbd",
+		"lldv-12",
+		"mcbd-25",
 	} {
 		results, err := provider.SearchMovie(provider.TidyKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
