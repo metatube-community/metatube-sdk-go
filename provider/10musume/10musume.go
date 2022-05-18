@@ -34,17 +34,17 @@ type TenMusume struct {
 }
 
 func New() *TenMusume {
-	core := &d2pass.Core{
-		BaseURL:           baseURL,
-		MovieURL:          movieURL,
-		DefaultName:       Name,
-		DefaultPriority:   Priority,
-		DefaultMaker:      "天然むすめ",
-		GalleryPath:       galleryPath,
-		LegacyGalleryPath: legacyGalleryPath,
+	return &TenMusume{
+		Core: (&d2pass.Core{
+			BaseURL:           baseURL,
+			MovieURL:          movieURL,
+			DefaultName:       Name,
+			DefaultPriority:   Priority,
+			DefaultMaker:      "天然むすめ",
+			GalleryPath:       galleryPath,
+			LegacyGalleryPath: legacyGalleryPath,
+		}).Init(),
 	}
-	core.Init()
-	return &TenMusume{core}
 }
 
 func (mse *TenMusume) NormalizeID(id string) string {

@@ -34,17 +34,17 @@ type OnePondo struct {
 }
 
 func New() *OnePondo {
-	core := &d2pass.Core{
-		BaseURL:           baseURL,
-		MovieURL:          movieURL,
-		DefaultName:       Name,
-		DefaultPriority:   Priority,
-		DefaultMaker:      "一本道",
-		GalleryPath:       galleryPath,
-		LegacyGalleryPath: legacyGalleryPath,
+	return &OnePondo{
+		Core: (&d2pass.Core{
+			BaseURL:           baseURL,
+			MovieURL:          movieURL,
+			DefaultName:       Name,
+			DefaultPriority:   Priority,
+			DefaultMaker:      "一本道",
+			GalleryPath:       galleryPath,
+			LegacyGalleryPath: legacyGalleryPath,
+		}).Init(),
 	}
-	core.Init()
-	return &OnePondo{core}
 }
 
 func (opd *OnePondo) NormalizeID(id string) string {

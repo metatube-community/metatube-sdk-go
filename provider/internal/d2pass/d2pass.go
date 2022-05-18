@@ -40,7 +40,7 @@ type Core struct {
 	LegacyGalleryPath string
 }
 
-func (core *Core) Init() {
+func (core *Core) Init() *Core {
 	core.Scraper = scraper.NewDefaultScraper(core.DefaultName, core.DefaultPriority,
 		scraper.WithHeaders(map[string]string{
 			"Content-Type": "application/json",
@@ -49,6 +49,7 @@ func (core *Core) Init() {
 			{Name: "ageCheck", Value: "1"},
 		}),
 	)
+	return core
 }
 
 func (core *Core) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {

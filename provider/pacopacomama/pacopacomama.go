@@ -34,17 +34,17 @@ type Pacopacomama struct {
 }
 
 func New() *Pacopacomama {
-	core := &d2pass.Core{
-		BaseURL:           baseURL,
-		MovieURL:          movieURL,
-		DefaultName:       Name,
-		DefaultPriority:   Priority,
-		DefaultMaker:      "パコパコママ",
-		GalleryPath:       galleryPath,
-		LegacyGalleryPath: legacyGalleryPath,
+	return &Pacopacomama{
+		Core: (&d2pass.Core{
+			BaseURL:           baseURL,
+			MovieURL:          movieURL,
+			DefaultName:       Name,
+			DefaultPriority:   Priority,
+			DefaultMaker:      "パコパコママ",
+			GalleryPath:       galleryPath,
+			LegacyGalleryPath: legacyGalleryPath,
+		}).Init(),
 	}
-	core.Init()
-	return &Pacopacomama{core}
 }
 
 func (ppm *Pacopacomama) NormalizeID(id string) string {
