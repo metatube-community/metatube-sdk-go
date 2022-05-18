@@ -41,14 +41,20 @@ func ParseDate(s string) dt.Date {
 
 // ParseDuration parses a string with valid duration format into time.Duration.
 func ParseDuration(s string) time.Duration {
-	s = strings.TrimSpace(s)
+	s = ReplaceSpaceAll(s)
 	s = strings.ToLower(s)
+	s = strings.Replace(s, "秒", "s", 1)
 	s = strings.Replace(s, "分", "m", 1)
+	s = strings.Replace(s, "sec", "s", 1)
 	s = strings.Replace(s, "min", "m", 1)
-	if re := regexp.MustCompile(`(?i)(?:(\d+)[:h])?(\d+)[:m](\d+)s?`); re.MatchString(s) {
-		if ss := re.FindStringSubmatch(s); len(ss) == 4 {
-			s = fmt.Sprintf("%02sh%02sm%02ss", ss[1], ss[2], ss[3])
+	if ss := regexp.MustCompile(`(?i)(\d+):(\d+):(\d+)`).FindStringSubmatch(s); len(ss) > 0 {
+		s = fmt.Sprintf("%02sh%02sm%02ss", ss[1], ss[2], ss[3])
+	} else if ss := regexp.MustCompile(`(?i)(\d+[mhs]?)`).FindAllStringSubmatch(s, -1); len(ss) > 0 {
+		ds := make([]string, 0, 3)
+		for _, d := range ss {
+			ds = append(ds, d[1])
 		}
+		s = strings.Join(ds, "")
 	}
 	d, _ := time.ParseDuration(s)
 	return d
