@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/araddon/dateparse"
 	"golang.org/x/net/html"
@@ -80,4 +81,16 @@ func ParseTexts(n *html.Node, texts *[]string) {
 	for n := n.FirstChild; n != nil; n = n.NextSibling {
 		ParseTexts(n, texts)
 	}
+}
+
+// ReplaceSpaceAll removes all spaces in string.
+func ReplaceSpaceAll(s string) string {
+	var b strings.Builder
+	b.Grow(len(s))
+	for _, c := range s {
+		if !unicode.IsSpace(c) {
+			b.WriteRune(c)
+		}
+	}
+	return b.String()
 }

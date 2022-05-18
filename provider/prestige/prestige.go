@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	"unicode"
 
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
@@ -120,7 +119,7 @@ func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 		for _, actor := range actors {
 			for _, actor = range strings.Split(actor, "\u00a0" /* nbsp */) {
 				// Remove redundant space from actor name.
-				if actor = replaceSpaceAll(actor); actor != "" {
+				if actor = parser.ReplaceSpaceAll(actor); actor != "" {
 					info.Actors = append(info.Actors, actor)
 				}
 			}
@@ -228,17 +227,6 @@ func (pst *PRESTIGE) SearchMovie(keyword string) (results []*model.MovieSearchRe
 func trimTitle(s string) string {
 	t := strings.Split(s, "\t")
 	return strings.TrimSpace(t[len(t)-1])
-}
-
-func replaceSpaceAll(s string) string {
-	var b strings.Builder
-	b.Grow(len(s))
-	for _, c := range s {
-		if !unicode.IsSpace(c) {
-			b.WriteRune(c)
-		}
-	}
-	return b.String()
 }
 
 func imageSrc(s string, thumb bool) string {
