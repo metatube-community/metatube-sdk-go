@@ -88,9 +88,7 @@ func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 	c.OnXML(`//div[@class="detail_data"]/div/h2/img`, func(e *colly.XMLElement) {
 		info.ThumbURL = e.Request.AbsoluteURL(e.Attr("src"))
 		// Get big image from original thumb image.
-		if big := imageSrc(info.ThumbURL, true); big != info.ThumbURL {
-			info.BigThumbURL = big
-		}
+		info.BigThumbURL = imageSrc(info.ThumbURL, true)
 	})
 
 	// Cover
