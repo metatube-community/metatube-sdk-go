@@ -129,21 +129,25 @@ func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 	// Fields
 	c.OnXML(`//div[@class="product_detail_layout_01"]//dl[@class="spec_layout"]`, func(e *colly.XMLElement) {
 		for i, dt := range e.ChildTexts(`.//dt`) {
+			var (
+				dd  = fmt.Sprintf(`.//dd[%d]`, i+1)
+				dda = fmt.Sprintf(`.//dd[%d]/a`, i+1)
+			)
 			switch dt {
 			case "収録時間：":
-				info.Runtime = parser.ParseRuntime(e.ChildText(fmt.Sprintf(`.//dd[%d]`, i+1)))
+				info.Runtime = parser.ParseRuntime(e.ChildText(dd))
 			case "発売日：":
-				info.ReleaseDate = parser.ParseDate(e.ChildText(fmt.Sprintf(`.//dd[%d]/a`, i+1)))
+				info.ReleaseDate = parser.ParseDate(e.ChildText(dda))
 			case "メーカー名：":
-				info.Maker = e.ChildText(fmt.Sprintf(`.//dd[%d]`, i+1))
+				info.Maker = e.ChildText(dd)
 			case "品番：":
-				info.Number = strings.TrimSpace(e.ChildText(fmt.Sprintf(`.//dd[%d]`, i+1)))
+				info.Number = strings.TrimSpace(e.ChildText(dd))
 			case "ジャンル：":
-				info.Tags = e.ChildTexts(fmt.Sprintf(`.//dd[%d]/a`, i+1))
+				info.Tags = e.ChildTexts(dda)
 			case "シリーズ：":
-				info.Series = strings.TrimSpace(e.ChildText(fmt.Sprintf(`.//dd[%d]`, i+1)))
+				info.Series = strings.TrimSpace(e.ChildText(dd))
 			case "レーベル：":
-				info.Publisher = strings.TrimSpace(e.ChildText(fmt.Sprintf(`.//dd[%d]`, i+1)))
+				info.Publisher = strings.TrimSpace(e.ChildText(dd))
 			}
 		}
 	})
