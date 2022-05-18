@@ -13,6 +13,7 @@ func TestTenMusume_GetMovieInfoByID(t *testing.T) {
 		"042922_01",
 		"041607_01",
 		"010906_04",
+		"120409_01",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
