@@ -35,6 +35,8 @@ type MovieInfo struct {
 
 	ThumbURL        string         `json:"thumb_url"`
 	CoverURL        string         `json:"cover_url"`
+	BigThumbURL     string         `json:"big_thumb_url"`
+	BigCoverURL     string         `json:"big_cover_url"`
 	PreviewVideoURL string         `json:"preview_video_url"`
 	PreviewImages   pq.StringArray `json:"preview_images" gorm:"type:text[]"`
 

@@ -86,7 +86,11 @@ func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 
 	// Thumb
 	c.OnXML(`//div[@class="detail_data"]/div/h2/img`, func(e *colly.XMLElement) {
-		info.ThumbURL = e.Request.AbsoluteURL(imageSrc(e.Attr("src"), true))
+		info.ThumbURL = e.Request.AbsoluteURL(e.Attr("src"))
+		// Get big image from original thumb image.
+		if big := imageSrc(info.ThumbURL, true); big != info.ThumbURL {
+			info.BigThumbURL = big
+		}
 	})
 
 	// Cover
@@ -176,7 +180,7 @@ func (mgs *MGStage) SearchMovie(keyword string) (results []*model.MovieSearchRes
 }
 
 func imageSrc(s string, thumb bool) string {
-	if re := regexp.MustCompile(`(?i)/p[f|b]_[a-z]\d+?_`); re.MatchString(s) {
+	if re := regexp.MustCompile(`(?i)/p[f|b]_[a-z]\d*?_`); re.MatchString(s) {
 		if thumb {
 			return re.ReplaceAllString(s, "/pf_e_")
 		}
