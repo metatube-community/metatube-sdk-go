@@ -102,29 +102,33 @@ func (tht *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 	// Fields
 	c.OnXML(`//*[@id="main"]//div[@class="infowrapper"]/dl`, func(e *colly.XMLElement) {
 		for i, dt := range e.ChildTexts(`.//dt`) {
+			var (
+				dd  = fmt.Sprintf(`.//dd[%d]`, i+1)
+				dda = fmt.Sprintf(`.//dd[%d]/a`, i+1)
+			)
 			switch dt {
 			case "出演者":
-				for _, actor := range e.ChildTexts(fmt.Sprintf(`.//dd[%d]/a`, i+1)) {
+				for _, actor := range e.ChildTexts(dda) {
 					if actor = strings.TrimSpace(actor); actor != "" && actor != "不明" {
 						info.Actors = append(info.Actors, actor)
 					}
 				}
 			case "プレイ内容":
-				for _, tag := range e.ChildTexts(fmt.Sprintf(`.//dd[%d]/a`, i+1)) {
+				for _, tag := range e.ChildTexts(dda) {
 					if tag = strings.TrimSpace(tag); tag != "" {
 						info.Tags = append(info.Tags, tag)
 					}
 				}
 			case "シリーズ":
-				info.Series = e.ChildText(fmt.Sprintf(`.//dd[%d]/a`, i+1))
+				info.Series = e.ChildText(dda)
 			case "レーベル":
-				info.Publisher = e.ChildText(fmt.Sprintf(`.//dd[%d]/a`, i+1))
+				info.Publisher = e.ChildText(dda)
 			case "配信開始日":
-				info.ReleaseDate = parser.ParseDate(e.ChildText(fmt.Sprintf(`.//dd[%d]`, i+1)))
+				info.ReleaseDate = parser.ParseDate(e.ChildText(dd))
 			case "収録時間":
-				info.Runtime = parser.ParseRuntime(e.ChildText(fmt.Sprintf(`.//dd[%d]`, i+1)))
+				info.Runtime = parser.ParseRuntime(e.ChildText(dd))
 			case "作品番号":
-				info.Number = e.ChildText(fmt.Sprintf(`.//dd[%d]`, i+1))
+				info.Number = e.ChildText(dd)
 			}
 		}
 	})
