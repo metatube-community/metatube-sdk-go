@@ -17,9 +17,9 @@ type MovieSearchResult struct {
 	ReleaseDate datatypes.Date `json:"release_date"`
 }
 
-func (sr *MovieSearchResult) Valid() bool {
-	return sr.ID != "" && sr.Number != "" && sr.Title != "" &&
-		sr.Provider != "" && sr.Homepage != ""
+func (m *MovieSearchResult) Valid() bool {
+	return m.ID != "" && m.Number != "" && m.Title != "" &&
+		m.Provider != "" && m.Homepage != ""
 }
 
 type MovieInfo struct {
@@ -48,26 +48,22 @@ type MovieInfo struct {
 	ReleaseDate datatypes.Date `json:"release_date"`
 }
 
-func (MovieInfo) TableName() string {
-	return "movie_metadata"
+func (m *MovieInfo) Valid() bool {
+	return m.ID != "" && m.Number != "" && m.Title != "" &&
+		m.CoverURL != "" && m.Provider != "" && m.Homepage != ""
 }
 
-func (mi *MovieInfo) Valid() bool {
-	return mi.ID != "" && mi.Number != "" && mi.Title != "" &&
-		mi.CoverURL != "" && mi.Provider != "" && mi.Homepage != ""
-}
-
-func (mi *MovieInfo) ToSearchResult() *MovieSearchResult {
+func (m *MovieInfo) ToSearchResult() *MovieSearchResult {
 	return &MovieSearchResult{
-		ID:          mi.ID,
-		Number:      mi.Number,
-		Title:       mi.Title,
-		Provider:    mi.Provider,
-		Homepage:    mi.Homepage,
-		ThumbURL:    mi.ThumbURL,
-		CoverURL:    mi.CoverURL,
-		Score:       mi.Score,
-		ReleaseDate: mi.ReleaseDate,
+		ID:          m.ID,
+		Number:      m.Number,
+		Title:       m.Title,
+		Provider:    m.Provider,
+		Homepage:    m.Homepage,
+		ThumbURL:    m.ThumbURL,
+		CoverURL:    m.CoverURL,
+		Score:       m.Score,
+		ReleaseDate: m.ReleaseDate,
 	}
 }
 
@@ -79,9 +75,9 @@ type ActorSearchResult struct {
 	Images   pq.StringArray `json:"images"`
 }
 
-func (sr *ActorSearchResult) Valid() bool {
-	return sr.ID != "" && sr.Name != "" &&
-		sr.Provider != "" && sr.Homepage != ""
+func (a *ActorSearchResult) Valid() bool {
+	return a.ID != "" && a.Name != "" &&
+		a.Provider != "" && a.Homepage != ""
 }
 
 type ActorInfo struct {
@@ -102,20 +98,16 @@ type ActorInfo struct {
 	DebutDate    datatypes.Date `json:"debut_date"`
 }
 
-func (ActorInfo) TableName() string {
-	return "actor_metadata"
+func (a *ActorInfo) Valid() bool {
+	return a.ID != "" && a.Name != "" && a.Provider != "" && a.Homepage != ""
 }
 
-func (ai *ActorInfo) Valid() bool {
-	return ai.ID != "" && ai.Name != "" && ai.Provider != "" && ai.Homepage != ""
-}
-
-func (ai *ActorInfo) ToSearchResult() *ActorSearchResult {
+func (a *ActorInfo) ToSearchResult() *ActorSearchResult {
 	return &ActorSearchResult{
-		ID:       ai.ID,
-		Name:     ai.Name,
-		Provider: ai.Provider,
-		Homepage: ai.Homepage,
-		Images:   ai.Images,
+		ID:       a.ID,
+		Name:     a.Name,
+		Provider: a.Provider,
+		Homepage: a.Homepage,
+		Images:   a.Images,
 	}
 }
