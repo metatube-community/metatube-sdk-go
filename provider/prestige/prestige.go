@@ -151,24 +151,25 @@ func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 	// Try to replace with high resolution pictures.
 	c.OnScraped(func(_ *colly.Response) {
 		var wg sync.WaitGroup
-		for _, p := range []*string{
-			&info.ThumbURL, &info.CoverURL,
-		} {
+		for i := 0; i < 2; i++ {
 			wg.Add(1)
-			go func(p *string) {
+			go func(i int) {
 				defer wg.Done()
 				d := c.Clone()
-				d.OnScraped(func(r *colly.Response) {
-					*p = r.Request.URL.String()
-				})
-				// see if image exists.
-				switch {
-				case strings.Contains(*p, "/pf_p_"): // thumb
-					_ = d.Head(strings.ReplaceAll(*p, "/pf_p_", "/pf_"))
-				case strings.Contains(*p, "/pb_e_"): // cover
-					_ = d.Head(strings.ReplaceAll(*p, "/pb_e_", "/pb_"))
+				// existence check.
+				switch i {
+				case 0: // thumb
+					d.OnScraped(func(r *colly.Response) {
+						info.BigThumbURL = r.Request.URL.String()
+					})
+					d.Head(strings.ReplaceAll(info.ThumbURL, "/pf_p_", "/pf_"))
+				case 1: // cover
+					d.OnScraped(func(r *colly.Response) {
+						info.BigCoverURL = r.Request.URL.String()
+					})
+					d.Head(strings.ReplaceAll(info.CoverURL, "/pb_e_", "/pb_"))
 				}
-			}(p)
+			}(i)
 		}
 		wg.Wait()
 	})

@@ -11,6 +11,7 @@ func TestPRESTIGE_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"hrv-014",
+		"edd-010",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
