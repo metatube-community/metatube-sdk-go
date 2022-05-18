@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
@@ -108,17 +109,16 @@ func (tht *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 			)
 			switch dt {
 			case "出演者":
-				for _, actor := range e.ChildTexts(dda) {
-					if actor = strings.TrimSpace(actor); actor != "" && actor != "不明" {
+				var actors []string
+				parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), dd), &actors)
+				for _, actor := range actors {
+					if actor != "不明" {
 						info.Actors = append(info.Actors, actor)
 					}
 				}
 			case "プレイ内容":
-				for _, tag := range e.ChildTexts(dda) {
-					if tag = strings.TrimSpace(tag); tag != "" {
-						info.Tags = append(info.Tags, tag)
-					}
-				}
+				parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), dd),
+					(*[]string)(&info.Tags))
 			case "シリーズ":
 				info.Series = e.ChildText(dda)
 			case "レーベル":
