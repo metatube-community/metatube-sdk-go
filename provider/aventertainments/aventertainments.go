@@ -95,7 +95,7 @@ func (ave *AVE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 
 	// Preview Video
 	c.OnXML(`//*[@id="player1"]/source`, func(e *colly.XMLElement) {
-		info.PreviewVideoURL = e.Request.AbsoluteURL(e.Attr("src"))
+		info.PreviewVideoHLSURL = e.Request.AbsoluteURL(e.Attr("src"))
 	})
 
 	// Fields

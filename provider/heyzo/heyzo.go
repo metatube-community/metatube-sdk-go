@@ -184,6 +184,10 @@ func (hzo *Heyzo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 			FindStringSubmatch(e.Text); len(sub) == 4 {
 			d := c.Clone()
 			d.OnResponse(func(r *colly.Response) {
+				defer func() {
+					// Sample HLS URL
+					info.PreviewVideoHLSURL = r.Request.URL.String()
+				}()
 				playList, ListType, err := m3u8.Decode(*bytes.NewBuffer(r.Body), true)
 				if err == nil && ListType == m3u8.MASTER {
 					masterPL := playList.(*m3u8.MasterPlaylist)

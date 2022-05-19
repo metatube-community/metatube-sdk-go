@@ -132,7 +132,7 @@ func (hey *Hey) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 		{
 			if ss := regexp.MustCompile(`source\s*=\s*'(.+\.m3.*?)';`).
 				FindStringSubmatch(body); len(ss) == 2 {
-				info.PreviewVideoURL = r.Request.AbsoluteURL(ss[1])
+				info.PreviewVideoHLSURL = r.Request.AbsoluteURL(ss[1])
 			}
 		}
 

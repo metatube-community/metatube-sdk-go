@@ -33,12 +33,13 @@ type MovieInfo struct {
 	Director string         `json:"director"`
 	Actors   pq.StringArray `json:"actors" gorm:"type:text[]"`
 
-	ThumbURL        string         `json:"thumb_url"`
-	CoverURL        string         `json:"cover_url"`
-	BigThumbURL     string         `json:"big_thumb_url"`
-	BigCoverURL     string         `json:"big_cover_url"`
-	PreviewVideoURL string         `json:"preview_video_url"`
-	PreviewImages   pq.StringArray `json:"preview_images" gorm:"type:text[]"`
+	ThumbURL           string         `json:"thumb_url"`
+	BigThumbURL        string         `json:"big_thumb_url"`
+	CoverURL           string         `json:"cover_url"`
+	BigCoverURL        string         `json:"big_cover_url"`
+	PreviewVideoURL    string         `json:"preview_video_url"`
+	PreviewVideoHLSURL string         `json:"preview_video_hls_url"`
+	PreviewImages      pq.StringArray `json:"preview_images" gorm:"type:text[]"`
 
 	Maker     string         `json:"maker"`
 	Publisher string         `json:"publisher"`
