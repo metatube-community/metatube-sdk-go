@@ -131,21 +131,28 @@ func (air *AirAV) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 				d.OnResponse(func(r *colly.Response) {
 					videoData := struct {
 						Data struct {
-							Msg    string `json:"msg"`
-							URL    string `json:"url"`
-							URLCDN string `json:"url_cdn"`
-							//URLHLS    string `json:"url_hls"`
-							//URLHLSCDN string `json:"url_hls_cdn"`
+							Msg       string `json:"msg"`
+							URL       string `json:"url"`
+							URLCDN    string `json:"url_cdn"`
+							URLHLS    string `json:"url_hls"`
+							URLHLSCDN string `json:"url_hls_cdn"`
 						} `json:"data"`
 						Status string `json:"status"`
 					}{}
 					if json.Unmarshal(r.Body, &videoData) == nil {
 						for _, videoURL := range []string{
 							videoData.Data.URL, videoData.Data.URLCDN,
-							//videoData.Data.URLHLS, videoData.Data.URLHLSCDN,
 						} {
 							if videoURL != "" {
 								info.PreviewVideoURL = videoURL
+								break
+							}
+						}
+						for _, videoURL := range []string{
+							videoData.Data.URLHLS, videoData.Data.URLHLSCDN,
+						} {
+							if videoURL != "" {
+								info.PreviewVideoHLSURL = videoURL
 								break
 							}
 						}
