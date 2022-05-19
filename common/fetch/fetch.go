@@ -3,20 +3,18 @@ package fetch
 import (
 	"errors"
 	"net/http"
+	"time"
 
-	"github.com/nlnwa/whatwg-url/url"
+	"github.com/hashicorp/go-retryablehttp"
 )
 
-var urlParser = url.NewParser(url.WithPercentEncodeSinglePercentSign())
-
-// JoinURL joins a URL with a path.
-func JoinURL(url, path string) string {
-	absURL, err := urlParser.ParseRef(url, path)
-	if err != nil {
-		return ""
-	}
-	return absURL.Href(false)
-}
+var defaultClient = (&retryablehttp.Client{
+	RetryWaitMin: 1 * time.Second,
+	RetryWaitMax: 3 * time.Second,
+	RetryMax:     3,
+	CheckRetry:   retryablehttp.DefaultRetryPolicy,
+	Backoff:      retryablehttp.DefaultBackoff,
+}).StandardClient()
 
 type Option func(*http.Request)
 
@@ -45,7 +43,7 @@ func Fetch(u string, opts ...Option) (resp *http.Response, err error) {
 		opt(req)
 	}
 	// Make HTTP request.
-	if resp, err = http.DefaultClient.Do(req); err != nil {
+	if resp, err = defaultClient.Do(req); err != nil {
 		return
 	}
 	if resp.StatusCode != http.StatusOK {

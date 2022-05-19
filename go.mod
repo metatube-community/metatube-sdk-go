@@ -9,6 +9,7 @@ require (
 	github.com/esimov/pigo v1.4.5
 	github.com/gocolly/colly/v2 v2.1.1-0.20220424184721-cf681331964a
 	github.com/grafov/m3u8 v0.11.1
+	github.com/hashicorp/go-retryablehttp v0.7.1
 	github.com/iancoleman/orderedmap v0.2.0
 	github.com/lib/pq v1.10.5
 	github.com/nlnwa/whatwg-url v0.1.1
@@ -31,6 +32,7 @@ require (
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.12.1 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
