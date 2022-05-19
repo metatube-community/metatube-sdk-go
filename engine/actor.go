@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"sort"
 	"sync"
 
@@ -33,10 +32,10 @@ func (e *Engine) searchActor(keyword string, provider javtube.Provider, lazy boo
 	return nil, javtube.ErrNotFound
 }
 
-func (e *Engine) SearchActor(keyword, name string, lazy bool) (results []*model.ActorSearchResult, err error) {
-	provider, ok := e.actorProviders[name]
-	if !ok {
-		return nil, fmt.Errorf("provider not found: %s", name)
+func (e *Engine) SearchActor(keyword, name string, lazy bool) ([]*model.ActorSearchResult, error) {
+	provider, err := e.GetActorProvider(name)
+	if err != nil {
+		return nil, err
 	}
 	return e.searchActor(keyword, provider, lazy)
 }
@@ -64,8 +63,8 @@ func (e *Engine) SearchActorAll(keyword string) (results []*model.ActorSearchRes
 	wg.Wait()
 
 	sort.SliceStable(results, func(i, j int) bool {
-		return e.actorProviders[results[i].Provider].Priority() >
-			e.actorProviders[results[j].Provider].Priority()
+		return e.MustGetActorProvider(results[i].Provider).Priority() >
+			e.MustGetActorProvider(results[j].Provider).Priority()
 	})
 	return
 }
@@ -106,9 +105,9 @@ func (e *Engine) getActorInfoByID(id string, provider javtube.ActorProvider, laz
 }
 
 func (e *Engine) GetActorInfoByID(id, name string, lazy bool) (info *model.ActorInfo, err error) {
-	provider, ok := e.actorProviders[name]
-	if !ok {
-		return nil, fmt.Errorf("provider not found: %s", name)
+	provider, err := e.GetActorProvider(name)
+	if err != nil {
+		return
 	}
 	return e.getActorInfoByID(id, provider, lazy)
 }

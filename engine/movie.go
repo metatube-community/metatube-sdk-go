@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/javtube/javtube-sdk-go/common/number"
@@ -43,9 +42,9 @@ func (e *Engine) SearchMovie(keyword, name string, lazy bool) ([]*model.MovieSea
 	if keyword = number.Trim(keyword); keyword == "" {
 		return nil, javtube.ErrInvalidKeyword
 	}
-	provider, ok := e.movieProviders[name]
-	if !ok {
-		return nil, fmt.Errorf("provider not found: %s", name)
+	provider, err := e.GetMovieProvider(name)
+	if err != nil {
+		return nil, err
 	}
 	return e.searchMovie(keyword, provider, lazy)
 }
@@ -107,7 +106,7 @@ func (e *Engine) SearchMovieAll(keyword string, lazy bool) (results []*model.Mov
 				continue
 			}
 			ps.Append(number.Similarity(keyword, result.Number)*
-				float64(e.movieProviders[result.Provider].Priority()), result)
+				float64(e.MustGetMovieProvider(result.Provider).Priority()), result)
 		}
 		// sort according to priority.
 		results = ps.Sort().Underlying()
@@ -164,9 +163,9 @@ func (e *Engine) getMovieInfoByID(id string, provider javtube.MovieProvider, laz
 }
 
 func (e *Engine) GetMovieInfoByID(id, name string, lazy bool) (info *model.MovieInfo, err error) {
-	provider, ok := e.movieProviders[name]
-	if !ok {
-		return nil, fmt.Errorf("provider not found: %s", name)
+	provider, err := e.GetMovieProvider(name)
+	if err != nil {
+		return
 	}
 	return e.getMovieInfoByID(id, provider, lazy)
 }

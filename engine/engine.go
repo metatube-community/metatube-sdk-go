@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -79,6 +80,38 @@ func (e *Engine) Fetch(url string, provider javtube.Provider) (*http.Response, e
 		return fetcher.Fetch(url)
 	}
 	return fetch.Fetch(url)
+}
+
+func (e *Engine) GetActorProvider(name string) (javtube.ActorProvider, error) {
+	provider, ok := e.actorProviders[name]
+	if !ok {
+		return nil, fmt.Errorf("actor provider not found: %s", name)
+	}
+	return provider, nil
+}
+
+func (e *Engine) MustGetActorProvider(name string) javtube.ActorProvider {
+	provider, err := e.GetActorProvider(name)
+	if err != nil {
+		panic(err)
+	}
+	return provider
+}
+
+func (e *Engine) GetMovieProvider(name string) (javtube.MovieProvider, error) {
+	provider, ok := e.movieProviders[name]
+	if !ok {
+		return nil, fmt.Errorf("movie provider not found: %s", name)
+	}
+	return provider, nil
+}
+
+func (e *Engine) MustGetMovieProvider(name string) javtube.MovieProvider {
+	provider, err := e.GetMovieProvider(name)
+	if err != nil {
+		panic(err)
+	}
+	return provider
 }
 
 func openDB(dsn string) (*gorm.DB, error) {
