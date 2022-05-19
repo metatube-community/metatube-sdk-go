@@ -37,6 +37,8 @@ func Trim(s string) string {
 }
 
 // IsUncensored returns true if the number is belonged to uncensored movie.
+// It should be noted that this function is not accurate and can only be
+// used to detect number of some certain movie studio or publisher.
 func IsUncensored(s string) bool {
 	return regexp.
 		MustCompile(`^(?i)[\d-]{4,}|\d{6}_\d{2,3}|(cz|gedo|k|n|kb|red-|se)\d{2,4}|heyzo.+|fc2-.+|xxx-av-.+|heydouga-.+$`).
