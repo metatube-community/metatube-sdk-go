@@ -10,7 +10,7 @@ import (
 func TestXxxAV_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
-		//"24719",
+		"xxx-av-24719",
 		"xxx-av-23395",
 		"xxx-av-19337",
 	} {
