@@ -34,7 +34,7 @@ func (e *Engine) GetActorPrimaryImage(id, name string) (image.Image, error) {
 	if len(info.Images) == 0 {
 		return nil, errors.New("image not found")
 	}
-	return e.GetImageByURL(info.Images[0], e.MustGetActorProvider(name), primaryImageRatio, defaultActorPrimaryImagePosition, true)
+	return e.GetImageByURL(info.Images[0], e.MustGetActorProvider(name), primaryImageRatio, defaultActorPrimaryImagePosition, false)
 }
 
 func (e *Engine) GetMoviePrimaryImage(id, name string) (image.Image, error) {
