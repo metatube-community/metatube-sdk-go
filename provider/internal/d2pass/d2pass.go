@@ -27,8 +27,9 @@ type Core struct {
 	*scraper.Scraper
 
 	// URLs
-	BaseURL  string
-	MovieURL string
+	BaseURL        string
+	MovieURL       string
+	SampleVideoURL string
 
 	// Values
 	DefaultPriority int
@@ -114,10 +115,21 @@ func (core *Core) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 				info.Actors = data.ActressesJa
 			}
 			if len(data.SampleFiles) > 0 {
+				// hasCensoredSample: function() {
+				//   var t = Date.parse(this.movie.Release) / 1e3;
+				//   return t >= 1489622400
+				// }
 				sort.SliceStable(data.SampleFiles, func(i, j int) bool {
 					return data.SampleFiles[i].FileSize < data.SampleFiles[j].FileSize
 				})
 				info.PreviewVideoURL = r.Request.AbsoluteURL(data.SampleFiles[len(data.SampleFiles)-1].URL)
+				// "hls-default": {
+				//   url: "https://fms.1pondo.tv/sample/{MOVIE_ID}/mb.m3u8",
+				//   deliveryType: "hls",
+				//   mimeType: "application/vnd.apple.mpegurl",
+				//   movieIdKey: "MovieID"
+				// },
+				info.PreviewVideoHLSURL = fmt.Sprintf(core.SampleVideoURL, data.MovieID)
 			}
 			for _, thumb := range []string{
 				data.ThumbUltra, data.ThumbHigh,

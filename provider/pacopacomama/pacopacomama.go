@@ -15,8 +15,9 @@ const (
 )
 
 const (
-	baseURL  = "https://www.pacopacomama.com/"
-	movieURL = "https://www.pacopacomama.com/movies/%s/"
+	baseURL        = "https://www.pacopacomama.com/"
+	movieURL       = "https://www.pacopacomama.com/movies/%s/"
+	sampleVideoURL = "https://fms.pacopacomama.com/sample/%s/mb.m3u8"
 )
 
 //sampleURLs: {
@@ -38,6 +39,7 @@ func New() *Pacopacomama {
 		Core: (&d2pass.Core{
 			BaseURL:           baseURL,
 			MovieURL:          movieURL,
+			SampleVideoURL:    sampleVideoURL,
 			DefaultName:       Name,
 			DefaultPriority:   Priority,
 			DefaultMaker:      "パコパコママ",

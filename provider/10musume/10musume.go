@@ -15,8 +15,9 @@ const (
 )
 
 const (
-	baseURL  = "https://www.10musume.com/"
-	movieURL = "https://www.10musume.com/movies/%s/"
+	baseURL        = "https://www.10musume.com/"
+	movieURL       = "https://www.10musume.com/movies/%s/"
+	sampleVideoURL = "https://fms.10musume.com/sample/%s/mb.m3u8"
 )
 
 // sampleURLs: {
@@ -38,6 +39,7 @@ func New() *TenMusume {
 		Core: (&d2pass.Core{
 			BaseURL:           baseURL,
 			MovieURL:          movieURL,
+			SampleVideoURL:    sampleVideoURL,
 			DefaultName:       Name,
 			DefaultPriority:   Priority,
 			DefaultMaker:      "天然むすめ",

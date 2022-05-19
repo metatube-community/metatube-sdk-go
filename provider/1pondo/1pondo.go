@@ -15,8 +15,9 @@ const (
 )
 
 const (
-	baseURL  = "https://www.1pondo.tv/"
-	movieURL = "https://www.1pondo.tv/movies/%s/"
+	baseURL        = "https://www.1pondo.tv/"
+	movieURL       = "https://www.1pondo.tv/movies/%s/"
+	sampleVideoURL = "https://fms.1pondo.tv/sample/%s/mb.m3u8"
 )
 
 //sampleURLs: {
@@ -38,6 +39,7 @@ func New() *OnePondo {
 		Core: (&d2pass.Core{
 			BaseURL:           baseURL,
 			MovieURL:          movieURL,
+			SampleVideoURL:    sampleVideoURL,
 			DefaultName:       Name,
 			DefaultPriority:   Priority,
 			DefaultMaker:      "一本道",
