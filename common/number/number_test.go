@@ -86,3 +86,25 @@ func TestSimilarity(t *testing.T) {
 		t.Log(unit.a, unit.b, Similarity(unit.a, unit.b))
 	}
 }
+
+func TestRequireFaceDetection(t *testing.T) {
+	for _, unit := range []struct {
+		orig string
+		want bool
+	}{
+		{"ABP-030", false},
+		{"ssis00123", false},
+		{"SIRO-030", true},
+		{"133ARA-030", true},
+		{"FC2-738573", true},
+		{"123456_789", true},
+		{"123456-01", true},
+		{"xxx-av-1789", true},
+		{"heydouga-1789-233", true},
+		{"heyzo-1342", true},
+		{"n1342", true},
+		{"kb1342", true},
+	} {
+		assert.Equal(t, unit.want, RequireFaceDetection(unit.orig), unit.orig)
+	}
+}
