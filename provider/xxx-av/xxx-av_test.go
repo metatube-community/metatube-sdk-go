@@ -11,10 +11,10 @@ func TestXxxAV_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		//"24719",
-		"23395",
-		"19337",
+		"xxx-av-23395",
+		"xxx-av-19337",
 	} {
-		info, err := provider.GetMovieInfoByID(item)
+		info, err := provider.GetMovieInfoByID(provider.NormalizeID(item))
 		data, _ := json.MarshalIndent(info, "", "\t")
 		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
 		t.Logf("%s", data)
