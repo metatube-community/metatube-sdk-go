@@ -15,15 +15,17 @@ type GoogleTranslator struct{}
 func NewGoogleTranslator() Translator { return new(GoogleTranslator) }
 
 func (gt *GoogleTranslator) Translate(text, srcLang, dstLang string) (result string, err error) {
-	resp, err := fetch.Fetch(googleTranslateAPI, fetch.WithQuery(map[string]string{
-		"client": "gtx",
-		"dt":     "t",
-		"dj":     "1",
-		"ie":     "utf-8",
-		"sl":     srcLang,
-		"tl":     dstLang,
-		"q":      text,
-	}))
+	resp, err := fetch.Fetch(googleTranslateAPI,
+		fetch.WithRandomUserAgent(),
+		fetch.WithQuery(map[string]string{
+			"client": "at",
+			"dt":     "t",
+			"dj":     "1",
+			"ie":     "utf-8",
+			"sl":     srcLang,
+			"tl":     dstLang,
+			"q":      text,
+		}))
 	if err != nil {
 		return
 	}

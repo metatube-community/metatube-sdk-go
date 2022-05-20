@@ -7,7 +7,7 @@ func TestTranslate(t *testing.T) {
 		Google,
 	} {
 		SetEngine(engine)
-		result, err := Translate(`I'm a translator!`, "auto", "zh_cn")
+		result, err := Translate(`Oh yeah! I'm a translator!`, "auto", "zh_cn")
 		if err != nil {
 			t.Fatal(err)
 		}

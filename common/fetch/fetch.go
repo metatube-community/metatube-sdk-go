@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
+	"github.com/javtube/javtube-sdk-go/common/random"
 )
 
 var defaultClient = (&retryablehttp.Client{
@@ -28,6 +29,16 @@ func WithHeader(key, value string) Option {
 	return func(req *http.Request) {
 		req.Header.Set(key, value)
 	}
+}
+
+func WithUserAgent(ua string) Option {
+	return func(req *http.Request) {
+		req.Header.Set("User-Agent", ua)
+	}
+}
+
+func WithRandomUserAgent() Option {
+	return WithUserAgent(random.UserAgent())
 }
 
 func WithQuery(query map[string]string) Option {
