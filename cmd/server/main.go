@@ -25,7 +25,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	router := route.New(app)
+	store := route.NewTokenStore("token")
+
+	router := route.New(app, store)
 
 	if err := router.Run(); err != nil {
 		log.Fatal(err)

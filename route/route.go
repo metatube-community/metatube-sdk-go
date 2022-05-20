@@ -8,7 +8,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/engine"
 )
 
-func New(app *engine.Engine) *gin.Engine {
+func New(app *engine.Engine, store TokenStore) *gin.Engine {
 	r := gin.New()
 	{
 		// register middleware
@@ -19,7 +19,7 @@ func New(app *engine.Engine) *gin.Engine {
 	}
 
 	api := r.Group("/api")
-	api.Use( /* AUTH */)
+	api.Use(authentication(store))
 	{
 		// info/metadata
 		api.GET("/actor", getInfo(app, actorInfoType))
