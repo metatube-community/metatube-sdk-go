@@ -51,6 +51,10 @@ type MovieInfo struct {
 	ReleaseDate datatypes.Date `json:"release_date"`
 }
 
+func (*MovieInfo) TableName() string {
+	return "movie_metadata"
+}
+
 func (m *MovieInfo) Valid() bool {
 	return m.ID != "" && m.Number != "" && m.Title != "" &&
 		m.CoverURL != "" && m.Provider != "" && m.Homepage != ""
@@ -99,6 +103,10 @@ type ActorInfo struct {
 	Images       pq.StringArray `json:"images" gorm:"type:text[]"`
 	Birthday     datatypes.Date `json:"birthday"`
 	DebutDate    datatypes.Date `json:"debut_date"`
+}
+
+func (*ActorInfo) TableName() string {
+	return "actor_metadata"
 }
 
 func (a *ActorInfo) Valid() bool {
