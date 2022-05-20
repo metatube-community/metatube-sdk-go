@@ -1,12 +1,15 @@
 package route
 
 import (
+	"errors"
 	"image"
 	"image/jpeg"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/javtube/javtube-sdk-go/engine"
+	"github.com/javtube/javtube-sdk-go/model"
+	javtube "github.com/javtube/javtube-sdk-go/provider"
 )
 
 type imageType uint8
@@ -18,38 +21,81 @@ const (
 )
 
 type imageQuery struct {
-	ID       string  `form:"id"`
-	Provider string  `form:"provider"`
+	ID       string  `form:"id" binding:"required"`
+	Provider string  `form:"provider" binding:"required"`
 	URL      string  `form:"url"`
-	Ratio    float64 `form:"ratio"`
 	Position float64 `form:"pos"`
 	Quality  int     `form:"quality"`
 }
 
 func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
+	var ratio float64
+	switch typ {
+	case primaryImageType:
+		ratio = model.PrimaryImageRatio
+	case thumbImageType:
+		ratio = model.ThumbImageRatio
+	case backdropImageType:
+		ratio = model.BackdropImageRatio
+	default:
+		panic("invalid image type")
+	}
+
 	return func(c *gin.Context) {
 		query := &imageQuery{
-			Quality: 90,
+			Position: -1,
+			Quality:  90,
 		}
 		if err := c.ShouldBindQuery(query); err != nil {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
 			return
 		}
 
-		var (
-			img image.Image
-			err error
-		)
-		switch typ {
-		case primaryImageType:
-			img, err = app.GetMoviePrimaryImage(query.ID, query.Provider)
-		case thumbImageType:
-			img, err = app.GetMovieThumbImage(query.ID, query.Provider)
-		case backdropImageType:
-			img, err = app.GetMovieBackdropImage(query.ID, query.Provider)
+		var isActorProvider bool
+		switch {
+		case app.IsActorProvider(query.Provider):
+			isActorProvider = true
+		case app.IsMovieProvider(query.Provider):
+			isActorProvider = false
+		default:
+			abortWithStatusMessage(c, http.StatusBadRequest, "invalid provider")
+			return
 		}
+
+		var (
+			img  image.Image
+			err  error
+			code = http.StatusInternalServerError
+		)
+		if query.URL != "" /* specified URL */ {
+			var provider javtube.Provider
+			if isActorProvider {
+				provider = app.MustGetActorProvider(query.Provider)
+			} else {
+				provider = app.MustGetMovieProvider(query.Provider)
+			}
+			img, err = app.GetImageByURL(query.URL, provider, ratio, query.Position, false)
+		} else if isActorProvider /* actor */ {
+			switch typ {
+			case primaryImageType:
+				img, err = app.GetActorPrimaryImage(query.ID, query.Provider)
+			case thumbImageType, backdropImageType:
+				code = http.StatusBadRequest
+				err = errors.New("unsupported image type")
+			}
+		} else /* movie */ {
+			switch typ {
+			case primaryImageType:
+				img, err = app.GetMoviePrimaryImage(query.ID, query.Provider, query.Position)
+			case thumbImageType:
+				img, err = app.GetMovieThumbImage(query.ID, query.Provider)
+			case backdropImageType:
+				img, err = app.GetMovieBackdropImage(query.ID, query.Provider)
+			}
+		}
+
 		if err != nil {
-			c.Error(err)
+			abortWithStatusMessage(c, code, err)
 			return
 		}
 

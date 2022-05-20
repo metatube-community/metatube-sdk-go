@@ -33,9 +33,9 @@ func New(app *engine.Engine, store TokenStore) *gin.Engine {
 
 	img := r.Group("/image")
 	{
-		img.GET("/primary", GetImage(app, primaryImageType))
-		img.GET("/thumb", GetImage(app, thumbImageType))
-		img.GET("/backdrop", GetImage(app, backdropImageType))
+		img.GET("/primary", getImage(app, primaryImageType))
+		img.GET("/thumb", getImage(app, thumbImageType))
+		img.GET("/backdrop", getImage(app, backdropImageType))
 	}
 
 	return r
