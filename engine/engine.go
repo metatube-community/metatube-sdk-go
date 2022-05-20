@@ -82,6 +82,11 @@ func (e *Engine) Fetch(url string, provider javtube.Provider) (*http.Response, e
 	return fetch.Fetch(url)
 }
 
+func (e *Engine) IsActorProvider(name string) (ok bool) {
+	_, ok = e.actorProviders[strings.ToUpper(name)]
+	return
+}
+
 func (e *Engine) GetActorProvider(name string) (javtube.ActorProvider, error) {
 	provider, ok := e.actorProviders[strings.ToUpper(name)]
 	if !ok {
@@ -96,6 +101,11 @@ func (e *Engine) MustGetActorProvider(name string) javtube.ActorProvider {
 		panic(err)
 	}
 	return provider
+}
+
+func (e *Engine) IsMovieProvider(name string) (ok bool) {
+	_, ok = e.movieProviders[strings.ToUpper(name)]
+	return
 }
 
 func (e *Engine) GetMovieProvider(name string) (javtube.MovieProvider, error) {
