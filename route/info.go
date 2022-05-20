@@ -17,7 +17,7 @@ const (
 type infoQuery struct {
 	ID       string `form:"id" binding:"required"`
 	Provider string `form:"provider" binding:"required"`
-	Lazy     bool   `form:"lazy"`
+	Update   bool   `form:"update"`
 }
 
 func GetInfo(app *engine.Engine, typ infoType) gin.HandlerFunc {
@@ -34,9 +34,9 @@ func GetInfo(app *engine.Engine, typ infoType) gin.HandlerFunc {
 		)
 		switch typ {
 		case actorInfoType:
-			info, err = app.GetActorInfoByID(query.ID, query.Provider, query.Lazy)
+			info, err = app.GetActorInfoByID(query.ID, query.Provider, !query.Update)
 		case movieInfoType:
-			info, err = app.GetMovieInfoByID(query.ID, query.Provider, query.Lazy)
+			info, err = app.GetMovieInfoByID(query.ID, query.Provider, !query.Update)
 		default:
 			panic("invalid info/metadata type")
 		}
