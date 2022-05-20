@@ -37,12 +37,17 @@ func (e *Engine) GetActorPrimaryImage(id, name string) (image.Image, error) {
 	return e.GetImageByURL(info.Images[0], e.MustGetActorProvider(name), primaryImageRatio, defaultActorPrimaryImagePosition, false)
 }
 
-func (e *Engine) GetMoviePrimaryImage(id, name string) (image.Image, error) {
+func (e *Engine) GetMoviePrimaryImage(id, name string, pos float64) (image.Image, error) {
 	url, info, err := e.getPreferredMovieImageURLAndInfo(id, name, true)
 	if err != nil {
 		return nil, err
 	}
-	return e.GetImageByURL(url, e.MustGetMovieProvider(name), primaryImageRatio, defaultMoviePrimaryImagePosition, number.RequireFaceDetection(info.Number))
+	var auto bool
+	if pos < 0 /* manual position disabled */ {
+		pos = defaultMoviePrimaryImagePosition
+		auto = number.RequireFaceDetection(info.Number)
+	}
+	return e.GetImageByURL(url, e.MustGetMovieProvider(name), primaryImageRatio, pos, auto)
 }
 
 func (e *Engine) GetMovieThumbImage(id, name string) (image.Image, error) {
