@@ -17,20 +17,22 @@ const (
 type searchQuery struct {
 	Keyword  string `form:"keyword" binding:"required"`
 	Provider string `form:"provider"`
-	Update   bool   `form:"update"`
+	Lazy     bool   `form:"lazy"`
 }
 
 func getSearchResult(app *engine.Engine, typ searchType) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var query searchQuery
-		if err := c.ShouldBindQuery(&query); err != nil {
+		query := &searchQuery{
+			Lazy: false, // disable lazy by default.
+		}
+		if err := c.ShouldBindQuery(query); err != nil {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
 			return
 		}
 
-		fuzzSearch := true
+		searchAll := true
 		if query.Provider != "" {
-			fuzzSearch = false
+			searchAll = false
 		}
 
 		var (
@@ -39,16 +41,16 @@ func getSearchResult(app *engine.Engine, typ searchType) gin.HandlerFunc {
 		)
 		switch typ {
 		case actorSearchType:
-			if fuzzSearch {
+			if searchAll {
 				results, err = app.SearchActorAll(query.Keyword)
 			} else {
-				results, err = app.SearchActor(query.Keyword, query.Provider, !query.Update)
+				results, err = app.SearchActor(query.Keyword, query.Provider, query.Lazy)
 			}
 		case movieSearchType:
-			if fuzzSearch {
-				results, err = app.SearchMovieAll(query.Keyword, !query.Update)
+			if searchAll {
+				results, err = app.SearchMovieAll(query.Keyword, query.Lazy)
 			} else {
-				results, err = app.SearchMovie(query.Keyword, query.Provider, !query.Update)
+				results, err = app.SearchMovie(query.Keyword, query.Provider, query.Lazy)
 			}
 		default:
 			panic("invalid search type")

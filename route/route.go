@@ -17,10 +17,16 @@ func New(app *engine.Engine) *gin.Engine {
 	}
 
 	api := r.Group("/api")
-	api.Use( /* AUTH */ )
+	api.Use( /* AUTH */)
 	{
-		api.GET("/actor", GetInfo(app, actorInfoType))
-		api.GET("/movie", GetInfo(app, movieInfoType))
+		// info/metadata
+		api.GET("/actor", getInfo(app, actorInfoType))
+		api.GET("/movie", getInfo(app, movieInfoType))
+
+		// search
+		search := api.Group("/search")
+		search.GET("/actor", getSearchResult(app, actorSearchType))
+		search.GET("/movie", getSearchResult(app, movieSearchType))
 	}
 
 	img := r.Group("/image")
