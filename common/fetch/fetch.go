@@ -30,6 +30,16 @@ func WithHeader(key, value string) Option {
 	}
 }
 
+func WithQuery(query map[string]string) Option {
+	return func(req *http.Request) {
+		q := req.URL.Query()
+		for k, v := range query {
+			q.Add(k, v)
+		}
+		req.URL.RawQuery = q.Encode()
+	}
+}
+
 // Fetch fetches resources from url.
 func Fetch(u string, opts ...Option) (resp *http.Response, err error) {
 	var (
