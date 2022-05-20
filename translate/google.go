@@ -8,6 +8,8 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/fetch"
 )
 
+var _ Translator = (*GoogleTranslator)(nil)
+
 const googleTranslateAPI = "https://translate.google.com/translate_a/single"
 
 type GoogleTranslator struct{}
