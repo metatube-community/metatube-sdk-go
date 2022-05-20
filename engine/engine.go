@@ -54,7 +54,7 @@ func New(opts *Options) (engine *Engine, err error) {
 		if s, ok := provider.(javtube.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(opts.Timeout)
 		}
-		engine.movieProviders[name] = provider
+		engine.movieProviders[strings.ToUpper(name)] = provider
 	})
 	// Initialize actor providers.
 	javtube.RangeActorFactory(func(name string, factory javtube.ActorFactory) {
@@ -62,7 +62,7 @@ func New(opts *Options) (engine *Engine, err error) {
 		if s, ok := provider.(javtube.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(opts.Timeout)
 		}
-		engine.actorProviders[name] = factory()
+		engine.actorProviders[strings.ToUpper(name)] = factory()
 	})
 	return
 }
@@ -83,7 +83,7 @@ func (e *Engine) Fetch(url string, provider javtube.Provider) (*http.Response, e
 }
 
 func (e *Engine) GetActorProvider(name string) (javtube.ActorProvider, error) {
-	provider, ok := e.actorProviders[name]
+	provider, ok := e.actorProviders[strings.ToUpper(name)]
 	if !ok {
 		return nil, fmt.Errorf("actor provider not found: %s", name)
 	}
@@ -99,7 +99,7 @@ func (e *Engine) MustGetActorProvider(name string) javtube.ActorProvider {
 }
 
 func (e *Engine) GetMovieProvider(name string) (javtube.MovieProvider, error) {
-	provider, ok := e.movieProviders[name]
+	provider, ok := e.movieProviders[strings.ToUpper(name)]
 	if !ok {
 		return nil, fmt.Errorf("movie provider not found: %s", name)
 	}
