@@ -22,7 +22,7 @@ var (
 )
 
 const (
-	Name     = "JAVBUS"
+	Name     = "JavBus"
 	Priority = 1000 - 4
 )
 

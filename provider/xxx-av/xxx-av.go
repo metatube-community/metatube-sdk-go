@@ -17,7 +17,7 @@ import (
 	"golang.org/x/net/html"
 )
 
-var _ provider.MovieProvider = (*XxxAV)(nil)
+var _ provider.MovieProvider = (*TripleX)(nil)
 
 const (
 	Name     = "XXX-AV"
@@ -29,12 +29,12 @@ const (
 	movieURL = "https://www.xxx-av.com/mov/movie/%s/"
 )
 
-type XxxAV struct {
+type TripleX struct {
 	*scraper.Scraper
 }
 
-func New() *XxxAV {
-	return &XxxAV{
+func New() *TripleX {
+	return &TripleX{
 		Scraper: scraper.NewDefaultScraper(Name, Priority,
 			scraper.WithCookies(baseURL, []*http.Cookie{
 				{Name: "acc_accept_lang", Value: "japanese"},
@@ -42,18 +42,18 @@ func New() *XxxAV {
 	}
 }
 
-func (xav *XxxAV) NormalizeID(id string) string {
+func (xav *TripleX) NormalizeID(id string) string {
 	if ss := regexp.MustCompile(`^(?i)(?:xxx-av-)?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}
 	return ""
 }
 
-func (xav *XxxAV) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+func (xav *TripleX) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return xav.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (xav *XxxAV) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
+func (xav *TripleX) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 	homepage, err := url.Parse(u)
 	if err != nil {
 		return nil, err

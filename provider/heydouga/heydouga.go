@@ -16,10 +16,10 @@ import (
 	"golang.org/x/net/html"
 )
 
-var _ provider.MovieProvider = (*Hey)(nil)
+var _ provider.MovieProvider = (*HeyDouga)(nil)
 
 const (
-	Name     = "HEYDOUGA"
+	Name     = "HeyDouga"
 	Priority = 1000
 )
 
@@ -29,29 +29,29 @@ const (
 	movieTagURL = "https://www.heydouga.com/get_movie_tag_all/"
 )
 
-type Hey struct {
+type HeyDouga struct {
 	*scraper.Scraper
 }
 
-func New() *Hey {
-	return &Hey{scraper.NewDefaultScraper(Name, Priority)}
+func New() *HeyDouga {
+	return &HeyDouga{scraper.NewDefaultScraper(Name, Priority)}
 }
 
-func (hey *Hey) NormalizeID(id string) string {
+func (hey *HeyDouga) NormalizeID(id string) string {
 	if ss := regexp.MustCompile(`^(?i)(?:heydouga-)?(\d{4}-[a-z\d]+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}
 	return ""
 }
 
-func (hey *Hey) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+func (hey *HeyDouga) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	if ss := strings.SplitN(id, "-", 2); len(ss) == 2 {
 		return hey.GetMovieInfoByURL(fmt.Sprintf(movieURL, ss[0], ss[1]))
 	}
 	return nil, provider.ErrInvalidID
 }
 
-func (hey *Hey) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
+func (hey *HeyDouga) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 	homepage, err := url.Parse(u)
 	if err != nil {
 		return nil, err

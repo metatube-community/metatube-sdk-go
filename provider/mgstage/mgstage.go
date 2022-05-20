@@ -21,12 +21,12 @@ import (
 )
 
 var (
-	_ provider.MovieProvider = (*MGStage)(nil)
-	_ provider.MovieSearcher = (*MGStage)(nil)
+	_ provider.MovieProvider = (*MGS)(nil)
+	_ provider.MovieSearcher = (*MGS)(nil)
 )
 
 const (
-	Name     = "MGSTAGE"
+	Name     = "MGS"
 	Priority = 1000 - 1
 )
 
@@ -37,27 +37,27 @@ const (
 	sampleURL = "https://www.mgstage.com/sampleplayer/sampleRespons.php?pid=%s"
 )
 
-type MGStage struct {
+type MGS struct {
 	*scraper.Scraper
 }
 
-func New() *MGStage {
-	return &MGStage{scraper.NewDefaultScraper(Name, Priority,
+func New() *MGS {
+	return &MGS{scraper.NewDefaultScraper(Name, Priority,
 		scraper.WithCookies(baseURL, []*http.Cookie{
 			{Name: "adc", Value: "1"},
 		})),
 	}
 }
 
-func (mgs *MGStage) NormalizeID(id string) string {
+func (mgs *MGS) NormalizeID(id string) string {
 	return strings.ToUpper(id)
 }
 
-func (mgs *MGStage) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+func (mgs *MGS) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return mgs.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
+func (mgs *MGS) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
 	homepage, err := url.Parse(u)
 	if err != nil {
 		return nil, err
@@ -149,14 +149,14 @@ func (mgs *MGStage) GetMovieInfoByURL(u string) (info *model.MovieInfo, err erro
 	return
 }
 
-func (mgs *MGStage) TidyKeyword(keyword string) string {
+func (mgs *MGS) TidyKeyword(keyword string) string {
 	if !number.IsUncensored(keyword) {
 		return strings.ToUpper(keyword)
 	}
 	return ""
 }
 
-func (mgs *MGStage) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
+func (mgs *MGS) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	c := mgs.ClonedCollector()
 
 	c.OnXML(`//*[@id="center_column"]/div[2]/div/ul/li`, func(e *colly.XMLElement) {

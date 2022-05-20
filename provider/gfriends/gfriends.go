@@ -20,7 +20,7 @@ var (
 )
 
 const (
-	Name     = "GFRIENDS"
+	Name     = "GFriends"
 	Priority = 1000 - 1
 )
 

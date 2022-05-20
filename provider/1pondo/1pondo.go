@@ -10,7 +10,7 @@ import (
 var _ provider.MovieProvider = (*OnePondo)(nil)
 
 const (
-	Name     = "1PONDO"
+	Name     = "1Pondo"
 	Priority = 1000
 )
 

@@ -10,7 +10,7 @@ import (
 var _ provider.MovieProvider = (*TenMusume)(nil)
 
 const (
-	Name     = "10MUSUME"
+	Name     = "10musume"
 	Priority = 1000
 )
 

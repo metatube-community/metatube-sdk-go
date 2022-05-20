@@ -24,7 +24,7 @@ var (
 )
 
 const (
-	Name     = "XSLIST" // `X/sList`
+	Name     = "XsList" // `X/sList`
 	Priority = 1000
 )
 

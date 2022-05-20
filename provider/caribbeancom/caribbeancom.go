@@ -21,7 +21,7 @@ import (
 var _ provider.MovieProvider = (*Caribbeancom)(nil)
 
 const (
-	Name     = "CARIBBEANCOM"
+	Name     = "Caribbeancom"
 	Priority = 1000
 )
 
