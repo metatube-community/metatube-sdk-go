@@ -11,7 +11,9 @@ import (
 func New(app *engine.Engine) *gin.Engine {
 	r := gin.New()
 	{
+		// register middleware
 		r.Use(logger(), recovery())
+		// fallback behavior
 		r.NoRoute(notFound())
 		r.NoMethod(notAllowed())
 	}
@@ -25,8 +27,8 @@ func New(app *engine.Engine) *gin.Engine {
 
 		// search
 		search := api.Group("/search")
-		search.GET("/actor", getSearchResult(app, actorSearchType))
-		search.GET("/movie", getSearchResult(app, movieSearchType))
+		search.GET("/actor", getSearchResults(app, actorSearchType))
+		search.GET("/movie", getSearchResults(app, movieSearchType))
 	}
 
 	img := r.Group("/image")
