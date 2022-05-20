@@ -19,15 +19,15 @@ func New(app *engine.Engine) *gin.Engine {
 	api := r.Group("/api")
 	api.Use( /* AUTH */ )
 	{
-		api.GET("/actor")
-		api.GET("/movie")
+		api.GET("/actor", GetInfo(app, actorInfoType))
+		api.GET("/movie", GetInfo(app, movieInfoType))
 	}
 
 	img := r.Group("/image")
 	{
-		img.GET("/primary", getImage(app, primaryImageType))
-		img.GET("/thumb", getImage(app, thumbImageType))
-		img.GET("/backdrop", getImage(app, backdropImageType))
+		img.GET("/primary", GetImage(app, primaryImageType))
+		img.GET("/thumb", GetImage(app, thumbImageType))
+		img.GET("/backdrop", GetImage(app, backdropImageType))
 	}
 
 	return r
