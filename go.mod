@@ -12,13 +12,13 @@ require (
 	github.com/grafov/m3u8 v0.11.1
 	github.com/hashicorp/go-retryablehttp v0.7.1
 	github.com/iancoleman/orderedmap v0.2.0
-	github.com/lib/pq v1.10.5
+	github.com/lib/pq v1.10.6
 	github.com/nlnwa/whatwg-url v0.1.1
 	github.com/stretchr/testify v1.7.1
-	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4
+	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2
 	gorm.io/datatypes v1.0.6
 	gorm.io/driver/postgres v1.3.5
-	gorm.io/driver/sqlite v1.3.1
+	gorm.io/driver/sqlite v1.3.2
 	gorm.io/gorm v1.23.5
 )
 
@@ -52,7 +52,7 @@ require (
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
-	github.com/mattn/go-sqlite3 v1.14.12 // indirect
+	github.com/mattn/go-sqlite3 v1.14.13 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
