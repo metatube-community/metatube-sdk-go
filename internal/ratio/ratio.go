@@ -1,4 +1,4 @@
-package model
+package ratio
 
 // NOTE: primary/thumb/backdrop represents MEDIA picture ratios.
 const (
