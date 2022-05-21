@@ -93,11 +93,11 @@ type ActorInfo struct {
 	Provider     string         `json:"provider" gorm:"primaryKey"`
 	Homepage     string         `json:"homepage"`
 	Summary      string         `json:"summary"`
-	Nationality  string         `json:"nationality"`
 	Hobby        string         `json:"hobby"`
 	BloodType    string         `json:"blood_type"`
 	CupSize      string         `json:"cup_size"`
 	Measurements string         `json:"measurements"`
+	Nationality  string         `json:"nationality"`
 	Height       int            `json:"height"`
 	Aliases      pq.StringArray `json:"aliases" gorm:"type:text[]"`
 	Images       pq.StringArray `json:"images" gorm:"type:text[]"`
