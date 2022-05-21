@@ -70,7 +70,10 @@ func New(opts *Options) (engine *Engine, err error) {
 	return
 }
 
-func (e *Engine) AutoMigrate() error {
+func (e *Engine) AutoMigrate(v bool) error {
+	if !v {
+		return nil
+	}
 	return e.db.AutoMigrate(
 		&model.MovieInfo{},
 		&model.ActorInfo{})
