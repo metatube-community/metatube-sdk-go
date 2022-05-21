@@ -101,7 +101,7 @@ func (e *Engine) SearchMovieAll(keyword string, lazy bool) (results []*model.Mov
 			return
 		}
 		// post-processing
-		var ps = new(priority.Slice[float64, *model.MovieSearchResult])
+		ps := new(priority.Slice[float64, *model.MovieSearchResult])
 		for _, result := range results {
 			if !result.Valid() /* validation check */ {
 				continue
@@ -114,7 +114,7 @@ func (e *Engine) SearchMovieAll(keyword string, lazy bool) (results []*model.Mov
 	}()
 
 	if lazy {
-		var multiInfo = make([]*model.MovieInfo, 0)
+		multiInfo := make([]*model.MovieInfo, 0)
 		if result := e.db.
 			// Note: keyword might be an ID or just a regular number, so we should
 			// query both of them for best match. Also, case should not mater.
