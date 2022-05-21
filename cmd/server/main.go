@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/javtube/javtube-sdk-go/engine"
 	"github.com/javtube/javtube-sdk-go/route"
+	"github.com/javtube/javtube-sdk-go/route/validator"
 )
 
 func main() {
@@ -25,9 +26,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	store := route.NewTokenStore("token")
+	token := validator.Token("token")
 
-	router := route.New(app, store)
+	router := route.New(app, token)
 
 	if err := router.Run(); err != nil {
 		log.Fatal(err)
