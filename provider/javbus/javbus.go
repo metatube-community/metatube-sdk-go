@@ -39,11 +39,12 @@ type JavBus struct {
 }
 
 func New() *JavBus {
-	return &JavBus{scraper.NewDefaultScraper(Name, Priority,
-		scraper.WithCookies(baseURL, []*http.Cookie{
-			// existmag=all
-			{Name: "existmag", Value: "all"},
-		})),
+	return &JavBus{
+		Scraper: scraper.NewDefaultScraper(Name, Priority,
+			scraper.WithCookies(baseURL, []*http.Cookie{
+				// existmag=all
+				{Name: "existmag", Value: "all"},
+			})),
 	}
 }
 
@@ -161,7 +162,8 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.MovieSearchResu
 
 	for _, u := range []string{
 		fmt.Sprintf(searchURL, keyword),
-		fmt.Sprintf(searchUncensoredURL, keyword)} {
+		fmt.Sprintf(searchUncensoredURL, keyword),
+	} {
 		if err = c.Visit(u); err != nil {
 			return nil, err
 		}

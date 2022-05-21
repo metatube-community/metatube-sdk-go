@@ -67,7 +67,8 @@ func TestPreviewSrc(t *testing.T) {
 	for _, unit := range []struct {
 		src, want string
 	}{
-		{"https://pics.dmm.co.jp/digital/video/pppd00990/pppd00990ps.jpg",
+		{
+			"https://pics.dmm.co.jp/digital/video/pppd00990/pppd00990ps.jpg",
 			"https://pics.dmm.co.jp/digital/video/pppd00990/pppd00990pl.jpg",
 		},
 		{

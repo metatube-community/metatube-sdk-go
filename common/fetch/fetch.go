@@ -54,9 +54,7 @@ func WithQuery(query map[string]string) Option {
 
 // Fetch fetches resources from url.
 func Fetch(u string, opts ...Option) (resp *http.Response, err error) {
-	var (
-		req *http.Request
-	)
+	var req *http.Request
 	if req, err = http.NewRequest(http.MethodGet, u, nil); err != nil {
 		return
 	}

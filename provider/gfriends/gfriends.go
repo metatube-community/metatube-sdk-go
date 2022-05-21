@@ -122,7 +122,6 @@ func (ft *fileTree) update() error {
 	}
 	defer resp.Body.Close()
 	return json.NewDecoder(resp.Body).Decode(ft)
-
 }
 
 func reverse[T any](array []T) []T {

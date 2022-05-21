@@ -43,10 +43,11 @@ type MGS struct {
 }
 
 func New() *MGS {
-	return &MGS{scraper.NewDefaultScraper(Name, Priority,
-		scraper.WithCookies(baseURL, []*http.Cookie{
-			{Name: "adc", Value: "1"},
-		})),
+	return &MGS{
+		Scraper: scraper.NewDefaultScraper(Name, Priority,
+			scraper.WithCookies(baseURL, []*http.Cookie{
+				{Name: "adc", Value: "1"},
+			})),
 	}
 }
 

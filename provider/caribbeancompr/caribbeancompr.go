@@ -14,7 +14,7 @@ var _ provider.MovieProvider = (*CaribbeancomPremium)(nil)
 
 const (
 	Name     = "CaribbeancomPR"
-	Priority = 1000 - 1 //slightly lower than 1pondo.
+	Priority = 1000 - 1
 )
 
 const (
