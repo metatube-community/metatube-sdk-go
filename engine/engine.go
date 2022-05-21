@@ -2,7 +2,9 @@ package engine
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -12,6 +14,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Options struct {
@@ -142,5 +145,11 @@ func openDB(dsn string) (*gorm.DB, error) {
 
 	return gorm.Open(dialector, &gorm.Config{
 		DisableAutomaticPing: true,
+		Logger: logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
+			SlowThreshold:             100 * time.Millisecond,
+			LogLevel:                  logger.Info,
+			IgnoreRecordNotFoundError: false,
+			Colorful:                  false,
+		}),
 	})
 }
