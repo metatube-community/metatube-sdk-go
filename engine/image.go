@@ -7,7 +7,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/imageutil"
 	"github.com/javtube/javtube-sdk-go/imageutil/pigo"
-	"github.com/javtube/javtube-sdk-go/internal/define"
+	R "github.com/javtube/javtube-sdk-go/internal/constant"
 	"github.com/javtube/javtube-sdk-go/model"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 )
@@ -28,7 +28,7 @@ func (e *Engine) GetActorPrimaryImage(id, name string) (image.Image, error) {
 	if len(info.Images) == 0 {
 		return nil, errors.New("image not found")
 	}
-	return e.GetImageByURL(info.Images[0], e.MustGetActorProvider(name), define.PrimaryImageRatio, defaultActorPrimaryImagePosition, false)
+	return e.GetImageByURL(info.Images[0], e.MustGetActorProvider(name), R.PrimaryImageRatio, defaultActorPrimaryImagePosition, false)
 }
 
 func (e *Engine) GetMoviePrimaryImage(id, name string, pos float64) (image.Image, error) {
@@ -41,7 +41,7 @@ func (e *Engine) GetMoviePrimaryImage(id, name string, pos float64) (image.Image
 		pos = defaultMoviePrimaryImagePosition
 		auto = number.RequireFaceDetection(info.Number)
 	}
-	return e.GetImageByURL(url, e.MustGetMovieProvider(name), define.PrimaryImageRatio, pos, auto)
+	return e.GetImageByURL(url, e.MustGetMovieProvider(name), R.PrimaryImageRatio, pos, auto)
 }
 
 func (e *Engine) GetMovieThumbImage(id, name string) (image.Image, error) {
@@ -49,7 +49,7 @@ func (e *Engine) GetMovieThumbImage(id, name string) (image.Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	return e.GetImageByURL(url, e.MustGetMovieProvider(name), define.ThumbImageRatio, defaultMovieThumbImagePosition, false)
+	return e.GetImageByURL(url, e.MustGetMovieProvider(name), R.ThumbImageRatio, defaultMovieThumbImagePosition, false)
 }
 
 func (e *Engine) GetMovieBackdropImage(id, name string) (image.Image, error) {
@@ -57,7 +57,7 @@ func (e *Engine) GetMovieBackdropImage(id, name string) (image.Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	return e.GetImageByURL(url, e.MustGetMovieProvider(name), define.BackdropImageRatio, defaultMovieBackdropImagePosition, false)
+	return e.GetImageByURL(url, e.MustGetMovieProvider(name), R.BackdropImageRatio, defaultMovieBackdropImagePosition, false)
 }
 
 func (e *Engine) GetImageByURL(url string, provider javtube.Provider, ratio float64, pos float64, auto bool) (img image.Image, err error) {

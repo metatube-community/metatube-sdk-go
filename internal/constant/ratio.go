@@ -1,4 +1,4 @@
-package define
+package constant
 
 // NOTE: primary/thumb/backdrop represents MEDIA picture ratios.
 const (
