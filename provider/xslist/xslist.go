@@ -9,13 +9,14 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"golang.org/x/net/html"
+	dt "gorm.io/datatypes"
+
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/gfriends"
 	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
-	"golang.org/x/net/html"
-	dt "gorm.io/datatypes"
 )
 
 var (

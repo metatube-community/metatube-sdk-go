@@ -4,7 +4,7 @@ linters:
     - gofumpt
     - staticcheck
     - govet
-    - gci
+    - goimports
 
 linters-settings:
   gci:

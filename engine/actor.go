@@ -4,10 +4,11 @@ import (
 	"sort"
 	"sync"
 
+	"gorm.io/gorm/clause"
+
 	"github.com/javtube/javtube-sdk-go/model"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/gfriends"
-	"gorm.io/gorm/clause"
 )
 
 func (e *Engine) searchActor(keyword string, provider javtube.Provider, lazy bool) (results []*model.ActorSearchResult, err error) {

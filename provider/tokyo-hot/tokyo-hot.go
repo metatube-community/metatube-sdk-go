@@ -9,11 +9,12 @@ import (
 
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
+	"golang.org/x/net/html"
+
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
-	"golang.org/x/net/html"
 )
 
 var (

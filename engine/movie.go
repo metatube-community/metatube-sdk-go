@@ -3,11 +3,12 @@ package engine
 import (
 	"sync"
 
+	"gorm.io/gorm/clause"
+
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/priority"
 	"github.com/javtube/javtube-sdk-go/model"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
-	"gorm.io/gorm/clause"
 )
 
 func (e *Engine) searchMovie(keyword string, provider javtube.MovieProvider, lazy bool) ([]*model.MovieSearchResult, error) {

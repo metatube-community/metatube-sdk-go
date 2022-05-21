@@ -9,12 +9,13 @@ import (
 	"time"
 
 	"github.com/glebarez/sqlite"
-	"github.com/javtube/javtube-sdk-go/common/fetch"
-	"github.com/javtube/javtube-sdk-go/model"
-	javtube "github.com/javtube/javtube-sdk-go/provider"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+
+	"github.com/javtube/javtube-sdk-go/common/fetch"
+	"github.com/javtube/javtube-sdk-go/model"
+	javtube "github.com/javtube/javtube-sdk-go/provider"
 )
 
 type Options struct {

@@ -5,6 +5,7 @@ import (
 	// Actor's
 	_ "github.com/javtube/javtube-sdk-go/provider/gfriends"
 	_ "github.com/javtube/javtube-sdk-go/provider/xslist"
+
 	// Movie's
 	_ "github.com/javtube/javtube-sdk-go/provider/10musume"
 	_ "github.com/javtube/javtube-sdk-go/provider/1pondo"

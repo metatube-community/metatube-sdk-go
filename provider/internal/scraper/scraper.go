@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+
 	"github.com/javtube/javtube-sdk-go/provider"
 )
 
