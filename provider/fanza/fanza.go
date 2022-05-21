@@ -196,8 +196,8 @@ func (fz *FANZA) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) 
 				// nop
 			} else if summary = strings.TrimSpace(e.ChildText(`.//p`)); summary != "" {
 				// nop
-			} else if summary = strings.TrimSpace(e.Text); summary != "" {
-				// nop
+			} else {
+				summary = strings.TrimSpace(e.Text)
 			}
 			info.Summary = summary
 		}
@@ -322,7 +322,7 @@ func (fz *FANZA) parseScoreFromURL(s string) float64 {
 	gif := path.Base(u.Path)
 	ext := path.Ext(gif)
 	n := gif[:len(gif)-len(ext)]
-	score, _ := strconv.ParseFloat(n, 10)
+	score, _ := strconv.ParseFloat(n, 64)
 	return score
 }
 

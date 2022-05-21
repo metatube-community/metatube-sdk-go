@@ -73,7 +73,7 @@ func ParseScore(s string) float64 {
 		return 0
 	}
 	s = strings.TrimSpace(fields[0])
-	n, _ := strconv.ParseFloat(s, 10)
+	n, _ := strconv.ParseFloat(s, 64)
 	return n
 }
 

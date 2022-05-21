@@ -30,20 +30,13 @@ const (
 	jsonURL    = "https://raw.githubusercontent.com/xinxin8816/gfriends/master/Filetree.json"
 )
 
-type GFriends struct {
-}
+type GFriends struct{}
 
-func New() *GFriends {
-	return &GFriends{}
-}
+func New() *GFriends { return &GFriends{} }
 
-func (gf *GFriends) Name() string {
-	return Name
-}
+func (gf *GFriends) Name() string { return Name }
 
-func (gf *GFriends) Priority() int {
-	return Priority
-}
+func (gf *GFriends) Priority() int { return Priority }
 
 func (gf *GFriends) NormalizeID(id string) string { return id /* AS IS */ }
 
