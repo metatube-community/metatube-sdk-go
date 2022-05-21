@@ -5,6 +5,11 @@ import (
 	"gorm.io/datatypes"
 )
 
+const (
+	ActorTableName = "actor_metadata"
+	MovieTableName = "movie_metadata"
+)
+
 type MovieSearchResult struct {
 	ID          string         `json:"id"`
 	Number      string         `json:"number"`
@@ -52,7 +57,7 @@ type MovieInfo struct {
 }
 
 func (*MovieInfo) TableName() string {
-	return "movie_metadata"
+	return MovieTableName
 }
 
 func (m *MovieInfo) Valid() bool {
@@ -106,7 +111,7 @@ type ActorInfo struct {
 }
 
 func (*ActorInfo) TableName() string {
-	return "actor_metadata"
+	return ActorTableName
 }
 
 func (a *ActorInfo) Valid() bool {
