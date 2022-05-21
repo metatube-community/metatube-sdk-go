@@ -6,9 +6,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/javtube/javtube-sdk-go/engine"
+	"github.com/javtube/javtube-sdk-go/route/validator"
 )
 
-func New(app *engine.Engine, store TokenStore) *gin.Engine {
+func New(app *engine.Engine, v validator.Validator) *gin.Engine {
 	r := gin.New()
 	{
 		// register middleware
@@ -19,7 +20,7 @@ func New(app *engine.Engine, store TokenStore) *gin.Engine {
 	}
 
 	api := r.Group("/api")
-	api.Use(authentication(store))
+	api.Use(authentication(v))
 	{
 		// info/metadata
 		api.GET("/actor", getInfo(app, actorInfoType))
