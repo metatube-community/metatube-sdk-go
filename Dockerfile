@@ -19,4 +19,4 @@ ENV TOKEN=""
 ENV DSN=""
 ENV AUTO_MIGRATE=1
 
-CMD ["/javtube-server"]
+ENTRYPOINT ["/javtube-server"]
