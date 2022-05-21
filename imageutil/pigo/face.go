@@ -16,7 +16,7 @@ func init() {
 func DetectFaces(img image.Image) (dets []pigo.Detection) {
 	cParams := pigo.CascadeParams{
 		MinSize:     20,
-		MaxSize:     1000,
+		MaxSize:     2000,
 		ShiftFactor: 0.1,
 		ScaleFactor: 1.1,
 		ImageParams: pigo.ImageParams{
