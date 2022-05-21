@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/javtube/javtube-sdk-go/engine"
+	"github.com/javtube/javtube-sdk-go/internal/define"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 )
 
@@ -32,11 +33,11 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 	var ratio float64
 	switch typ {
 	case primaryImageType:
-		ratio = ratio.PrimaryImageRatio
+		ratio = define.PrimaryImageRatio
 	case thumbImageType:
-		ratio = ratio.ThumbImageRatio
+		ratio = define.ThumbImageRatio
 	case backdropImageType:
-		ratio = ratio.BackdropImageRatio
+		ratio = define.BackdropImageRatio
 	default:
 		panic("invalid image type")
 	}
