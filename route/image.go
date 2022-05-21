@@ -25,6 +25,7 @@ type imageQuery struct {
 	Provider string  `form:"provider" binding:"required"`
 	URL      string  `form:"url"`
 	Position float64 `form:"pos"`
+	Auto     bool    `form:"auto"`
 	Quality  int     `form:"quality"`
 }
 
@@ -74,7 +75,7 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 			} else {
 				provider = app.MustGetMovieProvider(query.Provider)
 			}
-			img, err = app.GetImageByURL(query.URL, provider, ratio, query.Position, false)
+			img, err = app.GetImageByURL(query.URL, provider, ratio, query.Position, query.Auto)
 		} else if isActorProvider /* actor */ {
 			switch typ {
 			case primaryImageType:
