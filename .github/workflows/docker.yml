@@ -36,6 +36,11 @@ jobs:
           username: javtube
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Get Version
+        id: shell
+        run: |
+          echo ::set-output name=version::$(git describe --tags --abbrev=0)
+
       - name: Build and Push (dev)
         if: github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v2
@@ -57,3 +62,4 @@ jobs:
           platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64
           tags: |
             ghcr.io/javtube/javtube-server:latest
+            ghcr.io/javtube/javtube-server:${{ steps.shell.outputs.version }}
