@@ -15,7 +15,8 @@ COPY --from=builder /src/javtube-server .
 
 ENV GIN_MODE=release
 ENV PORT=8080
+ENV TOKEN=""
 ENV DSN=""
-ENV AUTOMIGRATE=true
+ENV AUTO_MIGRATE=1
 
 CMD ["/javtube-server"]
