@@ -1,0 +1,57 @@
+package model
+
+import (
+	"github.com/lib/pq"
+	"gorm.io/datatypes"
+)
+
+const ActorTableName = "actor_metadata"
+
+type ActorSearchResult struct {
+	ID       string         `json:"id"`
+	Name     string         `json:"name"`
+	Provider string         `json:"provider"`
+	Homepage string         `json:"homepage"`
+	Images   pq.StringArray `json:"images"`
+}
+
+func (a *ActorSearchResult) Valid() bool {
+	return a.ID != "" && a.Name != "" &&
+		a.Provider != "" && a.Homepage != ""
+}
+
+type ActorInfo struct {
+	ID           string         `json:"id" gorm:"primaryKey"`
+	Name         string         `json:"name"`
+	Provider     string         `json:"provider" gorm:"primaryKey"`
+	Homepage     string         `json:"homepage"`
+	Summary      string         `json:"summary"`
+	Hobby        string         `json:"hobby"`
+	BloodType    string         `json:"blood_type"`
+	CupSize      string         `json:"cup_size"`
+	Measurements string         `json:"measurements"`
+	Nationality  string         `json:"nationality"`
+	Height       int            `json:"height"`
+	Aliases      pq.StringArray `json:"aliases" gorm:"type:text[]"`
+	Images       pq.StringArray `json:"images" gorm:"type:text[]"`
+	Birthday     datatypes.Date `json:"birthday"`
+	DebutDate    datatypes.Date `json:"debut_date"`
+}
+
+func (*ActorInfo) TableName() string {
+	return ActorTableName
+}
+
+func (a *ActorInfo) Valid() bool {
+	return a.ID != "" && a.Name != "" && a.Provider != "" && a.Homepage != ""
+}
+
+func (a *ActorInfo) ToSearchResult() *ActorSearchResult {
+	return &ActorSearchResult{
+		ID:       a.ID,
+		Name:     a.Name,
+		Provider: a.Provider,
+		Homepage: a.Homepage,
+		Images:   a.Images,
+	}
+}
