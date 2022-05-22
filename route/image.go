@@ -1,7 +1,6 @@
 package route
 
 import (
-	"errors"
 	"image"
 	"image/jpeg"
 	"net/http"
@@ -65,9 +64,8 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 		}
 
 		var (
-			img  image.Image
-			err  error
-			code = http.StatusInternalServerError
+			img image.Image
+			err error
 		)
 		if query.URL != "" /* specified URL */ {
 			var provider javtube.Provider
@@ -82,8 +80,8 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 			case primaryImageType:
 				img, err = app.GetActorPrimaryImage(query.ID, query.Provider)
 			case thumbImageType, backdropImageType:
-				code = http.StatusBadRequest
-				err = errors.New("unsupported image type")
+				abortWithStatusMessage(c, http.StatusBadRequest, "unsupported image type")
+				return
 			}
 		} else /* movie */ {
 			switch typ {
@@ -95,9 +93,8 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 				img, err = app.GetMovieBackdropImage(query.ID, query.Provider)
 			}
 		}
-
 		if err != nil {
-			abortWithStatusMessage(c, code, err)
+			abortWithError(c, err)
 			return
 		}
 

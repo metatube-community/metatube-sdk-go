@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/javtube/javtube-sdk-go/engine"
+	javtube "github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/route/validator"
 )
 
@@ -65,6 +66,21 @@ func notAllowed() gin.HandlerFunc {
 		abortWithStatusMessage(c, http.StatusMethodNotAllowed,
 			http.StatusText(http.StatusMethodNotAllowed))
 	}
+}
+
+func abortWithError(c *gin.Context, err error) {
+	var code int
+	switch err {
+	case javtube.ErrNotFound:
+		code = http.StatusNotFound
+	case javtube.ErrInvalidID, javtube.ErrInvalidKeyword:
+		code = http.StatusBadRequest
+	case javtube.ErrNotSupported, javtube.ErrInvalidMetadata:
+		fallthrough
+	default:
+		code = http.StatusInternalServerError
+	}
+	abortWithStatusMessage(c, code, err)
 }
 
 func abortWithStatusMessage(c *gin.Context, code int, message any) {

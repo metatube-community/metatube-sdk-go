@@ -47,7 +47,7 @@ func getInfo(app *engine.Engine, typ infoType) gin.HandlerFunc {
 			panic("invalid info/metadata type")
 		}
 		if err != nil {
-			abortWithStatusMessage(c, http.StatusInternalServerError, err)
+			abortWithError(c, err)
 			return
 		}
 

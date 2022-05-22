@@ -57,7 +57,7 @@ func getSearchResults(app *engine.Engine, typ searchType) gin.HandlerFunc {
 			panic("invalid search type")
 		}
 		if err != nil {
-			abortWithStatusMessage(c, http.StatusInternalServerError, err)
+			abortWithError(c, err)
 			return
 		}
 
