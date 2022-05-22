@@ -140,7 +140,8 @@ func openDB(dsn string) (*gorm.DB, error) {
 
 	// We try to parse it as postgresql, otherwise
 	// fallback to sqlite.
-	if strings.HasPrefix(dsn, "postgresql://") ||
+	if strings.HasPrefix(dsn, "postgres://") ||
+		strings.HasPrefix(dsn, "postgresql://") ||
 		len(strings.Fields(dsn)) > 4 {
 		dialector = postgres.Open(dsn)
 	} else {
