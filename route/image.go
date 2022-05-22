@@ -1,11 +1,13 @@
 package route
 
 import (
+	"bytes"
 	"image"
 	"image/jpeg"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/render"
 
 	"github.com/javtube/javtube-sdk-go/engine"
 	R "github.com/javtube/javtube-sdk-go/internal/constant"
@@ -98,7 +100,21 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 			return
 		}
 
-		c.Header("Content-Type", "image/jpeg")
-		_ = jpeg.Encode(c.Writer, img, &jpeg.Options{Quality: query.Quality})
+		buf := &bytes.Buffer{}
+		if err = jpeg.Encode(buf, img, &jpeg.Options{Quality: query.Quality}); err != nil {
+			panic(err)
+		}
+
+		c.Render(http.StatusOK, render.Reader{
+			ContentType:   jpegImageMIMEType,
+			ContentLength: int64(buf.Len()),
+			Reader:        buf,
+			Headers: map[string]string{
+				// should be cached for a week.
+				"Cache-Control": "max-age=604800, public",
+			},
+		})
 	}
 }
+
+const jpegImageMIMEType = "image/jpeg"
