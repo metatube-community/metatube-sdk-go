@@ -15,7 +15,7 @@ import (
 // Default position constants for different kind of images.
 const (
 	defaultActorPrimaryImagePosition  = 0.5
-	defaultMoviePrimaryImagePosition  = 0.8
+	defaultMoviePrimaryImagePosition  = 1.0
 	defaultMovieThumbImagePosition    = 0.5
 	defaultMovieBackdropImagePosition = 0.0
 )
