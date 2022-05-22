@@ -90,11 +90,13 @@ func abortWithStatusMessage(c *gin.Context, code int, message any) {
 	case fmt.Stringer:
 		message = m.String()
 	}
-	c.AbortWithStatusJSON(code, &struct {
-		Status  bool `json:"status"`
-		Message any  `json:"message"`
-	}{
+	c.AbortWithStatusJSON(code, &statusMessage{
 		Status:  false,
 		Message: message,
 	})
+}
+
+type statusMessage struct {
+	Status  bool `json:"status"`
+	Message any  `json:"message"`
 }
