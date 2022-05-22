@@ -19,7 +19,7 @@ require (
 	github.com/stretchr/testify v1.7.1
 	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2
 	gorm.io/datatypes v1.0.6
-	gorm.io/driver/postgres v1.3.5
+	gorm.io/driver/postgres v1.3.6
 	gorm.io/gorm v1.23.5
 )
 
@@ -75,5 +75,5 @@ require (
 	modernc.org/libc v1.16.8 // indirect
 	modernc.org/mathutil v1.4.1 // indirect
 	modernc.org/memory v1.1.1 // indirect
-	modernc.org/sqlite v1.17.2 // indirect
+	modernc.org/sqlite v1.17.3 // indirect
 )
