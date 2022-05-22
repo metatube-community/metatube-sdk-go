@@ -30,7 +30,7 @@ var (
 
 const (
 	Name     = "FANZA"
-	Priority = 1000
+	Priority = 1000 + 1
 )
 
 const (
