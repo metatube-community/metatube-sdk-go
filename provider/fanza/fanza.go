@@ -37,7 +37,7 @@ const (
 	baseURL                 = "https://www.dmm.co.jp/"
 	baseDigitalURL          = "https://www.dmm.co.jp/digital/"
 	baseMonoURL             = "https://www.dmm.co.jp/mono/"
-	searchURL               = "https://www.dmm.co.jp/search/=/searchstr=%s/limit=120/sort=rankprofile/"
+	searchURL               = "https://www.dmm.co.jp/search/=/searchstr=%s/limit=120/sort=ranking/"
 	movieDigitalVideoAURL   = "https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=%s/"
 	movieDigitalVideoCURL   = "https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=%s/"
 	movieDigitalAnimeURL    = "https://www.dmm.co.jp/digital/anime/-/detail/=/cid=%s/"
