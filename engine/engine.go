@@ -143,7 +143,11 @@ func openDB(dsn string) (*gorm.DB, error) {
 	if strings.HasPrefix(dsn, "postgres://") ||
 		strings.HasPrefix(dsn, "postgresql://") ||
 		len(strings.Fields(dsn)) > 4 {
-		dialector = postgres.Open(dsn)
+		dialector = postgres.New(postgres.Config{
+			DSN: dsn,
+			// disables implicit prepared statement usage.
+			PreferSimpleProtocol: true,
+		})
 	} else {
 		dialector = sqlite.Open(dsn)
 	}
