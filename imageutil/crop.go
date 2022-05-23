@@ -3,7 +3,6 @@ package imageutil
 import (
 	"image"
 
-	"github.com/javtube/javtube-sdk-go/imageutil/pigo"
 	"github.com/javtube/javtube-sdk-go/internal/math"
 )
 
@@ -36,9 +35,4 @@ func CropImagePosition(img image.Image, ratio float64, pos float64) image.Image 
 	return CropImage(img,
 		image.Rect(0, 0, w, h).
 			Add(image.Pt(x, y)).Add(img.Bounds().Min))
-}
-
-func CropImageFaceDetection(img image.Image, ratio float64, pos float64) image.Image {
-	return CropImagePosition(img, ratio,
-		pigo.CalculatePosition(img, ratio, pos))
 }
