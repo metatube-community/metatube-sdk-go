@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/javtube/javtube-sdk-go/engine"
+	V "github.com/javtube/javtube-sdk-go/internal/constant"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/route/validator"
 )
@@ -19,6 +20,8 @@ func New(app *engine.Engine, v validator.Validator) *gin.Engine {
 		// fallback behavior
 		r.NoRoute(notFound())
 		r.NoMethod(notAllowed())
+		// index page
+		r.GET("/", index())
 	}
 
 	api := r.Group("/api")
@@ -65,6 +68,15 @@ func notAllowed() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		abortWithStatusMessage(c, http.StatusMethodNotAllowed,
 			http.StatusText(http.StatusMethodNotAllowed))
+	}
+}
+
+func index() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, &statusMessage{
+			Status:  true,
+			Message: V.VersionString(),
+		})
 	}
 }
 
