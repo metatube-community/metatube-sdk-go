@@ -18,17 +18,6 @@ import (
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 )
 
-type Options struct {
-	// DSN the Data Source Name.
-	DSN string
-
-	// DisableAutomaticPing as it is.
-	DisableAutomaticPing bool
-
-	// Timeout for each request.
-	Timeout time.Duration
-}
-
 type Engine struct {
 	db             *gorm.DB
 	movieProviders map[string]javtube.MovieProvider
