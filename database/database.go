@@ -32,7 +32,7 @@ type Config struct {
 
 func Open(cfg *Config) (db *gorm.DB, err error) {
 	if cfg.DSN == "" {
-		// We use memory sqlite DB by default.
+		// use sqlite DB memory mode by default.
 		cfg.DSN = "file::memory:?cache=shared"
 	}
 
@@ -48,7 +48,7 @@ func Open(cfg *Config) (db *gorm.DB, err error) {
 		len(strings.Fields(cfg.DSN)) > 4 {
 		dialector = postgres.New(postgres.Config{
 			DSN: cfg.DSN,
-			// disable implicit prepared statement usage.
+			// set true to disable implicit prepared statement usage.
 			PreferSimpleProtocol: !cfg.PreparedStmt,
 		})
 	} else {
