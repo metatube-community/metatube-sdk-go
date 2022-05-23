@@ -27,7 +27,7 @@ var (
 )
 
 type options struct {
-	// base options
+	// main options
 	bind  string
 	port  string
 	token string
