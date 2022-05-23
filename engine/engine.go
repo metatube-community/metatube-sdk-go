@@ -49,24 +49,34 @@ func New(opts *Options) (engine *Engine, err error) {
 
 	engine = &Engine{
 		db:             db,
-		movieProviders: make(map[string]javtube.MovieProvider),
-		actorProviders: make(map[string]javtube.ActorProvider),
+		actorProviders: initActorProviders(opts.Timeout),
+		movieProviders: initMovieProviders(opts.Timeout),
 	}
-	// Initialize movie providers.
-	javtube.RangeMovieFactory(func(name string, factory javtube.MovieFactory) {
-		provider := factory()
-		if s, ok := provider.(javtube.RequestTimeoutSetter); ok {
-			s.SetRequestTimeout(opts.Timeout)
-		}
-		engine.movieProviders[strings.ToUpper(name)] = provider
-	})
-	// Initialize actor providers.
+	return
+}
+
+// initActorProviders initializes actor providers.
+func initActorProviders(timeout time.Duration) (providers map[string]javtube.ActorProvider) {
+	providers = make(map[string]javtube.ActorProvider)
 	javtube.RangeActorFactory(func(name string, factory javtube.ActorFactory) {
 		provider := factory()
 		if s, ok := provider.(javtube.RequestTimeoutSetter); ok {
-			s.SetRequestTimeout(opts.Timeout)
+			s.SetRequestTimeout(timeout)
 		}
-		engine.actorProviders[strings.ToUpper(name)] = factory()
+		providers[strings.ToUpper(name)] = factory()
+	})
+	return
+}
+
+// initMovieProviders initializes movie providers.
+func initMovieProviders(timeout time.Duration) (providers map[string]javtube.MovieProvider) {
+	providers = make(map[string]javtube.MovieProvider)
+	javtube.RangeMovieFactory(func(name string, factory javtube.MovieFactory) {
+		provider := factory()
+		if s, ok := provider.(javtube.RequestTimeoutSetter); ok {
+			s.SetRequestTimeout(timeout)
+		}
+		providers[strings.ToUpper(name)] = provider
 	})
 	return
 }
