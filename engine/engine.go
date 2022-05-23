@@ -2,16 +2,11 @@ package engine
 
 import (
 	"fmt"
-	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
-	"github.com/glebarez/sqlite"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 
 	"github.com/javtube/javtube-sdk-go/common/fetch"
 	"github.com/javtube/javtube-sdk-go/model"
@@ -116,36 +111,4 @@ func (e *Engine) MustGetMovieProvider(name string) javtube.MovieProvider {
 		panic(err)
 	}
 	return provider
-}
-
-func openDB(dsn string) (*gorm.DB, error) {
-	var dialector gorm.Dialector
-	if dsn == "" {
-		// We use memory sqlite DB by default.
-		dsn = "file::memory:?cache=shared"
-	}
-
-	// We try to parse it as postgresql, otherwise
-	// fallback to sqlite.
-	if strings.HasPrefix(dsn, "postgres://") ||
-		strings.HasPrefix(dsn, "postgresql://") ||
-		len(strings.Fields(dsn)) > 4 {
-		dialector = postgres.New(postgres.Config{
-			DSN: dsn,
-			// disables implicit prepared statement usage.
-			PreferSimpleProtocol: true,
-		})
-	} else {
-		dialector = sqlite.Open(dsn)
-	}
-
-	return gorm.Open(dialector, &gorm.Config{
-		DisableAutomaticPing: true,
-		Logger: logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
-			SlowThreshold:             100 * time.Millisecond,
-			LogLevel:                  logger.Info,
-			IgnoreRecordNotFoundError: false,
-			Colorful:                  false,
-		}),
-	})
 }
