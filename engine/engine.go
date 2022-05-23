@@ -35,24 +35,12 @@ type Engine struct {
 	actorProviders map[string]javtube.ActorProvider
 }
 
-func New(opts *Options) (engine *Engine, err error) {
-	var db *gorm.DB
-	if db, err = openDB(opts.DSN); err != nil {
-		return
-	}
-
-	if !opts.DisableAutomaticPing {
-		if pinger, ok := db.ConnPool.(interface{ Ping() error }); ok {
-			go pinger.Ping() // Async ping.
-		}
-	}
-
-	engine = &Engine{
+func New(db *gorm.DB, timeout time.Duration) *Engine {
+	return &Engine{
 		db:             db,
-		actorProviders: initActorProviders(opts.Timeout),
-		movieProviders: initMovieProviders(opts.Timeout),
+		actorProviders: initActorProviders(timeout),
+		movieProviders: initMovieProviders(timeout),
 	}
-	return
 }
 
 // initActorProviders initializes actor providers.

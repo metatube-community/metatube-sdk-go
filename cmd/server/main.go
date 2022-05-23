@@ -12,11 +12,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/peterbourgon/ff/v3"
 
+	"github.com/javtube/javtube-sdk-go/database"
 	"github.com/javtube/javtube-sdk-go/engine"
 	V "github.com/javtube/javtube-sdk-go/internal/constant"
 	"github.com/javtube/javtube-sdk-go/route"
 	"github.com/javtube/javtube-sdk-go/route/validator"
 )
+
+const defaultRequestTimeout = 2 * time.Minute
 
 var (
 	opts = new(options)
@@ -24,11 +27,19 @@ var (
 )
 
 type options struct {
-	bind        string
-	port        string
-	token       string
-	dsn         string
-	autoMigrate bool
+	// base options
+	bind  string
+	port  string
+	token string
+	dsn   string
+
+	// database options
+	dbMaxIdleConns int
+	dbMaxOpenConns int
+	dbAutoMigrate  bool
+	dbPreparedStmt bool
+
+	// version flag
 	versionFlag bool
 }
 
@@ -41,7 +52,10 @@ func init() {
 	flag.StringVar(&opts.port, "port", "8080", "Port number of server")
 	flag.StringVar(&opts.token, "token", "", "Token to access server")
 	flag.StringVar(&opts.dsn, "dsn", "", "Database Service Name")
-	flag.BoolVar(&opts.autoMigrate, "auto-migrate", false, "Database auto migration")
+	flag.IntVar(&opts.dbMaxIdleConns, "db-max-idle-conns", 0, "Database max idle connections")
+	flag.IntVar(&opts.dbMaxOpenConns, "db-max-open-conns", 0, "Database max open connections")
+	flag.BoolVar(&opts.dbAutoMigrate, "db-auto-migrate", false, "Database auto migration")
+	flag.BoolVar(&opts.dbPreparedStmt, "db-prepared-stmt", false, "Database prepared statement")
 	flag.BoolVar(&opts.versionFlag, "v", false, "Show version")
 	ff.Parse(flag, os.Args[1:], ff.WithEnvVarNoPrefix())
 }
@@ -57,15 +71,19 @@ func main() {
 		showVersionAndExit()
 	}
 
-	app, err := engine.New(&engine.Options{
-		DSN:     opts.dsn,
-		Timeout: 2 * time.Minute,
+	db, err := database.Open(&database.Config{
+		DSN:                  opts.dsn,
+		PreparedStmt:         opts.dbPreparedStmt,
+		MaxIdleConns:         opts.dbMaxIdleConns,
+		MaxOpenConns:         opts.dbMaxOpenConns,
+		DisableAutomaticPing: true,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err = app.AutoMigrate(opts.autoMigrate); err != nil {
+	app := engine.New(db, defaultRequestTimeout)
+	if err = app.AutoMigrate(opts.dbAutoMigrate); err != nil {
 		log.Fatal(err)
 	}
 
