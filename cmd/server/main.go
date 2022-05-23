@@ -61,8 +61,7 @@ func init() {
 }
 
 func showVersionAndExit() {
-	fmt.Printf("%s-%s\n",
-		V.Version, V.GitCommit)
+	fmt.Println(V.VersionString())
 	os.Exit(0)
 }
 
