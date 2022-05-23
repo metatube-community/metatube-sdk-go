@@ -7,6 +7,7 @@ import (
 
 const ActorTableName = "actor_metadata"
 
+// ActorSearchResult is a subset of ActorInfo.
 type ActorSearchResult struct {
 	ID       string         `json:"id"`
 	Name     string         `json:"name"`

@@ -7,6 +7,7 @@ import (
 
 const MovieTableName = "movie_metadata"
 
+// MovieSearchResult is a subset of MovieInfo.
 type MovieSearchResult struct {
 	ID          string         `json:"id"`
 	Number      string         `json:"number"`
