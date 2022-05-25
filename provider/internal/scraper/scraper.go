@@ -52,6 +52,8 @@ func (s *Scraper) Priority() int { return s.priority }
 
 func (s *Scraper) NormalizeID(id string) string { return id /* AS IS */ }
 
+func (s *Scraper) ParseIDFromURL(string) (string, error) { panic("unimplemented") }
+
 //// Collector returns original/internal collector.
 //func (s *Scraper) Collector() *colly.Collector { return s.c }
 
