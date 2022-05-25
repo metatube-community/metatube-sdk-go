@@ -64,7 +64,7 @@ func (pst *PRESTIGE) ParseIDFromURL(rawURL string) (id string, err error) {
 	if err != nil {
 		return "", err
 	}
-	if id = strings.ToUpper(homepage.Query().Get("sku")); id == "" {
+	if id = homepage.Query().Get("sku"); id == "" {
 		err = provider.ErrInvalidID
 	}
 	return

@@ -62,7 +62,7 @@ func (hey *HeyDouga) ParseIDFromURL(rawURL string) (id string, err error) {
 		id = fmt.Sprintf("%s-%s", ss[1], ss[2])
 	}
 	if id == "" {
-		err = provider.ErrInvalidID
+		err = provider.ErrInvalidURL
 	}
 	return
 }

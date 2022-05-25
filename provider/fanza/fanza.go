@@ -82,12 +82,14 @@ func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) 
 func (fz *FANZA) ParseIDFromURL(rawURL string) (id string, err error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return "", err
+		return
 	}
-	if sub := regexp.MustCompile(`/cid=(.*?)/`).FindStringSubmatch(homepage.Path); len(sub) == 2 {
+	if sub := regexp.MustCompile(`/cid=(.*?)/`).
+		FindStringSubmatch(homepage.Path); len(sub) == 2 {
 		id = strings.ToLower(sub[1])
-	} else {
-		err = fmt.Errorf("invalid FANZA url: %s", rawURL)
+	}
+	if id == "" {
+		err = provider.ErrInvalidURL
 	}
 	return
 }

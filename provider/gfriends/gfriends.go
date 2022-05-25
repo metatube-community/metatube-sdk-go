@@ -76,8 +76,7 @@ func (gf *GFriends) ParseIDFromURL(rawURL string) (id string, err error) {
 	if err != nil {
 		return
 	}
-	id = homepage.Query().Get(gFriendsID)
-	if id == "" {
+	if id = homepage.Query().Get(gFriendsID); id == "" {
 		err = provider.ErrInvalidID
 	}
 	return

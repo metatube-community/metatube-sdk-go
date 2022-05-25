@@ -59,7 +59,7 @@ func (sod *SOD) ParseIDFromURL(rawURL string) (id string, err error) {
 	if err != nil {
 		return
 	}
-	if id = strings.ToUpper(homepage.Query().Get("id")); id == "" {
+	if id = homepage.Query().Get("id"); id == "" {
 		err = provider.ErrInvalidID
 	}
 	return
