@@ -8,7 +8,7 @@ require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/esimov/pigo v1.4.5
 	github.com/gin-gonic/gin v1.7.7
-	github.com/glebarez/sqlite v1.4.4
+	github.com/glebarez/sqlite v1.4.5
 	github.com/gocolly/colly/v2 v2.1.1-0.20220424184721-cf681331964a
 	github.com/grafov/m3u8 v0.11.1
 	github.com/hashicorp/go-retryablehttp v0.7.1
@@ -17,7 +17,7 @@ require (
 	github.com/nlnwa/whatwg-url v0.1.1
 	github.com/peterbourgon/ff/v3 v3.1.2
 	github.com/stretchr/testify v1.7.1
-	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2
+	golang.org/x/net v0.0.0-20220524220425-1d687d428aca
 	gorm.io/datatypes v1.0.6
 	gorm.io/driver/postgres v1.3.6
 	gorm.io/gorm v1.23.5
