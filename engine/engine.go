@@ -76,7 +76,7 @@ func (e *Engine) IsActorProvider(name string) (ok bool) {
 	return
 }
 
-func (e *Engine) GetActorProvider(name string) (javtube.ActorProvider, error) {
+func (e *Engine) GetActorProviderByName(name string) (javtube.ActorProvider, error) {
 	provider, ok := e.actorProviders[strings.ToUpper(name)]
 	if !ok {
 		return nil, fmt.Errorf("actor provider not found: %s", name)
@@ -84,8 +84,8 @@ func (e *Engine) GetActorProvider(name string) (javtube.ActorProvider, error) {
 	return provider, nil
 }
 
-func (e *Engine) MustGetActorProvider(name string) javtube.ActorProvider {
-	provider, err := e.GetActorProvider(name)
+func (e *Engine) MustGetActorProviderByName(name string) javtube.ActorProvider {
+	provider, err := e.GetActorProviderByName(name)
 	if err != nil {
 		panic(err)
 	}
@@ -97,7 +97,7 @@ func (e *Engine) IsMovieProvider(name string) (ok bool) {
 	return
 }
 
-func (e *Engine) GetMovieProvider(name string) (javtube.MovieProvider, error) {
+func (e *Engine) GetMovieProviderByName(name string) (javtube.MovieProvider, error) {
 	provider, ok := e.movieProviders[strings.ToUpper(name)]
 	if !ok {
 		return nil, fmt.Errorf("movie provider not found: %s", name)
@@ -105,8 +105,8 @@ func (e *Engine) GetMovieProvider(name string) (javtube.MovieProvider, error) {
 	return provider, nil
 }
 
-func (e *Engine) MustGetMovieProvider(name string) javtube.MovieProvider {
-	provider, err := e.GetMovieProvider(name)
+func (e *Engine) MustGetMovieProviderByName(name string) javtube.MovieProvider {
+	provider, err := e.GetMovieProviderByName(name)
 	if err != nil {
 		panic(err)
 	}

@@ -72,9 +72,9 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 		if query.URL != "" /* specified URL */ {
 			var provider javtube.Provider
 			if isActorProvider {
-				provider = app.MustGetActorProvider(query.Provider)
+				provider = app.MustGetActorProviderByName(query.Provider)
 			} else {
-				provider = app.MustGetMovieProvider(query.Provider)
+				provider = app.MustGetMovieProviderByName(query.Provider)
 			}
 			img, err = app.GetImageByURL(query.URL, provider, ratio, query.Position, query.Auto)
 		} else if isActorProvider /* actor */ {

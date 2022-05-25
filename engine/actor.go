@@ -34,7 +34,7 @@ func (e *Engine) searchActor(keyword string, provider javtube.Provider, lazy boo
 }
 
 func (e *Engine) SearchActor(keyword, name string, lazy bool) ([]*model.ActorSearchResult, error) {
-	provider, err := e.GetActorProvider(name)
+	provider, err := e.GetActorProviderByName(name)
 	if err != nil {
 		return nil, err
 	}
@@ -64,8 +64,8 @@ func (e *Engine) SearchActorAll(keyword string) (results []*model.ActorSearchRes
 	wg.Wait()
 
 	sort.SliceStable(results, func(i, j int) bool {
-		return e.MustGetActorProvider(results[i].Provider).Priority() >
-			e.MustGetActorProvider(results[j].Provider).Priority()
+		return e.MustGetActorProviderByName(results[i].Provider).Priority() >
+			e.MustGetActorProviderByName(results[j].Provider).Priority()
 	})
 	return
 }
@@ -106,7 +106,7 @@ func (e *Engine) getActorInfoByID(id string, provider javtube.ActorProvider, laz
 }
 
 func (e *Engine) GetActorInfoByID(id, name string, lazy bool) (info *model.ActorInfo, err error) {
-	provider, err := e.GetActorProvider(name)
+	provider, err := e.GetActorProviderByName(name)
 	if err != nil {
 		return
 	}

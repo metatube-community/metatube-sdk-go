@@ -43,7 +43,7 @@ func (e *Engine) SearchMovie(keyword, name string, lazy bool) ([]*model.MovieSea
 	if keyword = number.Trim(keyword); keyword == "" {
 		return nil, javtube.ErrInvalidKeyword
 	}
-	provider, err := e.GetMovieProvider(name)
+	provider, err := e.GetMovieProviderByName(name)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func (e *Engine) SearchMovieAll(keyword string, lazy bool) (results []*model.Mov
 				continue
 			}
 			ps.Append(number.Similarity(keyword, result.Number)*
-				float64(e.MustGetMovieProvider(result.Provider).Priority()), result)
+				float64(e.MustGetMovieProviderByName(result.Provider).Priority()), result)
 		}
 		// sort according to priority.
 		results = ps.Sort().Underlying()
@@ -164,7 +164,7 @@ func (e *Engine) getMovieInfoByID(id string, provider javtube.MovieProvider, laz
 }
 
 func (e *Engine) GetMovieInfoByID(id, name string, lazy bool) (info *model.MovieInfo, err error) {
-	provider, err := e.GetMovieProvider(name)
+	provider, err := e.GetMovieProviderByName(name)
 	if err != nil {
 		return
 	}
