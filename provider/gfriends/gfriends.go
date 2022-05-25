@@ -33,15 +33,17 @@ const (
 	jsonURL    = "https://raw.githubusercontent.com/xinxin8816/gfriends/master/Filetree.json"
 )
 
+var _baseURL, _ = url.Parse(baseURL)
+
 type GFriends struct{}
 
 func New() *GFriends { return &GFriends{} }
 
 func (gf *GFriends) Name() string { return Name }
 
-func (gf *GFriends) URL() string { return baseURL }
-
 func (gf *GFriends) Priority() int { return Priority }
+
+func (gf *GFriends) URL() *url.URL { return _baseURL }
 
 func (gf *GFriends) NormalizeID(id string) string { return id /* AS IS */ }
 

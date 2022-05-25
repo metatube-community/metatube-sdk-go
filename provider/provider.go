@@ -2,6 +2,7 @@ package provider
 
 import (
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/javtube/javtube-sdk-go/model"
@@ -11,11 +12,11 @@ type Provider interface {
 	// Name returns the name of the provider.
 	Name() string
 
-	// URL returns the base url of the provider.
-	URL() string
-
 	// Priority returns the matching priority of the provider.
 	Priority() int
+
+	// URL returns the base url of the provider.
+	URL() *url.URL
 
 	// NormalizeID normalizes ID to conform to standard.
 	NormalizeID(id string) string
