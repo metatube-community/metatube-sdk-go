@@ -49,17 +49,24 @@ func (tht *TokyoHot) GetMovieInfoByID(id string) (info *model.MovieInfo, err err
 	return tht.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (tht *TokyoHot) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(u)
+func (tht *TokyoHot) ParseIDFromURL(rawURL string) (string, error) {
+	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	id := path.Base(homepage.Path)
+	return path.Base(homepage.Path), nil
+}
+
+func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := tht.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
 
 	info = &model.MovieInfo{
-		ID:            strings.ToUpper(id),
+		ID:            id,
 		Provider:      tht.Name(),
-		Homepage:      homepage.String(),
+		Homepage:      rawURL,
 		Maker:         "TOKYO-HOT",
 		Actors:        []string{},
 		PreviewImages: []string{},

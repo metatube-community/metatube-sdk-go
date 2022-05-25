@@ -59,16 +59,24 @@ func (mgs *MGS) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return mgs.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (mgs *MGS) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(u)
+func (mgs *MGS) ParseIDFromURL(rawURL string) (string, error) {
+	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return "", err
+	}
+	return strings.ToUpper(path.Base(homepage.Path)), nil
+}
+
+func (mgs *MGS) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := mgs.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
 	}
 
 	info = &model.MovieInfo{
-		ID:            strings.ToUpper(path.Base(homepage.Path)),
+		ID:            id,
 		Provider:      mgs.Name(),
-		Homepage:      homepage.String(),
+		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},

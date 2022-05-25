@@ -52,26 +52,32 @@ func (hey *HeyDouga) GetMovieInfoByID(id string) (info *model.MovieInfo, err err
 	return nil, provider.ErrInvalidID
 }
 
-func (hey *HeyDouga) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(u)
+func (hey *HeyDouga) ParseIDFromURL(rawURL string) (id string, err error) {
+	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return
 	}
-
-	var id string
 	if ss := regexp.MustCompile(`/(\d+)/(\d+)/index\.html`).
 		FindStringSubmatch(homepage.Path); len(ss) == 3 {
 		id = fmt.Sprintf("%s-%s", ss[1], ss[2])
 	}
 	if id == "" {
-		return nil, provider.ErrInvalidID
+		err = provider.ErrInvalidID
+	}
+	return
+}
+
+func (hey *HeyDouga) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := hey.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
 	}
 
 	info = &model.MovieInfo{
 		ID:            id,
 		Number:        fmt.Sprintf("HEYDOUGA-%s", id),
 		Provider:      hey.Name(),
-		Homepage:      homepage.String(),
+		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},

@@ -56,16 +56,24 @@ func (bus *JavBus) GetMovieInfoByID(id string) (info *model.MovieInfo, err error
 	return bus.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (bus *JavBus) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(u)
+func (bus *JavBus) ParseIDFromURL(rawURL string) (string, error) {
+	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return "", err
+	}
+	return strings.ToUpper(path.Base(homepage.Path)), nil
+}
+
+func (bus *JavBus) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := bus.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
 	}
 
 	info = &model.MovieInfo{
-		ID:            strings.ToUpper(path.Base(homepage.Path)),
+		ID:            id,
 		Provider:      bus.Name(),
-		Homepage:      homepage.String(),
+		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},

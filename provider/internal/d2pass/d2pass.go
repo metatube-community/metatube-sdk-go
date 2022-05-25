@@ -58,16 +58,23 @@ func (core *Core) GetMovieInfoByID(id string) (info *model.MovieInfo, err error)
 	return core.GetMovieInfoByURL(fmt.Sprintf(core.MovieURL, id))
 }
 
-func (core *Core) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(u)
+func (core *Core) ParseIDFromURL(rawURL string) (string, error) {
+	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	id := path.Base(homepage.Path)
+	return path.Base(homepage.Path), nil
+}
+
+func (core *Core) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
+	id, err := core.ParseIDFromURL(u)
+	if err != nil {
+		return
+	}
 
 	info = &model.MovieInfo{
 		Provider:      core.Name(),
-		Homepage:      homepage.String(),
+		Homepage:      u,
 		Maker:         core.DefaultMaker,
 		Actors:        []string{},
 		PreviewImages: []string{},

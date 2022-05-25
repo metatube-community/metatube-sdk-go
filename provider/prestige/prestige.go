@@ -50,7 +50,7 @@ func New() *PRESTIGE {
 }
 
 func (pst *PRESTIGE) NormalizeID(id string) string {
-	// PRESTIGE doesn't case about SKU cases, but we
+	// PRESTIGE doesn't care about SKU cases, but we
 	// use uppercase for better alignment.
 	return strings.ToUpper(id)
 }
@@ -59,22 +59,30 @@ func (pst *PRESTIGE) GetMovieInfoByID(id string) (info *model.MovieInfo, err err
 	return pst.GetMovieInfoByURL(fmt.Sprintf(movieURL, url.QueryEscape(id)))
 }
 
-func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(u)
+func (pst *PRESTIGE) ParseIDFromURL(rawURL string) (id string, err error) {
+	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return "", err
+	}
+	if id = strings.ToUpper(homepage.Query().Get("sku")); id == "" {
+		err = provider.ErrInvalidID
+	}
+	return
+}
+
+func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
+	id, err := pst.ParseIDFromURL(u)
+	if err != nil {
+		return
 	}
 
 	info = &model.MovieInfo{
+		ID:            id,
 		Provider:      pst.Name(),
-		Homepage:      homepage.String(),
+		Homepage:      u,
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},
-	}
-
-	if info.ID = strings.ToUpper(homepage.Query().Get("sku")); info.ID == "" {
-		return nil, provider.ErrInvalidID
 	}
 
 	c := pst.ClonedCollector()

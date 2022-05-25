@@ -51,20 +51,29 @@ func (xsl *XsList) GetActorInfoByID(id string) (info *model.ActorInfo, err error
 	return xsl.GetActorInfoByURL(fmt.Sprintf(actorURL, id))
 }
 
-func (xsl *XsList) GetActorInfoByURL(u string) (info *model.ActorInfo, err error) {
-	homepage, err := url.Parse(u)
+func (xsl *XsList) ParseIDFromURL(rawURL string) (id string, err error) {
+	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	var id string
 	if ext := path.Ext(homepage.Path); ext != "" {
 		id = path.Base(homepage.Path[:len(homepage.Path)-len(ext)])
+		return
+	}
+	err = provider.ErrInvalidID
+	return
+}
+
+func (xsl *XsList) GetActorInfoByURL(rawURL string) (info *model.ActorInfo, err error) {
+	id, err := xsl.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
 	}
 
 	info = &model.ActorInfo{
 		ID:       id,
 		Provider: xsl.Name(),
-		Homepage: homepage.String(),
+		Homepage: rawURL,
 		Aliases:  []string{},
 		Images:   []string{},
 	}

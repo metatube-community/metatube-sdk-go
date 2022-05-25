@@ -54,24 +54,31 @@ func (sod *SOD) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return sod.GetMovieInfoByURL(fmt.Sprintf(movieURL, url.QueryEscape(id)))
 }
 
-func (sod *SOD) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(u)
+func (sod *SOD) ParseIDFromURL(rawURL string) (id string, err error) {
+	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return
+	}
+	if id = strings.ToUpper(homepage.Query().Get("id")); id == "" {
+		err = provider.ErrInvalidID
+	}
+	return
+}
+
+func (sod *SOD) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := sod.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
 	}
 
 	info = &model.MovieInfo{
+		ID:            id,
+		Number:        id,
 		Provider:      sod.Name(),
-		Homepage:      homepage.String(),
+		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},
-	}
-
-	// ID+Number
-	if ss := regexp.MustCompile(`id=(.+?)$`).FindStringSubmatch(info.Homepage); len(ss) == 2 {
-		info.ID = strings.ToUpper(ss[1])
-		info.Number = info.ID
 	}
 
 	c := sod.ClonedCollector()

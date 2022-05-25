@@ -51,18 +51,25 @@ func (hzo *Heyzo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error)
 	return hzo.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (hzo *Heyzo) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(strings.TrimRight(u, "/"))
+func (hzo *Heyzo) ParseIDFromURL(rawURL string) (string, error) {
+	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	id := path.Base(path.Dir(homepage.Path))
+	return path.Base(path.Dir(homepage.Path)), nil
+}
+
+func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := hzo.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
 
 	info = &model.MovieInfo{
 		ID:            id,
 		Number:        fmt.Sprintf("HEYZO-%s", id),
 		Provider:      hzo.Name(),
-		Homepage:      homepage.String(),
+		Homepage:      rawURL,
 		Maker:         "HEYZO",
 		Actors:        []string{},
 		PreviewImages: []string{},

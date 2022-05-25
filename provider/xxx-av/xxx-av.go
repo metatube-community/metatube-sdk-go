@@ -54,17 +54,25 @@ func (xav *TripleX) GetMovieInfoByID(id string) (info *model.MovieInfo, err erro
 	return xav.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (xav *TripleX) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(u)
+func (xav *TripleX) ParseIDFromURL(rawURL string) (string, error) {
+	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return "", err
+	}
+	return path.Base(homepage.Path), nil
+}
+
+func (xav *TripleX) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := xav.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
 	}
 
 	info = &model.MovieInfo{
-		ID:            path.Base(homepage.Path),
-		Number:        fmt.Sprintf("XXX-AV-%s", path.Base(homepage.Path)),
+		ID:            id,
+		Number:        fmt.Sprintf("XXX-AV-%s", id),
 		Provider:      xav.Name(),
-		Homepage:      homepage.String(),
+		Homepage:      rawURL,
 		Maker:         "トリプルエックス",
 		Actors:        []string{},
 		PreviewImages: []string{},
