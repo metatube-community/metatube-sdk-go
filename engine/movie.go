@@ -168,10 +168,10 @@ func (e *Engine) getMovieInfoByID(id string, provider javtube.MovieProvider, laz
 	return provider.GetMovieInfoByID(id)
 }
 
-func (e *Engine) GetMovieInfoByID(id, name string, lazy bool) (info *model.MovieInfo, err error) {
+func (e *Engine) GetMovieInfoByID(id, name string, lazy bool) (*model.MovieInfo, error) {
 	provider, err := e.GetMovieProviderByName(name)
 	if err != nil {
-		return
+		return nil, err
 	}
 	return e.getMovieInfoByID(id, provider, lazy)
 }
