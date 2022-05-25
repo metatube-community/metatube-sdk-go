@@ -132,6 +132,15 @@ func (e *Engine) SearchMovieAll(keyword string, lazy bool) (results []*model.Mov
 	return
 }
 
+func (e *Engine) getMovieInfoFromDB(id string, provider javtube.MovieProvider) (*model.MovieInfo, error) {
+	info := &model.MovieInfo{}
+	err := e.db. // Exact match here.
+			Where("id = ?", id).
+			Where("provider = ?", provider.Name()).
+			First(info).Error
+	return info, err
+}
+
 func (e *Engine) getMovieInfoByID(id string, provider javtube.MovieProvider, lazy bool) (info *model.MovieInfo, err error) {
 	defer func() {
 		// metadata validation check.
@@ -143,14 +152,10 @@ func (e *Engine) getMovieInfoByID(id string, provider javtube.MovieProvider, laz
 		return nil, javtube.ErrInvalidID
 	}
 	// Query DB first (by id).
-	if info = new(model.MovieInfo); lazy {
-		if result := e.db.
-			// Exact match here.
-			Where("id = ?", id).
-			Where("provider = ?", provider.Name()).
-			First(info); result.Error == nil && info.Valid() {
-			return
-		} // ignore DB query error.
+	if lazy {
+		if info, err = e.getMovieInfoFromDB(id, provider); err == nil && info.Valid() {
+			return // ignore DB query error.
+		}
 	}
 	// delayed info auto-save.
 	defer func() {
