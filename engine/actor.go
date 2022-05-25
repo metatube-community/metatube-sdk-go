@@ -70,6 +70,15 @@ func (e *Engine) SearchActorAll(keyword string) (results []*model.ActorSearchRes
 	return
 }
 
+func (e *Engine) getActorInfoFromDB(id string, provider javtube.ActorProvider) (*model.ActorInfo, error) {
+	info := &model.ActorInfo{}
+	err := e.db. // Exact match here.
+			Where("id = ?", id).
+			Where("provider = ?", provider.Name()).
+			First(info).Error
+	return info, err
+}
+
 func (e *Engine) getActorInfoByID(id string, provider javtube.ActorProvider, lazy bool) (info *model.ActorInfo, err error) {
 	defer func() {
 		// metadata validation check.
@@ -84,12 +93,8 @@ func (e *Engine) getActorInfoByID(id string, provider javtube.ActorProvider, laz
 		return provider.GetActorInfoByID(id)
 	}
 	// Query DB first (by id).
-	if info = new(model.ActorInfo); lazy {
-		if result := e.db.
-			// Exact match here.
-			Where("id = ?", id).
-			Where("provider = ?", provider.Name()).
-			First(info); result.Error == nil && info.Valid() {
+	if lazy {
+		if info, err = e.getActorInfoFromDB(id, provider); err == nil && info.Valid() {
 			return
 		}
 	}
