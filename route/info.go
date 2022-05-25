@@ -18,8 +18,9 @@ const (
 )
 
 type infoQuery struct {
-	ID       string `form:"id" binding:"required"`
-	Provider string `form:"provider" binding:"required"`
+	ID       string `form:"id"`
+	Provider string `form:"provider"`
+	URL      string `form:"url"`
 	Language string `form:"lang"`
 	Lazy     bool   `form:"lazy"`
 }
@@ -34,15 +35,28 @@ func getInfo(app *engine.Engine, typ infoType) gin.HandlerFunc {
 			return
 		}
 
+		if query.URL == "" && (query.ID == "" || query.Provider == "") {
+			abortWithStatusMessage(c, http.StatusBadRequest, "bad query")
+			return
+		}
+
 		var (
 			info any
 			err  error
 		)
 		switch typ {
 		case actorInfoType:
-			info, err = app.GetActorInfoByID(query.ID, query.Provider, query.Lazy)
+			if query.URL != "" {
+				info, err = app.GetActorInfoByURL(query.URL, query.Lazy)
+			} else {
+				info, err = app.GetActorInfoByID(query.ID, query.Provider, query.Lazy)
+			}
 		case movieInfoType:
-			info, err = app.GetMovieInfoByID(query.ID, query.Provider, query.Lazy)
+			if query.URL != "" {
+				info, err = app.GetMovieInfoByURL(query.URL, query.Lazy)
+			} else {
+				info, err = app.GetMovieInfoByID(query.ID, query.Provider, query.Lazy)
+			}
 		default:
 			panic("invalid info/metadata type")
 		}
