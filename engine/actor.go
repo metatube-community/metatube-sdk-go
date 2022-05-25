@@ -79,7 +79,7 @@ func (e *Engine) getActorInfoFromDB(id string, provider javtube.ActorProvider) (
 	return info, err
 }
 
-func (e *Engine) getActorInfoByID(id string, provider javtube.ActorProvider, lazy bool) (info *model.ActorInfo, err error) {
+func (e *Engine) getActorInfoWithCallback(id string, provider javtube.ActorProvider, lazy bool, callback func() (*model.ActorInfo, error)) (info *model.ActorInfo, err error) {
 	defer func() {
 		// metadata validation check.
 		if err == nil && (info == nil || !info.Valid()) {
@@ -107,7 +107,14 @@ func (e *Engine) getActorInfoByID(id string, provider javtube.ActorProvider, laz
 			}).Create(info) // ignore error
 		}
 	}()
-	return provider.GetActorInfoByID(id)
+	return callback()
+}
+
+func (e *Engine) getActorInfoByID(id string, provider javtube.ActorProvider, lazy bool) (*model.ActorInfo, error) {
+	return e.getActorInfoWithCallback(id, provider, lazy,
+		func() (*model.ActorInfo, error) {
+			return provider.GetActorInfoByID(id)
+		})
 }
 
 func (e *Engine) GetActorInfoByID(id, name string, lazy bool) (*model.ActorInfo, error) {
@@ -118,35 +125,15 @@ func (e *Engine) GetActorInfoByID(id, name string, lazy bool) (*model.ActorInfo,
 	return e.getActorInfoByID(id, provider, lazy)
 }
 
-func (e *Engine) getActorInfoByURL(rawURL string, provider javtube.ActorProvider, lazy bool) (info *model.ActorInfo, err error) {
-	defer func() {
-		// metadata validation check.
-		if err == nil && (info == nil || !info.Valid()) {
-			err = javtube.ErrInvalidMetadata
-		}
-	}()
-	if lazy {
-		var id string
-		if id, err = provider.ParseIDFromURL(rawURL); err != nil {
-			return
-		}
-		if id = provider.NormalizeID(id); id == "" {
-			return nil, javtube.ErrInvalidID
-		}
-		if info, err = e.getActorInfoFromDB(id, provider); err == nil && info.Valid() {
-			return // ignore DB query error.
-		}
+func (e *Engine) getActorInfoByURL(rawURL string, provider javtube.ActorProvider, lazy bool) (*model.ActorInfo, error) {
+	id, err := provider.ParseIDFromURL(rawURL)
+	if err != nil {
+		return nil, err
 	}
-	// Delayed info auto-save.
-	defer func() {
-		if err == nil && info.Valid() {
-			// Make sure we save the original info here.
-			e.db.Clauses(clause.OnConflict{
-				UpdateAll: true,
-			}).Create(info) // ignore error
-		}
-	}()
-	return provider.GetActorInfoByURL(rawURL)
+	return e.getActorInfoWithCallback(id, provider, lazy,
+		func() (*model.ActorInfo, error) {
+			return provider.GetActorInfoByURL(rawURL)
+		})
 }
 
 func (e *Engine) GetActorInfoByURL(rawURL string, lazy bool) (*model.ActorInfo, error) {
