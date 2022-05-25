@@ -79,7 +79,7 @@ func (e *Engine) getActorInfoFromDB(id string, provider javtube.ActorProvider) (
 	return info, err
 }
 
-func (e *Engine) getActorInfoWithCallback(id string, provider javtube.ActorProvider, lazy bool, callback func() (*model.ActorInfo, error)) (info *model.ActorInfo, err error) {
+func (e *Engine) getActorInfoWithCallback(id string, provider javtube.ActorProvider, lazy bool, callback func(string) (*model.ActorInfo, error)) (info *model.ActorInfo, err error) {
 	defer func() {
 		// metadata validation check.
 		if err == nil && (info == nil || !info.Valid()) {
@@ -107,12 +107,12 @@ func (e *Engine) getActorInfoWithCallback(id string, provider javtube.ActorProvi
 			}).Create(info) // ignore error
 		}
 	}()
-	return callback()
+	return callback(id)
 }
 
 func (e *Engine) getActorInfoByID(id string, provider javtube.ActorProvider, lazy bool) (*model.ActorInfo, error) {
 	return e.getActorInfoWithCallback(id, provider, lazy,
-		func() (*model.ActorInfo, error) {
+		func(id string) (*model.ActorInfo, error) {
 			return provider.GetActorInfoByID(id)
 		})
 }
@@ -131,7 +131,7 @@ func (e *Engine) getActorInfoByURL(rawURL string, provider javtube.ActorProvider
 		return nil, err
 	}
 	return e.getActorInfoWithCallback(id, provider, lazy,
-		func() (*model.ActorInfo, error) {
+		func(_ string) (*model.ActorInfo, error) {
 			return provider.GetActorInfoByURL(rawURL)
 		})
 }
