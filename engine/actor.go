@@ -117,3 +117,42 @@ func (e *Engine) GetActorInfoByID(id, name string, lazy bool) (*model.ActorInfo,
 	}
 	return e.getActorInfoByID(id, provider, lazy)
 }
+
+func (e *Engine) getActorInfoByURL(rawURL string, provider javtube.ActorProvider, lazy bool) (info *model.ActorInfo, err error) {
+	defer func() {
+		// metadata validation check.
+		if err == nil && (info == nil || !info.Valid()) {
+			err = javtube.ErrInvalidMetadata
+		}
+	}()
+	if lazy {
+		var id string
+		if id, err = provider.ParseIDFromURL(rawURL); err != nil {
+			return
+		}
+		if id = provider.NormalizeID(id); id == "" {
+			return nil, javtube.ErrInvalidID
+		}
+		if info, err = e.getActorInfoFromDB(id, provider); err == nil && info.Valid() {
+			return // ignore DB query error.
+		}
+	}
+	// Delayed info auto-save.
+	defer func() {
+		if err == nil && info.Valid() {
+			// Make sure we save the original info here.
+			e.db.Clauses(clause.OnConflict{
+				UpdateAll: true,
+			}).Create(info) // ignore error
+		}
+	}()
+	return provider.GetActorInfoByURL(rawURL)
+}
+
+func (e *Engine) GetActorInfoByURL(rawURL string, lazy bool) (*model.ActorInfo, error) {
+	provider, err := e.GetActorProviderByURL(rawURL)
+	if err != nil {
+		return nil, err
+	}
+	return e.getActorInfoByURL(rawURL, provider, lazy)
+}

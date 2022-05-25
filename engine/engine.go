@@ -3,6 +3,7 @@ package engine
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -76,6 +77,19 @@ func (e *Engine) IsActorProvider(name string) (ok bool) {
 	return
 }
 
+func (e *Engine) GetActorProviderByURL(rawURL string) (javtube.ActorProvider, error) {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return nil, err
+	}
+	for _, provider := range e.actorProviders {
+		if provider.URL().Host == u.Host && strings.HasPrefix(u.Path, provider.URL().Path) {
+			return provider, nil
+		}
+	}
+	return nil, fmt.Errorf("actor provider not found: %s", rawURL)
+}
+
 func (e *Engine) GetActorProviderByName(name string) (javtube.ActorProvider, error) {
 	provider, ok := e.actorProviders[strings.ToUpper(name)]
 	if !ok {
@@ -95,6 +109,19 @@ func (e *Engine) MustGetActorProviderByName(name string) javtube.ActorProvider {
 func (e *Engine) IsMovieProvider(name string) (ok bool) {
 	_, ok = e.movieProviders[strings.ToUpper(name)]
 	return
+}
+
+func (e *Engine) GetMovieProviderByURL(rawURL string) (javtube.MovieProvider, error) {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return nil, err
+	}
+	for _, provider := range e.movieProviders {
+		if provider.URL().Host == u.Host && strings.HasPrefix(u.Path, provider.URL().Path) {
+			return provider, nil
+		}
+	}
+	return nil, fmt.Errorf("movie provider not found: %s", rawURL)
 }
 
 func (e *Engine) GetMovieProviderByName(name string) (javtube.MovieProvider, error) {
