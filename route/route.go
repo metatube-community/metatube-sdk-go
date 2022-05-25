@@ -85,7 +85,7 @@ func abortWithError(c *gin.Context, err error) {
 	switch err {
 	case javtube.ErrNotFound:
 		code = http.StatusNotFound
-	case javtube.ErrInvalidID, javtube.ErrInvalidKeyword:
+	case javtube.ErrInvalidID, javtube.ErrInvalidURL, javtube.ErrInvalidKeyword:
 		code = http.StatusBadRequest
 	case javtube.ErrNotSupported, javtube.ErrInvalidMetadata:
 		fallthrough
