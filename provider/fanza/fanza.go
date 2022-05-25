@@ -52,7 +52,7 @@ type FANZA struct {
 
 func New() *FANZA {
 	return &FANZA{
-		Scraper: scraper.NewDefaultScraper(Name, Priority,
+		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
 			scraper.WithCookies(baseURL, []*http.Cookie{
 				{Name: "age_check_done", Value: "1"},
 			})),

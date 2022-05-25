@@ -36,7 +36,7 @@ type TripleX struct {
 
 func New() *TripleX {
 	return &TripleX{
-		Scraper: scraper.NewDefaultScraper(Name, Priority,
+		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
 			scraper.WithCookies(baseURL, []*http.Cookie{
 				{Name: "acc_accept_lang", Value: "japanese"},
 			})),

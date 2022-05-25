@@ -42,7 +42,7 @@ type XsList struct {
 
 func New() *XsList {
 	return &XsList{
-		Scraper:  scraper.NewDefaultScraper(Name, Priority, scraper.WithDisableCookies()),
+		Scraper:  scraper.NewDefaultScraper(Name, baseURL, Priority, scraper.WithDisableCookies()),
 		gFriends: gfriends.New(),
 	}
 }

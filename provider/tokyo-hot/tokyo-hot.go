@@ -38,7 +38,7 @@ type TokyoHot struct {
 }
 
 func New() *TokyoHot {
-	return &TokyoHot{scraper.NewDefaultScraper(Name, Priority)}
+	return &TokyoHot{scraper.NewDefaultScraper(Name, baseURL, Priority)}
 }
 
 func (tht *TokyoHot) NormalizeID(id string) string {

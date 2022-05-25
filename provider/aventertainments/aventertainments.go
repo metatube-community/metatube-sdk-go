@@ -37,7 +37,7 @@ type AVE struct {
 }
 
 func New() *AVE {
-	return &AVE{scraper.NewDefaultScraper(Name, Priority)}
+	return &AVE{scraper.NewDefaultScraper(Name, baseURL, Priority)}
 }
 
 func (ave *AVE) NormalizeID(id string) string { return strings.ToUpper(id) }

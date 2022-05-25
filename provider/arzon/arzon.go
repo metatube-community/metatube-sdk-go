@@ -42,7 +42,7 @@ type ARZON struct {
 }
 
 func New() *ARZON {
-	return &ARZON{scraper.NewDefaultScraper(Name, Priority)}
+	return &ARZON{scraper.NewDefaultScraper(Name, baseURL, Priority)}
 }
 
 func (az *ARZON) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {

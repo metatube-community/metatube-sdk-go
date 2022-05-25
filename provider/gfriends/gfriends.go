@@ -39,6 +39,8 @@ func New() *GFriends { return &GFriends{} }
 
 func (gf *GFriends) Name() string { return Name }
 
+func (gf *GFriends) URL() string { return baseURL }
+
 func (gf *GFriends) Priority() int { return Priority }
 
 func (gf *GFriends) NormalizeID(id string) string { return id /* AS IS */ }

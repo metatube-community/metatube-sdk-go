@@ -8,10 +8,13 @@ import (
 )
 
 type Provider interface {
-	// Name returns name of the provider.
+	// Name returns the name of the provider.
 	Name() string
 
-	// Priority returns matching priority of the provider.
+	// URL returns the base url of the provider.
+	URL() string
+
+	// Priority returns the matching priority of the provider.
 	Priority() int
 
 	// NormalizeID normalizes ID to conform to standard.

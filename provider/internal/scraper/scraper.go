@@ -13,14 +13,16 @@ var _ provider.Provider = (*Scraper)(nil)
 // Scraper implements basic Provider interface.
 type Scraper struct {
 	name     string
+	baseURL  string
 	priority int
 	c        *colly.Collector
 }
 
 // NewScraper returns Provider implemented *Scraper.
-func NewScraper(name string, priority int, opts ...Option) *Scraper {
+func NewScraper(name, baseURL string, priority int, opts ...Option) *Scraper {
 	s := &Scraper{
 		name:     name,
+		baseURL:  baseURL,
 		priority: priority,
 		c:        colly.NewCollector(),
 	}
@@ -34,8 +36,8 @@ func NewScraper(name string, priority int, opts ...Option) *Scraper {
 }
 
 // NewDefaultScraper returns a *Scraper with default options enabled.
-func NewDefaultScraper(name string, priority int, opts ...Option) *Scraper {
-	return NewScraper(name, priority, append([]Option{
+func NewDefaultScraper(name, baseURL string, priority int, opts ...Option) *Scraper {
+	return NewScraper(name, baseURL, priority, append([]Option{
 		WithAllowURLRevisit(),
 		WithIgnoreRobotsTxt(),
 		WithRandomUserAgent(),
@@ -43,6 +45,8 @@ func NewDefaultScraper(name string, priority int, opts ...Option) *Scraper {
 }
 
 func (s *Scraper) Name() string { return s.name }
+
+func (s *Scraper) URL() string { return s.baseURL }
 
 func (s *Scraper) Priority() int { return s.priority }
 

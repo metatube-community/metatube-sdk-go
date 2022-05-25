@@ -35,7 +35,7 @@ type HeyDouga struct {
 }
 
 func New() *HeyDouga {
-	return &HeyDouga{scraper.NewDefaultScraper(Name, Priority)}
+	return &HeyDouga{scraper.NewDefaultScraper(Name, baseURL, Priority)}
 }
 
 func (hey *HeyDouga) NormalizeID(id string) string {
