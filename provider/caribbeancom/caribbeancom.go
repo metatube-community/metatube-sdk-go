@@ -54,18 +54,25 @@ func (carib *Caribbeancom) GetMovieInfoByID(id string) (info *model.MovieInfo, e
 	return carib.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (carib *Caribbeancom) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(u)
+func (carib *Caribbeancom) ParseIDFromURL(rawURL string) (string, error) {
+	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	id := path.Base(path.Dir(homepage.Path))
+	return path.Base(path.Dir(homepage.Path)), nil
+}
+
+func (carib *Caribbeancom) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := carib.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
 
 	info = &model.MovieInfo{
 		ID:            id,
 		Number:        id,
 		Provider:      carib.Name(),
-		Homepage:      homepage.String(),
+		Homepage:      rawURL,
 		Maker:         carib.DefaultMaker,
 		Actors:        []string{},
 		PreviewImages: []string{},

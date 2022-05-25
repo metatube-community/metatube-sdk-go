@@ -46,22 +46,27 @@ func (ave *AVE) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return ave.GetMovieInfoByURL(fmt.Sprintf(movieURL, url.QueryEscape(id)))
 }
 
-func (ave *AVE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(u)
+func (ave *AVE) ParseIDFromURL(rawURL string) (string, error) {
+	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return "", err
+	}
+	return homepage.Query().Get("product_id"), nil
+}
+
+func (ave *AVE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := ave.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
 	}
 
 	info = &model.MovieInfo{
+		ID:            id,
 		Provider:      ave.Name(),
-		Homepage:      homepage.String(),
+		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},
-	}
-
-	if info.ID = parseID(u); info.ID == "" {
-		return nil, provider.ErrInvalidID
 	}
 
 	c := ave.ClonedCollector()
@@ -133,8 +138,9 @@ func (ave *AVE) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 	c.OnXML(`//div[@class="single-slider-product grid-view-product"]`, func(e *colly.XMLElement) {
 		href := e.ChildAttr(`.//div[1]/a`, "href")
 		thumb := e.ChildAttr(`.//div[1]/a/img`, "src")
+		id, _ := ave.ParseIDFromURL(e.Request.AbsoluteURL(href))
 		results = append(results, &model.MovieSearchResult{
-			ID:       parseID(href),
+			ID:       id,
 			Number:   parserNumber(thumb),
 			Title:    e.ChildText(`.//div[2]/p[@class="product-title"]/a`),
 			Provider: ave.Name(),
@@ -146,13 +152,6 @@ func (ave *AVE) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 
 	err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword)))
 	return
-}
-
-func parseID(s string) string {
-	if ss := regexp.MustCompile(`(?i)product_id=(\d+)`).FindStringSubmatch(s); len(ss) == 2 {
-		return ss[1]
-	}
-	return ""
 }
 
 func parserNumber(s string) string {

@@ -71,14 +71,22 @@ func (gf *GFriends) formatURL(id string) string {
 	return u.String()
 }
 
+func (gf *GFriends) ParseIDFromURL(rawURL string) (id string, err error) {
+	homepage, err := url.Parse(rawURL)
+	if err != nil {
+		return
+	}
+	id = homepage.Query().Get(gFriendsID)
+	if id == "" {
+		err = provider.ErrInvalidID
+	}
+	return
+}
+
 func (gf *GFriends) GetActorInfoByURL(u string) (*model.ActorInfo, error) {
-	homepage, err := url.Parse(u)
+	id, err := gf.ParseIDFromURL(u)
 	if err != nil {
 		return nil, err
-	}
-	id := homepage.Query().Get(gFriendsID)
-	if id == "" {
-		return nil, provider.ErrInvalidID
 	}
 	return gf.GetActorInfoByID(id)
 }

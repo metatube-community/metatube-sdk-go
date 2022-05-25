@@ -48,24 +48,29 @@ func New() *AirAV {
 	}
 }
 
-func (air *AirAV) NormalizeID(id string) string {
-	return strings.ToUpper(id)
-}
+func (air *AirAV) NormalizeID(id string) string { return strings.ToUpper(id) }
 
 func (air *AirAV) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return air.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (air *AirAV) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(u)
+func (air *AirAV) ParseIDFromURL(rawURL string) (string, error) {
+	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	id := path.Base(homepage.Path)
+	return path.Base(homepage.Path), nil
+}
+
+func (air *AirAV) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := air.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
 
 	info = &model.MovieInfo{
 		Provider:      air.Name(),
-		Homepage:      homepage.String(),
+		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},

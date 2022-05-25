@@ -47,17 +47,25 @@ func (fc2 *FC2) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return fc2.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (fc2 *FC2) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(u)
+func (fc2 *FC2) ParseIDFromURL(rawURL string) (string, error) {
+	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return "", err
+	}
+	return path.Base(homepage.Path), nil
+}
+
+func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := fc2.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
 	}
 
 	info = &model.MovieInfo{
-		ID:            path.Base(homepage.Path),
-		Number:        fmt.Sprintf("FC2-%s", path.Base(homepage.Path)),
+		ID:            id,
+		Number:        fmt.Sprintf("FC2-%s", id),
 		Provider:      fc2.Name(),
-		Homepage:      homepage.String(),
+		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},

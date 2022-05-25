@@ -49,16 +49,24 @@ func (az *ARZON) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) 
 	return az.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (az *ARZON) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	homepage, err := url.Parse(u)
+func (az *ARZON) ParseIDFromURL(rawURL string) (string, error) {
+	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return "", err
+	}
+	return parseID(homepage.Path), nil
+}
+
+func (az *ARZON) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := az.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
 	}
 
 	info = &model.MovieInfo{
-		ID:            az.parseID(homepage.Path),
+		ID:            id,
 		Provider:      az.Name(),
-		Homepage:      homepage.String(),
+		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},
@@ -161,7 +169,7 @@ func (az *ARZON) SearchMovie(keyword string) (results []*model.MovieSearchResult
 
 	var ids []string
 	c.OnXML(`//*[@id="item"]//dt`, func(e *colly.XMLElement) {
-		ids = append(ids, az.parseID(e.ChildAttr(`.//a`, "href")))
+		ids = append(ids, parseID(e.ChildAttr(`.//a`, "href")))
 	})
 
 	c.OnScraped(func(r *colly.Response) {
@@ -192,7 +200,7 @@ func (az *ARZON) Fetch(u string) (*http.Response, error) {
 	return fetch.Fetch(u, fetch.WithReferer(baseURL))
 }
 
-func (az *ARZON) parseID(s string) string {
+func parseID(s string) string {
 	if ss := regexp.MustCompile(`item_(\d+)\.html$`).FindStringSubmatch(s); len(ss) == 2 {
 		return ss[1]
 	}

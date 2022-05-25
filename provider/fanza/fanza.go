@@ -79,17 +79,28 @@ func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) 
 	return nil, provider.ErrNotFound
 }
 
-func (fz *FANZA) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	var id string
-	if sub := regexp.MustCompile(`/cid=(.*?)/`).FindStringSubmatch(u); len(sub) == 2 {
+func (fz *FANZA) ParseIDFromURL(rawURL string) (id string, err error) {
+	homepage, err := url.Parse(rawURL)
+	if err != nil {
+		return "", err
+	}
+	if sub := regexp.MustCompile(`/cid=(.*?)/`).FindStringSubmatch(homepage.Path); len(sub) == 2 {
 		id = strings.ToLower(sub[1])
 	} else {
-		return nil, fmt.Errorf("invalid FANZA url: %s", u)
+		err = fmt.Errorf("invalid FANZA url: %s", rawURL)
+	}
+	return
+}
+
+func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := fz.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
 	}
 
 	info = &model.MovieInfo{
 		Provider:      fz.Name(),
-		Homepage:      u,
+		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Tags:          []string{},

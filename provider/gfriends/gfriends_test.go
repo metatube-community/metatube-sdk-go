@@ -20,6 +20,19 @@ func TestGFriends_GetActorInfoByID(t *testing.T) {
 	}
 }
 
+func TestGFriends_GetActorInfoByURL(t *testing.T) {
+	provider := New()
+	for _, item := range []string{
+		"https://github.com/xinxin8816/gfriends?gfriends-id=%E5%B0%8F%E6%9D%BE%E5%87%9B%E8%8A%B1",
+		"https://github.com/xinxin8816/gfriends?gfriends-id=%E8%B0%B7%E3%81%82%E3%81%A5%E3%81%95",
+	} {
+		info, err := provider.GetActorInfoByURL(item)
+		data, _ := json.MarshalIndent(info, "", "\t")
+		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
+		t.Logf("%s", data)
+	}
+}
+
 func TestGFriends_SearchActor(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
