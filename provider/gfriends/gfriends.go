@@ -25,6 +25,8 @@ const (
 	Priority = 1000 - 1
 )
 
+const gFriendsID = "gfriends-id"
+
 const (
 	baseURL    = "https://github.com/xinxin8816/gfriends"
 	contentURL = "https://raw.githubusercontent.com/xinxin8816/gfriends/master/Content/%s"
@@ -53,14 +55,30 @@ func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
 		ID:       id,
 		Name:     id,
 		Provider: gf.Name(),
-		Homepage: baseURL,
+		Homepage: gf.formatURL(id),
 		Aliases:  []string{},
 		Images:   images,
 	}, nil
 }
 
-func (gf *GFriends) GetActorInfoByURL(string) (*model.ActorInfo, error) {
-	return nil, provider.ErrNotSupported
+func (gf *GFriends) formatURL(id string) string {
+	u, _ := url.Parse(baseURL)
+	q := u.Query()
+	q.Set(gFriendsID, id)
+	u.RawQuery = q.Encode()
+	return u.String()
+}
+
+func (gf *GFriends) GetActorInfoByURL(u string) (*model.ActorInfo, error) {
+	homepage, err := url.Parse(u)
+	if err != nil {
+		return nil, err
+	}
+	id := homepage.Query().Get(gFriendsID)
+	if id == "" {
+		return nil, provider.ErrInvalidID
+	}
+	return gf.GetActorInfoByID(id)
 }
 
 func (gf *GFriends) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
