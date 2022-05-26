@@ -170,12 +170,13 @@ func (mgs *MGS) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 	c := mgs.ClonedCollector()
 
 	c.OnXML(`//*[@id="center_column"]/div[2]/div/ul/li`, func(e *colly.XMLElement) {
-		href := e.ChildAttr(`.//h5/a`, "href")
+		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//h5/a`, "href"))
+		id, _ := mgs.ParseIDFromURL(homepage)
 		results = append(results, &model.MovieSearchResult{
-			ID:       path.Base(href),
-			Number:   path.Base(href), /* same as ID */
+			ID:       id,
+			Number:   id, /* same as ID */
 			Provider: mgs.Name(),
-			Homepage: e.Request.AbsoluteURL(href),
+			Homepage: homepage,
 			Title:    strings.TrimSpace(e.ChildText(`.//a/p`)),
 			ThumbURL: e.Request.AbsoluteURL(imageSrc(e.ChildAttr(`.//h5/a/img`, "src"), true)),
 			CoverURL: e.Request.AbsoluteURL(imageSrc(e.ChildAttr(`.//h5/a/img`, "src"), false)),
