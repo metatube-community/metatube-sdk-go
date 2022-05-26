@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/adrg/strutil v0.3.0
-	github.com/antchfx/htmlquery v1.2.4
+	github.com/antchfx/htmlquery v1.2.5
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/esimov/pigo v1.4.5
 	github.com/gin-gonic/gin v1.7.7
@@ -26,8 +26,8 @@ require (
 require (
 	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
-	github.com/antchfx/xmlquery v1.3.10 // indirect
-	github.com/antchfx/xpath v1.2.0 // indirect
+	github.com/antchfx/xmlquery v1.3.11 // indirect
+	github.com/antchfx/xpath v1.2.1 // indirect
 	github.com/bits-and-blooms/bitset v1.2.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -63,7 +63,7 @@ require (
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
-	golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898 // indirect
+	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
