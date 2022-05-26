@@ -155,9 +155,9 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.MovieSearchResu
 			cover = re.ReplaceAllString(thumb, "/cover/${1}_b.${2}") // guess
 		}
 
-		u, _ := url.Parse(e.Request.AbsoluteURL(e.Attr("href")))
+		id, _ := bus.ParseIDFromURL(e.Request.AbsoluteURL(e.Attr("href")))
 		results = append(results, &model.MovieSearchResult{
-			ID:          strings.ToUpper(path.Base(u.Path)),
+			ID:          id,
 			Number:      e.ChildText(`.//div[2]/span/date[1]`),
 			Title:       strings.SplitN(e.ChildText(`.//div[2]/span`), "\n", 2)[0],
 			Provider:    bus.Name(),
