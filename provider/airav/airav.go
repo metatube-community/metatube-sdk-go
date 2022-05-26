@@ -59,7 +59,7 @@ func (air *AirAV) ParseIDFromURL(rawURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return path.Base(homepage.Path), nil
+	return air.NormalizeID(path.Base(homepage.Path)), nil
 }
 
 func (air *AirAV) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {

@@ -46,7 +46,7 @@ func New() *SOD {
 }
 
 func (sod *SOD) NormalizeID(id string) string {
-	return strings.ToUpper(id) // SOD requires uppercase ID.
+	return strings.ToUpper(id) /* SOD requires uppercase ID */
 }
 
 func (sod *SOD) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -58,7 +58,7 @@ func (sod *SOD) ParseIDFromURL(rawURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return homepage.Query().Get("id"), nil
+	return sod.NormalizeID(homepage.Query().Get("id")), nil
 }
 
 func (sod *SOD) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {

@@ -64,7 +64,7 @@ func (mgs *MGS) ParseIDFromURL(rawURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return path.Base(homepage.Path), nil
+	return mgs.NormalizeID(path.Base(homepage.Path)), nil
 }
 
 func (mgs *MGS) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {

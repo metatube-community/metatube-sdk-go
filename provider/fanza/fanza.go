@@ -59,7 +59,7 @@ func New() *FANZA {
 }
 
 func (fz *FANZA) NormalizeID(id string) string {
-	return strings.ToLower(id) // FANZA uses lowercase ID.
+	return strings.ToLower(id) /* FANZA uses lowercase ID */
 }
 
 func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -85,7 +85,7 @@ func (fz *FANZA) ParseIDFromURL(rawURL string) (id string, err error) {
 	}
 	if sub := regexp.MustCompile(`/cid=(.*?)/`).
 		FindStringSubmatch(homepage.Path); len(sub) == 2 {
-		id = sub[1]
+		id = fz.NormalizeID(sub[1])
 	}
 	return
 }

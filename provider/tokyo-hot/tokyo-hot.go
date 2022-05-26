@@ -42,7 +42,7 @@ func New() *TokyoHot {
 }
 
 func (tht *TokyoHot) NormalizeID(id string) string {
-	return strings.ToLower(id) // Tokyo-Hot uses lowercase ID.
+	return strings.ToLower(id) /* Tokyo-Hot uses lowercase ID */
 }
 
 func (tht *TokyoHot) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -54,7 +54,7 @@ func (tht *TokyoHot) ParseIDFromURL(rawURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return path.Base(homepage.Path), nil
+	return tht.NormalizeID(path.Base(homepage.Path)), nil
 }
 
 func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {

@@ -40,8 +40,6 @@ func New() *AVE {
 	return &AVE{scraper.NewDefaultScraper(Name, baseURL, Priority)}
 }
 
-func (ave *AVE) NormalizeID(id string) string { return strings.ToUpper(id) }
-
 func (ave *AVE) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return ave.GetMovieInfoByURL(fmt.Sprintf(movieURL, url.QueryEscape(id)))
 }

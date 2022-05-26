@@ -64,7 +64,7 @@ func (pst *PRESTIGE) ParseIDFromURL(rawURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return homepage.Query().Get("sku"), nil
+	return pst.NormalizeID(homepage.Query().Get("sku")), nil
 }
 
 func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
