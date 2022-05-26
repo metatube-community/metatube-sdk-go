@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strings"
 
 	"github.com/antchfx/htmlquery"
@@ -54,15 +53,12 @@ func (sod *SOD) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return sod.GetMovieInfoByURL(fmt.Sprintf(movieURL, url.QueryEscape(id)))
 }
 
-func (sod *SOD) ParseIDFromURL(rawURL string) (id string, err error) {
+func (sod *SOD) ParseIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return
+		return "", err
 	}
-	if id = homepage.Query().Get("id"); id == "" {
-		err = provider.ErrInvalidID
-	}
-	return
+	return homepage.Query().Get("id"), nil
 }
 
 func (sod *SOD) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
@@ -185,26 +181,19 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 	})
 
 	c.OnXML(`//*[@id="videos_s_mainbox"]`, func(e *colly.XMLElement) {
-		searchResult := &model.MovieSearchResult{
+		thumb := e.Request.AbsoluteURL(e.ChildAttr(`.//div[@class="videis_s_img"]/a/img`, "src"))
+		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//div[@class="videis_s_img"]/a`, "href"))
+		id, _ := sod.ParseIDFromURL(homepage)
+		results = append(results, &model.MovieSearchResult{
+			ID:          id,
+			Number:      id,
 			Title:       e.ChildText(`.//div[@class="videis_s_txt"]/h2/a`),
 			Provider:    sod.Name(),
-			Homepage:    e.Request.AbsoluteURL(e.ChildAttr(`.//div[@class="videis_s_img"]/a`, "href")),
+			Homepage:    homepage,
+			ThumbURL:    thumb,
+			CoverURL:    strings.ReplaceAll(thumb, "_m.jpg", "_l.jpg"),
 			ReleaseDate: parser.ParseDate(e.ChildText(`.//div[@class="videis_s_star"]/p`)),
-		}
-
-		// ID+Number
-		if ss := regexp.MustCompile(`id=(.+?)$`).FindStringSubmatch(searchResult.Homepage); len(ss) == 2 {
-			searchResult.ID = ss[1]
-			searchResult.Number = searchResult.ID
-		}
-
-		// Thumb+Cover
-		if thumb := e.ChildAttr(`.//div[@class="videis_s_img"]/a/img`, "src"); thumb != "" {
-			searchResult.ThumbURL = e.Request.AbsoluteURL(thumb)
-			searchResult.CoverURL = strings.ReplaceAll(searchResult.ThumbURL, "_m.jpg", "_l.jpg")
-		}
-
-		results = append(results, searchResult)
+		})
 	})
 
 	err = c.Visit(composedSearchURL)
