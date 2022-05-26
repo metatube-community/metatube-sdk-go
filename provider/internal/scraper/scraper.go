@@ -1,7 +1,6 @@
 package scraper
 
 import (
-	"net/url"
 	"time"
 
 	"github.com/gocolly/colly/v2"
@@ -14,21 +13,17 @@ var _ provider.Provider = (*Scraper)(nil)
 // Scraper implements basic Provider interface.
 type Scraper struct {
 	name     string
+	baseURL  string
 	priority int
-	baseURL  *url.URL
 	c        *colly.Collector
 }
 
 // NewScraper returns Provider implemented *Scraper.
 func NewScraper(name, baseURL string, priority int, opts ...Option) *Scraper {
-	u, err := url.Parse(baseURL)
-	if err != nil {
-		panic(err)
-	}
 	s := &Scraper{
 		name:     name,
+		baseURL:  baseURL,
 		priority: priority,
-		baseURL:  u,
 		c:        colly.NewCollector(),
 	}
 	for _, opt := range opts {
@@ -51,7 +46,7 @@ func NewDefaultScraper(name, baseURL string, priority int, opts ...Option) *Scra
 
 func (s *Scraper) Name() string { return s.name }
 
-func (s *Scraper) URL() *url.URL { return s.baseURL }
+func (s *Scraper) URL() string { return s.baseURL }
 
 func (s *Scraper) Priority() int { return s.priority }
 
