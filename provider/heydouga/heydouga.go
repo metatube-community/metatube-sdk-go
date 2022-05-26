@@ -61,9 +61,6 @@ func (hey *HeyDouga) ParseIDFromURL(rawURL string) (id string, err error) {
 		FindStringSubmatch(homepage.Path); len(ss) == 3 {
 		id = fmt.Sprintf("%s-%s", ss[1], ss[2])
 	}
-	if id == "" {
-		err = provider.ErrInvalidURL
-	}
 	return
 }
 
