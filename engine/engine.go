@@ -71,24 +71,6 @@ func (e *Engine) initMovieProviders(timeout time.Duration) {
 	return
 }
 
-func (e *Engine) AutoMigrate(v bool) error {
-	if !v {
-		return nil
-	}
-	return e.db.AutoMigrate(
-		&model.MovieInfo{},
-		&model.ActorInfo{})
-}
-
-func (e *Engine) Fetch(url string, provider javtube.Provider) (*http.Response, error) {
-	// Provider which implements Fetcher interface should be
-	// used to fetch all its corresponding resources.
-	if fetcher, ok := provider.(javtube.Fetcher); ok {
-		return fetcher.Fetch(url)
-	}
-	return fetch.Fetch(url)
-}
-
 func (e *Engine) IsActorProvider(name string) (ok bool) {
 	_, ok = e.actorProviders[strings.ToUpper(name)]
 	return
@@ -155,4 +137,22 @@ func (e *Engine) MustGetMovieProviderByName(name string) javtube.MovieProvider {
 		panic(err)
 	}
 	return provider
+}
+
+func (e *Engine) AutoMigrate(v bool) error {
+	if !v {
+		return nil
+	}
+	return e.db.AutoMigrate(
+		&model.MovieInfo{},
+		&model.ActorInfo{})
+}
+
+func (e *Engine) Fetch(url string, provider javtube.Provider) (*http.Response, error) {
+	// Provider which implements Fetcher interface should be
+	// used to fetch all its corresponding resources.
+	if fetcher, ok := provider.(javtube.Fetcher); ok {
+		return fetcher.Fetch(url)
+	}
+	return fetch.Fetch(url)
 }
