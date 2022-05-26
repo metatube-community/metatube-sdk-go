@@ -59,15 +59,12 @@ func (pst *PRESTIGE) GetMovieInfoByID(id string) (info *model.MovieInfo, err err
 	return pst.GetMovieInfoByURL(fmt.Sprintf(movieURL, url.QueryEscape(id)))
 }
 
-func (pst *PRESTIGE) ParseIDFromURL(rawURL string) (id string, err error) {
+func (pst *PRESTIGE) ParseIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
 	}
-	if id = homepage.Query().Get("sku"); id == "" {
-		err = provider.ErrInvalidID
-	}
-	return
+	return homepage.Query().Get("sku"), nil
 }
 
 func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
@@ -203,14 +200,10 @@ func (pst *PRESTIGE) SearchMovie(keyword string) (results []*model.MovieSearchRe
 	c := pst.ClonedCollector()
 
 	c.OnXML(`//*[@id="body_goods"]/ul/li`, func(e *colly.XMLElement) {
-		href := e.ChildAttr(`.//a`, "href")
 		thumb := e.ChildAttr(`.//a/img`, "src")
-		var id string
-		if ss := regexp.MustCompile(`(?i)sku=([a-z\d-]+)`).FindStringSubmatch(href); len(ss) == 2 {
-			id = strings.ToUpper(ss[1])
-		} else {
-			return // ignore this one.
-		}
+
+		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//a`, "href"))
+		id, _ := pst.ParseIDFromURL(homepage)
 
 		var title string // colly.XMLElement takes all texts from elem, so we need to filter extra texts.
 		for n := htmlquery.FindOne(e.DOM.(*html.Node), `.//a/span`).
@@ -231,7 +224,7 @@ func (pst *PRESTIGE) SearchMovie(keyword string) (results []*model.MovieSearchRe
 			Title:    title,
 			ThumbURL: e.Request.AbsoluteURL(imageSrc(thumb, true)),
 			CoverURL: e.Request.AbsoluteURL(imageSrc(thumb, false)),
-			Homepage: e.Request.AbsoluteURL(href),
+			Homepage: homepage,
 		})
 	})
 
