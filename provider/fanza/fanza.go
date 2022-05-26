@@ -2,7 +2,6 @@ package fanza
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -301,12 +300,10 @@ func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult
 		if !strings.HasPrefix(homepage, baseDigitalURL) && !strings.HasPrefix(homepage, baseMonoURL) {
 			return // ignore other contents.
 		}
-		pattens := regexp.MustCompile(`/cid=(.+?)/`).FindStringSubmatch(homepage)
-		if len(pattens) != 2 {
-			err = errors.New("find id error")
-			return
+		id, err := fz.ParseIDFromURL(homepage)
+		if err != nil {
+			return // ignore error.
 		}
-		id := pattens[1]
 
 		thumb := e.ChildAttr(`.//p[@class="tmb"]/a/span[1]/img`, "src")
 		if re := regexp.MustCompile(`(p[a-z]\.)jpg`); re.MatchString(thumb) {
