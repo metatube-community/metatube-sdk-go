@@ -46,15 +46,12 @@ func (ave *AVE) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return ave.GetMovieInfoByURL(fmt.Sprintf(movieURL, url.QueryEscape(id)))
 }
 
-func (ave *AVE) ParseIDFromURL(rawURL string) (id string, err error) {
+func (ave *AVE) ParseIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return
+		return "", err
 	}
-	if id = homepage.Query().Get("product_id"); id == "" {
-		err = provider.ErrInvalidID
-	}
-	return
+	return homepage.Query().Get("product_id"), nil
 }
 
 func (ave *AVE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
