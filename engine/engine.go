@@ -48,7 +48,6 @@ func (e *Engine) initActorProviders(timeout time.Duration) {
 		host := provider.URL().Hostname()
 		e.actorHostProviders[host] = append(e.actorHostProviders[host], provider)
 	})
-	return
 }
 
 // initMovieProviders initializes movie providers.
@@ -68,7 +67,6 @@ func (e *Engine) initMovieProviders(timeout time.Duration) {
 		host := provider.URL().Hostname()
 		e.movieHostProviders[host] = append(e.movieHostProviders[host], provider)
 	})
-	return
 }
 
 func (e *Engine) IsActorProvider(name string) (ok bool) {
