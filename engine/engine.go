@@ -3,6 +3,7 @@ package engine
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -14,9 +15,13 @@ import (
 )
 
 type Engine struct {
-	db             *gorm.DB
+	db *gorm.DB
+	// Name:Provider Map
 	actorProviders map[string]javtube.ActorProvider
 	movieProviders map[string]javtube.MovieProvider
+	// Host:Providers Map
+	actorHostProviders map[string][]javtube.ActorProvider
+	movieHostProviders map[string][]javtube.MovieProvider
 }
 
 func New(db *gorm.DB, timeout time.Duration) *Engine {
@@ -28,26 +33,40 @@ func New(db *gorm.DB, timeout time.Duration) *Engine {
 
 // initActorProviders initializes actor providers.
 func (e *Engine) initActorProviders(timeout time.Duration) {
-	e.actorProviders = make(map[string]javtube.ActorProvider)
+	{ // init
+		e.actorProviders = make(map[string]javtube.ActorProvider)
+		e.actorHostProviders = make(map[string][]javtube.ActorProvider)
+	}
 	javtube.RangeActorFactory(func(name string, factory javtube.ActorFactory) {
 		provider := factory()
 		if s, ok := provider.(javtube.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(timeout)
 		}
+		// Add actor provider by name.
 		e.actorProviders[strings.ToUpper(name)] = provider
+		// Add actor provider by host.
+		host := provider.URL().Hostname()
+		e.actorHostProviders[host] = append(e.actorHostProviders[host], provider)
 	})
 	return
 }
 
 // initMovieProviders initializes movie providers.
 func (e *Engine) initMovieProviders(timeout time.Duration) {
-	e.movieProviders = make(map[string]javtube.MovieProvider)
+	{ // init
+		e.movieProviders = make(map[string]javtube.MovieProvider)
+		e.movieHostProviders = make(map[string][]javtube.MovieProvider)
+	}
 	javtube.RangeMovieFactory(func(name string, factory javtube.MovieFactory) {
 		provider := factory()
 		if s, ok := provider.(javtube.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(timeout)
 		}
+		// Add movie provider by name.
 		e.movieProviders[strings.ToUpper(name)] = provider
+		// Add movie provider by host.
+		host := provider.URL().Hostname()
+		e.movieHostProviders[host] = append(e.movieHostProviders[host], provider)
 	})
 	return
 }
@@ -76,7 +95,16 @@ func (e *Engine) IsActorProvider(name string) (ok bool) {
 }
 
 func (e *Engine) GetActorProviderByURL(rawURL string) (javtube.ActorProvider, error) {
-	return nil, nil
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return nil, err
+	}
+	for _, p := range e.actorHostProviders[u.Hostname()] {
+		if strings.HasPrefix(u.Path, p.URL().Path) {
+			return p, nil
+		}
+	}
+	return nil, fmt.Errorf("actor provider not found: %s", rawURL)
 }
 
 func (e *Engine) GetActorProviderByName(name string) (javtube.ActorProvider, error) {
@@ -101,7 +129,16 @@ func (e *Engine) IsMovieProvider(name string) (ok bool) {
 }
 
 func (e *Engine) GetMovieProviderByURL(rawURL string) (javtube.MovieProvider, error) {
-	return nil, nil
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return nil, err
+	}
+	for _, p := range e.movieHostProviders[u.Hostname()] {
+		if strings.HasPrefix(u.Path, p.URL().Path) {
+			return p, nil
+		}
+	}
+	return nil, fmt.Errorf("movie provider not found: %s", rawURL)
 }
 
 func (e *Engine) GetMovieProviderByName(name string) (javtube.MovieProvider, error) {
