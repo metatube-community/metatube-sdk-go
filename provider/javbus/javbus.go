@@ -61,7 +61,7 @@ func (bus *JavBus) ParseIDFromURL(rawURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return strings.ToUpper(path.Base(homepage.Path)), nil
+	return path.Base(homepage.Path), nil
 }
 
 func (bus *JavBus) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
