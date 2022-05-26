@@ -156,17 +156,17 @@ func (tht *TokyoHot) SearchMovie(keyword string) (results []*model.MovieSearchRe
 	c := tht.ClonedCollector()
 
 	c.OnXML(`//*[@id="main"]/ul/li`, func(e *colly.XMLElement) {
-		img := e.ChildAttr(`.//a/img`, "src")
-		href := e.ChildAttr(`.//a`, "href")
-		homepage, _ := url.Parse(e.Request.AbsoluteURL(href))
+		img := e.Request.AbsoluteURL(e.ChildAttr(`.//a/img`, "src"))
+		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//a`, "href"))
+		id, _ := tht.ParseIDFromURL(homepage)
 		results = append(results, &model.MovieSearchResult{
-			ID:       path.Base(homepage.Path),
-			Number:   path.Base(homepage.Path),
+			ID:       id,
+			Number:   id,
 			Title:    e.ChildText(`.//div[@class="title"]`),
-			ThumbURL: e.Request.AbsoluteURL(img),
-			CoverURL: e.Request.AbsoluteURL(img),
+			ThumbURL: img,
+			CoverURL: img,
 			Provider: tht.Name(),
-			Homepage: homepage.String(),
+			Homepage: homepage,
 		})
 	})
 
