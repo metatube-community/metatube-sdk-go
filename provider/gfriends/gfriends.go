@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"strings"
 	"sync"
 	"time"
 
@@ -73,15 +74,12 @@ func (gf *GFriends) formatURL(id string) string {
 	return u.String()
 }
 
-func (gf *GFriends) ParseIDFromURL(rawURL string) (id string, err error) {
+func (gf *GFriends) ParseIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
-		return
+		return "", err
 	}
-	if id = homepage.Query().Get(gFriendsID); id == "" {
-		err = provider.ErrInvalidID
-	}
-	return
+	return homepage.Query().Get(gFriendsID), nil
 }
 
 func (gf *GFriends) GetActorInfoByURL(u string) (*model.ActorInfo, error) {
@@ -117,6 +115,9 @@ func newFileTree(timeout time.Duration) *fileTree {
 }
 
 func (ft *fileTree) query(s string) (images []string, err error) {
+	if strings.TrimSpace(s) == "" {
+		return nil, fmt.Errorf("invalid query: %s", s)
+	}
 	// update
 	ft.mu.Lock()
 	if ft.last.Add(ft.timeout).Before(time.Now()) {
