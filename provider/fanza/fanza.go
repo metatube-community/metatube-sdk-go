@@ -85,10 +85,7 @@ func (fz *FANZA) ParseIDFromURL(rawURL string) (id string, err error) {
 	}
 	if sub := regexp.MustCompile(`/cid=(.*?)/`).
 		FindStringSubmatch(homepage.Path); len(sub) == 2 {
-		id = strings.ToLower(sub[1])
-	}
-	if id == "" {
-		err = provider.ErrInvalidURL
+		id = sub[1]
 	}
 	return
 }
