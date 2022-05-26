@@ -297,10 +297,7 @@ func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult
 		if !strings.HasPrefix(homepage, baseDigitalURL) && !strings.HasPrefix(homepage, baseMonoURL) {
 			return // ignore other contents.
 		}
-		id, err := fz.ParseIDFromURL(homepage)
-		if err != nil {
-			return // ignore error.
-		}
+		id, _ := fz.ParseIDFromURL(homepage) // ignore error.
 
 		thumb := e.ChildAttr(`.//p[@class="tmb"]/a/span[1]/img`, "src")
 		if re := regexp.MustCompile(`(p[a-z]\.)jpg`); re.MatchString(thumb) {
