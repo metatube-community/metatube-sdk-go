@@ -34,7 +34,7 @@ func (e *Engine) initActorProviders(timeout time.Duration) {
 		if s, ok := provider.(javtube.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(timeout)
 		}
-		e.actorProviders[strings.ToUpper(name)] = factory()
+		e.actorProviders[strings.ToUpper(name)] = provider
 	})
 	return
 }
