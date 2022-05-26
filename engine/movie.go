@@ -141,16 +141,13 @@ func (e *Engine) getMovieInfoFromDB(id string, provider javtube.MovieProvider) (
 	return info, err
 }
 
-func (e *Engine) getMovieInfoWithCallback(id string, provider javtube.MovieProvider, lazy bool, callback func(string) (*model.MovieInfo, error)) (info *model.MovieInfo, err error) {
+func (e *Engine) getMovieInfoWithCallback(id string, provider javtube.MovieProvider, lazy bool, callback func() (*model.MovieInfo, error)) (info *model.MovieInfo, err error) {
 	defer func() {
 		// metadata validation check.
 		if err == nil && (info == nil || !info.Valid()) {
 			err = javtube.ErrInvalidMetadata
 		}
 	}()
-	if id = provider.NormalizeID(id); id == "" {
-		return nil, javtube.ErrInvalidID
-	}
 	// Query DB first (by id).
 	if lazy {
 		if info, err = e.getMovieInfoFromDB(id, provider); err == nil && info.Valid() {
@@ -165,12 +162,15 @@ func (e *Engine) getMovieInfoWithCallback(id string, provider javtube.MovieProvi
 			}).Create(info) // ignore error
 		}
 	}()
-	return callback(id)
+	return callback()
 }
 
 func (e *Engine) getMovieInfoByID(id string, provider javtube.MovieProvider, lazy bool) (*model.MovieInfo, error) {
+	if id = provider.NormalizeID(id); id == "" {
+		return nil, javtube.ErrInvalidID
+	}
 	return e.getMovieInfoWithCallback(id, provider, lazy,
-		func(id string) (*model.MovieInfo, error) {
+		func() (*model.MovieInfo, error) {
 			return provider.GetMovieInfoByID(id)
 		})
 }
@@ -185,11 +185,14 @@ func (e *Engine) GetMovieInfoByID(id, name string, lazy bool) (*model.MovieInfo,
 
 func (e *Engine) getMovieInfoByURL(rawURL string, provider javtube.MovieProvider, lazy bool) (*model.MovieInfo, error) {
 	id, err := provider.ParseIDFromURL(rawURL)
-	if err != nil {
+	switch {
+	case err != nil:
 		return nil, err
+	case id == "":
+		return nil, javtube.ErrInvalidURL
 	}
 	return e.getMovieInfoWithCallback(id, provider, lazy,
-		func(_ string) (*model.MovieInfo, error) {
+		func() (*model.MovieInfo, error) {
 			return provider.GetMovieInfoByURL(rawURL)
 		})
 }
