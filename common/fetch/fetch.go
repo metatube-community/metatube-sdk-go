@@ -6,56 +6,36 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
-
-	"github.com/javtube/javtube-sdk-go/common/random"
 )
 
-var defaultClient = (&retryablehttp.Client{
-	RetryWaitMin: 1 * time.Second,
-	RetryWaitMax: 3 * time.Second,
-	RetryMax:     3,
-	CheckRetry:   retryablehttp.DefaultRetryPolicy,
-	Backoff:      retryablehttp.DefaultBackoff,
-}).StandardClient()
+var defaultFetcher = NewDefaultFetcher()
 
-type Option func(*http.Request)
+type Fetcher struct {
+	httpClient *http.Client
+}
 
-func WithReferer(referer string) Option {
-	return func(req *http.Request) {
-		req.Header.Set("Referer", referer)
+func NewFetcher(c *http.Client) *Fetcher {
+	return &Fetcher{
+		httpClient: c,
 	}
 }
 
-func WithHeader(key, value string) Option {
-	return func(req *http.Request) {
-		req.Header.Set(key, value)
-	}
-}
-
-func WithUserAgent(ua string) Option {
-	return func(req *http.Request) {
-		req.Header.Set("User-Agent", ua)
-	}
-}
-
-func WithRandomUserAgent() Option {
-	return WithUserAgent(random.UserAgent())
-}
-
-func WithQuery(query map[string]string) Option {
-	return func(req *http.Request) {
-		q := req.URL.Query()
-		for k, v := range query {
-			q.Add(k, v)
-		}
-		req.URL.RawQuery = q.Encode()
+func NewDefaultFetcher() *Fetcher {
+	return &Fetcher{
+		httpClient: (&retryablehttp.Client{
+			RetryWaitMin: 1 * time.Second,
+			RetryWaitMax: 3 * time.Second,
+			RetryMax:     3,
+			CheckRetry:   retryablehttp.DefaultRetryPolicy,
+			Backoff:      retryablehttp.DefaultBackoff,
+		}).StandardClient(),
 	}
 }
 
 // Fetch fetches resources from url.
-func Fetch(u string, opts ...Option) (resp *http.Response, err error) {
+func (f *Fetcher) Fetch(url string, opts ...Option) (resp *http.Response, err error) {
 	var req *http.Request
-	if req, err = http.NewRequest(http.MethodGet, u, nil); err != nil {
+	if req, err = http.NewRequest(http.MethodGet, url, nil); err != nil {
 		return
 	}
 	// Apply options.
@@ -63,7 +43,7 @@ func Fetch(u string, opts ...Option) (resp *http.Response, err error) {
 		opt(req)
 	}
 	// Make HTTP request.
-	if resp, err = defaultClient.Do(req); err != nil {
+	if resp, err = f.httpClient.Do(req); err != nil {
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
@@ -71,4 +51,8 @@ func Fetch(u string, opts ...Option) (resp *http.Response, err error) {
 		return nil, errors.New(http.StatusText(resp.StatusCode))
 	}
 	return
+}
+
+func Fetch(url string, opts ...Option) (resp *http.Response, err error) {
+	return defaultFetcher.Fetch(url, opts...)
 }
