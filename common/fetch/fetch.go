@@ -21,15 +21,13 @@ func NewFetcher(c *http.Client) *Fetcher {
 }
 
 func NewDefaultFetcher() *Fetcher {
-	return &Fetcher{
-		httpClient: (&retryablehttp.Client{
-			RetryWaitMin: 1 * time.Second,
-			RetryWaitMax: 3 * time.Second,
-			RetryMax:     3,
-			CheckRetry:   retryablehttp.DefaultRetryPolicy,
-			Backoff:      retryablehttp.DefaultBackoff,
-		}).StandardClient(),
-	}
+	return NewFetcher((&retryablehttp.Client{
+		RetryWaitMin: 1 * time.Second,
+		RetryWaitMax: 3 * time.Second,
+		RetryMax:     3,
+		CheckRetry:   retryablehttp.DefaultRetryPolicy,
+		Backoff:      retryablehttp.DefaultBackoff,
+	}).StandardClient())
 }
 
 // Fetch fetches resources from url.
