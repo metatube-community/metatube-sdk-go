@@ -21,9 +21,7 @@ func WithHeader(key, value string) Option {
 }
 
 func WithUserAgent(ua string) Option {
-	return func(req *http.Request) {
-		req.Header.Set("User-Agent", ua)
-	}
+	return WithHeader("User-Agent", ua)
 }
 
 func WithRandomUserAgent() Option {
