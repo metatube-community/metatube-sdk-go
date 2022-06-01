@@ -11,13 +11,17 @@ import (
 )
 
 func redirect(app *engine.Engine) gin.HandlerFunc {
+	const (
+		separator = ":"
+		queryKey  = "redirect"
+	)
 	return func(c *gin.Context) {
-		if url := c.Query("redirect"); url != "" {
+		if url := c.Query(queryKey); url != "" {
 			var (
 				provider string
 				id       string
 			)
-			if ss := strings.Split(url, ":"); len(ss) > 1 {
+			if ss := strings.Split(url, separator); len(ss) > 1 {
 				provider, id = ss[0], ss[1]
 			}
 
