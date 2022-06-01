@@ -8,16 +8,14 @@ import (
 
 type Option func(*http.Request)
 
-func WithReferer(referer string) Option {
-	return func(req *http.Request) {
-		req.Header.Set("Referer", referer)
-	}
-}
-
 func WithHeader(key, value string) Option {
 	return func(req *http.Request) {
 		req.Header.Set(key, value)
 	}
+}
+
+func WithReferer(referer string) Option {
+	return WithHeader("Referer", referer)
 }
 
 func WithUserAgent(ua string) Option {
