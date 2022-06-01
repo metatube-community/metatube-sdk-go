@@ -28,6 +28,8 @@ func Trim(s string) string {
 		ReplaceAllString(s, "") // trim tags
 	s = regexp.MustCompile(`^(?i)\s*(cari|carib|caribean|1Pondo|heydouga|pacopacomama|muramura|Tokyo.*Hot)[-_\s]`).
 		ReplaceAllString(s, "") // trim prefixes
+	s = regexp.MustCompile(`^(?i)\s*(FC2[-_]?PPV)[-_]`).
+		ReplaceAllString(s, "FC2-") // normalize fc2 prefixes
 	s = s[:findFirstNonASCII(s)] // trim unicode content
 	s = strings.Fields(s)[0]     // trim possible alpha started title
 	for re := regexp.MustCompile(`(?i)([-_](c|ch|cd\d{1,2})|ch)\s*$`); re.MatchString(s); {
