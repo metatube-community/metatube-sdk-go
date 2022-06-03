@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/glebarez/sqlite"
 	"github.com/peterbourgon/ff/v3"
 
 	"github.com/javtube/javtube-sdk-go/database"
@@ -79,6 +80,11 @@ func main() {
 	})
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// enable auto migrate for sqlite DB.
+	if db.Config.Dialector.Name() == sqlite.DriverName {
+		opts.dbAutoMigrate = true
 	}
 
 	app := engine.New(db, defaultRequestTimeout)
