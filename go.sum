@@ -54,8 +54,9 @@ github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE
 github.com/gin-contrib/sse v0.1.0/go.mod h1:RHrZQHXnP2xjPF+u1gW/2HnVO7nvIa9PG3Gm+fLHvGI=
 github.com/gin-gonic/gin v1.8.0 h1:4WFH5yycBMA3za5Hnl425yd9ymdw1XPm4666oab+hv4=
 github.com/gin-gonic/gin v1.8.0/go.mod h1:ji8BvRH1azfM+SYow9zQ6SZMvR8qOMZHmsCuWR9tTTk=
-github.com/glebarez/go-sqlite v1.17.2 h1:gyTyFr2RFFQd2gp6fOOdfnTvUn99zwvVOrQFHA4S+DY=
 github.com/glebarez/go-sqlite v1.17.2/go.mod h1:lakPjzvnJ6uSIARV+5dPALDuSLL3879PlzHFMEpbceM=
+github.com/glebarez/go-sqlite v1.17.3 h1:Rji9ROVSTTfjuWD6j5B+8DtkNvPILoUC3xRhkQzGxvk=
+github.com/glebarez/go-sqlite v1.17.3/go.mod h1:Hg+PQuhUy98XCxWEJEaWob8x7lhJzhNYF1nZbUiRGIY=
 github.com/glebarez/sqlite v1.4.5 h1:oaJupO4X9iTn4sXRvP5Vs15BNvKh9dx5AQfciKlDvV4=
 github.com/glebarez/sqlite v1.4.5/go.mod h1:6D+bB+DdXlEC4mO+pUFJWixVcnrHTIAJ9U6Ynnn4Lxk=
 github.com/go-kit/log v0.1.0/go.mod h1:zbhenjAZHb184qTLMA9ZjW7ThYL0H2mk7Q6pNt4vbaY=
