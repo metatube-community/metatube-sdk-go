@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
+
+	"github.com/javtube/javtube-sdk-go/common/random"
 )
 
 var DefaultFetcher = Default(nil)
@@ -29,6 +31,10 @@ type Fetcher struct {
 func New(c *http.Client, cfg *Config) *Fetcher {
 	if cfg == nil /* init */ {
 		cfg = new(Config)
+	}
+	if cfg.RandomUserAgent {
+		// assign a random user-agent.
+		cfg.UserAgent = random.UserAgent()
 	}
 	return &Fetcher{
 		client: c,
@@ -69,9 +75,6 @@ func (f *Fetcher) Request(method, url string, opts ...Option) (resp *http.Respon
 	}
 	if referer := f.config.Referer; referer != "" {
 		options = append(options, WithReferer(referer))
-	}
-	if f.config.RandomUserAgent {
-		options = append(options, WithRandomUserAgent())
 	}
 	// apply options.
 	for _, option := range append(options, opts...) {
