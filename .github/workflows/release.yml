@@ -41,5 +41,5 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: build/*
-          draft: true
+          draft: false
           prerelease: false
