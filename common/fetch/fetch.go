@@ -3,6 +3,7 @@ package fetch
 import (
 	"errors"
 	"net/http"
+	"net/http/cookiejar"
 	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
@@ -18,6 +19,9 @@ type Config struct {
 
 	// Set Referer Header.
 	Referer string
+
+	// Enable cookies.
+	EnableCookies bool
 
 	// Use random User-Agent.
 	RandomUserAgent bool
@@ -35,6 +39,10 @@ func New(c *http.Client, cfg *Config) *Fetcher {
 	if cfg.RandomUserAgent {
 		// assign a random user-agent.
 		cfg.UserAgent = random.UserAgent()
+	}
+	if cfg.EnableCookies {
+		jar, _ := cookiejar.New(nil)
+		c.Jar = jar // assign a cookie jar.
 	}
 	return &Fetcher{
 		client: c,
