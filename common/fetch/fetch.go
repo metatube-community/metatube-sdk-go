@@ -8,40 +8,77 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 )
 
-var defaultFetcher = NewDefaultFetcher()
+var DefaultFetcher = Default(nil)
 
-type Fetcher struct {
-	httpClient *http.Client
+type Config struct {
+	// Set User-Agent Header.
+	UserAgent string
+
+	// Set Referer Header.
+	Referer string
+
+	// Use random User-Agent.
+	RandomUserAgent bool
 }
 
-func NewFetcher(c *http.Client) *Fetcher {
+type Fetcher struct {
+	client *http.Client
+	config *Config
+}
+
+func New(c *http.Client, cfg *Config) *Fetcher {
+	if cfg == nil /* init */ {
+		cfg = new(Config)
+	}
 	return &Fetcher{
-		httpClient: c,
+		client: c,
+		config: cfg,
 	}
 }
 
-func NewDefaultFetcher() *Fetcher {
-	return NewFetcher((&retryablehttp.Client{
+func Default(cfg *Config) *Fetcher {
+	return New((&retryablehttp.Client{
 		RetryWaitMin: 1 * time.Second,
 		RetryWaitMax: 3 * time.Second,
 		RetryMax:     3,
 		CheckRetry:   retryablehttp.DefaultRetryPolicy,
 		Backoff:      retryablehttp.DefaultBackoff,
-	}).StandardClient())
+	}).StandardClient(), cfg)
 }
 
-// Fetch fetches resources from url.
-func (f *Fetcher) Fetch(url string, opts ...Option) (resp *http.Response, err error) {
+// Fetch uses Get to fetch resources from url.
+func (f *Fetcher) Fetch(url string) (resp *http.Response, err error) {
+	return f.Get(url)
+}
+
+// Get gets resources from url with options.
+func (f *Fetcher) Get(url string, opts ...Option) (resp *http.Response, err error) {
+	return f.Request(http.MethodGet, url, opts...)
+}
+
+// Request requests resources with given method.
+func (f *Fetcher) Request(method, url string, opts ...Option) (resp *http.Response, err error) {
 	var req *http.Request
-	if req, err = http.NewRequest(http.MethodGet, url, nil); err != nil {
+	if req, err = http.NewRequest(method, url, nil); err != nil {
 		return
 	}
-	// Apply options.
-	for _, opt := range opts {
-		opt(req)
+	// compose options.
+	var options []Option
+	if ua := f.config.UserAgent; ua != "" {
+		options = append(options, WithUserAgent(ua))
+	}
+	if referer := f.config.Referer; referer != "" {
+		options = append(options, WithReferer(referer))
+	}
+	if f.config.RandomUserAgent {
+		options = append(options, WithRandomUserAgent())
+	}
+	// apply options.
+	for _, option := range append(options, opts...) {
+		option.Apply(req)
 	}
 	// Make HTTP request.
-	if resp, err = f.httpClient.Do(req); err != nil {
+	if resp, err = f.client.Do(req); err != nil {
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
@@ -51,6 +88,21 @@ func (f *Fetcher) Fetch(url string, opts ...Option) (resp *http.Response, err er
 	return
 }
 
-func Fetch(url string, opts ...Option) (resp *http.Response, err error) {
-	return defaultFetcher.Fetch(url, opts...)
+func Fetch(url string) (resp *http.Response, err error) {
+	return DefaultFetcher.Fetch(url)
 }
+
+func Get(url string, opts ...Option) (resp *http.Response, err error) {
+	return DefaultFetcher.Get(url, opts...)
+}
+
+func Request(method, url string, opts ...Option) (resp *http.Response, err error) {
+	return DefaultFetcher.Request(method, url, opts...)
+}
+
+// Ignore warnings.
+var (
+	_ = Fetch
+	_ = Get
+	_ = Request
+)

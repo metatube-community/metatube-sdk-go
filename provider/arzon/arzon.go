@@ -2,7 +2,6 @@ package arzon
 
 import (
 	"fmt"
-	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
@@ -38,11 +37,15 @@ const (
 
 // ARZON needs `Referer` header when request to view resources.
 type ARZON struct {
+	*fetch.Fetcher
 	*scraper.Scraper
 }
 
 func New() *ARZON {
-	return &ARZON{scraper.NewDefaultScraper(Name, baseURL, Priority)}
+	return &ARZON{
+		Fetcher: fetch.Default(&fetch.Config{Referer: baseURL}),
+		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority),
+	}
 }
 
 func (az *ARZON) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -199,10 +202,6 @@ func (az *ARZON) SearchMovie(keyword string) (results []*model.MovieSearchResult
 
 	err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword)))
 	return
-}
-
-func (az *ARZON) Fetch(u string) (*http.Response, error) {
-	return fetch.Fetch(u, fetch.WithReferer(baseURL))
 }
 
 func init() {

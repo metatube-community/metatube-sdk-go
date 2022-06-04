@@ -2,7 +2,6 @@ package sod
 
 import (
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -38,11 +37,15 @@ const (
 
 // SOD needs `Referer` header when request to view images and videos.
 type SOD struct {
+	*fetch.Fetcher
 	*scraper.Scraper
 }
 
 func New() *SOD {
-	return &SOD{scraper.NewDefaultScraper(Name, baseURL, Priority)}
+	return &SOD{
+		Fetcher: fetch.Default(&fetch.Config{Referer: baseURL}),
+		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority),
+	}
 }
 
 func (sod *SOD) NormalizeID(id string) string {
@@ -198,10 +201,6 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 
 	err = c.Visit(composedSearchURL)
 	return
-}
-
-func (sod *SOD) Fetch(u string) (*http.Response, error) {
-	return fetch.Fetch(u, fetch.WithReferer(baseURL))
 }
 
 func init() {

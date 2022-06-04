@@ -8,6 +8,10 @@ import (
 
 type Option func(*http.Request)
 
+func (opt Option) Apply(req *http.Request) {
+	opt(req)
+}
+
 func WithHeader(key, value string) Option {
 	return func(req *http.Request) {
 		req.Header.Set(key, value)

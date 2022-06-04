@@ -15,7 +15,8 @@ import (
 )
 
 type Engine struct {
-	db *gorm.DB
+	db      *gorm.DB
+	fetcher *fetch.Fetcher
 	// Name:Provider Map
 	actorProviders map[string]javtube.ActorProvider
 	movieProviders map[string]javtube.MovieProvider
@@ -25,7 +26,10 @@ type Engine struct {
 }
 
 func New(db *gorm.DB, timeout time.Duration) *Engine {
-	engine := &Engine{db: db}
+	engine := &Engine{
+		db:      db,
+		fetcher: fetch.Default(nil),
+	}
 	engine.initActorProviders(timeout)
 	engine.initMovieProviders(timeout)
 	return engine
@@ -152,5 +156,5 @@ func (e *Engine) Fetch(url string, provider javtube.Provider) (*http.Response, e
 	if fetcher, ok := provider.(javtube.Fetcher); ok {
 		return fetcher.Fetch(url)
 	}
-	return fetch.Fetch(url)
+	return e.fetcher.Fetch(url)
 }
