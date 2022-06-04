@@ -12,13 +12,20 @@ var _ Translator = (*GoogleTranslator)(nil)
 
 const googleTranslateAPI = "https://translate.google.com/translate_a/single"
 
-type GoogleTranslator struct{}
+type GoogleTranslator struct {
+	fetcher *fetch.Fetcher
+}
 
-func NewGoogleTranslator() Translator { return new(GoogleTranslator) }
+func NewGoogleTranslator() Translator {
+	return &GoogleTranslator{
+		fetcher: fetch.Default(&fetch.Config{
+			RandomUserAgent: true,
+		}),
+	}
+}
 
 func (gt *GoogleTranslator) Translate(text, srcLang, dstLang string) (result string, err error) {
-	resp, err := fetch.Fetch(googleTranslateAPI,
-		fetch.WithRandomUserAgent(),
+	resp, err := gt.fetcher.Get(googleTranslateAPI,
 		fetch.WithQuery(map[string]string{
 			"client": "at",
 			"dt":     "t",
