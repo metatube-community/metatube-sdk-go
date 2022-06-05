@@ -9,7 +9,7 @@ const (
 )
 
 type Translator interface {
-	Translate(text string, srcLang, dstLang string) (string, error)
+	Translate(text string, from, to string) (string, error)
 }
 
 func SetEngine(e Engine) {

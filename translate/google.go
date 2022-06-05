@@ -20,7 +20,7 @@ func NewGoogleTranslator() Translator {
 	}
 }
 
-func (gt *GoogleTranslator) Translate(text, srcLang, dstLang string) (result string, err error) {
+func (gt *GoogleTranslator) Translate(text, from, to string) (result string, err error) {
 	resp, err := gt.fetcher.Get(googleTranslateAPI,
 		fetch.WithQuery(map[string]string{
 			"client": "at",
@@ -28,8 +28,8 @@ func (gt *GoogleTranslator) Translate(text, srcLang, dstLang string) (result str
 			"dj":     "1",
 			"ie":     "UTF-8",
 			"oe":     "UTF-8",
-			"sl":     srcLang,
-			"tl":     dstLang,
+			"sl":     from,
+			"tl":     to,
 			"q":      text,
 		}))
 	if err != nil {
