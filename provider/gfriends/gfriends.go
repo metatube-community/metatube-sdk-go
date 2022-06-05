@@ -34,7 +34,10 @@ const (
 	jsonURL    = "https://raw.githubusercontent.com/xinxin8816/gfriends/master/Filetree.json"
 )
 
-var _baseURL, _ = url.Parse(baseURL)
+var (
+	_baseURL, _ = url.Parse(baseURL)
+	_fetcher    = fetch.Default(nil)
+)
 
 type GFriends struct{}
 
@@ -146,7 +149,7 @@ func (ft *fileTree) query(s string) (images []string, err error) {
 }
 
 func (ft *fileTree) update() error {
-	resp, err := fetch.Fetch(jsonURL)
+	resp, err := _fetcher.Fetch(jsonURL)
 	if err != nil {
 		return err
 	}
