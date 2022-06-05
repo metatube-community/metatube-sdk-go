@@ -56,7 +56,7 @@ func BaiduTranslate(q, from, to, appID, appKey string) (result string, err error
 			}
 			result = strings.TrimSpace(s.String())
 		} else {
-			err = fmt.Errorf("error code: %s", data.ErrorCode)
+			err = fmt.Errorf("baidu fanyi error code: %s", data.ErrorCode)
 		}
 	}
 	return
