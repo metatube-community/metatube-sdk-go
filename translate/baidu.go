@@ -79,7 +79,7 @@ func parseToBaiduSupportedLanguage(lang string) string {
 		return "cht"
 	case "jp", "ja":
 		return "jp"
-	case "kor", "ko", "kr":
+	case "kor", "ko":
 		return "kor"
 	case "vie", "vi":
 		return "vie"
@@ -87,6 +87,22 @@ func parseToBaiduSupportedLanguage(lang string) string {
 		return "spa"
 	case "fra", "fr":
 		return "fra"
+	case "ara", "ar":
+		return "ara"
+	case "bul", "bg":
+		return "bul"
+	case "est", "et":
+		return "est"
+	case "dan", "da":
+		return "dan"
+	case "fin", "fi":
+		return "fin"
+	case "rom", "ro":
+		return "rom"
+	case "slo", "sl":
+		return "slo"
+	case "swe", "sv":
+		return "swe"
 	}
 	return lang
 }
