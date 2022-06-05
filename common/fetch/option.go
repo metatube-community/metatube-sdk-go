@@ -47,3 +47,9 @@ func WithQuery(query map[string]string) Option {
 		req.URL.RawQuery = q.Encode()
 	}
 }
+
+func WithHookFunc(fn func(req *http.Request)) Option {
+	return func(req *http.Request) {
+		fn(req)
+	}
+}
