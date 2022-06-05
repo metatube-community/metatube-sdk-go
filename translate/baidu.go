@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/javtube/javtube-sdk-go/common/fetch"
@@ -19,7 +20,7 @@ func BaiduTranslate(q, from, to, appID, appKey string) (result string, err error
 	var (
 		resp *http.Response
 		// salt & sign
-		salt = strconv.Itoa(rand.Intn(32768) + (65536 - 32768))
+		salt = strconv.Itoa(rand.Intn(0x7FFFFFFF))
 		sign = md5sum(appID + q + salt + appKey)
 	)
 	resp, err = fetch.Post(
@@ -46,7 +47,12 @@ func BaiduTranslate(q, from, to, appID, appKey string) (result string, err error
 	}{}
 	if err = json.NewDecoder(resp.Body).Decode(&data); err == nil {
 		if len(data.TransResult) > 0 {
-			result = data.TransResult[0].Dst
+			s := strings.Builder{}
+			for _, t := range data.TransResult {
+				s.WriteString(t.Dst)
+				s.WriteByte('\n')
+			}
+			result = strings.TrimSpace(s.String())
 		} else {
 			err = fmt.Errorf("error code: %s", data.ErrorCode)
 		}
