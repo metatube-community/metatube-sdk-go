@@ -27,8 +27,8 @@ func BaiduTranslate(q, from, to, appID, appKey string) (result string, err error
 		baiduTranslateAPI,
 		fetch.WithURLEncodedBody(map[string]string{
 			"q":     q,
-			"from":  from,
-			"to":    to,
+			"from":  parseToBaiduSupportedLanguage(from),
+			"to":    parseToBaiduSupportedLanguage(to),
 			"appid": appID,
 			"salt":  salt,
 			"sign":  sign,
@@ -64,6 +64,29 @@ func md5sum(s string) string {
 	h := md5.New()
 	h.Write([]byte(s))
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+func parseToBaiduSupportedLanguage(lang string) string {
+	if lang = strings.ToLower(lang); lang == "" || lang == "auto" /* auto detect */ {
+		return "auto"
+	}
+	switch lang {
+	case "zh", "zh-cn", "zh_cn", "zh-hans":
+		return "zh"
+	case "cht", "zh-tw", "zh_tw", "zh-hk", "zh_hk", "zh-hant":
+		return "cht"
+	case "jp", "ja":
+		return "jp"
+	case "kor", "ko", "kr":
+		return "kor"
+	case "vie", "vi":
+		return "vie"
+	case "spa", "es":
+		return "spa"
+	case "fra", "fr":
+		return "fra"
+	}
+	return lang
 }
 
 func init() {

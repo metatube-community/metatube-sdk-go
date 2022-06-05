@@ -3,6 +3,7 @@ package translate
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"golang.org/x/text/language"
 
@@ -17,8 +18,8 @@ func GoogleTranslate(q, source, target, key string) (result string, err error) {
 		googleTranslateAPI,
 		fetch.WithJSONBody(map[string]string{
 			"q":      q,
-			"source": parseGoogleFormatLanguage(source),
-			"target": parseGoogleFormatLanguage(target),
+			"source": parseToGoogleSupportedLanguage(source),
+			"target": parseToGoogleSupportedLanguage(target),
 			"format": "text",
 		}),
 		fetch.WithQuery(map[string]string{"key": key}),
@@ -41,8 +42,8 @@ func GoogleTranslate(q, source, target, key string) (result string, err error) {
 	return
 }
 
-func parseGoogleFormatLanguage(lang string) string {
-	if lang == "" || lang == "auto" /* auto detect */ {
+func parseToGoogleSupportedLanguage(lang string) string {
+	if lang = strings.ToLower(lang); lang == "" || lang == "auto" /* auto detect */ {
 		return ""
 	}
 	tag, err := language.Parse(lang)
