@@ -2,57 +2,39 @@ package translate
 
 import (
 	"encoding/json"
-	"errors"
-	"strings"
+	"net/http"
 
 	"github.com/javtube/javtube-sdk-go/common/fetch"
 )
 
-const googleTranslateAPI = "https://translate.google.com/translate_a/single"
+const googleTranslateAPI = "https://translation.googleapis.com/language/translate/v2"
 
-type GoogleTranslator struct {
-	fetcher *fetch.Fetcher
-}
-
-func NewGoogleTranslator() Translator {
-	return &GoogleTranslator{
-		fetcher: fetch.Default(nil),
-	}
-}
-
-func (gt *GoogleTranslator) Translate(text, from, to string) (result string, err error) {
-	resp, err := gt.fetcher.Get(googleTranslateAPI,
-		fetch.WithQuery(map[string]string{
-			"client": "at",
-			"dt":     "t",
-			"dj":     "1",
-			"ie":     "UTF-8",
-			"oe":     "UTF-8",
-			"sl":     from,
-			"tl":     to,
-			"q":      text,
-		}))
-	if err != nil {
+func GoogleTranslate(q, source, target, key string) (result string, err error) {
+	var resp *http.Response
+	if resp, err = fetch.Post(
+		googleTranslateAPI,
+		fetch.WithJSONBody(map[string]string{
+			"q":      q,
+			"source": source,
+			"target": target,
+			"format": "text",
+		}),
+		fetch.WithQuery(map[string]string{"key": key}),
+		fetch.WithHeader("Content-Type", "application/json"),
+	); err != nil {
 		return
 	}
-	data := struct {
-		Sentences []struct {
-			Trans string `json:"trans"`
-			Orig  string `json:"orig"`
-		} `json:"sentences"`
-	}{}
-	if err = json.NewDecoder(resp.Body).Decode(&data); err == nil {
-		if len(data.Sentences) == 0 {
-			err = errors.New("bad translation")
-			return
-		}
-		s := strings.Builder{}
-		for _, sentence := range data.Sentences {
-			s.WriteString(sentence.Trans)
-		}
-		result = s.String()
-	}
-	return
-}
 
-var _ Translator = (*GoogleTranslator)(nil)
+	data := struct {
+		Data struct {
+			Translations []struct {
+				DetectedSourceLanguage string `json:"detectedSourceLanguage"`
+				TranslatedText         string `json:"translatedText"`
+			} `json:"translations"`
+		} `json:"data"`
+	}{}
+	if err = json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		return
+	}
+	return data.Data.Translations[0].TranslatedText, nil
+}
