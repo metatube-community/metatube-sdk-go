@@ -20,11 +20,14 @@ func findFirstNonASCII(s string) int {
 }
 
 func Trim(s string) string {
-	s = s[:len(s)-len(path.Ext(s))] // trim extension
+	const maxExtLength = 7
+	if ext := path.Ext(s); len(ext) < maxExtLength {
+		s = s[:len(s)-len(ext)] // trim extension
+	}
 	if ss := strings.SplitN(s, "@", 2); len(ss) == 2 {
 		s = ss[1] // trim @ char
 	}
-	s = regexp.MustCompile(`(?i)[-_](fhd|hd|sd|1080p|720p|4K|x264|x265|uncensored|leak)|\[.*]`).
+	s = regexp.MustCompile(`(?i)[-_](\d*fps|fhd|hd|sd|1080p|720p|4K|x264|x265|uncensored|leak)|\[.*]`).
 		ReplaceAllString(s, "") // trim tags
 	s = regexp.MustCompile(`^(?i)\s*(cari|carib|caribean|1Pondo|heydouga|pacopacomama|muramura|Tokyo.*Hot)[-_\s]`).
 		ReplaceAllString(s, "") // trim prefixes
