@@ -12,11 +12,18 @@ import (
 
 const defaultMaxRPS = 1
 
-type translateEngine = string
+const (
+	googleTranslateEngine = "google"
+	baiduTranslateEngine  = "baidu"
+)
 
 const (
-	googleTranslateEngine translateEngine = "google"
-	baiduTranslateEngine  translateEngine = "baidu"
+	// GoogleAPI extra query
+	googleAPIKey = "google-api-key"
+
+	// BaiduAPI extra query
+	baiduAPPID  = "baidu-app-id"
+	baiduAPPKey = "baidu-app-key"
 )
 
 type translateQuery struct {
@@ -48,10 +55,10 @@ func getTranslate(rate int) gin.HandlerFunc {
 		switch strings.ToLower(query.Engine) {
 		case googleTranslateEngine:
 			result, err = translate.GoogleTranslate(query.Q, query.From, query.To,
-				c.Query("google-api-key"))
+				c.Query(googleAPIKey))
 		case baiduTranslateEngine:
 			result, err = translate.BaiduTranslate(query.Q, query.From, query.To,
-				c.Query("baidu-app-id"), c.Query("baidu-app-key"))
+				c.Query(baiduAPPID), c.Query(baiduAPPKey))
 		default:
 			abortWithStatusMessage(c, http.StatusBadRequest, "invalid translate engine")
 			return
