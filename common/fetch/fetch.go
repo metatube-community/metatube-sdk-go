@@ -34,9 +34,6 @@ type Fetcher struct {
 }
 
 func New(c *http.Client, cfg *Config) *Fetcher {
-	if cfg == nil /* init */ {
-		cfg = new(Config)
-	}
 	if cfg.RandomUserAgent {
 		// assign a random user-agent.
 		cfg.UserAgent = random.UserAgent()
@@ -52,6 +49,13 @@ func New(c *http.Client, cfg *Config) *Fetcher {
 }
 
 func Default(cfg *Config) *Fetcher {
+	if cfg == nil /* init if nil */ {
+		cfg = new(Config)
+	}
+	// Enable random UA if not set.
+	if cfg.UserAgent == "" {
+		cfg.RandomUserAgent = true
+	}
 	return New((&retryablehttp.Client{
 		RetryWaitMin: 1 * time.Second,
 		RetryWaitMax: 3 * time.Second,

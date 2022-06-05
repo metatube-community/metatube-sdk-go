@@ -16,9 +16,7 @@ type GoogleTranslator struct {
 
 func NewGoogleTranslator() Translator {
 	return &GoogleTranslator{
-		fetcher: fetch.Default(&fetch.Config{
-			RandomUserAgent: true,
-		}),
+		fetcher: fetch.Default(nil),
 	}
 }
 

@@ -43,7 +43,7 @@ type ARZON struct {
 
 func New() *ARZON {
 	return &ARZON{
-		Fetcher: fetch.Default(&fetch.Config{Referer: baseURL, RandomUserAgent: true}),
+		Fetcher: fetch.Default(&fetch.Config{Referer: baseURL}),
 		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority),
 	}
 }

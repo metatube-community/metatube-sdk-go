@@ -43,7 +43,7 @@ type SOD struct {
 
 func New() *SOD {
 	return &SOD{
-		Fetcher: fetch.Default(&fetch.Config{Referer: baseURL, RandomUserAgent: true}),
+		Fetcher: fetch.Default(&fetch.Config{Referer: baseURL}),
 		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority),
 	}
 }
