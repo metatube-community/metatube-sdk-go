@@ -33,8 +33,8 @@ func GoogleTranslate(q, source, target, key string) (result string, err error) {
 			} `json:"translations"`
 		} `json:"data"`
 	}{}
-	if err = json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		return
+	if err = json.NewDecoder(resp.Body).Decode(&data); err == nil {
+		result = data.Data.Translations[0].TranslatedText
 	}
-	return data.Data.Translations[0].TranslatedText, nil
+	return
 }
