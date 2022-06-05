@@ -23,7 +23,7 @@ func BaiduTranslate(q, from, to, appID, appKey string) (result string, err error
 		salt = strconv.Itoa(rand.Intn(0x7FFFFFFF))
 		sign = md5sum(appID + q + salt + appKey)
 	)
-	resp, err = fetch.Post(
+	if resp, err = fetch.Post(
 		baiduTranslateAPI,
 		fetch.WithURLEncodedBody(map[string]string{
 			"q":     q,
@@ -34,7 +34,9 @@ func BaiduTranslate(q, from, to, appID, appKey string) (result string, err error
 			"sign":  sign,
 		}),
 		fetch.WithHeader("Content-Type", "application/x-www-form-urlencoded"),
-	)
+	); err != nil {
+		return
+	}
 
 	data := struct {
 		From        string `json:"from"`
