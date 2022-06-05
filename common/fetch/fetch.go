@@ -12,7 +12,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/random"
 )
 
-var DefaultFetcher = Default(nil)
+var DefaultFetcher = Default(&Config{RandomUserAgent: true})
 
 type Config struct {
 	// Set User-Agent Header.
