@@ -131,6 +131,7 @@ var androidVersions = []string{
 	"9",
 	"10",
 	"11",
+	"12",
 }
 
 var ucwebDevices = []string{
