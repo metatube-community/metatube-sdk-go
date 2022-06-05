@@ -10,7 +10,6 @@ var uaGens = []func() string{
 	genFirefoxUA,
 	genChromeUA,
 	genEdgeUA,
-	genOperaUA,
 }
 
 var uaGensMobile = []func() string{
@@ -96,15 +95,6 @@ var edgeVersions = []string{
 	"84.0.4147.105,84.0.522.50",
 	"89.0.4389.128,89.0.774.77",
 	"90.0.4430.72,90.0.818.39",
-}
-
-var operaVersions = []string{
-	"2.7.62 Version/11.00",
-	"2.2.15 Version/10.10",
-	"2.9.168 Version/11.50",
-	"2.2.15 Version/10.00",
-	"2.8.131 Version/11.11",
-	"2.5.24 Version/10.54",
 }
 
 var ucwebVersions = []string{
@@ -260,14 +250,6 @@ func genEdgeUA() string {
 	edgeVersion := strings.Split(version, ",")[1]
 	os := osStrings[rand.Intn(len(osStrings))]
 	return fmt.Sprintf("Mozilla/5.0 (%s) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/%s Safari/537.36 Edg/%s", os, chromeVersion, edgeVersion)
-}
-
-// Generates Opera Browser User-Agent (Desktop)
-//	-> "Opera/9.80 (X11; Linux x86_64; U; en) Presto/2.8.131 Version/11.11"
-func genOperaUA() string {
-	version := operaVersions[rand.Intn(len(operaVersions))]
-	os := osStrings[rand.Intn(len(osStrings))]
-	return fmt.Sprintf("Opera/9.80 (%s; U; en) Presto/%s", os, version)
 }
 
 // Generates UCWEB/Nokia203 Browser User-Agent (Mobile)
