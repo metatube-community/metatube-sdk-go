@@ -105,4 +105,25 @@ func (f *Fetcher) Request(method, url string, body io.Reader, opts ...Option) (r
 	return
 }
 
-var _ = DefaultFetcher
+func Fetch(url string) (*http.Response, error) {
+	return DefaultFetcher.Fetch(url)
+}
+
+func Get(url string, opts ...Option) (*http.Response, error) {
+	return DefaultFetcher.Get(url, opts...)
+}
+
+func Post(url string, body io.Reader, opts ...Option) (*http.Response, error) {
+	return DefaultFetcher.Post(url, body, opts...)
+}
+
+func Request(method, url string, body io.Reader, opts ...Option) (*http.Response, error) {
+	return DefaultFetcher.Request(method, url, body, opts...)
+}
+
+var (
+	_ = Fetch
+	_ = Get
+	_ = Post
+	_ = Request
+)
