@@ -38,6 +38,16 @@ func WithRandomUserAgent() Option {
 	return WithUserAgent(random.UserAgent())
 }
 
+func WithAuthorization(token string) Option {
+	return WithHeader("Authorization", "Bearer "+token)
+}
+
+func WithBasicAuth(username, password string) Option {
+	return func(req *http.Request) {
+		req.SetBasicAuth(username, password)
+	}
+}
+
 func WithQuery(query map[string]string) Option {
 	return func(req *http.Request) {
 		q := req.URL.Query()
