@@ -8,7 +8,7 @@ import (
 
 type Option func(*http.Request)
 
-func (opt Option) Apply(req *http.Request) {
+func (opt Option) apply(req *http.Request) {
 	opt(req)
 }
 

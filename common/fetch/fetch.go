@@ -92,7 +92,7 @@ func (f *Fetcher) Request(method, url string, body io.Reader, opts ...Option) (r
 	}
 	// apply options.
 	for _, option := range append(options, opts...) {
-		option.Apply(req)
+		option.apply(req)
 	}
 	// make HTTP request.
 	if resp, err = f.client.Do(req); err != nil {
