@@ -232,6 +232,28 @@ var osStrings = []string{
 	"Macintosh; Intel Mac OS X 11_2_1",
 	"Macintosh; Intel Mac OS X 11_2_2",
 	"Macintosh; Intel Mac OS X 11_2_3",
+	"Macintosh; Intel Mac OS X 11_3",
+	"Macintosh; Intel Mac OS X 11_3_1",
+	"Macintosh; Intel Mac OS X 11_4",
+	"Macintosh; Intel Mac OS X 11_5",
+	"Macintosh; Intel Mac OS X 11_5_1",
+	"Macintosh; Intel Mac OS X 11_5_2",
+	"Macintosh; Intel Mac OS X 11_6",
+	"Macintosh; Intel Mac OS X 11_6_1",
+	"Macintosh; Intel Mac OS X 11_6_2",
+	"Macintosh; Intel Mac OS X 11_6_3",
+	"Macintosh; Intel Mac OS X 11_6_4",
+	"Macintosh; Intel Mac OS X 11_6_5",
+
+	// MacOS - Monterey
+	"Macintosh; Intel Mac OS X 12_0",
+	"Macintosh; Intel Mac OS X 12_0_1",
+	"Macintosh; Intel Mac OS X 12_1",
+	"Macintosh; Intel Mac OS X 12_2",
+	"Macintosh; Intel Mac OS X 12_2_1",
+	"Macintosh; Intel Mac OS X 12_3",
+	"Macintosh; Intel Mac OS X 12_3_1",
+	"Macintosh; Intel Mac OS X 12_4",
 
 	// Windows
 	"Windows NT 10.0; Win64; x64",
