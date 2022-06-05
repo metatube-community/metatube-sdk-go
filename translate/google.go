@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"golang.org/x/text/language"
+
 	"github.com/javtube/javtube-sdk-go/common/fetch"
 )
 
@@ -15,8 +17,8 @@ func GoogleTranslate(q, source, target, key string) (result string, err error) {
 		googleTranslateAPI,
 		fetch.WithJSONBody(map[string]string{
 			"q":      q,
-			"source": source,
-			"target": target,
+			"source": parseGoogleFormatLanguage(source),
+			"target": parseGoogleFormatLanguage(target),
 			"format": "text",
 		}),
 		fetch.WithQuery(map[string]string{"key": key}),
@@ -37,4 +39,15 @@ func GoogleTranslate(q, source, target, key string) (result string, err error) {
 		result = data.Data.Translations[0].TranslatedText
 	}
 	return
+}
+
+func parseGoogleFormatLanguage(lang string) string {
+	if lang == "" || lang == "auto" /* auto detect */ {
+		return ""
+	}
+	tag, err := language.Parse(lang)
+	if err != nil {
+		panic(err)
+	}
+	return tag.String()
 }
