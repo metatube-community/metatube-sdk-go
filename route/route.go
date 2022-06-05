@@ -34,6 +34,9 @@ func New(app *engine.Engine, v validator.Validator) *gin.Engine {
 		api.GET("/actor", getInfo(app, actorInfoType))
 		api.GET("/movie", getInfo(app, movieInfoType))
 
+		// translate
+		api.GET("/translate", getTranslate(defaultMaxRPS))
+
 		// search
 		search := api.Group("/search")
 		search.GET("/actor", getSearchResults(app, actorSearchType))
