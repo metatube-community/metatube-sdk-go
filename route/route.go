@@ -24,7 +24,7 @@ func New(app *engine.Engine, v validator.Validator) *gin.Engine {
 		r.GET("/", index())
 	}
 
-	// redirect middleware
+	// redirection middleware
 	r.Use(redirect(app))
 
 	api := r.Group("/api")
