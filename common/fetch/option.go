@@ -18,6 +18,14 @@ func WithHeader(key, value string) Option {
 	}
 }
 
+func WithHeaders(headers map[string]string) Option {
+	return func(req *http.Request) {
+		for key, value := range headers {
+			req.Header.Set(key, value)
+		}
+	}
+}
+
 func WithReferer(referer string) Option {
 	return WithHeader("Referer", referer)
 }
@@ -33,8 +41,8 @@ func WithRandomUserAgent() Option {
 func WithQuery(query map[string]string) Option {
 	return func(req *http.Request) {
 		q := req.URL.Query()
-		for k, v := range query {
-			q.Add(k, v)
+		for key, value := range query {
+			q.Set(key, value)
 		}
 		req.URL.RawQuery = q.Encode()
 	}

@@ -2,6 +2,7 @@ package fetch
 
 import (
 	"errors"
+	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"time"
@@ -60,20 +61,21 @@ func Default(cfg *Config) *Fetcher {
 	}).StandardClient(), cfg)
 }
 
-// Fetch uses Get to fetch resources from url.
 func (f *Fetcher) Fetch(url string) (resp *http.Response, err error) {
 	return f.Get(url)
 }
 
-// Get gets resources from url with options.
 func (f *Fetcher) Get(url string, opts ...Option) (resp *http.Response, err error) {
-	return f.Request(http.MethodGet, url, opts...)
+	return f.Request(http.MethodGet, url, nil, opts...)
 }
 
-// Request requests resources with given method.
-func (f *Fetcher) Request(method, url string, opts ...Option) (resp *http.Response, err error) {
+func (f *Fetcher) Post(url string, body io.Reader, opts ...Option) (resp *http.Response, err error) {
+	return f.Request(http.MethodPost, url, body, opts...)
+}
+
+func (f *Fetcher) Request(method, url string, body io.Reader, opts ...Option) (resp *http.Response, err error) {
 	var req *http.Request
-	if req, err = http.NewRequest(method, url, nil); err != nil {
+	if req, err = http.NewRequest(method, url, body); err != nil {
 		return
 	}
 	// compose options.
@@ -88,7 +90,7 @@ func (f *Fetcher) Request(method, url string, opts ...Option) (resp *http.Respon
 	for _, option := range append(options, opts...) {
 		option.Apply(req)
 	}
-	// Make HTTP request.
+	// make HTTP request.
 	if resp, err = f.client.Do(req); err != nil {
 		return
 	}
@@ -99,21 +101,4 @@ func (f *Fetcher) Request(method, url string, opts ...Option) (resp *http.Respon
 	return
 }
 
-func Fetch(url string) (resp *http.Response, err error) {
-	return DefaultFetcher.Fetch(url)
-}
-
-func Get(url string, opts ...Option) (resp *http.Response, err error) {
-	return DefaultFetcher.Get(url, opts...)
-}
-
-func Request(method, url string, opts ...Option) (resp *http.Response, err error) {
-	return DefaultFetcher.Request(method, url, opts...)
-}
-
-// Ignore warnings.
-var (
-	_ = Fetch
-	_ = Get
-	_ = Request
-)
+var _ = DefaultFetcher
