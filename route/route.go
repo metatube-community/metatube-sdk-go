@@ -6,9 +6,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/javtube/javtube-sdk-go/common/fetch"
 	"github.com/javtube/javtube-sdk-go/engine"
+	"github.com/javtube/javtube-sdk-go/errors"
 	V "github.com/javtube/javtube-sdk-go/internal/constant"
-	javtube "github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/route/validator"
 )
 
@@ -79,42 +80,48 @@ func notAllowed() gin.HandlerFunc {
 
 func index() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, &statusMessage{
-			Status:  true,
-			Message: V.VersionString(),
+		c.JSON(http.StatusOK, &responseMessage{
+			Success: true,
+			Data: gin.H{
+				"version":    V.Version,
+				"git-commit": V.GitCommit,
+			},
 		})
 	}
 }
 
 func abortWithError(c *gin.Context, err error) {
-	var code int
-	switch err {
-	case javtube.ErrNotFound:
-		code = http.StatusNotFound
-	case javtube.ErrInvalidID, javtube.ErrInvalidURL, javtube.ErrInvalidKeyword:
-		code = http.StatusBadRequest
-	case javtube.ErrNotSupported, javtube.ErrInvalidMetadata:
-		fallthrough
-	default:
-		code = http.StatusInternalServerError
+	var code = http.StatusInternalServerError
+	if e, ok := err.(*errors.HTTPError); ok {
+		code = e.StatusCode()
+	} else if c := fetch.StatusCode(err.Error()); c != 0 {
+		code = c
 	}
 	abortWithStatusMessage(c, code, err)
 }
 
 func abortWithStatusMessage(c *gin.Context, code int, message any) {
 	switch m := message.(type) {
+	case string:
+		// pass
 	case error:
 		message = m.Error()
 	case fmt.Stringer:
 		message = m.String()
+	default:
+		message = fmt.Sprintf("%#v", m)
 	}
-	c.AbortWithStatusJSON(code, &statusMessage{
-		Status:  false,
-		Message: message,
+	c.AbortWithStatusJSON(code, &responseMessage{
+		Success: false,
+		Error: &errors.HTTPError{
+			Code:    code,
+			Message: message.(string),
+		},
 	})
 }
 
-type statusMessage struct {
-	Status  bool `json:"status"`
-	Message any  `json:"message"`
+type responseMessage struct {
+	Success bool  `json:"success"`
+	Data    any   `json:"data,omitempty"`
+	Error   error `json:"error,omitempty"`
 }
