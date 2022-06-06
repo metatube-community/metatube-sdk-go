@@ -61,7 +61,7 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 		case app.IsMovieProvider(query.Provider):
 			isActorProvider = false
 		default:
-			abortWithStatusMessage(c, http.StatusBadRequest, "invalid provider")
+			abortWithError(c, javtube.ErrProviderNotFound)
 			return
 		}
 
