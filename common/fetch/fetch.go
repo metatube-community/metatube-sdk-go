@@ -109,7 +109,7 @@ func (f *Fetcher) Request(method, url string, body io.Reader, opts ...Option) (r
 	}
 	if c.RaiseForStatus && resp.StatusCode != http.StatusOK {
 		defer resp.Body.Close()
-		return nil, &errors.HTTPError{Code: resp.StatusCode}
+		return nil, errors.FromCode(resp.StatusCode)
 	}
 	return
 }
