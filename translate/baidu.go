@@ -37,6 +37,7 @@ func BaiduTranslate(q, from, to, appID, appKey string) (result string, err error
 	); err != nil {
 		return
 	}
+	defer resp.Body.Close()
 
 	data := struct {
 		From        string `json:"from"`
