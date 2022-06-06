@@ -25,8 +25,8 @@ func New(app *engine.Engine, v validator.Validator) *gin.Engine {
 	// redirection middleware
 	r.Use(redirect(app))
 
-	// index page
 	r.GET("/", getIndex())
+	r.GET("/version", getVersion())
 
 	api := r.Group("/api")
 	api.Use(authentication(v))
@@ -79,6 +79,15 @@ func notAllowed() gin.HandlerFunc {
 }
 
 func getIndex() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, &responseMessage{
+			Success: true,
+			Data:    gin.H{"hello": "javtube"},
+		})
+	}
+}
+
+func getVersion() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, &responseMessage{
 			Success: true,
