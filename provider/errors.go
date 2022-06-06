@@ -7,10 +7,10 @@ import (
 )
 
 var (
-	ErrInvalidID          = &errors.HTTPError{Code: http.StatusBadRequest, Message: "invalid id"}
-	ErrInvalidURL         = &errors.HTTPError{Code: http.StatusBadRequest, Message: "invalid url"}
-	ErrInvalidKeyword     = &errors.HTTPError{Code: http.StatusBadRequest, Message: "invalid keyword"}
-	ErrInfoNotFound       = &errors.HTTPError{Code: http.StatusNotFound, Message: "info not found"}
-	ErrProviderNotFound   = &errors.HTTPError{Code: http.StatusNotFound, Message: "provider not found"}
-	ErrIncompleteMetadata = &errors.HTTPError{Code: http.StatusInternalServerError, Message: "incomplete metadata"}
+	ErrInvalidID          = errors.New(http.StatusBadRequest, "invalid id")
+	ErrInvalidURL         = errors.New(http.StatusBadRequest, "invalid url")
+	ErrInvalidKeyword     = errors.New(http.StatusBadRequest, "invalid keyword")
+	ErrInfoNotFound       = errors.New(http.StatusNotFound, "info not found")
+	ErrProviderNotFound   = errors.New(http.StatusNotFound, "provider not found")
+	ErrIncompleteMetadata = errors.New(http.StatusInternalServerError, "incomplete metadata")
 )
