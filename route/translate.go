@@ -30,22 +30,21 @@ type translateQuery struct {
 	Q      string `form:"q" binding:"required"`
 	From   string `form:"from"`
 	To     string `form:"to" binding:"required"`
-	Engine string `form:"engine"`
+	Engine string `form:"engine" binding:"required"`
 }
 
 func getTranslate(rate int) gin.HandlerFunc {
 	limiter := ratelimit.New(rate)
 	return func(c *gin.Context) {
 		query := &translateQuery{
-			From:   "auto",
-			Engine: googleTranslateEngine,
+			From: "auto",
 		}
 		if err := c.ShouldBindQuery(query); err != nil {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
 			return
 		}
 
-		// apply limit
+		// apply rate limit.
 		limiter.Take()
 
 		var (
