@@ -72,7 +72,7 @@ func getTranslate(rate int) gin.HandlerFunc {
 			Data: &struct {
 				From           string `json:"from"`
 				To             string `json:"to"`
-				TranslatedText string `json:"translated-text"`
+				TranslatedText string `json:"translated_text"`
 			}{
 				From:           query.From,
 				To:             query.To,

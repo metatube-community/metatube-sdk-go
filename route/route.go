@@ -20,12 +20,13 @@ func New(app *engine.Engine, v validator.Validator) *gin.Engine {
 		// fallback behavior
 		r.NoRoute(notFound())
 		r.NoMethod(notAllowed())
-		// index page
-		r.GET("/", index())
 	}
 
 	// redirection middleware
 	r.Use(redirect(app))
+
+	// index page
+	r.GET("/", index())
 
 	api := r.Group("/api")
 	api.Use(authentication(v))
@@ -83,7 +84,7 @@ func index() gin.HandlerFunc {
 			Success: true,
 			Data: &struct {
 				Version   string `json:"version"`
-				GitCommit string `json:"git-commit"`
+				GitCommit string `json:"git_commit"`
 			}{
 				Version:   V.Version,
 				GitCommit: V.GitCommit,
