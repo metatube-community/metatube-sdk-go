@@ -1,4 +1,4 @@
-package httputil
+package errors
 
 import (
 	"net/http"
@@ -74,6 +74,13 @@ var statusCode = map[string]int{
 }
 
 // StatusCode is a reverse function of http.StatusText.
-func StatusCode(text string) int {
-	return statusCode[text]
+func StatusCode(v any) int {
+	switch v.(type) {
+	case string:
+		return statusCode[v.(string)]
+	case error:
+		return statusCode[v.(error).Error()]
+	default:
+		return 0
+	}
 }

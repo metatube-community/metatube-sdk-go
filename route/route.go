@@ -8,7 +8,6 @@ import (
 
 	"github.com/javtube/javtube-sdk-go/engine"
 	"github.com/javtube/javtube-sdk-go/errors"
-	"github.com/javtube/javtube-sdk-go/httputil"
 	V "github.com/javtube/javtube-sdk-go/internal/constant"
 	"github.com/javtube/javtube-sdk-go/route/validator"
 )
@@ -91,32 +90,24 @@ func index() gin.HandlerFunc {
 }
 
 func abortWithError(c *gin.Context, err error) {
-	var code = http.StatusInternalServerError
 	if e, ok := err.(*errors.HTTPError); ok {
-		code = e.StatusCode()
-	} else if c := httputil.StatusCode(err.Error()); c != 0 {
+		c.AbortWithStatusJSON(e.Code, &responseMessage{
+			Success: false,
+			Error:   e,
+		})
+		return
+	}
+	var code = http.StatusInternalServerError
+	if c := errors.StatusCode(err); c != 0 {
 		code = c
 	}
 	abortWithStatusMessage(c, code, err)
 }
 
 func abortWithStatusMessage(c *gin.Context, code int, message any) {
-	switch m := message.(type) {
-	case string:
-		// pass
-	case error:
-		message = m.Error()
-	case fmt.Stringer:
-		message = m.String()
-	default:
-		message = fmt.Sprintf("%#v", m)
-	}
 	c.AbortWithStatusJSON(code, &responseMessage{
 		Success: false,
-		Error: &errors.HTTPError{
-			Code:    code,
-			Message: message.(string),
-		},
+		Error:   errors.New(code, fmt.Sprintf("%v", message)),
 	})
 }
 
