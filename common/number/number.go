@@ -27,7 +27,7 @@ func Trim(s string) string {
 	if ss := strings.SplitN(s, "@", 2); len(ss) == 2 {
 		s = ss[1] // trim @ char
 	}
-	s = regexp.MustCompile(`(?i)[-_](\d*fps|fhd|hd|sd|1080p|720p|4K|x264|x265|uncensored|leak)|\[.*]`).
+	s = regexp.MustCompile(`(?i)[-_](\d*fps|fhd|hd|sd|1080p|720p|uncensored|leak|[2468]K|[xh]26[45])+|\[.*]`).
 		ReplaceAllString(s, "") // trim tags
 	s = regexp.MustCompile(`^(?i)\s*(cari|carib|caribean|1Pondo|heydouga|pacopacomama|muramura|Tokyo.*Hot)[-_\s]`).
 		ReplaceAllString(s, "") // trim prefixes
