@@ -57,7 +57,8 @@ func BaiduTranslate(q, from, to, appID, appKey string) (result string, err error
 			}
 			result = strings.TrimSpace(s.String())
 		} else {
-			err = fmt.Errorf("baidu fanyi error code: %s", data.ErrorCode)
+			code, _ := strconv.Atoi(data.ErrorCode)
+			err = fmt.Errorf("%s: %s", data.ErrorCode, BaiduErrorText(code))
 		}
 	}
 	return
@@ -106,6 +107,27 @@ func parseToBaiduSupportedLanguage(lang string) string {
 		return "swe"
 	}
 	return lang
+}
+
+// https://fanyi-api.baidu.com/api/trans/product/apidoc
+var baiduErrorText = map[int]string{
+	52000: "成功",
+	52001: "请求超时",
+	52002: "系统错误",
+	52003: "未授权用户",
+	54000: "必填参数为空",
+	54001: "签名错误",
+	54003: "访问频率受限",
+	54004: "账户余额不足",
+	54005: "长query请求频繁",
+	58000: "客户端IP非法",
+	58001: "译文语言方向不支持",
+	58002: "服务当前已关闭",
+	90107: "认证未通过或未生效",
+}
+
+func BaiduErrorText(code int) string {
+	return baiduErrorText[code]
 }
 
 func init() {
