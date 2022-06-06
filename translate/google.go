@@ -2,6 +2,7 @@ package translate
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
 
@@ -22,11 +23,13 @@ func GoogleTranslate(q, source, target, key string) (result string, err error) {
 			"target": parseToGoogleSupportedLanguage(target),
 			"format": "text",
 		}),
-		fetch.WithQuery(map[string]string{"key": key}),
+		fetch.WithRaiseForStatus(false),
+		fetch.WithQuery("key", key),
 		fetch.WithHeader("Content-Type", "application/json"),
 	); err != nil {
 		return
 	}
+	defer resp.Body.Close()
 
 	data := struct {
 		Data struct {
@@ -35,9 +38,20 @@ func GoogleTranslate(q, source, target, key string) (result string, err error) {
 				TranslatedText         string `json:"translatedText"`
 			} `json:"translations"`
 		} `json:"data"`
+		Error struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Status  string `json:"status"`
+		} `json:"error"`
 	}{}
 	if err = json.NewDecoder(resp.Body).Decode(&data); err == nil {
-		result = data.Data.Translations[0].TranslatedText
+		if len(data.Data.Translations) > 0 {
+			result = data.Data.Translations[0].TranslatedText
+		} else if data.Error.Code > 0 {
+			err = errors.New(data.Error.Message)
+		} else {
+			err = errors.New("google translate: unknown error")
+		}
 	}
 	return
 }
