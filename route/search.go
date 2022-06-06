@@ -62,6 +62,9 @@ func getSearchResults(app *engine.Engine, typ searchType) gin.HandlerFunc {
 		}
 
 		// JSON reply.
-		c.PureJSON(http.StatusOK, results)
+		c.JSON(http.StatusOK, &responseMessage{
+			Success: true,
+			Data:    results,
+		})
 	}
 }

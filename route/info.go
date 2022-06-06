@@ -63,6 +63,9 @@ func getInfo(app *engine.Engine, typ infoType) gin.HandlerFunc {
 		}
 
 		// JSON reply.
-		c.PureJSON(http.StatusOK, info)
+		c.JSON(http.StatusOK, &responseMessage{
+			Success: true,
+			Data:    info,
+		})
 	}
 }

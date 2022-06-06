@@ -62,11 +62,23 @@ func getTranslate(rate int) gin.HandlerFunc {
 			abortWithStatusMessage(c, http.StatusBadRequest, "invalid translate engine")
 			return
 		}
+		if err != nil {
+			abortWithError(c, err)
+			return
+		}
 
-		// TODO: response struct
-		c.JSON(http.StatusOK, gin.H{
-			"error":  err.Error(),
-			"result": result,
+		// JSON reply.
+		c.JSON(http.StatusOK, &responseMessage{
+			Success: true,
+			Data: &struct {
+				From           string `json:"from"`
+				To             string `json:"to"`
+				TranslatedText string `json:"translated-text"`
+			}{
+				From:           query.From,
+				To:             query.To,
+				TranslatedText: result,
+			},
 		})
 	}
 }
