@@ -6,24 +6,36 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/random"
 )
 
-type Option func(*http.Request)
+// context is used for each request.
+type context struct {
+	req *http.Request
+	Config
+}
 
-func (opt Option) apply(req *http.Request) {
-	opt(req)
+type Option func(*context)
+
+func (opt Option) apply(c *context) { opt(c) }
+
+func WithRaiseForStatus(v bool) Option {
+	return func(c *context) { c.RaiseForStatus = v }
+}
+
+func WithRequest(fn func(req *http.Request)) Option {
+	return func(c *context) { fn(c.req) }
 }
 
 func WithHeader(key, value string) Option {
-	return func(req *http.Request) {
+	return WithRequest(func(req *http.Request) {
 		req.Header.Set(key, value)
-	}
+	})
 }
 
 func WithHeaders(headers map[string]string) Option {
-	return func(req *http.Request) {
+	return WithRequest(func(req *http.Request) {
 		for key, value := range headers {
 			req.Header.Set(key, value)
 		}
-	}
+	})
 }
 
 func WithReferer(referer string) Option {
@@ -43,13 +55,13 @@ func WithAuthorization(token string) Option {
 }
 
 func WithBasicAuth(username, password string) Option {
-	return func(req *http.Request) {
+	return WithRequest(func(req *http.Request) {
 		req.SetBasicAuth(username, password)
-	}
+	})
 }
 
 func WithQuery(kv ...string) Option {
-	return func(req *http.Request) {
+	return WithRequest(func(req *http.Request) {
 		q := req.URL.Query()
 		if len(kv)%2 != 0 {
 			panic("invalid key-value pairs")
@@ -58,21 +70,15 @@ func WithQuery(kv ...string) Option {
 			q.Set(kv[i], kv[i+1])
 		}
 		req.URL.RawQuery = q.Encode()
-	}
+	})
 }
 
 func WithQueryMap(query map[string]string) Option {
-	return func(req *http.Request) {
+	return WithRequest(func(req *http.Request) {
 		q := req.URL.Query()
 		for key, value := range query {
 			q.Set(key, value)
 		}
 		req.URL.RawQuery = q.Encode()
-	}
-}
-
-func WithHookFunc(fn func(req *http.Request)) Option {
-	return func(req *http.Request) {
-		fn(req)
-	}
+	})
 }

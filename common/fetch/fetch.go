@@ -26,6 +26,9 @@ type Config struct {
 
 	// Use random User-Agent.
 	RandomUserAgent bool
+
+	// Return error when status is not OK.
+	RaiseForStatus bool
 }
 
 type Fetcher struct {
@@ -52,6 +55,8 @@ func Default(cfg *Config) *Fetcher {
 	if cfg == nil /* init if nil */ {
 		cfg = new(Config)
 	}
+	// Enable status check by default.
+	cfg.RaiseForStatus = true
 	// Enable random UA if not set.
 	if cfg.UserAgent == "" {
 		cfg.RandomUserAgent = true
@@ -82,23 +87,27 @@ func (f *Fetcher) Request(method, url string, body io.Reader, opts ...Option) (r
 	if req, err = http.NewRequest(method, url, body); err != nil {
 		return
 	}
+	c := &context{
+		req:    req,
+		Config: *f.config, /* clone */
+	}
 	// compose options.
 	var options []Option
-	if ua := f.config.UserAgent; ua != "" {
-		options = append(options, WithUserAgent(ua))
+	if c.UserAgent != "" {
+		options = append(options, WithUserAgent(c.UserAgent))
 	}
-	if referer := f.config.Referer; referer != "" {
-		options = append(options, WithReferer(referer))
+	if c.Referer != "" {
+		options = append(options, WithReferer(c.Referer))
 	}
 	// apply options.
 	for _, option := range append(options, opts...) {
-		option.apply(req)
+		option.apply(c)
 	}
 	// make HTTP request.
 	if resp, err = f.client.Do(req); err != nil {
 		return
 	}
-	if resp.StatusCode != http.StatusOK {
+	if c.RaiseForStatus && resp.StatusCode != http.StatusOK {
 		defer resp.Body.Close()
 		return nil, errors.New(http.StatusText(resp.StatusCode))
 	}
