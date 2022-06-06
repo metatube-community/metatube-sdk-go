@@ -75,7 +75,7 @@ func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) 
 			return
 		}
 	}
-	return nil, provider.ErrNotFound
+	return nil, provider.ErrInfoNotFound
 }
 
 func (fz *FANZA) ParseIDFromURL(rawURL string) (id string, err error) {

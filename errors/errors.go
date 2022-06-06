@@ -24,7 +24,7 @@ func (e *HTTPError) Error() string {
 	if text := http.StatusText(e.Code); text != "" {
 		return text
 	}
-	return fmt.Sprintf("http error: %d", e.Code)
+	return fmt.Sprintf("http error with code: %d", e.Code)
 }
 
 func (e *HTTPError) StatusCode() int {

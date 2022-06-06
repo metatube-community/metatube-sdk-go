@@ -30,7 +30,7 @@ func (e *Engine) searchActor(keyword string, provider javtube.Provider, lazy boo
 		return searcher.SearchActor(keyword)
 	}
 	// All providers should implement ActorSearcher interface.
-	return nil, javtube.ErrNotFound
+	return nil, javtube.ErrInfoNotFound
 }
 
 func (e *Engine) SearchActor(keyword, name string, lazy bool) ([]*model.ActorSearchResult, error) {
@@ -83,7 +83,7 @@ func (e *Engine) getActorInfoWithCallback(id string, provider javtube.ActorProvi
 	defer func() {
 		// metadata validation check.
 		if err == nil && (info == nil || !info.Valid()) {
-			err = javtube.ErrInvalidMetadata
+			err = javtube.ErrIncompleteMetadata
 		}
 	}()
 	if provider.Name() == gfriends.Name {

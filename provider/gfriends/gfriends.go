@@ -57,7 +57,7 @@ func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
 		return nil, err
 	}
 	if len(images) == 0 {
-		return nil, provider.ErrNotFound
+		return nil, provider.ErrInfoNotFound
 	}
 	return &model.ActorInfo{
 		ID:       id,

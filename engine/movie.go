@@ -97,7 +97,7 @@ func (e *Engine) SearchMovieAll(keyword string, lazy bool) (results []*model.Mov
 			return
 		}
 		if len(results) == 0 {
-			err = javtube.ErrNotFound
+			err = javtube.ErrInfoNotFound
 			return
 		}
 		// post-processing
@@ -145,7 +145,7 @@ func (e *Engine) getMovieInfoWithCallback(id string, provider javtube.MovieProvi
 	defer func() {
 		// metadata validation check.
 		if err == nil && (info == nil || !info.Valid()) {
-			err = javtube.ErrInvalidMetadata
+			err = javtube.ErrIncompleteMetadata
 		}
 	}()
 	// Query DB first (by id).
