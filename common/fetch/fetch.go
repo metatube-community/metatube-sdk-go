@@ -1,6 +1,7 @@
 package fetch
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"net/http/cookiejar"
@@ -9,7 +10,6 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 
 	"github.com/javtube/javtube-sdk-go/common/random"
-	"github.com/javtube/javtube-sdk-go/errors"
 )
 
 var DefaultFetcher = Default(&Config{RandomUserAgent: true})
@@ -109,7 +109,7 @@ func (f *Fetcher) Request(method, url string, body io.Reader, opts ...Option) (r
 	}
 	if c.RaiseForStatus && resp.StatusCode != http.StatusOK {
 		defer resp.Body.Close()
-		return nil, &errors.HTTPError{Code: resp.StatusCode}
+		return nil, errors.New(http.StatusText(resp.StatusCode))
 	}
 	return
 }
