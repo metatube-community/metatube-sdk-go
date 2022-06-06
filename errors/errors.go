@@ -10,7 +10,7 @@ type HTTPError struct {
 	Message string `json:"message"`
 }
 
-func New(code int, message string) *HTTPError {
+func New(code int, message string) error {
 	return &HTTPError{
 		Code:    code,
 		Message: message,
