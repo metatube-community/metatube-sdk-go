@@ -74,12 +74,12 @@ var statusCode = map[string]int{
 }
 
 // StatusCode is a reverse function of http.StatusText.
-func StatusCode(v any) int {
-	switch v.(type) {
+func StatusCode(text any) int {
+	switch v := text.(type) {
 	case string:
-		return statusCode[v.(string)]
+		return statusCode[v]
 	case error:
-		return statusCode[v.(error).Error()]
+		return statusCode[v.Error()]
 	default:
 		return 0
 	}
