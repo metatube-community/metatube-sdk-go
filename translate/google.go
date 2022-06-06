@@ -48,7 +48,7 @@ func parseToGoogleSupportedLanguage(lang string) string {
 	}
 	tag, err := language.Parse(lang)
 	if err != nil {
-		panic(err)
+		return lang /* fallback to original */
 	}
 	return tag.String()
 }
