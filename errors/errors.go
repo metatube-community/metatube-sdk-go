@@ -30,3 +30,5 @@ func (e *HTTPError) Error() string {
 func (e *HTTPError) StatusCode() int {
 	return e.Code
 }
+
+var _ error = (*HTTPError)(nil)
