@@ -26,7 +26,7 @@ func New(app *engine.Engine, v validator.Validator) *gin.Engine {
 	r.Use(redirect(app))
 
 	// index page
-	r.GET("/", index())
+	r.GET("/", getIndex())
 
 	api := r.Group("/api")
 	api.Use(authentication(v))
@@ -40,8 +40,8 @@ func New(app *engine.Engine, v validator.Validator) *gin.Engine {
 
 		// search
 		search := api.Group("/search")
-		search.GET("/actor", getSearchResults(app, actorSearchType))
-		search.GET("/movie", getSearchResults(app, movieSearchType))
+		search.GET("/actor", getSearch(app, actorSearchType))
+		search.GET("/movie", getSearch(app, movieSearchType))
 	}
 
 	img := r.Group("/image")
@@ -78,7 +78,7 @@ func notAllowed() gin.HandlerFunc {
 	}
 }
 
-func index() gin.HandlerFunc {
+func getIndex() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, &responseMessage{
 			Success: true,

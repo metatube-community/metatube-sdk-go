@@ -21,7 +21,7 @@ type searchQuery struct {
 	Lazy     bool   `form:"lazy"`
 }
 
-func getSearchResults(app *engine.Engine, typ searchType) gin.HandlerFunc {
+func getSearch(app *engine.Engine, typ searchType) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		query := &searchQuery{
 			Lazy: false, // disable lazy by default.
