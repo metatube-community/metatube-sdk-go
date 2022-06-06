@@ -100,7 +100,7 @@ func abortWithError(c *gin.Context, err error) {
 		})
 		return
 	}
-	var code = http.StatusInternalServerError
+	code := http.StatusInternalServerError
 	if c := errors.StatusCode(err); c != 0 {
 		code = c
 	}
