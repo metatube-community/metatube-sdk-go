@@ -60,15 +60,10 @@ func WithBasicAuth(username, password string) Option {
 	})
 }
 
-func WithQuery(kv ...string) Option {
+func WithQuery(key, value string) Option {
 	return WithRequest(func(req *http.Request) {
 		q := req.URL.Query()
-		if len(kv)%2 != 0 {
-			panic("invalid key-value pairs")
-		}
-		for i := 0; i < len(kv); i += 2 {
-			q.Set(kv[i], kv[i+1])
-		}
+		q.Set(key, value)
 		req.URL.RawQuery = q.Encode()
 	})
 }
@@ -78,6 +73,19 @@ func WithQueryMap(query map[string]string) Option {
 		q := req.URL.Query()
 		for key, value := range query {
 			q.Set(key, value)
+		}
+		req.URL.RawQuery = q.Encode()
+	})
+}
+
+func WithQueryPairs(kv ...string) Option {
+	return WithRequest(func(req *http.Request) {
+		q := req.URL.Query()
+		if len(kv)%2 != 0 {
+			panic("invalid key-value pairs")
+		}
+		for i := 0; i < len(kv); i += 2 {
+			q.Set(kv[i], kv[i+1])
 		}
 		req.URL.RawQuery = q.Encode()
 	})
