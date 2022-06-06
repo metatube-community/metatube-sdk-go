@@ -1,6 +1,7 @@
 package route
 
 import (
+	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,7 @@ func authentication(v validator.Validator) gin.HandlerFunc {
 			hasInvalidHeader := bearer != "Bearer"
 			hasInvalidSecret := !found || !v.Valid(token)
 			if hasInvalidHeader || hasInvalidSecret {
-				abortWithError(c, errors.ErrUnauthorized)
+				abortWithError(c, errors.FromCode(http.StatusUnauthorized))
 				return
 			}
 		}
