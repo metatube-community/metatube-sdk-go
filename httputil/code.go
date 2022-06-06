@@ -1,4 +1,4 @@
-package fetch
+package httputil
 
 import (
 	"net/http"

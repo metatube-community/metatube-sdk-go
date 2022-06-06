@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/javtube/javtube-sdk-go/common/fetch"
 	"github.com/javtube/javtube-sdk-go/engine"
 	"github.com/javtube/javtube-sdk-go/errors"
+	"github.com/javtube/javtube-sdk-go/httputil"
 	V "github.com/javtube/javtube-sdk-go/internal/constant"
 	"github.com/javtube/javtube-sdk-go/route/validator"
 )
@@ -94,7 +94,7 @@ func abortWithError(c *gin.Context, err error) {
 	var code = http.StatusInternalServerError
 	if e, ok := err.(*errors.HTTPError); ok {
 		code = e.StatusCode()
-	} else if c := fetch.StatusCode(err.Error()); c != 0 {
+	} else if c := httputil.StatusCode(err.Error()); c != 0 {
 		code = c
 	}
 	abortWithStatusMessage(c, code, err)
