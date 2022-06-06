@@ -2,13 +2,13 @@ package translate
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strings"
 
 	"golang.org/x/text/language"
 
 	"github.com/javtube/javtube-sdk-go/common/fetch"
+	"github.com/javtube/javtube-sdk-go/errors"
 )
 
 const googleTranslateAPI = "https://translation.googleapis.com/language/translate/v2"
@@ -32,7 +32,7 @@ func GoogleTranslate(q, source, target, key string) (result string, err error) {
 	defer resp.Body.Close()
 
 	data := struct {
-		Error *googleAPIError `json:"error"`
+		Error *errors.HTTPError `json:"error"`
 		Data  struct {
 			Translations []struct {
 				DetectedSourceLanguage string `json:"detectedSourceLanguage"`
@@ -43,10 +43,8 @@ func GoogleTranslate(q, source, target, key string) (result string, err error) {
 	if err = json.NewDecoder(resp.Body).Decode(&data); err == nil {
 		if data.Error != nil {
 			err = data.Error
-		} else if len(data.Data.Translations) > 0 {
-			result = data.Data.Translations[0].TranslatedText
 		} else {
-			err = errors.New("google translate: unknown error")
+			result = data.Data.Translations[0].TranslatedText
 		}
 	}
 	return
@@ -61,18 +59,4 @@ func parseToGoogleSupportedLanguage(lang string) string {
 		return lang /* fallback to original */
 	}
 	return tag.String()
-}
-
-type googleAPIError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	Status  string `json:"status"`
-}
-
-func (e *googleAPIError) Error() string {
-	return e.Message
-}
-
-func (e *googleAPIError) StatusCode() int {
-	return e.Code
 }
