@@ -32,23 +32,19 @@ func GoogleTranslate(q, source, target, key string) (result string, err error) {
 	defer resp.Body.Close()
 
 	data := struct {
-		Data struct {
+		Error *googleAPIError `json:"error"`
+		Data  struct {
 			Translations []struct {
 				DetectedSourceLanguage string `json:"detectedSourceLanguage"`
 				TranslatedText         string `json:"translatedText"`
 			} `json:"translations"`
 		} `json:"data"`
-		Error struct {
-			Code    int    `json:"code"`
-			Message string `json:"message"`
-			Status  string `json:"status"`
-		} `json:"error"`
 	}{}
 	if err = json.NewDecoder(resp.Body).Decode(&data); err == nil {
-		if len(data.Data.Translations) > 0 {
+		if data.Error != nil {
+			err = data.Error
+		} else if len(data.Data.Translations) > 0 {
 			result = data.Data.Translations[0].TranslatedText
-		} else if data.Error.Code > 0 {
-			err = errors.New(data.Error.Message)
 		} else {
 			err = errors.New("google translate: unknown error")
 		}
@@ -65,4 +61,18 @@ func parseToGoogleSupportedLanguage(lang string) string {
 		return lang /* fallback to original */
 	}
 	return tag.String()
+}
+
+type googleAPIError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Status  string `json:"status"`
+}
+
+func (e *googleAPIError) Error() string {
+	return e.Message
+}
+
+func (e *googleAPIError) StatusCode() int {
+	return e.Code
 }
