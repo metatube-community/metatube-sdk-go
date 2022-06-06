@@ -81,9 +81,12 @@ func index() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, &responseMessage{
 			Success: true,
-			Data: gin.H{
-				"version":    V.Version,
-				"git-commit": V.GitCommit,
+			Data: &struct {
+				Version   string `json:"version"`
+				GitCommit string `json:"git-commit"`
+			}{
+				Version:   V.Version,
+				GitCommit: V.GitCommit,
 			},
 		})
 	}
