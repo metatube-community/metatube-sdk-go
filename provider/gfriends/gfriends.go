@@ -119,7 +119,7 @@ func newFileTree(timeout time.Duration) *fileTree {
 
 func (ft *fileTree) query(s string) (images []string, err error) {
 	if strings.TrimSpace(s) == "" {
-		return nil, fmt.Errorf("invalid query: %s", s)
+		return nil, provider.ErrInvalidID
 	}
 	// update
 	ft.mu.Lock()
