@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"errors"
 	"image"
 
 	"github.com/javtube/javtube-sdk-go/common/number"
@@ -26,7 +25,7 @@ func (e *Engine) GetActorPrimaryImage(id, name string) (image.Image, error) {
 		return nil, err
 	}
 	if len(info.Images) == 0 {
-		return nil, errors.New("image not found")
+		return nil, javtube.ErrImageNotFound
 	}
 	return e.GetImageByURL(info.Images[0], e.MustGetActorProviderByName(name), R.PrimaryImageRatio, defaultActorPrimaryImagePosition, false)
 }

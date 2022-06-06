@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -88,13 +87,13 @@ func (e *Engine) GetActorProviderByURL(rawURL string) (javtube.ActorProvider, er
 			return p, nil
 		}
 	}
-	return nil, fmt.Errorf("actor provider not found: %s", rawURL)
+	return nil, javtube.ErrProviderNotFound
 }
 
 func (e *Engine) GetActorProviderByName(name string) (javtube.ActorProvider, error) {
 	provider, ok := e.actorProviders[strings.ToUpper(name)]
 	if !ok {
-		return nil, fmt.Errorf("actor provider not found: %s", name)
+		return nil, javtube.ErrProviderNotFound
 	}
 	return provider, nil
 }
@@ -122,13 +121,13 @@ func (e *Engine) GetMovieProviderByURL(rawURL string) (javtube.MovieProvider, er
 			return p, nil
 		}
 	}
-	return nil, fmt.Errorf("movie provider not found: %s", rawURL)
+	return nil, javtube.ErrProviderNotFound
 }
 
 func (e *Engine) GetMovieProviderByName(name string) (javtube.MovieProvider, error) {
 	provider, ok := e.movieProviders[strings.ToUpper(name)]
 	if !ok {
-		return nil, fmt.Errorf("movie provider not found: %s", name)
+		return nil, javtube.ErrProviderNotFound
 	}
 	return provider, nil
 }
