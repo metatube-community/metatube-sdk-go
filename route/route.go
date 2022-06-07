@@ -36,13 +36,13 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 
 		actors := v1.Group("/actors")
 		{
-			actors.GET("/", getInfo(app, actorInfoType))
+			actors.GET("/:provider/:id", getInfo(app, actorInfoType))
 			actors.GET("/search", getSearch(app, actorSearchType))
 		}
 
 		movies := v1.Group("/movies")
 		{
-			movies.GET("/", getInfo(app, movieInfoType))
+			movies.GET("/:provider/:id", getInfo(app, movieInfoType))
 			movies.GET("/search", getSearch(app, movieSearchType))
 		}
 	}
