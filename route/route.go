@@ -28,19 +28,19 @@ func New(app *engine.Engine, v validator.Validator) *gin.Engine {
 	// index page
 	r.GET("/", getIndex())
 
-	api := r.Group("/api")
-	api.Use(authentication(v))
+	v1 := r.Group("/v1")
+	v1.Use(authentication(v))
 	{
 		// translate
-		api.GET("/translate", getTranslate(defaultMaxRPS))
+		v1.GET("/translate", getTranslate(defaultMaxRPS))
 
-		actors := api.Group("/actors")
+		actors := v1.Group("/actors")
 		{
 			actors.GET("/", getInfo(app, actorInfoType))
 			actors.GET("/search", getSearch(app, actorSearchType))
 		}
 
-		movies := api.Group("/movies")
+		movies := v1.Group("/movies")
 		{
 			movies.GET("/", getInfo(app, movieInfoType))
 			movies.GET("/search", getSearch(app, movieSearchType))
