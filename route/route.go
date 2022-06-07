@@ -28,30 +28,31 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 	// index page
 	r.GET("/", getIndex())
 
-	v1 := r.Group("/v1")
-	v1.Use(authentication(v))
+	public := r.Group("/v1")
 	{
-		// translate
-		v1.GET("/translate", getTranslate(defaultMaxRPS))
+		public.GET("/translate", getTranslate(defaultMaxRPS))
 
-		actors := v1.Group("/actors")
+		images := public.Group("/images")
+		{
+			images.GET("/primary/:provider/:id", getImage(app, primaryImageType))
+			images.GET("/thumb/:provider/:id", getImage(app, thumbImageType))
+			images.GET("/backdrop/:provider/:id", getImage(app, backdropImageType))
+		}
+	}
+
+	private := r.Group("/v1", authentication(v))
+	{
+		actors := private.Group("/actors")
 		{
 			actors.GET("/:provider/:id", getInfo(app, actorInfoType))
 			actors.GET("/search", getSearch(app, actorSearchType))
 		}
 
-		movies := v1.Group("/movies")
+		movies := private.Group("/movies")
 		{
 			movies.GET("/:provider/:id", getInfo(app, movieInfoType))
 			movies.GET("/search", getSearch(app, movieSearchType))
 		}
-	}
-
-	images := r.Group("/images")
-	{
-		images.GET("/primary/:provider/:id", getImage(app, primaryImageType))
-		images.GET("/thumb/:provider/:id", getImage(app, thumbImageType))
-		images.GET("/backdrop/:provider/:id", getImage(app, backdropImageType))
 	}
 
 	return r
