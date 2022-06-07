@@ -32,7 +32,7 @@ func redirect(app *engine.Engine) gin.HandlerFunc {
 			)
 			switch {
 			case app.IsActorProvider(provider):
-				info, err = app.GetActorInfoByID(id, provider, true)
+				info, err = app.GetActorInfoByProviderID(provider, id, true)
 			case app.IsMovieProvider(provider):
 				info, err = app.GetMovieInfoByID(id, provider, true)
 			default:

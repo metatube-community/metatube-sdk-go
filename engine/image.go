@@ -20,7 +20,7 @@ const (
 )
 
 func (e *Engine) GetActorPrimaryImage(id, name string) (image.Image, error) {
-	info, err := e.GetActorInfoByID(id, name, true)
+	info, err := e.GetActorInfoByProviderID(name, id, true)
 	if err != nil {
 		return nil, err
 	}

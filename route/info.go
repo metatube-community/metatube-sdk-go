@@ -43,7 +43,7 @@ func getInfo(app *engine.Engine, typ infoType) gin.HandlerFunc {
 		)
 		switch typ {
 		case actorInfoType:
-			info, err = app.GetActorInfoByID(uri.ID, uri.Provider, query.Lazy)
+			info, err = app.GetActorInfoByProviderID(uri.Provider, uri.ID, query.Lazy)
 		case movieInfoType:
 			info, err = app.GetMovieInfoByID(uri.ID, uri.Provider, query.Lazy)
 		default:

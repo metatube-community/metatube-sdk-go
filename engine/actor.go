@@ -70,16 +70,16 @@ func (e *Engine) SearchActorAll(keyword string) (results []*model.ActorSearchRes
 	return
 }
 
-func (e *Engine) getActorInfoFromDB(id string, provider javtube.ActorProvider) (*model.ActorInfo, error) {
+func (e *Engine) getActorInfoFromDB(provider javtube.ActorProvider, id string) (*model.ActorInfo, error) {
 	info := &model.ActorInfo{}
 	err := e.db. // Exact match here.
-			Where("id = ?", id).
 			Where("provider = ?", provider.Name()).
+			Where("id = ?", id).
 			First(info).Error
 	return info, err
 }
 
-func (e *Engine) getActorInfoWithCallback(id string, provider javtube.ActorProvider, lazy bool, callback func() (*model.ActorInfo, error)) (info *model.ActorInfo, err error) {
+func (e *Engine) getActorInfoWithCallback(provider javtube.ActorProvider, id string, lazy bool, callback func() (*model.ActorInfo, error)) (info *model.ActorInfo, err error) {
 	defer func() {
 		// metadata validation check.
 		if err == nil && (info == nil || !info.Valid()) {
@@ -91,7 +91,7 @@ func (e *Engine) getActorInfoWithCallback(id string, provider javtube.ActorProvi
 	}
 	// Query DB first (by id).
 	if lazy {
-		if info, err = e.getActorInfoFromDB(id, provider); err == nil && info.Valid() {
+		if info, err = e.getActorInfoFromDB(provider, id); err == nil && info.Valid() {
 			return
 		}
 	}
@@ -107,25 +107,24 @@ func (e *Engine) getActorInfoWithCallback(id string, provider javtube.ActorProvi
 	return callback()
 }
 
-func (e *Engine) getActorInfoByID(id string, provider javtube.ActorProvider, lazy bool) (*model.ActorInfo, error) {
+func (e *Engine) getActorInfoByProviderID(provider javtube.ActorProvider, id string, lazy bool) (*model.ActorInfo, error) {
 	if id = provider.NormalizeID(id); id == "" {
 		return nil, javtube.ErrInvalidID
 	}
-	return e.getActorInfoWithCallback(id, provider, lazy,
-		func() (*model.ActorInfo, error) {
-			return provider.GetActorInfoByID(id)
-		})
+	return e.getActorInfoWithCallback(provider, id, lazy, func() (*model.ActorInfo, error) {
+		return provider.GetActorInfoByID(id)
+	})
 }
 
-func (e *Engine) GetActorInfoByID(id, name string, lazy bool) (*model.ActorInfo, error) {
+func (e *Engine) GetActorInfoByProviderID(name, id string, lazy bool) (*model.ActorInfo, error) {
 	provider, err := e.GetActorProviderByName(name)
 	if err != nil {
 		return nil, err
 	}
-	return e.getActorInfoByID(id, provider, lazy)
+	return e.getActorInfoByProviderID(provider, id, lazy)
 }
 
-func (e *Engine) getActorInfoByURL(rawURL string, provider javtube.ActorProvider, lazy bool) (*model.ActorInfo, error) {
+func (e *Engine) getActorInfoByProviderURL(provider javtube.ActorProvider, rawURL string, lazy bool) (*model.ActorInfo, error) {
 	id, err := provider.ParseIDFromURL(rawURL)
 	switch {
 	case err != nil:
@@ -133,10 +132,9 @@ func (e *Engine) getActorInfoByURL(rawURL string, provider javtube.ActorProvider
 	case id == "":
 		return nil, javtube.ErrInvalidURL
 	}
-	return e.getActorInfoWithCallback(id, provider, lazy,
-		func() (*model.ActorInfo, error) {
-			return provider.GetActorInfoByURL(rawURL)
-		})
+	return e.getActorInfoWithCallback(provider, id, lazy, func() (*model.ActorInfo, error) {
+		return provider.GetActorInfoByURL(rawURL)
+	})
 }
 
 func (e *Engine) GetActorInfoByURL(rawURL string, lazy bool) (*model.ActorInfo, error) {
@@ -144,5 +142,5 @@ func (e *Engine) GetActorInfoByURL(rawURL string, lazy bool) (*model.ActorInfo, 
 	if err != nil {
 		return nil, err
 	}
-	return e.getActorInfoByURL(rawURL, provider, lazy)
+	return e.getActorInfoByProviderURL(provider, rawURL, lazy)
 }
