@@ -25,8 +25,8 @@ func New(app *engine.Engine, v validator.Validator) *gin.Engine {
 	// redirection middleware
 	r.Use(redirect(app))
 
+	// index page
 	r.GET("/", getIndex())
-	r.GET("/version", getVersion())
 
 	api := r.Group("/api")
 	api.Use(authentication(v))
@@ -82,21 +82,10 @@ func getIndex() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, &responseMessage{
 			Success: true,
-			Data:    gin.H{"hello": "javtube"},
-		})
-	}
-}
-
-func getVersion() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, &responseMessage{
-			Success: true,
-			Data: &struct {
-				Version   string `json:"version"`
-				GitCommit string `json:"git_commit"`
-			}{
-				Version:   V.Version,
-				GitCommit: V.GitCommit,
+			Data: gin.H{
+				"app":     "javtube",
+				"commit":  V.GitCommit,
+				"version": V.Version,
 			},
 		})
 	}
