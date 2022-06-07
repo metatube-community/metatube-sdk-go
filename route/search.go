@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/javtube/javtube-sdk-go/engine"
+	"github.com/javtube/javtube-sdk-go/errors"
 	"github.com/javtube/javtube-sdk-go/model"
 )
 
@@ -72,12 +73,25 @@ func getSearch(app *engine.Engine, typ searchType) gin.HandlerFunc {
 			return
 		}
 
+		// length is at least 1.
+		resultsLength := 1
+
 		// convert to search results.
 		switch v := results.(type) {
 		case *model.ActorInfo:
 			results = []*model.ActorSearchResult{v.ToSearchResult()}
 		case *model.MovieInfo:
 			results = []*model.MovieSearchResult{v.ToSearchResult()}
+		case []*model.ActorSearchResult:
+			resultsLength = len(v)
+		case []*model.MovieSearchResult:
+			resultsLength = len(v)
+		default:
+			panic("unexpected search results type")
+		}
+		if resultsLength == 0 {
+			abortWithError(c, errors.FromCode(http.StatusNotFound))
+			return
 		}
 
 		c.PureJSON(http.StatusOK, &responseMessage{Data: results})
