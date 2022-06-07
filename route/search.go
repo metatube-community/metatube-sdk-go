@@ -2,10 +2,12 @@ package route
 
 import (
 	"net/http"
+	pkgurl "net/url"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/javtube/javtube-sdk-go/engine"
+	"github.com/javtube/javtube-sdk-go/model"
 )
 
 type searchType uint8
@@ -31,6 +33,11 @@ func getSearch(app *engine.Engine, typ searchType) gin.HandlerFunc {
 			return
 		}
 
+		isValidURL := true
+		if _, err := pkgurl.ParseRequestURI(query.Q); err != nil {
+			isValidURL = false
+		}
+
 		searchAll := true
 		if query.Provider != "" {
 			searchAll = false
@@ -42,13 +49,17 @@ func getSearch(app *engine.Engine, typ searchType) gin.HandlerFunc {
 		)
 		switch typ {
 		case actorSearchType:
-			if searchAll {
+			if isValidURL {
+				results, err = app.GetActorInfoByURL(query.Q, true /* always lazy */)
+			} else if searchAll {
 				results, err = app.SearchActorAll(query.Q)
 			} else {
 				results, err = app.SearchActor(query.Q, query.Provider, query.Lazy)
 			}
 		case movieSearchType:
-			if searchAll {
+			if isValidURL {
+				results, err = app.GetMovieInfoByURL(query.Q, true /* always lazy */)
+			} else if searchAll {
 				results, err = app.SearchMovieAll(query.Q, query.Lazy)
 			} else {
 				results, err = app.SearchMovie(query.Q, query.Provider, query.Lazy)
@@ -59,6 +70,14 @@ func getSearch(app *engine.Engine, typ searchType) gin.HandlerFunc {
 		if err != nil {
 			abortWithError(c, err)
 			return
+		}
+
+		// convert to search results.
+		switch v := results.(type) {
+		case *model.ActorInfo:
+			results = []*model.ActorSearchResult{v.ToSearchResult()}
+		case *model.MovieInfo:
+			results = []*model.MovieSearchResult{v.ToSearchResult()}
 		}
 
 		c.PureJSON(http.StatusOK, &responseMessage{Data: results})
