@@ -7,7 +7,7 @@ require (
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/esimov/pigo v1.4.5
-	github.com/gin-gonic/gin v1.8.0
+	github.com/gin-gonic/gin v1.8.1
 	github.com/glebarez/sqlite v1.4.5
 	github.com/gocolly/colly/v2 v2.1.1-0.20220424184721-cf681331964a
 	github.com/grafov/m3u8 v0.11.1
@@ -18,7 +18,7 @@ require (
 	github.com/peterbourgon/ff/v3 v3.1.2
 	github.com/stretchr/testify v1.7.1
 	go.uber.org/ratelimit v0.2.0
-	golang.org/x/net v0.0.0-20220531201128-c960675eff93
+	golang.org/x/net v0.0.0-20220607020251-c690dde0001d
 	golang.org/x/text v0.3.7
 	gorm.io/datatypes v1.0.6
 	gorm.io/driver/postgres v1.3.7
