@@ -19,7 +19,7 @@ const (
 	defaultMovieBackdropImagePosition = 0.0
 )
 
-func (e *Engine) GetActorPrimaryImage(id, name string) (image.Image, error) {
+func (e *Engine) GetActorPrimaryImage(name, id string) (image.Image, error) {
 	info, err := e.GetActorInfoByProviderID(name, id, true)
 	if err != nil {
 		return nil, err
@@ -27,11 +27,11 @@ func (e *Engine) GetActorPrimaryImage(id, name string) (image.Image, error) {
 	if len(info.Images) == 0 {
 		return nil, javtube.ErrImageNotFound
 	}
-	return e.GetImageByURL(info.Images[0], e.MustGetActorProviderByName(name), R.PrimaryImageRatio, defaultActorPrimaryImagePosition, false)
+	return e.GetImageByURL(e.MustGetActorProviderByName(name), info.Images[0], R.PrimaryImageRatio, defaultActorPrimaryImagePosition, false)
 }
 
-func (e *Engine) GetMoviePrimaryImage(id, name string, pos float64) (image.Image, error) {
-	url, info, err := e.getPreferredMovieImageURLAndInfo(id, name, true)
+func (e *Engine) GetMoviePrimaryImage(name, id string, pos float64) (image.Image, error) {
+	url, info, err := e.getPreferredMovieImageURLAndInfo(name, id, true)
 	if err != nil {
 		return nil, err
 	}
@@ -40,27 +40,27 @@ func (e *Engine) GetMoviePrimaryImage(id, name string, pos float64) (image.Image
 		pos = defaultMoviePrimaryImagePosition
 		auto = number.RequireFaceDetection(info.Number)
 	}
-	return e.GetImageByURL(url, e.MustGetMovieProviderByName(name), R.PrimaryImageRatio, pos, auto)
+	return e.GetImageByURL(e.MustGetMovieProviderByName(name), url, R.PrimaryImageRatio, pos, auto)
 }
 
-func (e *Engine) GetMovieThumbImage(id, name string) (image.Image, error) {
-	url, _, err := e.getPreferredMovieImageURLAndInfo(id, name, false)
+func (e *Engine) GetMovieThumbImage(name, id string) (image.Image, error) {
+	url, _, err := e.getPreferredMovieImageURLAndInfo(name, id, false)
 	if err != nil {
 		return nil, err
 	}
-	return e.GetImageByURL(url, e.MustGetMovieProviderByName(name), R.ThumbImageRatio, defaultMovieThumbImagePosition, false)
+	return e.GetImageByURL(e.MustGetMovieProviderByName(name), url, R.ThumbImageRatio, defaultMovieThumbImagePosition, false)
 }
 
-func (e *Engine) GetMovieBackdropImage(id, name string) (image.Image, error) {
-	url, _, err := e.getPreferredMovieImageURLAndInfo(id, name, false)
+func (e *Engine) GetMovieBackdropImage(name, id string) (image.Image, error) {
+	url, _, err := e.getPreferredMovieImageURLAndInfo(name, id, false)
 	if err != nil {
 		return nil, err
 	}
-	return e.GetImageByURL(url, e.MustGetMovieProviderByName(name), R.BackdropImageRatio, defaultMovieBackdropImagePosition, false)
+	return e.GetImageByURL(e.MustGetMovieProviderByName(name), url, R.BackdropImageRatio, defaultMovieBackdropImagePosition, false)
 }
 
-func (e *Engine) GetImageByURL(url string, provider javtube.Provider, ratio float64, pos float64, auto bool) (img image.Image, err error) {
-	if img, err = e.getImageByURL(url, provider); err != nil {
+func (e *Engine) GetImageByURL(provider javtube.Provider, url string, ratio float64, pos float64, auto bool) (img image.Image, err error) {
+	if img, err = e.getImageByURL(provider, url); err != nil {
 		return
 	}
 	if auto {
@@ -69,7 +69,7 @@ func (e *Engine) GetImageByURL(url string, provider javtube.Provider, ratio floa
 	return imageutil.CropImagePosition(img, ratio, pos), nil
 }
 
-func (e *Engine) getImageByURL(url string, provider javtube.Provider) (img image.Image, err error) {
+func (e *Engine) getImageByURL(provider javtube.Provider, url string) (img image.Image, err error) {
 	resp, err := e.Fetch(url, provider)
 	if err != nil {
 		return
@@ -79,7 +79,7 @@ func (e *Engine) getImageByURL(url string, provider javtube.Provider) (img image
 	return
 }
 
-func (e *Engine) getPreferredMovieImageURLAndInfo(id, name string, thumb bool) (url string, info *model.MovieInfo, err error) {
+func (e *Engine) getPreferredMovieImageURLAndInfo(name, id string, thumb bool) (url string, info *model.MovieInfo, err error) {
 	info, err = e.GetMovieInfoByProviderID(name, id, true)
 	if err != nil {
 		return

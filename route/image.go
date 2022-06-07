@@ -83,11 +83,11 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 			} else {
 				provider = app.MustGetMovieProviderByName(uri.Provider)
 			}
-			img, err = app.GetImageByURL(query.URL, provider, ratio, query.Position, query.Auto)
+			img, err = app.GetImageByURL(provider, query.URL, ratio, query.Position, query.Auto)
 		} else if isActorProvider /* actor */ {
 			switch typ {
 			case primaryImageType:
-				img, err = app.GetActorPrimaryImage(uri.ID, uri.Provider)
+				img, err = app.GetActorPrimaryImage(uri.Provider, uri.ID)
 			case thumbImageType, backdropImageType:
 				abortWithStatusMessage(c, http.StatusBadRequest, "unsupported image type")
 				return
@@ -95,11 +95,11 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 		} else /* movie */ {
 			switch typ {
 			case primaryImageType:
-				img, err = app.GetMoviePrimaryImage(uri.ID, uri.Provider, query.Position)
+				img, err = app.GetMoviePrimaryImage(uri.Provider, uri.ID, query.Position)
 			case thumbImageType:
-				img, err = app.GetMovieThumbImage(uri.ID, uri.Provider)
+				img, err = app.GetMovieThumbImage(uri.Provider, uri.ID)
 			case backdropImageType:
-				img, err = app.GetMovieBackdropImage(uri.ID, uri.Provider)
+				img, err = app.GetMovieBackdropImage(uri.Provider, uri.ID)
 			}
 		}
 		if err != nil {
