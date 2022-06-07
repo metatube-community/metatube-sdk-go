@@ -49,9 +49,9 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 
 	images := r.Group("/images")
 	{
-		images.GET("/primary", getImage(app, primaryImageType))
-		images.GET("/thumb", getImage(app, thumbImageType))
-		images.GET("/backdrop", getImage(app, backdropImageType))
+		images.GET("/primary/:provider/:id", getImage(app, primaryImageType))
+		images.GET("/thumb/:provider/:id", getImage(app, thumbImageType))
+		images.GET("/backdrop/:provider/:id", getImage(app, backdropImageType))
 	}
 
 	return r

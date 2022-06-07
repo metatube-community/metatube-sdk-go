@@ -22,9 +22,12 @@ const (
 	backdropImageType
 )
 
+type imageUri struct {
+	ID       string `uri:"id" binding:"required"`
+	Provider string `uri:"provider" binding:"required"`
+}
+
 type imageQuery struct {
-	ID       string  `form:"id" binding:"required"`
-	Provider string  `form:"provider" binding:"required"`
 	URL      string  `form:"url"`
 	Position float64 `form:"pos"`
 	Auto     bool    `form:"auto"`
@@ -45,6 +48,11 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 	}
 
 	return func(c *gin.Context) {
+		uri := &imageUri{}
+		if err := c.ShouldBindUri(uri); err != nil {
+			abortWithStatusMessage(c, http.StatusBadRequest, err)
+			return
+		}
 		query := &imageQuery{
 			Position: -1,
 			Quality:  95,
@@ -56,9 +64,9 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 
 		var isActorProvider bool
 		switch {
-		case app.IsActorProvider(query.Provider):
+		case app.IsActorProvider(uri.Provider):
 			isActorProvider = true
-		case app.IsMovieProvider(query.Provider):
+		case app.IsMovieProvider(uri.Provider):
 			isActorProvider = false
 		default:
 			abortWithError(c, javtube.ErrProviderNotFound)
@@ -72,15 +80,15 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 		if query.URL != "" /* specified URL */ {
 			var provider javtube.Provider
 			if isActorProvider {
-				provider = app.MustGetActorProviderByName(query.Provider)
+				provider = app.MustGetActorProviderByName(uri.Provider)
 			} else {
-				provider = app.MustGetMovieProviderByName(query.Provider)
+				provider = app.MustGetMovieProviderByName(uri.Provider)
 			}
 			img, err = app.GetImageByURL(query.URL, provider, ratio, query.Position, query.Auto)
 		} else if isActorProvider /* actor */ {
 			switch typ {
 			case primaryImageType:
-				img, err = app.GetActorPrimaryImage(query.ID, query.Provider)
+				img, err = app.GetActorPrimaryImage(uri.ID, uri.Provider)
 			case thumbImageType, backdropImageType:
 				abortWithStatusMessage(c, http.StatusBadRequest, "unsupported image type")
 				return
@@ -88,11 +96,11 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 		} else /* movie */ {
 			switch typ {
 			case primaryImageType:
-				img, err = app.GetMoviePrimaryImage(query.ID, query.Provider, query.Position)
+				img, err = app.GetMoviePrimaryImage(uri.ID, uri.Provider, query.Position)
 			case thumbImageType:
-				img, err = app.GetMovieThumbImage(query.ID, query.Provider)
+				img, err = app.GetMovieThumbImage(uri.ID, uri.Provider)
 			case backdropImageType:
-				img, err = app.GetMovieBackdropImage(query.ID, query.Provider)
+				img, err = app.GetMovieBackdropImage(uri.ID, uri.Provider)
 			}
 		}
 		if err != nil {
