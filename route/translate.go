@@ -68,7 +68,6 @@ func getTranslate(rate int) gin.HandlerFunc {
 		}
 
 		c.PureJSON(http.StatusOK, &responseMessage{
-			Success: true,
 			Data: &struct {
 				From           string `json:"from"`
 				To             string `json:"to"`

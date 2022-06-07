@@ -81,7 +81,6 @@ func notAllowed() gin.HandlerFunc {
 func getIndex() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, &responseMessage{
-			Success: true,
 			Data: gin.H{
 				"app":     "javtube",
 				"commit":  V.GitCommit,
@@ -93,10 +92,7 @@ func getIndex() gin.HandlerFunc {
 
 func abortWithError(c *gin.Context, err error) {
 	if e, ok := err.(*errors.HTTPError); ok {
-		c.AbortWithStatusJSON(e.Code, &responseMessage{
-			Success: false,
-			Error:   e,
-		})
+		c.AbortWithStatusJSON(e.Code, &responseMessage{Error: e})
 		return
 	}
 	code := http.StatusInternalServerError
@@ -108,13 +104,11 @@ func abortWithError(c *gin.Context, err error) {
 
 func abortWithStatusMessage(c *gin.Context, code int, message any) {
 	c.AbortWithStatusJSON(code, &responseMessage{
-		Success: false,
-		Error:   errors.New(code, fmt.Sprintf("%v", message)),
+		Error: errors.New(code, fmt.Sprintf("%v", message)),
 	})
 }
 
 type responseMessage struct {
-	Success bool  `json:"success"`
-	Data    any   `json:"data,omitempty"`
-	Error   error `json:"error,omitempty"`
+	Data  any   `json:"data,omitempty"`
+	Error error `json:"error,omitempty"`
 }
