@@ -149,6 +149,8 @@ func (e *Engine) AutoMigrate(v bool) error {
 		&model.ActorInfo{})
 }
 
+// Fetch fetches content from url. If provider is nil, the
+// default fetcher will be used.
 func (e *Engine) Fetch(url string, provider javtube.Provider) (*http.Response, error) {
 	// Provider which implements Fetcher interface should be
 	// used to fetch all its corresponding resources.
