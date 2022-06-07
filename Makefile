@@ -7,7 +7,7 @@ BUILD_DIR     := build
 BUILD_TAGS    :=
 BUILD_FLAGS   := -v
 BUILD_COMMIT  := $(shell git rev-parse --short HEAD)
-BUILD_VERSION := $(shell git describe --abbrev=0 --tags HEAD)
+BUILD_VERSION := $(shell git describe --abbrev=0 --tags HEAD | cut -d'v' -f 2)
 
 CGO_ENABLED := 0
 GO111MODULE := on

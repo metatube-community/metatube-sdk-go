@@ -11,5 +11,5 @@ var (
 
 // VersionString returns hyphen joined version and commit string.
 func VersionString() string {
-	return fmt.Sprintf("%s-%s", Version, GitCommit)
+	return fmt.Sprintf("v%s-%s", Version, GitCommit)
 }
