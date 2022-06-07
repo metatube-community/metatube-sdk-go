@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -23,6 +24,13 @@ func (e *HTTPError) Error() string {
 
 func (e *HTTPError) StatusCode() int {
 	return e.Code
+}
+
+func (e *HTTPError) MarshalJSON() ([]byte, error) {
+	return json.Marshal(map[string]any{
+		"code":    e.Code,
+		"message": e.Error(),
+	})
 }
 
 func New(code int, message string) error {
