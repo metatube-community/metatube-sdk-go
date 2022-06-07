@@ -80,7 +80,7 @@ func (e *Engine) getImageByURL(url string, provider javtube.Provider) (img image
 }
 
 func (e *Engine) getPreferredMovieImageURLAndInfo(id, name string, thumb bool) (url string, info *model.MovieInfo, err error) {
-	info, err = e.GetMovieInfoByID(id, name, true)
+	info, err = e.GetMovieInfoByProviderID(name, id, true)
 	if err != nil {
 		return
 	}

@@ -34,7 +34,7 @@ func redirect(app *engine.Engine) gin.HandlerFunc {
 			case app.IsActorProvider(provider):
 				info, err = app.GetActorInfoByProviderID(provider, id, true)
 			case app.IsMovieProvider(provider):
-				info, err = app.GetMovieInfoByID(id, provider, true)
+				info, err = app.GetMovieInfoByProviderID(provider, id, true)
 			default:
 				abortWithError(c, javtube.ErrProviderNotFound)
 				return
