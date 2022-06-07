@@ -34,7 +34,8 @@ func New(code int, message string) error {
 
 func FromCode(code int) error {
 	return &HTTPError{
-		Code: code,
+		Code:    code,
+		Message: http.StatusText(code),
 	}
 }
 
