@@ -17,7 +17,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/engine"
 	V "github.com/javtube/javtube-sdk-go/internal/constant"
 	"github.com/javtube/javtube-sdk-go/route"
-	"github.com/javtube/javtube-sdk-go/route/validator"
+	"github.com/javtube/javtube-sdk-go/route/auth"
 )
 
 const defaultRequestTimeout = 2 * time.Minute
@@ -92,9 +92,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var token validator.Validator
+	var token auth.Validator
 	if opts.token != "" {
-		token = validator.Token(opts.token)
+		token = auth.Token(opts.token)
 	}
 
 	var (

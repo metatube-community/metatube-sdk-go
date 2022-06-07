@@ -7,10 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/javtube/javtube-sdk-go/errors"
-	"github.com/javtube/javtube-sdk-go/route/validator"
+	"github.com/javtube/javtube-sdk-go/route/auth"
 )
 
-func authentication(v validator.Validator) gin.HandlerFunc {
+func authentication(v auth.Validator) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if v != nil /* auth enabled */ {
 			header := c.GetHeader("Authorization")

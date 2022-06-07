@@ -9,10 +9,10 @@ import (
 	"github.com/javtube/javtube-sdk-go/engine"
 	"github.com/javtube/javtube-sdk-go/errors"
 	V "github.com/javtube/javtube-sdk-go/internal/constant"
-	"github.com/javtube/javtube-sdk-go/route/validator"
+	"github.com/javtube/javtube-sdk-go/route/auth"
 )
 
-func New(app *engine.Engine, v validator.Validator) *gin.Engine {
+func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 	r := gin.New()
 	{
 		// register middleware

@@ -1,4 +1,4 @@
-package validator
+package auth
 
 type Token string
 
