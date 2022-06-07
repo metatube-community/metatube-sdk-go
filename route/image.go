@@ -23,8 +23,8 @@ const (
 )
 
 type imageUri struct {
-	ID       string `uri:"id" binding:"required"`
 	Provider string `uri:"provider" binding:"required"`
+	ID       string `uri:"id" binding:"required"`
 }
 
 type imageQuery struct {
