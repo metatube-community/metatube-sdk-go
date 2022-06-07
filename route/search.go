@@ -16,7 +16,7 @@ const (
 )
 
 type searchQuery struct {
-	Keyword  string `form:"keyword" binding:"required"`
+	Q        string `form:"q" binding:"required"`
 	Provider string `form:"provider"`
 	Lazy     bool   `form:"lazy"`
 }
@@ -43,15 +43,15 @@ func getSearch(app *engine.Engine, typ searchType) gin.HandlerFunc {
 		switch typ {
 		case actorSearchType:
 			if searchAll {
-				results, err = app.SearchActorAll(query.Keyword)
+				results, err = app.SearchActorAll(query.Q)
 			} else {
-				results, err = app.SearchActor(query.Keyword, query.Provider, query.Lazy)
+				results, err = app.SearchActor(query.Q, query.Provider, query.Lazy)
 			}
 		case movieSearchType:
 			if searchAll {
-				results, err = app.SearchMovieAll(query.Keyword, query.Lazy)
+				results, err = app.SearchMovieAll(query.Q, query.Lazy)
 			} else {
-				results, err = app.SearchMovie(query.Keyword, query.Provider, query.Lazy)
+				results, err = app.SearchMovie(query.Q, query.Provider, query.Lazy)
 			}
 		default:
 			panic("invalid search type")
