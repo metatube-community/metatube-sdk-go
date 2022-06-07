@@ -2,11 +2,11 @@ package engine
 
 // Register Providers
 import (
-	// Actor's
+	// For Actors
 	_ "github.com/javtube/javtube-sdk-go/provider/gfriends"
 	_ "github.com/javtube/javtube-sdk-go/provider/xslist"
 
-	// Movie's
+	// For Movies
 	_ "github.com/javtube/javtube-sdk-go/provider/10musume"
 	_ "github.com/javtube/javtube-sdk-go/provider/1pondo"
 	_ "github.com/javtube/javtube-sdk-go/provider/airav"
