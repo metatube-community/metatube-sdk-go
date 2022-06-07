@@ -31,24 +31,27 @@ func New(app *engine.Engine, v validator.Validator) *gin.Engine {
 	api := r.Group("/api")
 	api.Use(authentication(v))
 	{
-		// info/metadata
-		api.GET("/actor", getInfo(app, actorInfoType))
-		api.GET("/movie", getInfo(app, movieInfoType))
-
 		// translate
 		api.GET("/translate", getTranslate(defaultMaxRPS))
 
-		// search
-		search := api.Group("/search")
-		search.GET("/actor", getSearch(app, actorSearchType))
-		search.GET("/movie", getSearch(app, movieSearchType))
+		actors := api.Group("/actors")
+		{
+			actors.GET("/", getInfo(app, actorInfoType))
+			actors.GET("/search", getSearch(app, actorSearchType))
+		}
+
+		movies := api.Group("/movies")
+		{
+			movies.GET("/", getInfo(app, movieInfoType))
+			movies.GET("/search", getSearch(app, movieSearchType))
+		}
 	}
 
-	img := r.Group("/image")
+	images := r.Group("/images")
 	{
-		img.GET("/primary", getImage(app, primaryImageType))
-		img.GET("/thumb", getImage(app, thumbImageType))
-		img.GET("/backdrop", getImage(app, backdropImageType))
+		images.GET("/primary", getImage(app, primaryImageType))
+		images.GET("/thumb", getImage(app, thumbImageType))
+		images.GET("/backdrop", getImage(app, backdropImageType))
 	}
 
 	return r
