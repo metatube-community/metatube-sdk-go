@@ -21,8 +21,7 @@ type infoUri struct {
 }
 
 type infoQuery struct {
-	URL  string `form:"url"`
-	Lazy bool   `form:"lazy"`
+	Lazy bool `form:"lazy"`
 }
 
 func getInfo(app *engine.Engine, typ infoType) gin.HandlerFunc {
@@ -32,16 +31,9 @@ func getInfo(app *engine.Engine, typ infoType) gin.HandlerFunc {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
 			return
 		}
-		query := &infoQuery{
-			Lazy: true,
-		}
+		query := &infoQuery{Lazy: true}
 		if err := c.ShouldBindQuery(query); err != nil {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
-			return
-		}
-
-		if query.URL == "" && (uri.ID == "" || uri.Provider == "") {
-			abortWithStatusMessage(c, http.StatusBadRequest, "bad query")
 			return
 		}
 
@@ -51,17 +43,9 @@ func getInfo(app *engine.Engine, typ infoType) gin.HandlerFunc {
 		)
 		switch typ {
 		case actorInfoType:
-			if query.URL != "" {
-				info, err = app.GetActorInfoByURL(query.URL, query.Lazy)
-			} else {
-				info, err = app.GetActorInfoByID(uri.ID, uri.Provider, query.Lazy)
-			}
+			info, err = app.GetActorInfoByID(uri.ID, uri.Provider, query.Lazy)
 		case movieInfoType:
-			if query.URL != "" {
-				info, err = app.GetMovieInfoByURL(query.URL, query.Lazy)
-			} else {
-				info, err = app.GetMovieInfoByID(uri.ID, uri.Provider, query.Lazy)
-			}
+			info, err = app.GetMovieInfoByID(uri.ID, uri.Provider, query.Lazy)
 		default:
 			panic("invalid info/metadata type")
 		}
