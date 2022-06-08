@@ -75,7 +75,7 @@ func parseToBaiduSupportedLanguage(lang string) string {
 		return "auto"
 	}
 	switch lang {
-	case "zh", "zh-cn", "zh_cn", "zh-hans":
+	case "zh", "chs", "zh-cn", "zh_cn", "zh-hans":
 		return "zh"
 	case "cht", "zh-tw", "zh_tw", "zh-hk", "zh_hk", "zh-hant":
 		return "cht"
