@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/jpeg"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
@@ -106,6 +107,9 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 			abortWithError(c, err)
 			return
 		}
+
+		c.Header("X-JavTube-Image-Width", strconv.Itoa(img.Bounds().Dx()))
+		c.Header("X-JavTube-Image-Height", strconv.Itoa(img.Bounds().Dy()))
 
 		buf := &bytes.Buffer{}
 		if err = jpeg.Encode(buf, img, &jpeg.Options{Quality: query.Quality}); err != nil {
