@@ -170,6 +170,8 @@ func (xsl *XsList) SearchActor(keyword string) (results []*model.ActorSearchResu
 			if gInfo, gErr := xsl.gFriends.GetActorInfoByID(actor); gErr == nil && gInfo.Valid() {
 				images = gInfo.Images
 			} else if img := e.ChildAttr(`.//div[1]/img`, "src"); img != "" {
+				// NOTE: this might be an anonymous image link.
+				// e.g.: https://xslist.org/assets/images/anonymous2.png
 				images = []string{e.Request.AbsoluteURL(img)}
 			}
 		}
