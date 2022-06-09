@@ -30,7 +30,7 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 
 	public := r.Group("/v1")
 	{
-		public.GET("/translate", getTranslate(defaultMaxRPS))
+		public.GET("/translate", getTranslate())
 
 		images := public.Group("/images")
 		{

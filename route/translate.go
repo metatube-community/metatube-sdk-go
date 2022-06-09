@@ -5,12 +5,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"go.uber.org/ratelimit"
 
 	"github.com/javtube/javtube-sdk-go/translate"
 )
-
-const defaultMaxRPS = 1
 
 const (
 	googleTranslateEngine = "google"
@@ -33,8 +30,7 @@ type translateQuery struct {
 	Engine string `form:"engine" binding:"required"`
 }
 
-func getTranslate(rate int) gin.HandlerFunc {
-	limiter := ratelimit.New(rate)
+func getTranslate() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		query := &translateQuery{
 			From: "auto",
@@ -43,9 +39,6 @@ func getTranslate(rate int) gin.HandlerFunc {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
 			return
 		}
-
-		// apply rate limit.
-		limiter.Take()
 
 		var (
 			result string
