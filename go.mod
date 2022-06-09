@@ -17,7 +17,6 @@ require (
 	github.com/nlnwa/whatwg-url v0.1.1
 	github.com/peterbourgon/ff/v3 v3.1.2
 	github.com/stretchr/testify v1.7.2
-	go.uber.org/ratelimit v0.2.0
 	golang.org/x/net v0.0.0-20220607020251-c690dde0001d
 	golang.org/x/text v0.3.7
 	gorm.io/datatypes v1.0.6
@@ -27,7 +26,6 @@ require (
 
 require (
 	github.com/PuerkitoBio/goquery v1.8.0 // indirect
-	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/antchfx/xmlquery v1.3.11 // indirect
 	github.com/antchfx/xpath v1.2.1 // indirect
