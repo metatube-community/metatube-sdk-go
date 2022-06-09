@@ -57,7 +57,7 @@ func init() {
 	flag.IntVar(&opts.dbMaxOpenConns, "db-max-open-conns", 0, "Database max open connections")
 	flag.BoolVar(&opts.dbAutoMigrate, "db-auto-migrate", false, "Database auto migration")
 	flag.BoolVar(&opts.dbPreparedStmt, "db-prepared-stmt", false, "Database prepared statement")
-	flag.BoolVar(&opts.versionFlag, "v", false, "Show version")
+	flag.BoolVar(&opts.versionFlag, "version", false, "Show version")
 	ff.Parse(flag, os.Args[1:], ff.WithEnvVarNoPrefix())
 }
 
@@ -67,7 +67,9 @@ func showVersionAndExit() {
 }
 
 func main() {
-	if opts.versionFlag {
+	if opts.versionFlag &&
+		// NOTE: ignore this flag if ENV contains VERSION variable.
+		os.Getenv("VERSION") == "" {
 		showVersionAndExit()
 	}
 
