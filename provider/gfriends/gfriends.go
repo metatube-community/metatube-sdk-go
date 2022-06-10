@@ -52,6 +52,9 @@ func (gf *GFriends) URL() *url.URL { return _baseURL }
 func (gf *GFriends) NormalizeID(id string) string { return id /* AS IS */ }
 
 func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
+	if id = strings.TrimSpace(id); id == "" {
+		return nil, provider.ErrInvalidID
+	}
 	images, err := defaultFileTree.query(id)
 	if err != nil {
 		return nil, err
@@ -118,9 +121,6 @@ func newFileTree(timeout time.Duration) *fileTree {
 }
 
 func (ft *fileTree) query(s string) (images []string, err error) {
-	if strings.TrimSpace(s) == "" {
-		return nil, provider.ErrInvalidID
-	}
 	// update
 	ft.mu.Lock()
 	if ft.last.Add(ft.timeout).Before(time.Now()) {
