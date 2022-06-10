@@ -57,7 +57,7 @@ func Open(cfg *Config) (db *gorm.DB, err error) {
 
 	db, err = gorm.Open(dialector, &gorm.Config{
 		DisableAutomaticPing: cfg.DisableAutomaticPing,
-		Logger: logger.New(log.New(os.Stdout, "", log.LstdFlags), logger.Config{
+		Logger: logger.New(log.New(os.Stdout, "[GORM]\u0020", log.LstdFlags), logger.Config{
 			SlowThreshold:             100 * time.Millisecond,
 			LogLevel:                  logger.Info,
 			IgnoreRecordNotFoundError: false,
