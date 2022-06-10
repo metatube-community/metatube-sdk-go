@@ -121,14 +121,6 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		info.ThumbURL = e.Request.AbsoluteURL(e.Attr("src"))
 	})
 
-	// Thumb (fallback)
-	c.OnXML(`//meta[@property="og:image"]`, func(e *colly.XMLElement) {
-		if info.ThumbURL != "" {
-			return // ignore if not empty.
-		}
-		info.ThumbURL = e.Request.AbsoluteURL(e.Attr("content"))
-	})
-
 	// Cover
 	c.OnXML(fmt.Sprintf(`//*[@id="%s"]`, id), func(e *colly.XMLElement) {
 		info.CoverURL = e.Request.AbsoluteURL(PreviewSrc(e.Attr("href")))
@@ -229,6 +221,14 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 			return
 		}
 		info.Summary = e.Attr("content")
+	})
+
+	// Thumb (fallback)
+	c.OnXML(`//meta[@property="og:image"]`, func(e *colly.XMLElement) {
+		if info.ThumbURL != "" {
+			return // ignore if not empty.
+		}
+		info.ThumbURL = e.Request.AbsoluteURL(e.Attr("content"))
 	})
 
 	// Preview Video
