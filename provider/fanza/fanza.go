@@ -209,24 +209,26 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 
 	// Summary (fallback)
 	c.OnXML(`//div[@class="mg-b20 lh4"]`, func(e *colly.XMLElement) {
-		if info.Summary == "" {
-			var summary string
-			if summary = strings.TrimSpace(e.ChildText(`.//p[@class="mg-b20"]`)); summary != "" {
-				// nop
-			} else if summary = strings.TrimSpace(e.ChildText(`.//p`)); summary != "" {
-				// nop
-			} else {
-				summary = strings.TrimSpace(e.Text)
-			}
-			info.Summary = summary
+		if info.Summary != "" {
+			return
 		}
+		var summary string
+		if summary = strings.TrimSpace(e.ChildText(`.//p[@class="mg-b20"]`)); summary != "" {
+			// nop
+		} else if summary = strings.TrimSpace(e.ChildText(`.//p`)); summary != "" {
+			// nop
+		} else {
+			summary = strings.TrimSpace(e.Text)
+		}
+		info.Summary = summary
 	})
 
 	// Summary (incomplete fallback)
 	c.OnXML(`//meta[@property="og:description"]`, func(e *colly.XMLElement) {
-		if info.Summary == "" {
-			info.Summary = e.Attr("content")
+		if info.Summary != "" {
+			return
 		}
+		info.Summary = e.Attr("content")
 	})
 
 	// Preview Video
@@ -277,7 +279,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	// Final
 	c.OnScraped(func(r *colly.Response) {
 		if info.CoverURL == "" {
-			// try to convert thumb url to cover url
+			// try to convert thumb url to cover url.
 			info.CoverURL = PreviewSrc(info.ThumbURL)
 		}
 	})
