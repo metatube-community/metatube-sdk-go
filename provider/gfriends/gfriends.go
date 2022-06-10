@@ -60,7 +60,9 @@ func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
 	set := orderedmap.New()
 	for _, name := range names {
 		images, err := defaultFileTree.query(name)
-		if err != nil {
+		if err != nil &&
+			// might be an update issue caused image not found.
+			len(images) == 0 {
 			return nil, err
 		}
 		for _, image := range images {
