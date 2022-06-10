@@ -32,3 +32,19 @@ func TestParseDuration(t *testing.T) {
 		assert.Equal(t, unit.want, ParseDuration(unit.orig), fmt.Sprintf("Arg: %s", unit.orig))
 	}
 }
+
+func TestParseActorNames(t *testing.T) {
+	for _, unit := range []struct {
+		orig string
+		want []string
+	}{
+		{"  ", nil},
+		{"川上ゆう", []string{"川上ゆう"}},
+		{"川上ゆう 20歲", []string{"川上ゆう 20歲"}},
+		{"（森野雫）", []string{"森野雫"}},
+		{"川上ゆう（森野雫）", []string{"川上ゆう", "森野雫"}},
+		{"新井エリー（晶エリー、大沢佑香）", []string{"新井エリー", "晶エリー", "大沢佑香"}},
+	} {
+		assert.ElementsMatch(t, unit.want, ParseActorNames(unit.orig), fmt.Sprintf("Arg: %s", unit.orig))
+	}
+}

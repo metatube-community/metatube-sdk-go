@@ -89,6 +89,30 @@ func ParseTexts(n *html.Node, texts *[]string) {
 	}
 }
 
+func ParseActorNames(s string) (names []string) {
+	add := func(name string) {
+		if name = strings.TrimSpace(name); len(name) > 0 {
+			names = append(names, name)
+		}
+	}
+	sb := &strings.Builder{}
+	for _, r := range []rune(s) {
+		switch r {
+		case '、', ';', ',':
+			fallthrough
+		case '(', '（':
+			fallthrough
+		case ')', '）':
+			add(sb.String())
+			sb.Reset()
+		default:
+			sb.WriteRune(r)
+		}
+	}
+	add(sb.String())
+	return
+}
+
 // ReplaceSpaceAll removes all spaces in string.
 func ReplaceSpaceAll(s string) string {
 	var b strings.Builder
