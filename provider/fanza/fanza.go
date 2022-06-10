@@ -224,6 +224,27 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	})
 
 	// Thumb (fallback)
+	c.OnXML(`//*[@id="sample-video"]//img`, func(e *colly.XMLElement) {
+		if info.ThumbURL != "" {
+			return // ignore if not empty.
+		}
+		if !strings.HasPrefix(e.Attr("id"), "package-src") {
+			return // probably not our img.
+		}
+		info.ThumbURL = e.Request.AbsoluteURL(e.Attr("src"))
+	})
+
+	// Cover (fallback)
+	c.OnXML(`//*[@id="sample-video"]//a[@name="package-image"]`, func(e *colly.XMLElement) {
+		if info.CoverURL != "" {
+			return // ignore if not empty.
+		}
+		if href := e.Attr("href"); strings.HasSuffix(href, ".jpg") {
+			info.CoverURL = e.Request.AbsoluteURL(href)
+		}
+	})
+
+	// Thumb (fallback again)
 	c.OnXML(`//meta[@property="og:image"]`, func(e *colly.XMLElement) {
 		if info.ThumbURL != "" {
 			return // ignore if not empty.

@@ -10,8 +10,8 @@ import (
 func TestFANZA_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
-		"ebod893",
-		//"midv00047",
+		"h_346rebd655tk2",
+		"midv00047",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
