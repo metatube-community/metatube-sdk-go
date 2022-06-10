@@ -11,23 +11,34 @@ import (
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 )
 
+func (e *Engine) searchMovieFromDB(keyword string, provider javtube.MovieProvider) (results []*model.MovieSearchResult, err error) {
+	info := &model.MovieInfo{}
+	err = e.db.
+		Where("provider = ?", provider.Name()).
+		Where(e.db.
+			// Exact match.
+			Where("number = ?", keyword).
+			Or("id = ?", keyword)).
+		First(info).Error
+	if err == nil && info.Valid() {
+		results = []*model.MovieSearchResult{info.ToSearchResult()}
+	}
+	return
+}
+
 func (e *Engine) searchMovie(keyword string, provider javtube.MovieProvider, lazy bool) ([]*model.MovieSearchResult, error) {
 	// Regular keyword searching.
 	if searcher, ok := provider.(javtube.MovieSearcher); ok {
 		if keyword = searcher.TidyKeyword(keyword); keyword == "" {
 			return nil, javtube.ErrInvalidKeyword
 		}
-		// Query DB first (by number).
-		if info := new(model.MovieInfo); lazy {
-			if result := e.db.
-				Where("provider = ?", provider.Name()).
-				Where(e.db.
-					// Exact match.
-					Where("number = ?", keyword).
-					Or("id = ?", keyword)).
-				First(info); result.Error == nil && info.Valid() /* must be valid */ {
-				return []*model.MovieSearchResult{info.ToSearchResult()}, nil
-			} // ignore DB query error.
+		// Query DB first.
+		if lazy {
+			if results, err := e.searchMovieFromDB(keyword, provider);
+			// ignore DB query error.
+			err == nil && len(results) > 0 {
+				return results, nil
+			}
 		}
 		return searcher.SearchMovie(keyword)
 	}
