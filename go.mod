@@ -21,7 +21,7 @@ require (
 	golang.org/x/text v0.3.7
 	gorm.io/datatypes v1.0.6
 	gorm.io/driver/postgres v1.3.7
-	gorm.io/gorm v1.23.5
+	gorm.io/gorm v1.23.6
 )
 
 require (
