@@ -28,6 +28,8 @@ func TestXsList_SearchActor(t *testing.T) {
 	for _, item := range []string{
 		"Saki",
 		"美竹すず",
+		"川上ゆう（森野雫）",
+		"新井エリー（晶エリー、大沢佑香）",
 	} {
 		results, err := provider.SearchActor(item)
 		data, _ := json.MarshalIndent(results, "", "\t")
