@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/url"
 	"path"
-	"strings"
 	"sync"
 	"time"
 
@@ -52,14 +51,11 @@ func (gf *GFriends) URL() *url.URL { return _baseURL }
 func (gf *GFriends) NormalizeID(id string) string { return id /* AS IS */ }
 
 func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
-	if id = strings.TrimSpace(id); id == "" {
-		return nil, provider.ErrInvalidID
-	}
 	images, err := defaultFileTree.query(id)
-	if err != nil {
-		return nil, err
-	}
 	if len(images) == 0 {
+		if err != nil {
+			return nil, err
+		}
 		return nil, provider.ErrInfoNotFound
 	}
 	return &model.ActorInfo{
