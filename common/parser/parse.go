@@ -96,7 +96,7 @@ func ParseActorNames(s string) (names []string) {
 		}
 	}
 	sb := &strings.Builder{}
-	for _, r := range []rune(s) {
+	for _, r := range s {
 		switch r {
 		case '、', ';', ',':
 			fallthrough
