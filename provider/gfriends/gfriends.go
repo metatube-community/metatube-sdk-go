@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/iancoleman/orderedmap"
 
 	"github.com/javtube/javtube-sdk-go/common/fetch"
-	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 )
@@ -52,36 +52,22 @@ func (gf *GFriends) URL() *url.URL { return _baseURL }
 func (gf *GFriends) NormalizeID(id string) string { return id /* AS IS */ }
 
 func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
-	names := parser.ParseActorNames(id)
-	if len(names) == 0 {
+	if id = strings.TrimSpace(id); id == "" {
 		return nil, provider.ErrInvalidID
 	}
-	// use as ordered set.
-	set := orderedmap.New()
-	for _, name := range names {
-		images, err := defaultFileTree.query(name)
-		if err != nil {
-			return nil, err
-		}
-		for _, image := range images {
-			set.Set(image, struct{}{})
-		}
+	images, err := defaultFileTree.query(id)
+	if err != nil {
+		return nil, err
 	}
-	images := set.Keys()
 	if len(images) == 0 {
 		return nil, provider.ErrInfoNotFound
 	}
-	// NOTE: names length must > 1.
-	aliases := make([]string, 0, len(names)-1)
-	if len(names) > 1 {
-		aliases = append(aliases, names[1:]...)
-	}
 	return &model.ActorInfo{
 		ID:       id,
-		Name:     names[0], /* simply pick the first actor name */
+		Name:     id,
 		Provider: gf.Name(),
 		Homepage: gf.formatURL(id),
-		Aliases:  aliases,
+		Aliases:  []string{},
 		Images:   images,
 	}, nil
 }

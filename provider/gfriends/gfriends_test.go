@@ -12,8 +12,6 @@ func TestGFriends_GetActorInfoByID(t *testing.T) {
 	for _, item := range []string{
 		"小松凛花",
 		"谷あづさ",
-		"川上ゆう（森野雫）",
-		"新井エリー（晶エリー、大沢佑香）",
 	} {
 		info, err := provider.GetActorInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
