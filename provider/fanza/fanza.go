@@ -199,6 +199,14 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		}
 	})
 
+	// Title (fallback)
+	c.OnXML(`//meta[@property="og:title"]`, func(e *colly.XMLElement) {
+		if info.Title != "" {
+			return
+		}
+		info.Title = e.Attr("content")
+	})
+
 	// Summary (fallback)
 	c.OnXML(`//div[@class="mg-b20 lh4"]`, func(e *colly.XMLElement) {
 		if info.Summary != "" {
