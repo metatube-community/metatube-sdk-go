@@ -12,6 +12,7 @@ func TestAVE_GetMovieInfoByID(t *testing.T) {
 	for _, item := range []string{
 		"9865",
 		"10161",
+		"12881",
 		"140930",
 		"115855",
 	} {

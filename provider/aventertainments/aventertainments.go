@@ -86,10 +86,26 @@ func (ave *AVE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		info.Summary = strings.TrimSpace(e.Text)
 	})
 
-	// Cover
+	// Thumb+Cover
 	c.OnXML(`//*[@id="PlayerCover"]/img`, func(e *colly.XMLElement) {
 		info.CoverURL = e.Request.AbsoluteURL(e.Attr("src"))
 		info.ThumbURL = strings.ReplaceAll(info.CoverURL, "bigcover", "jacket_images")
+	})
+
+	// Thumb (fallback)
+	c.OnXML(`//link[@rel="image_src"]`, func(e *colly.XMLElement) {
+		if info.ThumbURL != "" {
+			return
+		}
+		info.ThumbURL = e.Request.AbsoluteURL(e.Attr("href"))
+	})
+
+	// Cover (fallback)
+	c.OnXML(`//span[@class="grid-gallery"]/a`, func(e *colly.XMLElement) {
+		if info.CoverURL != "" {
+			return
+		}
+		info.CoverURL = e.Request.AbsoluteURL(e.Attr("href"))
 	})
 
 	// Screen Shot
