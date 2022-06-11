@@ -63,14 +63,19 @@ func (fz *FANZA) NormalizeID(id string) string {
 }
 
 func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	for _, homepage := range []string{
-		fmt.Sprintf(movieDigitalVideoAURL, id),
+	homepages := []string{
 		fmt.Sprintf(movieMonoDVDURL, id),
+		fmt.Sprintf(movieDigitalVideoAURL, id),
 		fmt.Sprintf(movieDigitalVideoCURL, id),
 		fmt.Sprintf(movieDigitalAnimeURL, id),
 		fmt.Sprintf(movieMonoAnimeURL, id),
 		fmt.Sprintf(movieDigitalNikkatsuURL, id),
-	} {
+	}
+	if regexp.MustCompile(`(?i)[a-z]+00\d{3,}`).MatchString(id) {
+		// might be digital videoa url, try it first.
+		homepages[0], homepages[1] = homepages[1], homepages[0]
+	}
+	for _, homepage := range homepages {
 		if info, err = fz.GetMovieInfoByURL(homepage); err == nil && info.Valid() {
 			return
 		}
