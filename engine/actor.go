@@ -13,21 +13,34 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider/gfriends"
 )
 
+func (e *Engine) searchActorFromDB(keyword string, provider javtube.Provider) (results []*model.ActorSearchResult, err error) {
+	var infos []*model.ActorInfo
+	if err = e.db.
+		Where("provider = ? AND name = ?",
+			provider.Name(), keyword).
+		Find(&infos).Error; err == nil {
+		for _, info := range infos {
+			if !info.Valid() {
+				continue
+			}
+			results = append(results, info.ToSearchResult())
+		}
+	}
+	return
+}
+
 func (e *Engine) searchActor(keyword string, provider javtube.Provider, lazy bool) ([]*model.ActorSearchResult, error) {
 	innerSearch := func(keyword string) ([]*model.ActorSearchResult, error) {
 		if provider.Name() == gfriends.Name {
 			return provider.(javtube.ActorSearcher).SearchActor(keyword)
 		}
 		if searcher, ok := provider.(javtube.ActorSearcher); ok {
-			// Query DB first (by name or id).
-			if info := new(model.ActorInfo); lazy {
-				if result := e.db.
-					Where("provider = ?", provider.Name()).
-					Where(e.db.
-						Where("name = ?", keyword).
-						Or("id = ?", keyword)).
-					First(info); result.Error == nil && info.Valid() /* must be valid */ {
-					return []*model.ActorSearchResult{info.ToSearchResult()}, nil
+			// Query DB first (by name).
+			if lazy {
+				if results, err := e.searchActorFromDB(keyword, provider);
+				// ignore DB query error.
+				err == nil && len(results) > 0 {
+					return results, nil
 				}
 			}
 			return searcher.SearchActor(keyword)
