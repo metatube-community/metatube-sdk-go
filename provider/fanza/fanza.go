@@ -326,11 +326,11 @@ func (fz *FANZA) TidyKeyword(keyword string) string {
 	if number.IsUncensored(keyword) {
 		return ""
 	}
-	return strings.ReplaceAll(
+	return strings.Replace(
 		/* FANZA prefers lowercase */
 		strings.ToLower(keyword),
 		/* FANZA cannot search hyphened number */
-		"-", "00")
+		"-", "00", 1)
 }
 
 func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
