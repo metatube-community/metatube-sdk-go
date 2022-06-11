@@ -79,10 +79,10 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 		// Async searching.
 		go func(provider javtube.MovieProvider) {
 			defer wg.Done()
-			results, err := e.searchMovie(keyword, provider, false)
+			innerResults, innerErr := e.searchMovie(keyword, provider, false)
 			respCh <- response{
-				Results: results,
-				Error:   err,
+				Results: innerResults,
+				Error:   innerErr,
 			}
 		}(provider)
 	}
