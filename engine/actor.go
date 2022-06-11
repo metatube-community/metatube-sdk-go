@@ -1,36 +1,66 @@
 package engine
 
 import (
+	"fmt"
 	"sort"
 	"sync"
 
 	"gorm.io/gorm/clause"
 
+	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/gfriends"
 )
 
-func (e *Engine) searchActor(keyword string, provider javtube.Provider, lazy bool) (results []*model.ActorSearchResult, err error) {
-	if provider.Name() == gfriends.Name {
-		return provider.(javtube.ActorSearcher).SearchActor(keyword)
-	}
-	if searcher, ok := provider.(javtube.ActorSearcher); ok {
-		// Query DB first (by name or id).
-		if info := new(model.ActorInfo); lazy {
-			if result := e.db.
-				Where("provider = ?", provider.Name()).
-				Where(e.db.
-					Where("name = ?", keyword).
-					Or("id = ?", keyword)).
-				First(info); result.Error == nil && info.Valid() /* must be valid */ {
-				return []*model.ActorSearchResult{info.ToSearchResult()}, nil
-			}
+func (e *Engine) searchActor(keyword string, provider javtube.Provider, lazy bool) ([]*model.ActorSearchResult, error) {
+	innerSearch := func(keyword string) ([]*model.ActorSearchResult, error) {
+		if provider.Name() == gfriends.Name {
+			return provider.(javtube.ActorSearcher).SearchActor(keyword)
 		}
-		return searcher.SearchActor(keyword)
+		if searcher, ok := provider.(javtube.ActorSearcher); ok {
+			// Query DB first (by name or id).
+			if info := new(model.ActorInfo); lazy {
+				if result := e.db.
+					Where("provider = ?", provider.Name()).
+					Where(e.db.
+						Where("name = ?", keyword).
+						Or("id = ?", keyword)).
+					First(info); result.Error == nil && info.Valid() /* must be valid */ {
+					return []*model.ActorSearchResult{info.ToSearchResult()}, nil
+				}
+			}
+			return searcher.SearchActor(keyword)
+		}
+		// All providers should implement ActorSearcher interface.
+		return nil, javtube.ErrInfoNotFound
 	}
-	// All providers should implement ActorSearcher interface.
-	return nil, javtube.ErrInfoNotFound
+	names := parser.ParseActorNames(keyword)
+	if len(names) == 0 {
+		return nil, javtube.ErrInvalidKeyword
+	}
+	var (
+		results []*model.ActorSearchResult
+		errors  []error
+	)
+	for _, name := range names {
+		innerResults, innerErr := innerSearch(name)
+		if innerErr != nil &&
+			// ignore InfoNotFound error.
+			innerErr != javtube.ErrInfoNotFound {
+			// add error to chain and handle it later.
+			errors = append(errors, innerErr)
+			continue
+		}
+		results = append(results, innerResults...)
+	}
+	if len(results) == 0 {
+		if len(errors) > 0 {
+			return nil, fmt.Errorf("search errors: %v", errors)
+		}
+		return nil, javtube.ErrInfoNotFound
+	}
+	return results, nil
 }
 
 func (e *Engine) SearchActor(keyword, name string, lazy bool) ([]*model.ActorSearchResult, error) {
