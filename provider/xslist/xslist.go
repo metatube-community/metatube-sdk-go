@@ -6,7 +6,6 @@ import (
 	"path"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/gocolly/colly/v2"
@@ -155,19 +154,9 @@ func (xsl *XsList) GetActorInfoByURL(rawURL string) (info *model.ActorInfo, err 
 }
 
 func (xsl *XsList) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
-	names := parser.ParseActorNames(keyword)
-	if len(names) == 0 {
-		return nil, provider.ErrInvalidKeyword
-	}
-
 	c := xsl.ClonedCollector()
-	c.Async = true
 
-	var mu sync.Mutex
 	c.OnXML(`//ul/li`, func(e *colly.XMLElement) {
-		mu.Lock()
-		defer mu.Unlock()
-
 		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//h3/a`, "href"))
 		id, _ := xsl.ParseIDFromURL(homepage)
 		// Name
@@ -196,10 +185,7 @@ func (xsl *XsList) SearchActor(keyword string) (results []*model.ActorSearchResu
 		})
 	})
 
-	for _, name := range names {
-		c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(name)))
-	}
-	c.Wait()
+	err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword)))
 	return
 }
 
