@@ -12,16 +12,21 @@ import (
 )
 
 func (e *Engine) searchMovieFromDB(keyword string, provider javtube.MovieProvider) (results []*model.MovieSearchResult, err error) {
-	info := &model.MovieInfo{}
-	err = e.db.
+	var infos []*model.MovieInfo
+	if err = e.db.
 		Where("provider = ?", provider.Name()).
 		Where(e.db.
 			// Exact match.
 			Where("number = ?", keyword).
 			Or("id = ?", keyword)).
-		First(info).Error
-	if err == nil && info.Valid() {
-		results = []*model.MovieSearchResult{info.ToSearchResult()}
+		Find(&infos).Error; err == nil {
+		for _, info := range infos {
+			if !info.Valid() {
+				// normally it is valid, but just in case.
+				continue
+			}
+			results = append(results, info.ToSearchResult())
+		}
 	}
 	return
 }
