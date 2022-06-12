@@ -3,7 +3,6 @@ package engine
 import (
 	"sync"
 
-	"github.com/iancoleman/orderedmap"
 	"gorm.io/gorm/clause"
 
 	"github.com/javtube/javtube-sdk-go/common/number"
@@ -11,31 +10,6 @@ import (
 	"github.com/javtube/javtube-sdk-go/model"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 )
-
-type movieSearchResults struct {
-	o *orderedmap.OrderedMap
-}
-
-func newMovieSearchResults() *movieSearchResults {
-	return &movieSearchResults{
-		o: orderedmap.New(),
-	}
-}
-
-func (sr *movieSearchResults) Add(results ...*model.MovieSearchResult) {
-	for _, result := range results {
-		sr.o.Set(result.Provider+result.ID, result)
-	}
-}
-
-func (sr *movieSearchResults) Results() []*model.MovieSearchResult {
-	results := make([]*model.MovieSearchResult, 0, len(sr.o.Keys()))
-	for _, key := range sr.o.Keys() {
-		v, _ := sr.o.Get(key)
-		results = append(results, v.(*model.MovieSearchResult))
-	}
-	return results
-}
 
 func (e *Engine) searchMovieFromDB(keyword string, provider javtube.MovieProvider) (results []*model.MovieSearchResult, err error) {
 	var infos []*model.MovieInfo

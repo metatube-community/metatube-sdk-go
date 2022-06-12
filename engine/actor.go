@@ -5,7 +5,6 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/iancoleman/orderedmap"
 	"gorm.io/gorm/clause"
 
 	"github.com/javtube/javtube-sdk-go/common/parser"
@@ -13,31 +12,6 @@ import (
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/gfriends"
 )
-
-type actorSearchResults struct {
-	o *orderedmap.OrderedMap
-}
-
-func newActorSearchResults() *actorSearchResults {
-	return &actorSearchResults{
-		o: orderedmap.New(),
-	}
-}
-
-func (sr *actorSearchResults) Add(results ...*model.ActorSearchResult) {
-	for _, result := range results {
-		sr.o.Set(result.Provider+result.ID, result)
-	}
-}
-
-func (sr *actorSearchResults) Results() []*model.ActorSearchResult {
-	results := make([]*model.ActorSearchResult, 0, len(sr.o.Keys()))
-	for _, key := range sr.o.Keys() {
-		v, _ := sr.o.Get(key)
-		results = append(results, v.(*model.ActorSearchResult))
-	}
-	return results
-}
 
 func (e *Engine) searchActorFromDB(keyword string, provider javtube.Provider) (results []*model.ActorSearchResult, err error) {
 	var infos []*model.ActorInfo
