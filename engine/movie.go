@@ -17,9 +17,9 @@ func (e *Engine) searchMovieFromDB(keyword string, provider javtube.MovieProvide
 		err = e.db.
 			// Note: keyword might be an ID or just a regular number, so we should
 			// query both of them for best match. Also, case should not mater.
-			// TODO: using COLLATE NOCASE speed up query.
-			Where("UPPER(number) = UPPER(?)", keyword).
-			Or("UPPER(id) = UPPER(?)", keyword).
+			// TODO: use COLLATE NOCASE to speed up query.
+			Where("lower(number) = LOWER(?)", keyword).
+			Or("lower(id) = LOWER(?)", keyword).
 			Find(&infos).Error
 	} else {
 		err = e.db.
