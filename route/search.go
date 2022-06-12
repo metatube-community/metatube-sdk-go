@@ -27,7 +27,7 @@ type searchQuery struct {
 func getSearch(app *engine.Engine, typ searchType) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		query := &searchQuery{
-			Fallback: false,
+			Fallback: true, // enable fallback by default.
 		}
 		if err := c.ShouldBindQuery(query); err != nil {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
