@@ -13,19 +13,12 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider/gfriends"
 )
 
-func (e *Engine) searchActorFromDB(keyword string, provider javtube.Provider, all bool) (results []*model.ActorSearchResult, err error) {
+func (e *Engine) searchActorFromDB(keyword string, provider javtube.Provider) (results []*model.ActorSearchResult, err error) {
 	var infos []*model.ActorInfo
-	if all {
-		err = e.db.
-			Where("name = ?", keyword).
-			Find(&infos).Error
-	} else {
-		err = e.db.
-			Where("provider = ? AND name = ?",
-				provider.Name(), keyword).
-			Find(&infos).Error
-	}
-	if err == nil {
+	if err = e.db.
+		Where("provider = ? AND name = ?",
+			provider.Name(), keyword).
+		Find(&infos).Error; err == nil {
 		for _, info := range infos {
 			if !info.Valid() {
 				continue
@@ -44,7 +37,7 @@ func (e *Engine) searchActor(keyword string, provider javtube.Provider, fallback
 		if searcher, ok := provider.(javtube.ActorSearcher); ok {
 			if fallback {
 				defer func() {
-					if innerResults, innerErr := e.searchActorFromDB(keyword, provider, false);
+					if innerResults, innerErr := e.searchActorFromDB(keyword, provider);
 					// ignore DB query error.
 					innerErr == nil && len(innerResults) > 0 {
 						// overwrite error.
@@ -107,7 +100,7 @@ func (e *Engine) SearchActorAll(keyword string, fallback bool) (results []*model
 		wg.Add(1)
 		go func(provider javtube.ActorProvider) {
 			defer wg.Done()
-			if innerResults, innerErr := e.searchActor(keyword, provider, false); innerErr == nil {
+			if innerResults, innerErr := e.searchActor(keyword, provider, fallback); innerErr == nil {
 				for _, result := range innerResults {
 					if result.Valid() /* validation check */ {
 						mu.Lock()
@@ -119,20 +112,6 @@ func (e *Engine) SearchActorAll(keyword string, fallback bool) (results []*model
 		}(provider)
 	}
 	wg.Wait()
-
-	if fallback {
-		if innerResults, innerErr := e.searchActorFromDB(keyword, nil, true);
-		// ignore DB query error.
-		innerErr == nil && len(innerResults) > 0 {
-			// overwrite error.
-			err = nil
-			// update results.
-			asr := newActorSearchResults()
-			asr.Add(results...)
-			asr.Add(innerResults...)
-			results = asr.Results()
-		}
-	}
 
 	sort.SliceStable(results, func(i, j int) bool {
 		return e.MustGetActorProviderByName(results[i].Provider).Priority() >
