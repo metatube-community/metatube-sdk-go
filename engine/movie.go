@@ -3,6 +3,7 @@ package engine
 import (
 	"sync"
 
+	"github.com/iancoleman/orderedmap"
 	"gorm.io/gorm/clause"
 
 	"github.com/javtube/javtube-sdk-go/common/number"
@@ -10,6 +11,31 @@ import (
 	"github.com/javtube/javtube-sdk-go/model"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 )
+
+type movieSearchResults struct {
+	o *orderedmap.OrderedMap
+}
+
+func newMovieSearchResults() *movieSearchResults {
+	return &movieSearchResults{
+		o: orderedmap.New(),
+	}
+}
+
+func (sr *movieSearchResults) Add(results ...*model.MovieSearchResult) {
+	for _, result := range results {
+		sr.o.Set(result.Provider+result.ID, result)
+	}
+}
+
+func (sr *movieSearchResults) Results() []*model.MovieSearchResult {
+	results := make([]*model.MovieSearchResult, 0, len(sr.o.Keys()))
+	for _, key := range sr.o.Keys() {
+		v, _ := sr.o.Get(key)
+		results = append(results, v.(*model.MovieSearchResult))
+	}
+	return results
+}
 
 func (e *Engine) searchMovieFromDB(keyword string, provider javtube.MovieProvider) (results []*model.MovieSearchResult, err error) {
 	var infos []*model.MovieInfo
@@ -31,19 +57,26 @@ func (e *Engine) searchMovieFromDB(keyword string, provider javtube.MovieProvide
 	return
 }
 
-func (e *Engine) searchMovie(keyword string, provider javtube.MovieProvider, lazy bool) ([]*model.MovieSearchResult, error) {
+func (e *Engine) searchMovie(keyword string, provider javtube.MovieProvider, fallback bool) (results []*model.MovieSearchResult, err error) {
 	// Regular keyword searching.
 	if searcher, ok := provider.(javtube.MovieSearcher); ok {
 		if keyword = searcher.TidyKeyword(keyword); keyword == "" {
 			return nil, javtube.ErrInvalidKeyword
 		}
-		// Query DB first.
-		if lazy {
-			if results, err := e.searchMovieFromDB(keyword, provider);
-			// ignore DB query error.
-			err == nil && len(results) > 0 {
-				return results, nil
-			}
+		if fallback {
+			defer func() {
+				if innerResults, innerErr := e.searchMovieFromDB(keyword, provider);
+				// ignore DB query error.
+				innerErr == nil && len(innerResults) > 0 {
+					// overwrite error.
+					err = nil
+					// update results.
+					msr := newMovieSearchResults()
+					msr.Add(results...)
+					msr.Add(innerResults...)
+					results = msr.Results()
+				}
+			}()
 		}
 		return searcher.SearchMovie(keyword)
 	}
@@ -55,7 +88,7 @@ func (e *Engine) searchMovie(keyword string, provider javtube.MovieProvider, laz
 	return []*model.MovieSearchResult{info.ToSearchResult()}, nil
 }
 
-func (e *Engine) SearchMovie(keyword, name string, lazy bool) ([]*model.MovieSearchResult, error) {
+func (e *Engine) SearchMovie(keyword, name string, fallback bool) ([]*model.MovieSearchResult, error) {
 	if keyword = number.Trim(keyword); keyword == "" {
 		return nil, javtube.ErrInvalidKeyword
 	}
@@ -63,7 +96,7 @@ func (e *Engine) SearchMovie(keyword, name string, lazy bool) ([]*model.MovieSea
 	if err != nil {
 		return nil, err
 	}
-	return e.searchMovie(keyword, provider, lazy)
+	return e.searchMovie(keyword, provider, fallback)
 }
 
 func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchResult, err error) {
