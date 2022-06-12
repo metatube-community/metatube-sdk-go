@@ -5,6 +5,7 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/iancoleman/orderedmap"
 	"gorm.io/gorm/clause"
 
 	"github.com/javtube/javtube-sdk-go/common/parser"
@@ -12,6 +13,31 @@ import (
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/gfriends"
 )
+
+type actorSearchResults struct {
+	o *orderedmap.OrderedMap
+}
+
+func newActorSearchResults() *actorSearchResults {
+	return &actorSearchResults{
+		o: orderedmap.New(),
+	}
+}
+
+func (sr *actorSearchResults) Add(results ...*model.ActorSearchResult) {
+	for _, result := range results {
+		sr.o.Set(result.Provider+result.ID, result)
+	}
+}
+
+func (sr *actorSearchResults) Results() []*model.ActorSearchResult {
+	results := make([]*model.ActorSearchResult, 0, len(sr.o.Keys()))
+	for _, key := range sr.o.Keys() {
+		v, _ := sr.o.Get(key)
+		results = append(results, v.(*model.ActorSearchResult))
+	}
+	return results
+}
 
 func (e *Engine) searchActorFromDB(keyword string, provider javtube.Provider) (results []*model.ActorSearchResult, err error) {
 	var infos []*model.ActorInfo
@@ -29,19 +55,26 @@ func (e *Engine) searchActorFromDB(keyword string, provider javtube.Provider) (r
 	return
 }
 
-func (e *Engine) searchActor(keyword string, provider javtube.Provider, lazy bool) ([]*model.ActorSearchResult, error) {
-	innerSearch := func(keyword string) ([]*model.ActorSearchResult, error) {
+func (e *Engine) searchActor(keyword string, provider javtube.Provider, fallback bool) ([]*model.ActorSearchResult, error) {
+	innerSearch := func(keyword string) (results []*model.ActorSearchResult, err error) {
 		if provider.Name() == gfriends.Name {
 			return provider.(javtube.ActorSearcher).SearchActor(keyword)
 		}
 		if searcher, ok := provider.(javtube.ActorSearcher); ok {
-			// Query DB first (by name).
-			if lazy {
-				if results, err := e.searchActorFromDB(keyword, provider);
-				// ignore DB query error.
-				err == nil && len(results) > 0 {
-					return results, nil
-				}
+			if fallback {
+				defer func() {
+					if innerResults, innerErr := e.searchActorFromDB(keyword, provider);
+					// ignore DB query error.
+					innerErr == nil && len(innerResults) > 0 {
+						// overwrite error.
+						err = nil
+						// update results.
+						asr := newActorSearchResults()
+						asr.Add(results...)
+						asr.Add(innerResults...)
+						results = asr.Results()
+					}
+				}()
 			}
 			return searcher.SearchActor(keyword)
 		}
@@ -76,12 +109,12 @@ func (e *Engine) searchActor(keyword string, provider javtube.Provider, lazy boo
 	return results, nil
 }
 
-func (e *Engine) SearchActor(keyword, name string, lazy bool) ([]*model.ActorSearchResult, error) {
+func (e *Engine) SearchActor(keyword, name string, fallback bool) ([]*model.ActorSearchResult, error) {
 	provider, err := e.GetActorProviderByName(name)
 	if err != nil {
 		return nil, err
 	}
-	return e.searchActor(keyword, provider, lazy)
+	return e.searchActor(keyword, provider, fallback)
 }
 
 func (e *Engine) SearchActorAll(keyword string) (results []*model.ActorSearchResult, err error) {
