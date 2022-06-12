@@ -11,15 +11,25 @@ import (
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 )
 
-func (e *Engine) searchMovieFromDB(keyword string, provider javtube.MovieProvider) (results []*model.MovieSearchResult, err error) {
+func (e *Engine) searchMovieFromDB(keyword string, provider javtube.MovieProvider, all bool) (results []*model.MovieSearchResult, err error) {
 	var infos []*model.MovieInfo
-	if err = e.db.
-		Where("provider = ?", provider.Name()).
-		Where(e.db.
-			// Exact match.
-			Where("number = ?", keyword).
-			Or("id = ?", keyword)).
-		Find(&infos).Error; err == nil {
+	if all {
+		err = e.db.
+			// Note: keyword might be an ID or just a regular number, so we should
+			// query both of them for best match. Also, case should not mater.
+			Where("UPPER(number) = UPPER(?)", keyword).
+			Or("UPPER(id) = UPPER(?)", keyword).
+			Find(&infos).Error
+	} else {
+		err = e.db.
+			Where("provider = ?", provider.Name()).
+			Where(e.db.
+				// Exact match.
+				Where("number = ?", keyword).
+				Or("id = ?", keyword)).
+			Find(&infos).Error
+	}
+	if err == nil {
 		for _, info := range infos {
 			if !info.Valid() {
 				// normally it is valid, but just in case.
@@ -39,7 +49,7 @@ func (e *Engine) searchMovie(keyword string, provider javtube.MovieProvider, fal
 		}
 		if fallback {
 			defer func() {
-				if innerResults, innerErr := e.searchMovieFromDB(keyword, provider);
+				if innerResults, innerErr := e.searchMovieFromDB(keyword, provider, false);
 				// ignore DB query error.
 				innerErr == nil && len(innerResults) > 0 {
 					// overwrite error.
@@ -110,7 +120,7 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 }
 
 // SearchMovieAll searches the keyword from all providers.
-func (e *Engine) SearchMovieAll(keyword string, lazy bool) (results []*model.MovieSearchResult, err error) {
+func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model.MovieSearchResult, err error) {
 	if keyword = number.Trim(keyword); keyword == "" {
 		return nil, javtube.ErrInvalidKeyword
 	}
@@ -136,19 +146,20 @@ func (e *Engine) SearchMovieAll(keyword string, lazy bool) (results []*model.Mov
 		results = ps.Sort().Underlying()
 	}()
 
-	if lazy {
-		multiInfo := make([]*model.MovieInfo, 0)
-		if result := e.db.
-			// Note: keyword might be an ID or just a regular number, so we should
-			// query both of them for best match. Also, case should not mater.
-			Where("UPPER(number) = UPPER(?)", keyword).
-			Or("UPPER(id) = UPPER(?)", keyword).
-			Find(&multiInfo); result.Error == nil && result.RowsAffected > 0 {
-			for _, info := range multiInfo {
-				results = append(results, info.ToSearchResult())
+	if fallback /* query database for missing results  */ {
+		defer func() {
+			if innerResults, innerErr := e.searchMovieFromDB(keyword, nil, true);
+			// ignore DB query error.
+			innerErr == nil && len(innerResults) > 0 {
+				// overwrite error.
+				err = nil
+				// update results.
+				msr := newMovieSearchResults()
+				msr.Add(results...)
+				msr.Add(innerResults...)
+				results = msr.Results()
 			}
-			return
-		}
+		}()
 	}
 
 	results, err = e.searchMovieAll(keyword)
