@@ -13,12 +13,19 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider/gfriends"
 )
 
-func (e *Engine) searchActorFromDB(keyword string, provider javtube.Provider) (results []*model.ActorSearchResult, err error) {
+func (e *Engine) searchActorFromDB(keyword string, provider javtube.Provider, all bool) (results []*model.ActorSearchResult, err error) {
 	var infos []*model.ActorInfo
-	if err = e.db.
-		Where("provider = ? AND name = ?",
-			provider.Name(), keyword).
-		Find(&infos).Error; err == nil {
+	if all {
+		err = e.db.
+			Where("name = ?", keyword).
+			Find(&infos).Error
+	} else {
+		err = e.db.
+			Where("provider = ? AND name = ?",
+				provider.Name(), keyword).
+			Find(&infos).Error
+	}
+	if err == nil {
 		for _, info := range infos {
 			if !info.Valid() {
 				continue
@@ -37,7 +44,7 @@ func (e *Engine) searchActor(keyword string, provider javtube.Provider, fallback
 		if searcher, ok := provider.(javtube.ActorSearcher); ok {
 			if fallback {
 				defer func() {
-					if innerResults, innerErr := e.searchActorFromDB(keyword, provider);
+					if innerResults, innerErr := e.searchActorFromDB(keyword, provider, false);
 					// ignore DB query error.
 					innerErr == nil && len(innerResults) > 0 {
 						// overwrite error.
