@@ -31,7 +31,9 @@ func getInfo(app *engine.Engine, typ infoType) gin.HandlerFunc {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
 			return
 		}
-		query := &infoQuery{Lazy: true}
+		query := &infoQuery{
+			Lazy: true, // enable lazy by default.
+		}
 		if err := c.ShouldBindQuery(query); err != nil {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
 			return
