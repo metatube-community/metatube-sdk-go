@@ -21,13 +21,13 @@ const (
 type searchQuery struct {
 	Q        string `form:"q" binding:"required"`
 	Provider string `form:"provider"`
-	Lazy     bool   `form:"lazy"`
+	Fallback bool   `form:"fallback"`
 }
 
 func getSearch(app *engine.Engine, typ searchType) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		query := &searchQuery{
-			Lazy: false, // disable lazy by default.
+			Fallback: false,
 		}
 		if err := c.ShouldBindQuery(query); err != nil {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
@@ -53,17 +53,17 @@ func getSearch(app *engine.Engine, typ searchType) gin.HandlerFunc {
 			if isValidURL {
 				results, err = app.GetActorInfoByURL(query.Q, true /* always lazy */)
 			} else if searchAll {
-				results, err = app.SearchActorAll(query.Q)
+				results, err = app.SearchActorAll(query.Q, query.Fallback)
 			} else {
-				results, err = app.SearchActor(query.Q, query.Provider, query.Lazy)
+				results, err = app.SearchActor(query.Q, query.Provider, query.Fallback)
 			}
 		case movieSearchType:
 			if isValidURL {
 				results, err = app.GetMovieInfoByURL(query.Q, true /* always lazy */)
 			} else if searchAll {
-				results, err = app.SearchMovieAll(query.Q, query.Lazy)
+				results, err = app.SearchMovieAll(query.Q, query.Fallback)
 			} else {
-				results, err = app.SearchMovie(query.Q, query.Provider, query.Lazy)
+				results, err = app.SearchMovie(query.Q, query.Provider, query.Fallback)
 			}
 		default:
 			panic("invalid search type")

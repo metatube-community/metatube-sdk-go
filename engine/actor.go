@@ -98,7 +98,7 @@ func (e *Engine) SearchActor(keyword, name string, fallback bool) ([]*model.Acto
 	return e.searchActor(keyword, provider, fallback)
 }
 
-func (e *Engine) SearchActorAll(keyword string) (results []*model.ActorSearchResult, err error) {
+func (e *Engine) SearchActorAll(keyword string, fallback bool) (results []*model.ActorSearchResult, err error) {
 	var (
 		mu sync.Mutex
 		wg sync.WaitGroup
@@ -107,7 +107,7 @@ func (e *Engine) SearchActorAll(keyword string) (results []*model.ActorSearchRes
 		wg.Add(1)
 		go func(provider javtube.ActorProvider) {
 			defer wg.Done()
-			if innerResults, innerErr := e.searchActor(keyword, provider, true); innerErr == nil {
+			if innerResults, innerErr := e.searchActor(keyword, provider, false); innerErr == nil {
 				for _, result := range innerResults {
 					if result.Valid() /* validation check */ {
 						mu.Lock()
@@ -119,6 +119,20 @@ func (e *Engine) SearchActorAll(keyword string) (results []*model.ActorSearchRes
 		}(provider)
 	}
 	wg.Wait()
+
+	if fallback {
+		if innerResults, innerErr := e.searchActorFromDB(keyword, nil, true);
+		// ignore DB query error.
+		innerErr == nil && len(innerResults) > 0 {
+			// overwrite error.
+			err = nil
+			// update results.
+			asr := newActorSearchResults()
+			asr.Add(results...)
+			asr.Add(innerResults...)
+			results = asr.Results()
+		}
+	}
 
 	sort.SliceStable(results, func(i, j int) bool {
 		return e.MustGetActorProviderByName(results[i].Provider).Priority() >
