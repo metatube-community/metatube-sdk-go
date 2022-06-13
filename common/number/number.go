@@ -29,7 +29,7 @@ func Trim(s string) string {
 	}
 	s = regexp.MustCompile(`(?i)\s+-\s+`).
 		ReplaceAllString(s, " " /* space */) // fix `number - title` style
-	s = regexp.MustCompile(`(?i)[-_](\d*fps|fhd|hd|sd|1080p|720p|uncensored|leak|[2468]K|[xh]26[45])+|\[.*]`).
+	s = regexp.MustCompile(`(?i)[-_](\d*fps|fhd|hd|sd|(?:360|480|720|1080|2160)p|uncensored|leak|[2468]k|[xh]26[45])+|\[.*]`).
 		ReplaceAllString(s, "") // trim tags
 	s = regexp.MustCompile(`^(?i)\s*(cari|carib|caribean|1Pondo|heydouga|pacopacomama|muramura|Tokyo.*Hot)[-_\s]`).
 		ReplaceAllString(s, "") // trim prefixes
