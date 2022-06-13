@@ -68,8 +68,7 @@ func showVersionAndExit() {
 
 func main() {
 	if _, isSet := os.LookupEnv("VERSION"); opts.versionFlag &&
-		// NOTE: ignore this flag if ENV contains VERSION variable.
-		!isSet {
+		!isSet /* NOTE: ignore this flag if ENV contains VERSION variable. */ {
 		showVersionAndExit()
 	}
 
