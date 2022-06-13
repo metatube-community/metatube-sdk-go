@@ -187,7 +187,6 @@ func (avw *AVWiki) getBuildID() (buildID string, err error) {
 			err = innerErr
 		}
 		buildID = data.BuildId
-		return
 	})
 
 	err = c.Visit(baseURL)
