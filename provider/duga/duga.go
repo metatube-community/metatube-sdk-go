@@ -45,7 +45,7 @@ func New() *DUGA {
 }
 
 func (duga *DUGA) NormalizeID(id string) string {
-	return strings.ToLower(id)
+	return strings.ToLower(id) // DUGA always use lowercase id.
 }
 
 func (duga *DUGA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -77,21 +77,20 @@ func (duga *DUGA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 
 	c := duga.ClonedCollector()
 
-	// JSON
+	// Title
+	c.OnXML(`//*[@id="contentsname"]`, func(e *colly.XMLElement) {
+		info.Title = e.Text
+	})
+
+	// Summary+JSON
 	c.OnXML(`//script[@type="application/ld+json"]`, func(e *colly.XMLElement) {
 		data := struct {
 			// Name        string `json:"name"`
 			Description string `json:"description"`
-			// ThumbnailURL string `json:"thumbnailUrl"`
 		}{}
 		if json.NewDecoder(strings.NewReader(e.Text)).Decode(&data) == nil {
 			info.Summary = data.Description
 		}
-	})
-
-	// Title
-	c.OnXML(`//*[@id="contentsname"]`, func(e *colly.XMLElement) {
-		info.Title = e.Text
 	})
 
 	// Thumb
@@ -121,9 +120,17 @@ func (duga *DUGA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 			info.Number = strings.TrimSpace(e.ChildText(`.//td`))
 		case "シリーズ":
 			info.Series = strings.TrimSpace(e.ChildText(`.//td`))
-		case "出演者", "カテゴリ":
+		case "出演者", "監督", "カテゴリ":
 			// parse later.
 		}
+	})
+
+	// Director
+	c.OnXML(`//ul[@class="director"]//li//a`, func(e *colly.XMLElement) {
+		if info.Director != "" {
+			return // ignore others.
+		}
+		info.Director = e.Text
 	})
 
 	// Actors
@@ -191,6 +198,10 @@ func (duga *DUGA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		if info.CoverURL == "" {
 			// use thumb as cover.
 			info.CoverURL = info.ThumbURL
+		}
+		if info.ID == "" {
+			// fallback to id again.
+			info.ID = id
 		}
 		if info.Number == "" {
 			// use ID as number.

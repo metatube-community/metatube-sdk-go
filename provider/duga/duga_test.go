@@ -11,6 +11,7 @@ func TestDUGA_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"glory-4262",
+		"waap-1294",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
