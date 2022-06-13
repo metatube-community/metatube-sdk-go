@@ -18,6 +18,7 @@ func TestParseDuration(t *testing.T) {
 		{"apx.1min", time.Minute},
 		{"about 1min", time.Minute},
 		{"1分", time.Minute},
+		{"1分1秒", time.Minute + time.Second},
 		{"1h2m3s", time.Hour + time.Minute*2 + time.Second*3},
 		{"1H2M3S", time.Hour + time.Minute*2 + time.Second*3},
 		{"PT1H2M3S", time.Hour + time.Minute*2 + time.Second*3},
