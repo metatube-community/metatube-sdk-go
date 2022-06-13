@@ -71,7 +71,7 @@ func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) 
 		fmt.Sprintf(movieMonoAnimeURL, id),
 		fmt.Sprintf(movieDigitalNikkatsuURL, id),
 	}
-	if regexp.MustCompile(`(?i)[a-z]{3,}00\d{3,}`).MatchString(id) {
+	if regexp.MustCompile(`(?i)[a-z]{2,}00\d{3,}`).MatchString(id) {
 		// might be digital videoa url, try it first.
 		homepages[0], homepages[1] = homepages[1], homepages[0]
 	}
