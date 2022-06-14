@@ -13,6 +13,11 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+const (
+	Sqlite   = "sqlite"
+	Postgres = "postgres"
+)
+
 type Config struct {
 	// DSN the Data Source Name.
 	DSN string
