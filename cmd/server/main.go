@@ -83,7 +83,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// enable auto migrate for sqlite DB.
+	// always enable auto migrate for sqlite DB.
 	if db.Config.Dialector.Name() == sqlite.DriverName {
 		opts.dbAutoMigrate = true
 	}
