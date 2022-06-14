@@ -14,7 +14,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.1
 	github.com/iancoleman/orderedmap v0.2.0
 	github.com/lib/pq v1.10.6
-	github.com/nlnwa/whatwg-url v0.1.1
+	github.com/nlnwa/whatwg-url v0.1.2
 	github.com/peterbourgon/ff/v3 v3.1.2
 	github.com/stretchr/testify v1.7.2
 	golang.org/x/net v0.0.0-20220607020251-c690dde0001d
