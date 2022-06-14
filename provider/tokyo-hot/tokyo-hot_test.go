@@ -25,6 +25,7 @@ func TestTokyoHot_SearchMovie(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"1624",
+		"n0238",
 	} {
 		results, err := provider.SearchMovie(provider.TidyKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")

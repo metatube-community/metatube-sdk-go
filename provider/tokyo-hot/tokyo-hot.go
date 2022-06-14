@@ -159,9 +159,28 @@ func (tht *TokyoHot) SearchMovie(keyword string) (results []*model.MovieSearchRe
 		img := e.Request.AbsoluteURL(e.ChildAttr(`.//a/img`, "src"))
 		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//a`, "href"))
 		id, _ := tht.ParseIDFromURL(homepage)
+
+		// id is not always the number.
+		var number string
+		if ss := regexp.MustCompile(`\(作品番号: ([a-z\d-_]+)\)`).
+			FindStringSubmatch(e.Text); len(ss) == 2 {
+			fmt.Println(ss)
+			number = ss[1]
+		}
+		{ // number fallbacks
+			if number == "" {
+				number = e.ChildAttr(`.//a/img`, "alt")
+			}
+			if number == "" {
+				number = e.ChildAttr(`.//a/img`, "title")
+			}
+			if number == "" {
+				number = id
+			}
+		}
 		results = append(results, &model.MovieSearchResult{
 			ID:       id,
-			Number:   id,
+			Number:   number,
 			Title:    e.ChildText(`.//div[@class="title"]`),
 			ThumbURL: img,
 			CoverURL: img,
