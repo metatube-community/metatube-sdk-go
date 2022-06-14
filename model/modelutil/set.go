@@ -1,4 +1,4 @@
-package engine
+package modelutil
 
 import (
 	"github.com/iancoleman/orderedmap"
@@ -6,23 +6,23 @@ import (
 	"github.com/javtube/javtube-sdk-go/model"
 )
 
-type actorSearchResults struct {
+type ActorSearchResultSet struct {
 	o *orderedmap.OrderedMap
 }
 
-func newActorSearchResults() *actorSearchResults {
-	return &actorSearchResults{
+func NewActorSearchResultSet() *ActorSearchResultSet {
+	return &ActorSearchResultSet{
 		o: orderedmap.New(),
 	}
 }
 
-func (sr *actorSearchResults) Add(results ...*model.ActorSearchResult) {
+func (sr *ActorSearchResultSet) Add(results ...*model.ActorSearchResult) {
 	for _, result := range results {
 		sr.o.Set(result.Provider+result.ID, result)
 	}
 }
 
-func (sr *actorSearchResults) Results() []*model.ActorSearchResult {
+func (sr *ActorSearchResultSet) Results() []*model.ActorSearchResult {
 	results := make([]*model.ActorSearchResult, 0, len(sr.o.Keys()))
 	for _, key := range sr.o.Keys() {
 		v, _ := sr.o.Get(key)
@@ -31,23 +31,23 @@ func (sr *actorSearchResults) Results() []*model.ActorSearchResult {
 	return results
 }
 
-type movieSearchResults struct {
+type MovieSearchResultSet struct {
 	o *orderedmap.OrderedMap
 }
 
-func newMovieSearchResults() *movieSearchResults {
-	return &movieSearchResults{
+func NewMovieSearchResultSet() *MovieSearchResultSet {
+	return &MovieSearchResultSet{
 		o: orderedmap.New(),
 	}
 }
 
-func (sr *movieSearchResults) Add(results ...*model.MovieSearchResult) {
+func (sr *MovieSearchResultSet) Add(results ...*model.MovieSearchResult) {
 	for _, result := range results {
 		sr.o.Set(result.Provider+result.ID, result)
 	}
 }
 
-func (sr *movieSearchResults) Results() []*model.MovieSearchResult {
+func (sr *MovieSearchResultSet) Results() []*model.MovieSearchResult {
 	results := make([]*model.MovieSearchResult, 0, len(sr.o.Keys()))
 	for _, key := range sr.o.Keys() {
 		v, _ := sr.o.Get(key)

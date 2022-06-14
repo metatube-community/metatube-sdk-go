@@ -9,6 +9,7 @@ import (
 
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
+	"github.com/javtube/javtube-sdk-go/model/modelutil"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/gfriends"
 )
@@ -43,7 +44,7 @@ func (e *Engine) searchActor(keyword string, provider javtube.Provider, fallback
 						// overwrite error.
 						err = nil
 						// update results.
-						asr := newActorSearchResults()
+						asr := modelutil.NewActorSearchResultSet()
 						asr.Add(results...)
 						asr.Add(innerResults...)
 						results = asr.Results()
