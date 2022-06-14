@@ -50,7 +50,7 @@ func Open(cfg *Config) (db *gorm.DB, err error) {
 	// We try to parse it as postgresql, otherwise
 	// fallback to sqlite.
 	if regexp.MustCompile(`^postgres(ql)?://`).MatchString(cfg.DSN) ||
-		len(strings.Fields(cfg.DSN)) > 4 {
+		len(strings.Fields(cfg.DSN)) > 3 {
 		dialector = postgres.New(postgres.Config{
 			DSN: cfg.DSN,
 			// set true to disable implicit prepared statement usage.
