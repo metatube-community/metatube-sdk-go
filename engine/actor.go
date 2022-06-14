@@ -17,7 +17,7 @@ import (
 func (e *Engine) searchActorFromDB(keyword string, provider javtube.Provider) (results []*model.ActorSearchResult, err error) {
 	var infos []*model.ActorInfo
 	if err = e.db.
-		Where("provider = ? AND name = ?",
+		Where("provider = ? AND name = ? COLLATE NOCASE",
 			provider.Name(), keyword).
 		Find(&infos).Error; err == nil {
 		for _, info := range infos {
@@ -125,7 +125,7 @@ func (e *Engine) getActorInfoFromDB(provider javtube.ActorProvider, id string) (
 	info := &model.ActorInfo{}
 	err := e.db. // Exact match here.
 			Where("provider = ?", provider.Name()).
-			Where("id = ?", id).
+			Where("id = ? COLLATE NOCASE", id).
 			First(info).Error
 	return info, err
 }

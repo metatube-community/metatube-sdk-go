@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/javtube/javtube-sdk-go/common/fetch"
+	"github.com/javtube/javtube-sdk-go/database"
 	"github.com/javtube/javtube-sdk-go/model"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 )
@@ -143,6 +144,13 @@ func (e *Engine) MustGetMovieProviderByName(name string) javtube.MovieProvider {
 func (e *Engine) AutoMigrate(v bool) error {
 	if !v {
 		return nil
+	}
+	// Create Case-Insensitive Collation for Postgres.
+	if e.db.Config.Dialector.Name() == database.Postgres {
+		e.db.Exec(`CREATE COLLATION IF NOT EXISTS NOCASE (
+		provider = icu,
+		locale = 'und-u-ks-level2',
+		deterministic = FALSE)`)
 	}
 	return e.db.AutoMigrate(
 		&model.MovieInfo{},

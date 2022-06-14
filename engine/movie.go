@@ -14,21 +14,17 @@ import (
 
 func (e *Engine) searchMovieFromDB(keyword string, provider javtube.MovieProvider, all bool) (results []*model.MovieSearchResult, err error) {
 	var infos []*model.MovieInfo
+	tx := e.db.
+		// Note: keyword might be an ID or just a regular number, so we should
+		// query both of them for best match. Also, case should not mater.
+		Where("number = ? COLLATE NOCASE", keyword).
+		Or("id = ? COLLATE NOCASE", keyword)
 	if all {
-		err = e.db.
-			// Note: keyword might be an ID or just a regular number, so we should
-			// query both of them for best match. Also, case should not mater.
-			// TODO: use COLLATE NOCASE to speed up query.
-			Where("lower(number) = LOWER(?)", keyword).
-			Or("lower(id) = LOWER(?)", keyword).
-			Find(&infos).Error
+		err = tx.Find(&infos).Error
 	} else {
 		err = e.db.
 			Where("provider = ?", provider.Name()).
-			Where(e.db.
-				// Exact match.
-				Where("number = ?", keyword).
-				Or("id = ?", keyword)).
+			Where(tx).
 			Find(&infos).Error
 	}
 	if err == nil {
@@ -172,7 +168,7 @@ func (e *Engine) getMovieInfoFromDB(provider javtube.MovieProvider, id string) (
 	info := &model.MovieInfo{}
 	err := e.db. // Exact match here.
 			Where("provider = ?", provider.Name()).
-			Where("id = ?", id).
+			Where("id = ? COLLATE NOCASE", id).
 			First(info).Error
 	return info, err
 }
