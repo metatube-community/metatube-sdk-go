@@ -6,11 +6,13 @@ import (
 	"net/url"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/gocolly/colly/v2"
 
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/parser"
+	"github.com/javtube/javtube-sdk-go/common/singledo"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/duga"
@@ -38,6 +40,7 @@ const (
 
 type AVWiki struct {
 	*scraper.Scraper
+	single  *singledo.Single
 	duga    *duga.DUGA
 	fanza   *fanza.FANZA
 	mgstage *mgstage.MGS
@@ -49,6 +52,7 @@ func New() *AVWiki {
 			scraper.WithHeaders(map[string]string{
 				"Referer": baseURL,
 			})),
+		single:  singledo.NewSingle(2 * time.Hour),
 		duga:    duga.New(),
 		fanza:   fanza.New(),
 		mgstage: mgstage.New(),
@@ -75,7 +79,7 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		return
 	}
 
-	buildID, err := avw.getBuildID()
+	buildID, err := avw.GetBuildID()
 	if err != nil {
 		return
 	}
@@ -139,7 +143,7 @@ func (avw *AVWiki) TidyKeyword(keyword string) string {
 }
 
 func (avw *AVWiki) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	buildID, err := avw.getBuildID()
+	buildID, err := avw.GetBuildID()
 	if err != nil {
 		return
 	}
@@ -174,6 +178,16 @@ func (avw *AVWiki) SearchMovie(keyword string) (results []*model.MovieSearchResu
 
 	err = c.Visit(fmt.Sprintf(searchAPIURL, buildID, url.QueryEscape(keyword)))
 	return
+}
+
+func (avw *AVWiki) GetBuildID() (string, error) {
+	v, err, _ := avw.single.Do(func() (any, error) {
+		return avw.getBuildID()
+	})
+	if err != nil {
+		return "", err
+	}
+	return v.(string), nil
 }
 
 func (avw *AVWiki) getBuildID() (buildID string, err error) {
