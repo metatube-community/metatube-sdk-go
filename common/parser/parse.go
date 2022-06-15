@@ -43,10 +43,12 @@ func ParseDate(s string) dt.Date {
 func ParseDuration(s string) time.Duration {
 	s = ReplaceSpaceAll(s)
 	s = strings.ToLower(s)
-	s = strings.Replace(s, "秒", "s", 1)
-	s = strings.Replace(s, "分", "m", 1)
-	s = strings.Replace(s, "sec", "s", 1)
-	s = strings.Replace(s, "min", "m", 1)
+	s = strings.ReplaceAll(s, "秒", "s")
+	s = strings.ReplaceAll(s, "分", "m")
+	s = strings.ReplaceAll(s, "時", "h")
+	s = strings.ReplaceAll(s, "时", "h")
+	s = strings.ReplaceAll(s, "sec", "s")
+	s = strings.ReplaceAll(s, "min", "m")
 	if ss := regexp.MustCompile(`(?i)(\d+):(\d+):(\d+)`).FindStringSubmatch(s); len(ss) > 0 {
 		s = fmt.Sprintf("%02sh%02sm%02ss", ss[1], ss[2], ss[3])
 	} else if ss := regexp.MustCompile(`(?i)(\d+[mhs]?)`).FindAllStringSubmatch(s, -1); len(ss) > 0 {
