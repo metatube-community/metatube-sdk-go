@@ -132,10 +132,10 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 }
 
 func (avw *AVWiki) TidyKeyword(keyword string) string {
-	if !number.IsUncensored(keyword) {
-		return strings.ToUpper(keyword)
+	if number.IsUncensored(keyword) {
+		return "" // no uncensored support.
 	}
-	return ""
+	return strings.ToUpper(keyword)
 }
 
 func (avw *AVWiki) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
