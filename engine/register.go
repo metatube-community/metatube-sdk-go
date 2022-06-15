@@ -17,6 +17,7 @@ import (
 	_ "github.com/javtube/javtube-sdk-go/provider/duga"
 	_ "github.com/javtube/javtube-sdk-go/provider/fanza"
 	_ "github.com/javtube/javtube-sdk-go/provider/fc2"
+	_ "github.com/javtube/javtube-sdk-go/provider/gcolle"
 	_ "github.com/javtube/javtube-sdk-go/provider/heydouga"
 	_ "github.com/javtube/javtube-sdk-go/provider/heyzo"
 	_ "github.com/javtube/javtube-sdk-go/provider/javbus"
