@@ -96,9 +96,9 @@ func (gcu *Getchu) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		case "サークル":
 			info.Series = strings.TrimSpace(e.ChildText(`.//td[2]`))
 		case "作者":
-			info.Director = e.ChildText(`.//td[2]`)
+			// info.Director = e.ChildText(`.//td[2]`)
 		case "画像数&ページ数":
-			info.Runtime = parser.ParseRuntime(e.ChildText(`.//td[2]`))
+			// info.Runtime = parser.ParseRuntime(e.ChildText(`.//td[2]`))
 		case "配信開始日":
 			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td[2]`))
 		case "趣向":
