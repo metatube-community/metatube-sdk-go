@@ -48,7 +48,14 @@ func Trim(s string) string {
 // used to detect number of some certain movie studio or publisher.
 func IsUncensored(s string) bool {
 	return regexp.
-		MustCompile(`^(?i)[\d-]{4,}|\d{6}_\d{2,3}|(cz|gedo|k|n|kb|red-|se)\d{2,4}|(heyzo|fc2(ppv)?|xxx-av|heydouga|pcolle)[-_].+$`).
+		MustCompile(`^(?i)[\d-]{4,}|\d{6}_\d{2,3}|(cz|gedo|k|n|kb|red-|se)\d{2,4}|(heyzo|xxx-av|heydouga)[-_].+$`).
+		MatchString(s)
+}
+
+// IsSpecial returns true if the number is special compare to other regular numbers.
+func IsSpecial(s string) bool {
+	return regexp.
+		MustCompile(`^(?i)(fc2(ppv)?|gcolle|getchu|gyutto|pcolle|heyzo|xxx-av|heydouga)[-_].+$`).
 		MatchString(s)
 }
 
@@ -66,6 +73,9 @@ func Similarity(a, b string) float64 {
 // requires face detection.
 func RequireFaceDetection(s string) bool {
 	if IsUncensored(s) {
+		return true
+	}
+	if IsSpecial(s) {
 		return true
 	}
 	if regexp.MustCompile(`(?i)^\d+[a-z]+`).MatchString(s) {

@@ -77,10 +77,6 @@ func TestIsUncensored(t *testing.T) {
 		{"ABP-030", false},
 		{"ssis00123", false},
 		{"133ARA-030", false},
-		{"FC2-738573", true},
-		{"FC2_738573", true},
-		{"FC2-PPV-738573", true},
-		{"FC2PPV-738573", true},
 		{"123456_789", true},
 		{"123456-789", true},
 		{"123456-01", true},
@@ -90,11 +86,31 @@ func TestIsUncensored(t *testing.T) {
 		{"heydouga_1789-233", true},
 		{"heyzo-1342", true},
 		{"heyzo_1342", true},
-		{"pcolle-1332342", true},
 		{"n1342", true},
 		{"kb1342", true},
 	} {
 		assert.Equal(t, unit.want, IsUncensored(unit.orig), unit.orig)
+	}
+}
+
+func TestIsSpecial(t *testing.T) {
+	for _, unit := range []struct {
+		orig string
+		want bool
+	}{
+		{"FC2-738573", true},
+		{"FC2_738573", true},
+		{"FC2-PPV-738573", true},
+		{"FC2PPV-738573", true},
+		{"xxx-av-1789", true},
+		{"xxx-av_1789", true},
+		{"heydouga-1789-233", true},
+		{"heydouga_1789-233", true},
+		{"heyzo-1342", true},
+		{"heyzo_1342", true},
+		{"pcolle-1332342", true},
+	} {
+		assert.Equal(t, unit.want, IsSpecial(unit.orig), unit.orig)
 	}
 }
 
@@ -130,6 +146,10 @@ func TestRequireFaceDetection(t *testing.T) {
 		{"heyzo-1342", true},
 		{"n1342", true},
 		{"kb1342", true},
+		{"gcolle-847256", true},
+		{"pcolle-14491760b933a35cfab", true},
+		{"gyutto-254274", true},
+		{"getchu-4041236", true},
 	} {
 		assert.Equal(t, unit.want, RequireFaceDetection(unit.orig), unit.orig)
 	}
