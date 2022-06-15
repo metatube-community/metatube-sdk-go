@@ -103,13 +103,12 @@ func (pcl *Pcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 
 	// Summary
 	c.OnXML(`//section[@class="item_description"]`, func(e *colly.XMLElement) {
-		var summary string
-		if summary = e.ChildText(`.//p[@class="fo-14"]`); summary != "" {
+		if summary := e.ChildText(`.//p[@class="fo-14"]`); summary != "" {
 			// preferred summary.
+			info.Summary = summary
 		} else {
-			summary = e.Text
+			info.Summary = e.Text
 		}
-		info.Summary = summary
 	})
 
 	// Thumb+Cover
