@@ -131,6 +131,15 @@ func (gcl *Gcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		}
 	})
 
+	c.OnXML(`//table//td`, func(e *colly.XMLElement) {
+		if info.Maker != "" {
+			return
+		}
+		if strings.Contains(e.Text, "アップロード会員名") {
+			info.Maker = e.ChildText(`.//b`)
+		}
+	})
+
 	// Score
 	c.OnScraped(func(_ *colly.Response) {
 		d := c.Clone()
