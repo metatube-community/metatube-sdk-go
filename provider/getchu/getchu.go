@@ -1,0 +1,137 @@
+package getchu
+
+import (
+	"fmt"
+	"net/url"
+	"path"
+	"regexp"
+	"strings"
+
+	"github.com/antchfx/htmlquery"
+	"github.com/gocolly/colly/v2"
+	"golang.org/x/net/html"
+
+	"github.com/javtube/javtube-sdk-go/common/parser"
+	"github.com/javtube/javtube-sdk-go/model"
+	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
+)
+
+var _ provider.MovieProvider = (*Getchu)(nil)
+
+const (
+	Name     = "Getchu"
+	Priority = 1000
+)
+
+const (
+	baseURL  = "https://dl.getchu.com/"
+	movieURL = "https://dl.getchu.com/i/item%s"
+)
+
+type Getchu struct {
+	*scraper.Scraper
+}
+
+func New() *Getchu {
+	return &Getchu{scraper.NewDefaultScraper(Name, baseURL, Priority)}
+}
+
+func (gcu *Getchu) NormalizeID(id string) string {
+	if ss := regexp.MustCompile(`^(?i)(?:GETCHU-)?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
+		return ss[1]
+	}
+	return ""
+}
+
+func (gcu *Getchu) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	return gcu.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
+}
+
+func (gcu *Getchu) ParseIDFromURL(rawURL string) (string, error) {
+	homepage, err := url.Parse(rawURL)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimLeft(path.Base(homepage.Path), "item"), nil
+}
+
+func (gcu *Getchu) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := gcu.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
+
+	info = &model.MovieInfo{
+		ID:            id,
+		Number:        fmt.Sprintf("GETCHU-%s", id),
+		Provider:      gcu.Name(),
+		Homepage:      rawURL,
+		Actors:        []string{},
+		PreviewImages: []string{},
+		Tags:          []string{},
+	}
+
+	c := gcu.ClonedCollector()
+
+	// Title
+	c.OnXML(`//td/div[@style="color: #333333; padding: 3px 0px 0px 5px;"]`, func(e *colly.XMLElement) {
+		info.Title = strings.TrimSpace(e.Text)
+	})
+
+	// Cover
+	c.OnXML(`//td[@bgcolor="#ffffff"]`, func(e *colly.XMLElement) {
+		info.CoverURL = e.Request.AbsoluteURL(e.ChildAttr(`.//img`, "src"))
+	})
+
+	// Preview Images
+	c.OnXML(`//td[@style=" background-color: #444444;"]`, func(e *colly.XMLElement) {
+		info.PreviewImages = append(info.PreviewImages,
+			e.Request.AbsoluteURL(e.ChildAttr(`.//a`, "href")))
+	})
+
+	// Fields
+	c.OnXML(`//tr`, func(e *colly.XMLElement) {
+		switch e.ChildText(`.//td[1]`) {
+		case "サークル":
+			info.Series = strings.TrimSpace(e.ChildText(`.//td[2]`))
+		case "配信開始日":
+			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td[2]`))
+		case "趣向":
+			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `.//td[2]`),
+				(*[]string)(&info.Tags))
+		case "作品内容":
+			info.Summary = strings.TrimSpace(e.ChildText(`.//td[2]`))
+		}
+	})
+
+	// Title (fallback)
+	c.OnXML(`//meta[@property="og:title"]`, func(e *colly.XMLElement) {
+		if info.Title != "" {
+			return
+		}
+		info.Title = e.Attr("content")
+	})
+
+	// Cover (fallback)
+	c.OnXML(`//meta[@property="og:image"]`, func(e *colly.XMLElement) {
+		if info.CoverURL != "" {
+			return
+		}
+		info.CoverURL = e.Request.AbsoluteURL(e.Attr("content"))
+	})
+
+	// Fallbacks
+	c.OnScraped(func(_ *colly.Response) {
+		if info.ThumbURL == "" {
+			info.ThumbURL = info.CoverURL // same as cover.
+		}
+	})
+
+	err = c.Visit(info.Homepage)
+	return
+}
+
+func init() {
+	provider.RegisterMovieFactory(Name, New)
+}
