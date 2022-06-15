@@ -10,7 +10,7 @@ import (
 func TestAVWiki_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
-		//"ORECO-062",
+		"ORECO-062",
 		"RECEN-012",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
@@ -24,6 +24,8 @@ func TestAVWiki_SearchMovie(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"ORECO-062",
+		"AKDL-030",
+		"SABA-099",
 	} {
 		results, err := provider.SearchMovie(provider.TidyKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
