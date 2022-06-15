@@ -131,6 +131,10 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			err = javtube.ErrInfoNotFound
 			return
 		}
+		// remove duplicate results, if any.
+		msr := modelutil.NewMovieSearchResultSet()
+		msr.Add(results...)
+		results = msr.Results()
 		// post-processing
 		ps := new(priority.Slice[float64, *model.MovieSearchResult])
 		for _, result := range results {
@@ -151,11 +155,8 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			innerErr == nil && len(innerResults) > 0 {
 				// overwrite error.
 				err = nil
-				// update results.
-				msr := modelutil.NewMovieSearchResultSet()
-				msr.Add(results...)
-				msr.Add(innerResults...)
-				results = msr.Results()
+				// append results.
+				results = append(results, innerResults...)
 			}
 		}()
 	}
