@@ -160,10 +160,10 @@ func (mgs *MGS) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 }
 
 func (mgs *MGS) TidyKeyword(keyword string) string {
-	if !number.IsUncensored(keyword) {
-		return strings.ToUpper(keyword)
+	if number.IsUncensored(keyword) || number.IsSpecial(keyword) {
+		return ""
 	}
-	return ""
+	return strings.ToUpper(keyword)
 }
 
 func (mgs *MGS) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {

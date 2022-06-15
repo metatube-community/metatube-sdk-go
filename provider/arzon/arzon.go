@@ -156,10 +156,10 @@ func (az *ARZON) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 }
 
 func (az *ARZON) TidyKeyword(keyword string) string {
-	if !number.IsUncensored(keyword) {
-		return strings.ToUpper(keyword)
+	if number.IsUncensored(keyword) || number.IsSpecial(keyword) {
+		return ""
 	}
-	return ""
+	return strings.ToUpper(keyword)
 }
 
 func (az *ARZON) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {

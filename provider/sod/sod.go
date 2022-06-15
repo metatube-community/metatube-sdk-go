@@ -161,10 +161,10 @@ func (sod *SOD) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 }
 
 func (sod *SOD) TidyKeyword(keyword string) string {
-	if !number.IsUncensored(keyword) {
-		return strings.ToUpper(keyword)
+	if number.IsUncensored(keyword) || number.IsSpecial(keyword) {
+		return ""
 	}
-	return ""
+	return strings.ToUpper(keyword)
 }
 
 func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {

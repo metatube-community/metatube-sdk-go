@@ -214,10 +214,10 @@ func (duga *DUGA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 }
 
 func (duga *DUGA) TidyKeyword(keyword string) string {
-	if !number.IsUncensored(keyword) {
-		return strings.ToUpper(keyword)
+	if number.IsUncensored(keyword) || number.IsSpecial(keyword) {
+		return ""
 	}
-	return ""
+	return strings.ToUpper(keyword)
 }
 
 func (duga *DUGA) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {

@@ -134,8 +134,8 @@ func (bus *JavBus) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 }
 
 func (bus *JavBus) TidyKeyword(keyword string) string {
-	if regexp.MustCompile(`^(?i)FC2-`).MatchString(keyword) {
-		return "" // JavBus has no FC2 contents.
+	if regexp.MustCompile(`^(?i)(fc2(ppv)?|gcolle|getchu|gyutto|pcolle|xxx-av)[-_].+$`).MatchString(keyword) {
+		return "" // JavBus has no those special contents.
 	}
 	return strings.ToUpper(keyword)
 }

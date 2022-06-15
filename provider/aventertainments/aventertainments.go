@@ -10,6 +10,7 @@ import (
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
 
+	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
@@ -144,7 +145,12 @@ func (ave *AVE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 	return
 }
 
-func (ave *AVE) TidyKeyword(keyword string) string { return strings.ToUpper(keyword) }
+func (ave *AVE) TidyKeyword(keyword string) string {
+	if number.IsUncensored(keyword) || number.IsSpecial(keyword) {
+		return ""
+	}
+	return strings.ToUpper(keyword)
+}
 
 func (ave *AVE) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	c := ave.ClonedCollector()
