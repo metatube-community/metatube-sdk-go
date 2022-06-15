@@ -1,6 +1,7 @@
 package gcolle
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"path"
@@ -25,6 +26,7 @@ const (
 const (
 	baseURL  = "https://gcolle.net/"
 	movieURL = "https://gcolle.net/product_info.php/products_id/%s"
+	scoreURL = "https://rating.gcolle.net/ratings/products/%s.js"
 )
 
 type Gcolle struct {
@@ -80,7 +82,7 @@ func (gcl *Gcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		}
 		d := c.Clone()
 		d.OnResponse(func(r *colly.Response) {
-			e.Response.Body = r.Body // Replace HTTP body
+			e.Response.Body = r.Body // Replace HTTP body.
 		})
 		d.Visit(e.Request.AbsoluteURL(href))
 	})
@@ -127,6 +129,20 @@ func (gcl *Gcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		case "商品登録日":
 			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td[2]`))
 		}
+	})
+
+	// Score
+	c.OnScraped(func(_ *colly.Response) {
+		d := c.Clone()
+		d.OnResponse(func(r *colly.Response) {
+			data := struct {
+				Rating float64 `json:"rating"`
+			}{}
+			if json.Unmarshal(r.Body, &data) == nil {
+				info.Score = data.Rating
+			}
+		})
+		d.Visit(fmt.Sprintf(scoreURL, id))
 	})
 
 	err = c.Visit(info.Homepage)
