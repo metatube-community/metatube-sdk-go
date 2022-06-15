@@ -22,6 +22,7 @@ import (
 	_ "github.com/javtube/javtube-sdk-go/provider/javbus"
 	_ "github.com/javtube/javtube-sdk-go/provider/mgstage"
 	_ "github.com/javtube/javtube-sdk-go/provider/pacopacomama"
+	_ "github.com/javtube/javtube-sdk-go/provider/pcolle"
 	_ "github.com/javtube/javtube-sdk-go/provider/prestige"
 	_ "github.com/javtube/javtube-sdk-go/provider/sod"
 	_ "github.com/javtube/javtube-sdk-go/provider/tokyo-hot"
