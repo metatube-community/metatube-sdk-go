@@ -17,6 +17,7 @@ require (
 	github.com/nlnwa/whatwg-url v0.1.2
 	github.com/peterbourgon/ff/v3 v3.1.2
 	github.com/stretchr/testify v1.7.2
+	go.uber.org/atomic v1.9.0
 	golang.org/x/net v0.0.0-20220607020251-c690dde0001d
 	golang.org/x/text v0.3.7
 	gorm.io/datatypes v1.0.6
