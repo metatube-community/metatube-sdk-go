@@ -72,16 +72,13 @@ func Similarity(a, b string) float64 {
 // RequireFaceDetection returns true if the movie cover
 // requires face detection.
 func RequireFaceDetection(s string) bool {
-	if IsUncensored(s) {
-		return true
-	}
-	if IsSpecial(s) {
+	if IsUncensored(s) || IsSpecial(s) {
 		return true
 	}
 	if regexp.MustCompile(`(?i)^\d+[a-z]+`).MatchString(s) {
 		return true
 	}
-	if regexp.MustCompile(`(?i)^(fcp|siro|msfh)`).MatchString(s) {
+	if regexp.MustCompile(`(?i)^(fcp|siro|msfh|mium|gana)`).MatchString(s) {
 		return true
 	}
 	return false
