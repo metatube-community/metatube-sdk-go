@@ -47,10 +47,14 @@ func TestTimer(t *testing.T) {
 
 	single.Do(call)
 	time.Sleep(10 * time.Millisecond)
-	_, _, shard := single.Do(call)
-
+	_, _, shard := single.Do(call) // in cache.
 	assert.Equal(t, 1, foo)
 	assert.True(t, shard)
+
+	time.Sleep(30 * time.Millisecond)
+	_, _, shard = single.Do(call) // fresh do.
+	assert.Equal(t, 2, foo)
+	assert.True(t, !shard)
 }
 
 func TestReset(t *testing.T) {
