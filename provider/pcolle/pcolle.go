@@ -86,16 +86,26 @@ func (pcl *Pcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		case "商品名:":
 			info.Title = e.ChildText(`.//td`)
 		case "商品ID:":
-			info.ID = e.ChildText(`.//td`)
+			// use url product_id as ID.
+			// info.ID = e.ChildText(`.//td`)
 		case "販売開始日:":
 			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td`))
 		}
+	})
+
+	// Title (fallback)
+	c.OnXML(`//div[@class="title-04"]`, func(e *colly.XMLElement) {
+		if info.Title != "" {
+			return
+		}
+		info.Title = strings.TrimSpace(e.Text)
 	})
 
 	// Summary
 	c.OnXML(`//section[@class="item_description"]`, func(e *colly.XMLElement) {
 		var summary string
 		if summary = e.ChildText(`.//p[@class="fo-14"]`); summary != "" {
+			// preferred summary.
 		} else {
 			summary = e.Text
 		}
@@ -113,14 +123,6 @@ func (pcl *Pcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		info.Tags = append(info.Tags, strings.TrimSpace(e.Text))
 	})
 
-	// Title (fallback)
-	c.OnXML(`//div[@class="title-04"]`, func(e *colly.XMLElement) {
-		if info.Title != "" {
-			return
-		}
-		info.Title = strings.TrimSpace(e.Text)
-	})
-
 	// Preview Images
 	c.OnXML(`//section[@class="item_images"]//ul//li`, func(e *colly.XMLElement) {
 		info.PreviewImages = append(info.PreviewImages,
@@ -129,7 +131,10 @@ func (pcl *Pcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 
 	// fallbacks
 	c.OnScraped(func(_ *colly.Response) {
-
+		if info.CoverURL == "" && len(info.PreviewImages) > 0 {
+			// cover fallback.
+			info.CoverURL = info.PreviewImages[0]
+		}
 	})
 
 	err = c.Visit(info.Homepage)
