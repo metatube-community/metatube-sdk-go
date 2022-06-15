@@ -1,0 +1,141 @@
+package pcolle
+
+import (
+	"fmt"
+	"net/http"
+	"net/url"
+	"regexp"
+	"strings"
+
+	"github.com/gocolly/colly/v2"
+
+	"github.com/javtube/javtube-sdk-go/common/parser"
+	"github.com/javtube/javtube-sdk-go/model"
+	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
+)
+
+var _ provider.MovieProvider = (*Pcolle)(nil)
+
+const (
+	Name     = "Pcolle"
+	Priority = 1000
+)
+
+const (
+	baseURL  = "https://www.pcolle.com/"
+	movieURL = "https://www.pcolle.com/product/detail/?product_id=%s"
+)
+
+type Pcolle struct {
+	*scraper.Scraper
+}
+
+func New() *Pcolle {
+	return &Pcolle{
+		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
+			scraper.WithCookies(baseURL, []*http.Cookie{
+				{Name: "AGE_CONF", Value: "1"},
+			})),
+	}
+}
+
+func (pcl *Pcolle) NormalizeID(id string) string {
+	if ss := regexp.MustCompile(`^(?i)(?:pcolle-)?(\w+)$`).FindStringSubmatch(id); len(ss) == 2 {
+		return strings.ToLower(ss[1])
+	}
+	return ""
+}
+
+func (pcl *Pcolle) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	return pcl.GetMovieInfoByURL(fmt.Sprintf(movieURL, url.QueryEscape(id)))
+}
+
+func (pcl *Pcolle) ParseIDFromURL(rawURL string) (string, error) {
+	homepage, err := url.Parse(rawURL)
+	if err != nil {
+		return "", err
+	}
+	return pcl.NormalizeID(homepage.Query().Get("product_id")), nil
+}
+
+func (pcl *Pcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := pcl.ParseIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
+
+	info = &model.MovieInfo{
+		ID:            id,
+		Number:        fmt.Sprintf("PCOLLE-%s", id),
+		Provider:      pcl.Name(),
+		Homepage:      rawURL,
+		Actors:        []string{},
+		PreviewImages: []string{},
+		Tags:          []string{},
+	}
+
+	c := pcl.ClonedCollector()
+
+	// Fields
+	c.OnXML(`//table//tr`, func(e *colly.XMLElement) {
+		switch e.ChildText(`.//th`) {
+		case "販売会員:":
+			info.Maker = e.ChildText(`.//td`)
+		case "カテゴリー:":
+		case "商品名:":
+			info.Title = e.ChildText(`.//td`)
+		case "商品ID:":
+			info.ID = e.ChildText(`.//td`)
+		case "販売開始日:":
+			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td`))
+		}
+	})
+
+	// Summary
+	c.OnXML(`//section[@class="item_description"]`, func(e *colly.XMLElement) {
+		var summary string
+		if summary = e.ChildText(`.//p[@class="fo-14"]`); summary != "" {
+		} else {
+			summary = e.Text
+		}
+		info.Summary = summary
+	})
+
+	// Thumb+Cover
+	c.OnXML(`//div[@class="item-content"]//div[@class="part1"]/article`, func(e *colly.XMLElement) {
+		info.ThumbURL = e.Request.AbsoluteURL(e.ChildAttr(`.//a`, "href"))
+		info.CoverURL = info.ThumbURL
+	})
+
+	// Tags
+	c.OnXML(`//section[@class="item_tags"]//ul//li`, func(e *colly.XMLElement) {
+		info.Tags = append(info.Tags, strings.TrimSpace(e.Text))
+	})
+
+	// Title (fallback)
+	c.OnXML(`//div[@class="title-04"]`, func(e *colly.XMLElement) {
+		if info.Title != "" {
+			return
+		}
+		info.Title = strings.TrimSpace(e.Text)
+	})
+
+	// Preview Images
+	c.OnXML(`//section[@class="item_images"]//ul//li`, func(e *colly.XMLElement) {
+		info.PreviewImages = append(info.PreviewImages,
+			e.Request.AbsoluteURL(e.ChildAttr(`.//a`, "href")))
+	})
+
+	// fallbacks
+	c.OnScraped(func(_ *colly.Response) {
+
+	})
+
+	err = c.Visit(info.Homepage)
+	return
+}
+
+func init() {
+	provider.RegisterMovieFactory(Name, New)
+}
