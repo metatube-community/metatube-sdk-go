@@ -7,7 +7,9 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
+	"golang.org/x/net/html"
 
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
@@ -83,6 +85,11 @@ func (pcl *Pcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		case "販売会員:":
 			info.Maker = e.ChildText(`.//td`)
 		case "カテゴリー:":
+			var texts []string
+			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `.//td`), &texts)
+			if len(texts) > 0 {
+				info.Series = texts[0]
+			}
 		case "商品名:":
 			info.Title = e.ChildText(`.//td`)
 		case "商品ID:":
