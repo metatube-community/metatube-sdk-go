@@ -74,20 +74,20 @@ func (gcu *Getchu) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 
 	c := gcu.ClonedCollector()
 
-	// Title
-	c.OnXML(`//td/div[@style="color: #333333; padding: 3px 0px 0px 5px;"]`, func(e *colly.XMLElement) {
-		info.Title = strings.TrimSpace(e.Text)
-	})
-
-	// Cover
-	c.OnXML(`//td[@bgcolor="#ffffff"]`, func(e *colly.XMLElement) {
-		info.CoverURL = e.Request.AbsoluteURL(e.ChildAttr(`.//img`, "src"))
-	})
-
-	// Preview Images
-	c.OnXML(`//td[@style=" background-color: #444444;"]`, func(e *colly.XMLElement) {
-		info.PreviewImages = append(info.PreviewImages,
-			e.Request.AbsoluteURL(e.ChildAttr(`.//a`, "href")))
+	// Misc
+	c.OnXML(`//td`, func(e *colly.XMLElement) {
+		switch {
+		// Title
+		case e.ChildAttr(`.//div`, "style") == "color: #333333; padding: 3px 0px 0px 5px;":
+			info.Title = strings.TrimSpace(e.Text)
+		// Cover
+		case e.Attr("bgcolor") == "#ffffff":
+			info.CoverURL = e.Request.AbsoluteURL(e.ChildAttr(`.//img`, "src"))
+		// Preview Images
+		case strings.Contains(e.Attr("style"), "background-color: #444444;"):
+			info.PreviewImages = append(info.PreviewImages,
+				e.Request.AbsoluteURL(e.ChildAttr(`.//a`, "href")))
+		}
 	})
 
 	// Fields
@@ -95,6 +95,10 @@ func (gcu *Getchu) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		switch e.ChildText(`.//td[1]`) {
 		case "サークル":
 			info.Series = strings.TrimSpace(e.ChildText(`.//td[2]`))
+		case "作者":
+			info.Director = e.ChildText(`.//td[2]`)
+		case "画像数&ページ数":
+			info.Runtime = parser.ParseRuntime(e.ChildText(`.//td[2]`))
 		case "配信開始日":
 			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td[2]`))
 		case "趣向":
