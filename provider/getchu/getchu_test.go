@@ -12,6 +12,9 @@ func TestGetchu_GetMovieInfoByID(t *testing.T) {
 	for _, item := range []string{
 		"4018339",
 		"4042392",
+		"4041955",
+		"4042404",
+		"4042423",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
