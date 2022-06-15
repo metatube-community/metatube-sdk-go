@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"net/url"
 	"path"
-	"sync"
 	"time"
 
 	"github.com/iancoleman/orderedmap"
 
 	"github.com/javtube/javtube-sdk-go/common/fetch"
+	"github.com/javtube/javtube-sdk-go/common/singledo"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 )
@@ -103,31 +103,24 @@ func (gf *GFriends) SearchActor(keyword string) (results []*model.ActorSearchRes
 var defaultFileTree = newFileTree(2 * time.Hour)
 
 type fileTree struct {
-	mu      sync.RWMutex
-	last    time.Time
-	timeout time.Duration
-	Content *orderedmap.OrderedMap
+	single  *singledo.Single
+	Content *orderedmap.OrderedMap `json:"Content"`
 }
 
-func newFileTree(timeout time.Duration) *fileTree {
+func newFileTree(wait time.Duration) *fileTree {
 	return &fileTree{
-		timeout: timeout,
+		single:  singledo.NewSingle(wait),
 		Content: orderedmap.New(),
 	}
 }
 
 func (ft *fileTree) query(s string) (images []string, err error) {
 	// update
-	ft.mu.Lock()
-	if ft.last.Add(ft.timeout).Before(time.Now()) {
-		if err = ft.update(); err == nil {
-			ft.last = time.Now()
-		}
-	}
-	ft.mu.Unlock()
+	ft.single.Do(func() (any, error) {
+		err = ft.update()
+		return nil, nil
+	})
 	// query
-	ft.mu.RLock()
-	defer ft.mu.RUnlock()
 	for _, com := range ft.Content.Keys() {
 		if o, ok := ft.Content.Get(com); ok {
 			am := o.(orderedmap.OrderedMap)
