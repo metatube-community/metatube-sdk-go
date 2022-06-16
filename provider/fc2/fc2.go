@@ -97,10 +97,9 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		d.Visit(e.Request.AbsoluteURL(e.Attr("src")))
 	})
 
-	// Thumb+Cover
+	// Thumb
 	c.OnXML(`//div[@class="items_article_MainitemThumb"]/span/img`, func(e *colly.XMLElement) {
 		info.ThumbURL = e.Request.AbsoluteURL(e.Attr("src"))
-		info.CoverURL = info.ThumbURL
 	})
 
 	// Preview Images
@@ -108,8 +107,11 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		info.PreviewImages = append(info.PreviewImages, e.Request.AbsoluteURL(e.ChildAttr(`.//a`, "href")))
 	})
 
+	// Cover (fallbacks)
 	c.OnScraped(func(_ *colly.Response) {
-		if len(info.PreviewImages) > 0 {
+		if info.ThumbURL != "" {
+			info.CoverURL = info.ThumbURL
+		} else if len(info.PreviewImages) > 0 {
 			// Use first preview image as cover due to
 			// thumb image poor resolution.
 			info.CoverURL = info.PreviewImages[0]
