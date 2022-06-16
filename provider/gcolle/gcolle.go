@@ -131,7 +131,8 @@ func (gcl *Gcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		}
 	})
 
-	c.OnXML(`//table//td`, func(e *colly.XMLElement) {
+	// Maker
+	c.OnXML(`//table[@class="contentBoxContentsManufactureInfo"]//td`, func(e *colly.XMLElement) {
 		if info.Maker != "" {
 			return
 		}
