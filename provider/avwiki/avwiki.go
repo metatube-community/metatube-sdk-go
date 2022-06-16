@@ -17,8 +17,10 @@ import (
 	"github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/duga"
 	"github.com/javtube/javtube-sdk-go/provider/fanza"
+	"github.com/javtube/javtube-sdk-go/provider/getchu"
 	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 	"github.com/javtube/javtube-sdk-go/provider/mgstage"
+	"github.com/javtube/javtube-sdk-go/provider/pcolle"
 )
 
 var (
@@ -28,7 +30,7 @@ var (
 
 const (
 	Name     = "AVWIKI"
-	Priority = 1000
+	Priority = 1000 - 1
 )
 
 const (
@@ -40,10 +42,8 @@ const (
 
 type AVWiki struct {
 	*scraper.Scraper
-	single  *singledo.Single
-	duga    *duga.DUGA
-	fanza   *fanza.FANZA
-	mgstage *mgstage.MGS
+	single    *singledo.Single
+	providers map[string]provider.MovieProvider
 }
 
 func New() *AVWiki {
@@ -52,10 +52,14 @@ func New() *AVWiki {
 			scraper.WithHeaders(map[string]string{
 				"Referer": baseURL,
 			})),
-		single:  singledo.NewSingle(2 * time.Hour),
-		duga:    duga.New(),
-		fanza:   fanza.New(),
-		mgstage: mgstage.New(),
+		single: singledo.NewSingle(2 * time.Hour),
+		providers: map[string]provider.MovieProvider{
+			"duga":    duga.New(),
+			"fanza":   fanza.New(),
+			"getchu":  getchu.New(),
+			"mgstage": mgstage.New(),
+			"pcolle":  pcolle.New(),
+		},
 	}
 }
 
@@ -94,14 +98,11 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		}{}
 		if err = json.Unmarshal(r.Body, &data); err == nil {
 			for _, product := range data.PageProps.Work.Products {
-				switch product.Source {
-				case "fanza":
-					info, err = avw.fanza.GetMovieInfoByID(product.ProductID)
-				case "mgstage":
-					info, err = avw.mgstage.GetMovieInfoByID(product.ProductID)
-				case "duga":
-					info, err = avw.duga.GetMovieInfoByID(product.ProductID)
+				p, ok := avw.providers[product.Source]
+				if !ok {
+					continue
 				}
+				info, err = p.GetMovieInfoByID(product.ProductID)
 				if err != nil || info == nil || !info.Valid() {
 					continue
 				}
@@ -158,8 +159,15 @@ func (avw *AVWiki) SearchMovie(keyword string) (results []*model.MovieSearchResu
 		}{}
 		if json.Unmarshal(r.Body, &data) == nil {
 			for _, work := range data.PageProps.Works {
-				if len(work.Products) == 0 {
-					// ignore if this work has no products.
+				flag := false
+				for _, product := range work.Products {
+					if _, ok := avw.providers[product.Source]; ok {
+						flag = true
+					}
+				}
+				if !flag {
+					// ignore if this work has no products or
+					// no suitable source providers.
 					continue
 				}
 				results = append(results, &model.MovieSearchResult{
