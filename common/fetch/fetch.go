@@ -87,7 +87,7 @@ func (f *Fetcher) Request(method, url string, body io.Reader, opts ...Option) (r
 	if req, err = http.NewRequest(method, url, body); err != nil {
 		return
 	}
-	c := &context{
+	c := &Context{
 		req:    req,
 		Config: *f.config, /* clone */
 	}

@@ -6,22 +6,22 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/random"
 )
 
-// context is used for each request.
-type context struct {
+// Context is used for each request.
+type Context struct {
 	req *http.Request
 	Config
 }
 
-type Option func(*context)
+type Option func(*Context)
 
-func (opt Option) apply(c *context) { opt(c) }
+func (opt Option) apply(c *Context) { opt(c) }
 
 func WithRaiseForStatus(v bool) Option {
-	return func(c *context) { c.RaiseForStatus = v }
+	return func(c *Context) { c.RaiseForStatus = v }
 }
 
 func WithRequest(fn func(req *http.Request)) Option {
-	return func(c *context) { fn(c.req) }
+	return func(c *Context) { fn(c.req) }
 }
 
 func WithHeader(key, value string) Option {
