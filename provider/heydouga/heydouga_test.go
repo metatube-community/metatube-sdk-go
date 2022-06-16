@@ -16,7 +16,7 @@ func TestHeyDouga_GetMovieInfoByID(t *testing.T) {
 		"4030-2000",
 		"4037-478",
 	} {
-		info, err := provider.GetMovieInfoByID(provider.NormalizeID(item))
+		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
 		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
 		t.Logf("%s", data)
