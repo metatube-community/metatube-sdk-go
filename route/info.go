@@ -56,6 +56,6 @@ func getInfo(app *engine.Engine, typ infoType) gin.HandlerFunc {
 			return
 		}
 
-		c.PureJSON(http.StatusOK, &responseMessage{Data: info})
+		c.JSON(http.StatusOK, &responseMessage{Data: info})
 	}
 }

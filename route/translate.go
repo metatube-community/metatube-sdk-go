@@ -60,7 +60,7 @@ func getTranslate() gin.HandlerFunc {
 			return
 		}
 
-		c.PureJSON(http.StatusOK, &responseMessage{
+		c.JSON(http.StatusOK, &responseMessage{
 			Data: gin.H{
 				"from":            query.From,
 				"to":              query.To,
