@@ -101,10 +101,12 @@ func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 			info.Summary = data.Description
 			info.CoverURL = e.Request.AbsoluteURL(data.Image)
 			info.ThumbURL = info.CoverURL /* use cover as thumb */
-			info.Publisher = data.Video.Provider
 			info.ReleaseDate = parser.ParseDate(data.ReleasedEvent.StartDate)
 			info.Runtime = parser.ParseRuntime(data.Video.Duration)
 			info.Score = parser.ParseScore(data.AggregateRating.RatingValue)
+			if data.Video.Provider != "" {
+				info.Maker = data.Video.Provider
+			}
 			if data.Video.Actor != "" {
 				info.Actors = []string{data.Video.Actor}
 			}
