@@ -6,8 +6,8 @@ import (
 
 var urlParser = url.NewParser(url.WithPercentEncodeSinglePercentSign())
 
-// JoinURL joins a URL with a path.
-func JoinURL(url, path string) string {
+// Join joins a URL with a path.
+func Join(url, path string) string {
 	absURL, err := urlParser.ParseRef(url, path)
 	if err != nil {
 		return ""

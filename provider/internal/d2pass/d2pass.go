@@ -212,6 +212,6 @@ func (core *Core) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 		}
 	})
 
-	err = c.Visit(urlutil.JoinURL(info.Homepage, fmt.Sprintf(movieDetailPath, id)))
+	err = c.Visit(urlutil.Join(info.Homepage, fmt.Sprintf(movieDetailPath, id)))
 	return
 }
