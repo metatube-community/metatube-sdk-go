@@ -11,6 +11,7 @@ import (
 
 	"github.com/javtube/javtube-sdk-go/common/fetch"
 	"github.com/javtube/javtube-sdk-go/common/singledo"
+	"github.com/javtube/javtube-sdk-go/common/urlutil"
 	"github.com/javtube/javtube-sdk-go/internal/sort"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
@@ -35,8 +36,8 @@ const (
 )
 
 var (
-	_baseURL, _ = url.Parse(baseURL)
-	_fetcher    = fetch.Default(nil)
+	_baseURL = urlutil.MustParse(baseURL)
+	_fetcher = fetch.Default(nil)
 )
 
 type GFriends struct{}

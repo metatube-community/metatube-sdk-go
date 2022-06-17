@@ -1,6 +1,8 @@
 package urlutil
 
 import (
+	pkgurl "net/url"
+
 	"github.com/nlnwa/whatwg-url/url"
 )
 
@@ -13,4 +15,12 @@ func Join(url, path string) string {
 		return ""
 	}
 	return absURL.Href(false)
+}
+
+func MustParse(rawURL string) *pkgurl.URL {
+	u, err := pkgurl.Parse(rawURL)
+	if err != nil {
+		panic(err)
+	}
+	return u
 }
