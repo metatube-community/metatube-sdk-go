@@ -7,12 +7,11 @@ import (
 	"net/url"
 	"path"
 	"regexp"
-	"sort"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
-	"github.com/grafov/m3u8"
 
+	"github.com/javtube/javtube-sdk-go/common/m3u8"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
@@ -198,16 +197,7 @@ func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 					// Sample HLS URL
 					info.PreviewVideoHLSURL = r.Request.URL.String()
 				}()
-				playList, ListType, err := m3u8.Decode(*bytes.NewBuffer(r.Body), true)
-				if err == nil && ListType == m3u8.MASTER {
-					masterPL := playList.(*m3u8.MasterPlaylist)
-					if len(masterPL.Variants) < 1 {
-						return
-					}
-					sort.SliceStable(masterPL.Variants, func(i, j int) bool {
-						return masterPL.Variants[i].Bandwidth < masterPL.Variants[j].Bandwidth
-					})
-					uri := masterPL.Variants[len(masterPL.Variants)-1].URI
+				if uri, _, err := m3u8.ParseMediaURI(bytes.NewReader(r.Body)); err == nil {
 					if ss := regexp.MustCompile(`/sample/(\d+)/(\d+)/ts\.(.+?)\.m3u8`).
 						FindStringSubmatch(uri); len(ss) == 4 {
 						info.PreviewVideoURL = fmt.Sprintf(sampleURL, ss[1], ss[2], ss[3])
