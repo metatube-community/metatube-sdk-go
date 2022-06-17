@@ -11,6 +11,7 @@ import (
 
 	"github.com/javtube/javtube-sdk-go/common/fetch"
 	"github.com/javtube/javtube-sdk-go/common/singledo"
+	"github.com/javtube/javtube-sdk-go/internal/sort"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 )
@@ -133,7 +134,7 @@ func (ft *fileTree) query(s string) (images []string, err error) {
 			}
 		}
 	}
-	reverse(images) // descending
+	sort.ReverseSlice(images) // descending
 	return
 }
 
@@ -144,13 +145,6 @@ func (ft *fileTree) update() error {
 	}
 	defer resp.Body.Close()
 	return json.NewDecoder(resp.Body).Decode(ft)
-}
-
-func reverse[T any](array []T) []T {
-	for i, j := 0, len(array)-1; i < j; i, j = i+1, j-1 {
-		array[i], array[j] = array[j], array[i]
-	}
-	return array
 }
 
 func init() {
