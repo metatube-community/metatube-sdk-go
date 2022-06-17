@@ -13,7 +13,7 @@ const (
 	MASTER = m3u8.MASTER
 )
 
-func ParseMediaURI(reader io.Reader) (string, m3u8.ListType, error) {
+func ParseBestMediaURI(reader io.Reader) (string, m3u8.ListType, error) {
 	playList, listType, err := m3u8.DecodeFrom(reader, true)
 	if err != nil {
 		return "", 0, err

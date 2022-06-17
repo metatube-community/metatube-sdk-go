@@ -197,7 +197,7 @@ func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 					// Sample HLS URL
 					info.PreviewVideoHLSURL = r.Request.URL.String()
 				}()
-				if uri, _, err := m3u8.ParseMediaURI(bytes.NewReader(r.Body)); err == nil {
+				if uri, _, err := m3u8.ParseBestMediaURI(bytes.NewReader(r.Body)); err == nil {
 					if ss := regexp.MustCompile(`/sample/(\d+)/(\d+)/ts\.(.+?)\.m3u8`).
 						FindStringSubmatch(uri); len(ss) == 4 {
 						info.PreviewVideoURL = fmt.Sprintf(sampleURL, ss[1], ss[2], ss[3])
