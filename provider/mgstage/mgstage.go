@@ -147,7 +147,7 @@ func (mgs *MGS) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		case "シリーズ：":
 			info.Series = e.ChildText(`.//td`)
 		case "レーベル：":
-			info.Publisher = e.ChildText(`.//td`)
+			info.Label = e.ChildText(`.//td`)
 		case "ジャンル：":
 			info.Tags = e.ChildTexts(`.//td/a`)
 		case "評価：":

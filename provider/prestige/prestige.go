@@ -154,7 +154,7 @@ func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 			case "シリーズ：":
 				info.Series = strings.TrimSpace(e.ChildText(dd))
 			case "レーベル：":
-				info.Publisher = strings.TrimSpace(e.ChildText(dd))
+				info.Label = strings.TrimSpace(e.ChildText(dd))
 			}
 		}
 	})

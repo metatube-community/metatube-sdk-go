@@ -135,7 +135,7 @@ func (az *ARZON) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		case "AVメーカー：", "アニメメーカー：", "イメージメーカー：":
 			info.Maker = e.ChildText(`.//td[2]`)
 		case "AVレーベル：", "アニメレーベル：", "イメージレーベル：":
-			info.Publisher = e.ChildText(`.//td[2]`)
+			info.Label = e.ChildText(`.//td[2]`)
 		case "シリーズ：":
 			info.Series = e.ChildText(`.//td[2]`)
 		case "監督：":

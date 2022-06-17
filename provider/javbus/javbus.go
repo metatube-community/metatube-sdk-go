@@ -106,7 +106,7 @@ func (bus *JavBus) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		case "メーカー:":
 			info.Maker = e.ChildText(`.//a`)
 		case "レーベル:":
-			info.Publisher = e.ChildText(`.//a`)
+			info.Label = e.ChildText(`.//a`)
 		case "シリーズ:":
 			info.Series = e.ChildText(`.//a`)
 		}

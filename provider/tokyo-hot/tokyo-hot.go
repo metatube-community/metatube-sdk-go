@@ -130,7 +130,7 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 			case "シリーズ":
 				info.Series = e.ChildText(dda)
 			case "レーベル":
-				info.Publisher = e.ChildText(dda)
+				info.Label = e.ChildText(dda)
 			case "配信開始日":
 				info.ReleaseDate = parser.ParseDate(e.ChildText(dd))
 			case "収録時間":

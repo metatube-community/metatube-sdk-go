@@ -44,11 +44,11 @@ type MovieInfo struct {
 	PreviewVideoHLSURL string         `json:"preview_video_hls_url"`
 	PreviewImages      pq.StringArray `json:"preview_images" gorm:"type:text[]"`
 
-	Maker     string         `json:"maker"`
-	Publisher string         `json:"publisher"`
-	Series    string         `json:"series"`
-	Tags      pq.StringArray `json:"tags" gorm:"type:text[]"`
-	Score     float64        `json:"score"`
+	Maker  string         `json:"maker"`
+	Label  string         `json:"label"`
+	Series string         `json:"series"`
+	Tags   pq.StringArray `json:"tags" gorm:"type:text[]"`
+	Score  float64        `json:"score"`
 
 	Runtime     int            `json:"runtime"`
 	ReleaseDate datatypes.Date `json:"release_date"`

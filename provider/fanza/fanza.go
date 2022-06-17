@@ -142,7 +142,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		case "メーカー：":
 			info.Maker = strings.Trim(e.ChildText(`.//td[2]`), "-")
 		case "レーベル：":
-			info.Publisher = strings.Trim(e.ChildText(`.//td[2]`), "-")
+			info.Label = strings.Trim(e.ChildText(`.//td[2]`), "-")
 		case "ジャンル：":
 			info.Tags = e.ChildTexts(`.//td[2]/a`)
 		case "名前：":

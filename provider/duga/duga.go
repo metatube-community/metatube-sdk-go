@@ -113,7 +113,7 @@ func (duga *DUGA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		case "メーカー":
 			info.Maker = strings.TrimSpace(e.ChildText(`.//td`))
 		case "レーベル":
-			info.Publisher = strings.TrimSpace(e.ChildText(`.//td`))
+			info.Label = strings.TrimSpace(e.ChildText(`.//td`))
 		case "作品ID":
 			info.ID = strings.TrimSpace(e.ChildText(`.//td`))
 		case "メーカー品番":
