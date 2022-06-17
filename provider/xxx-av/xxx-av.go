@@ -114,7 +114,7 @@ func (xav *TripleX) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err
 		case "再生時間:":
 			info.Runtime = parser.ParseRuntime(e.ChildText(`.//dd`))
 		case "カテゴリ名:":
-			info.Series = strings.TrimSpace(e.ChildText(`.//dd`))
+			info.Label = strings.TrimSpace(e.ChildText(`.//dd`))
 		case "キーワード:":
 			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `.//dd`),
 				(*[]string)(&info.Tags))

@@ -88,7 +88,7 @@ func (pcl *Pcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 			var texts []string
 			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `.//td`), &texts)
 			if len(texts) > 0 {
-				info.Series = texts[0]
+				info.Label = texts[0]
 			}
 		case "商品名:":
 			info.Title = e.ChildText(`.//td`)

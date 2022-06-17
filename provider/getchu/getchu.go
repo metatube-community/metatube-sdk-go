@@ -94,7 +94,7 @@ func (gcu *Getchu) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 	c.OnXML(`//tr`, func(e *colly.XMLElement) {
 		switch e.ChildText(`.//td[1]`) {
 		case "サークル":
-			info.Series = strings.TrimSpace(e.ChildText(`.//td[2]`))
+			info.Label = strings.TrimSpace(e.ChildText(`.//td[2]`))
 		case "作者":
 			// info.Director = e.ChildText(`.//td[2]`)
 		case "画像数&ページ数":
