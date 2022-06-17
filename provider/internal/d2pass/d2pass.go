@@ -11,8 +11,8 @@ import (
 
 	"github.com/gocolly/colly/v2"
 
-	"github.com/javtube/javtube-sdk-go/common/fetch"
 	"github.com/javtube/javtube-sdk-go/common/parser"
+	"github.com/javtube/javtube-sdk-go/common/urlutil"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 )
@@ -212,6 +212,6 @@ func (core *Core) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 		}
 	})
 
-	err = c.Visit(fetch.JoinURL(info.Homepage, fmt.Sprintf(movieDetailPath, id)))
+	err = c.Visit(urlutil.JoinURL(info.Homepage, fmt.Sprintf(movieDetailPath, id)))
 	return
 }

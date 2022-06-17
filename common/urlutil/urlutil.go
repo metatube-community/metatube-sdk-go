@@ -1,4 +1,4 @@
-package fetch
+package urlutil
 
 import (
 	"github.com/nlnwa/whatwg-url/url"
