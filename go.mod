@@ -18,7 +18,7 @@ require (
 	github.com/peterbourgon/ff/v3 v3.1.2
 	github.com/stretchr/testify v1.7.2
 	go.uber.org/atomic v1.9.0
-	golang.org/x/net v0.0.0-20220615171555-694bf12d69de
+	golang.org/x/net v0.0.0-20220617184016-355a448f1bc9
 	golang.org/x/text v0.3.7
 	gorm.io/datatypes v1.0.6
 	gorm.io/driver/postgres v1.3.7
