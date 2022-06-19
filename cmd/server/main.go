@@ -14,7 +14,7 @@ import (
 
 	"github.com/javtube/javtube-sdk-go/database"
 	"github.com/javtube/javtube-sdk-go/engine"
-	V "github.com/javtube/javtube-sdk-go/internal/constant"
+	V "github.com/javtube/javtube-sdk-go/internal/version"
 	"github.com/javtube/javtube-sdk-go/route"
 	"github.com/javtube/javtube-sdk-go/route/auth"
 )

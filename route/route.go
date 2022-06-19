@@ -8,7 +8,7 @@ import (
 
 	"github.com/javtube/javtube-sdk-go/engine"
 	"github.com/javtube/javtube-sdk-go/errors"
-	V "github.com/javtube/javtube-sdk-go/internal/constant"
+	V "github.com/javtube/javtube-sdk-go/internal/version"
 	"github.com/javtube/javtube-sdk-go/route/auth"
 )
 
