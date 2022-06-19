@@ -99,17 +99,20 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		}{}
 		if err = json.Unmarshal(r.Body, &data); err == nil {
 			for _, product := range data.PageProps.Work.Products {
-				p, ok := avw.providers[product.Source]
+				movieProvider, ok := avw.providers[product.Source]
 				if !ok {
 					continue
 				}
-				info, err = p.GetMovieInfoByID(product.ProductID)
+				info, err = movieProvider.GetMovieInfoByID(product.ProductID)
 				if err != nil || info == nil || !info.Valid() {
 					continue
 				}
 				// supplement info.
 				if info.Maker == "" {
 					info.Maker = product.Maker.Name
+				}
+				if info.Label == "" {
+					info.Label = product.Label.Name
 				}
 				if info.Series == "" {
 					info.Series = product.Series.Name
@@ -122,7 +125,7 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 				}
 				return
 			}
-			// overwrite actor info.
+			// replace actor names.
 			if len(data.PageProps.Work.Actors) > 0 {
 				var actors []string
 				for _, actor := range data.PageProps.Work.Actors {
@@ -131,6 +134,10 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 				info.Actors = actors
 			}
 		}
+	})
+
+	c.OnScraped(func(_ *colly.Response) {
+		info.Provider = avw.Name()
 	})
 
 	if vErr := c.Visit(fmt.Sprintf(movieAPIURL, buildID, id, url.QueryEscape(id))); vErr != nil {
