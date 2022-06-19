@@ -31,7 +31,7 @@ var (
 
 const (
 	Name     = "AVWIKI"
-	Priority = 1000 - 1
+	Priority = 1000 - 2
 )
 
 const (
@@ -107,7 +107,7 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 				if err != nil || info == nil || !info.Valid() {
 					continue
 				}
-				// supplement info.
+				// supplement fields.
 				if info.Maker == "" {
 					info.Maker = product.Maker.Name
 				}
@@ -137,8 +137,10 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 	})
 
 	c.OnScraped(func(_ *colly.Response) {
-		// We should use original provider name regardless.
-		// info.Provider = avw.Name()
+		// As a provider wrapper.
+		info.ID = id
+		info.Provider = avw.Name()
+		info.Homepage = rawURL
 	})
 
 	if vErr := c.Visit(fmt.Sprintf(movieAPIURL, buildID, id, url.QueryEscape(id))); vErr != nil {
