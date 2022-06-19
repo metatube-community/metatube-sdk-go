@@ -169,7 +169,9 @@ func (air *AirAV) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		}
 	})
 
-	err = c.Visit(fmt.Sprintf(movieAPIURL, id))
+	if vErr := c.Visit(fmt.Sprintf(movieAPIURL, id)); vErr != nil {
+		err = vErr
+	}
 	return
 }
 
