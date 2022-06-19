@@ -12,6 +12,7 @@ func TestAVWiki_GetMovieInfoByID(t *testing.T) {
 	for _, item := range []string{
 		"ORECO-062",
 		"RECEN-012",
+		"DDH-079",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
