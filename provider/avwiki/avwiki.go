@@ -137,7 +137,8 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 	})
 
 	c.OnScraped(func(_ *colly.Response) {
-		info.Provider = avw.Name()
+		// We should use original provider name regardless.
+		// info.Provider = avw.Name()
 	})
 
 	if vErr := c.Visit(fmt.Sprintf(movieAPIURL, buildID, id, url.QueryEscape(id))); vErr != nil {
