@@ -2,6 +2,7 @@ package avwiki
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"path"
@@ -132,7 +133,9 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		}
 	})
 
-	err = c.Visit(fmt.Sprintf(movieAPIURL, buildID, id, url.QueryEscape(id)))
+	if vErr := c.Visit(fmt.Sprintf(movieAPIURL, buildID, id, url.QueryEscape(id))); vErr != nil {
+		err = vErr
+	}
 	return
 }
 
@@ -199,19 +202,26 @@ func (avw *AVWiki) GetBuildID() (string, error) {
 }
 
 func (avw *AVWiki) getBuildID() (buildID string, err error) {
+	defer func() {
+		if err == nil && buildID == "" {
+			err = errors.New("empty build id")
+		}
+	}()
+
 	c := avw.ClonedCollector()
 
 	c.OnXML(`//*[@id="__NEXT_DATA__"]`, func(e *colly.XMLElement) {
 		data := struct {
 			BuildId string `json:"buildId"`
 		}{}
-		if innerErr := json.NewDecoder(strings.NewReader(e.Text)).Decode(&data); innerErr != nil {
-			err = innerErr
+		if err = json.NewDecoder(strings.NewReader(e.Text)).Decode(&data); err == nil {
+			buildID = data.BuildId
 		}
-		buildID = data.BuildId
 	})
 
-	err = c.Visit(baseURL)
+	if vErr := c.Visit(baseURL); vErr != nil {
+		err = vErr
+	}
 	return
 }
 
