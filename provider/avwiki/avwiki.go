@@ -125,6 +125,12 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 				}
 				return
 			}
+			// Add genres if original genres is empty.
+			if len(data.PageProps.Work.Genres) > 0 && len(info.Tags) == 0 {
+				for _, genre := range data.PageProps.Work.Genres {
+					info.Tags = append(info.Tags, genre.Name)
+				}
+			}
 			// replace actor names.
 			if len(data.PageProps.Work.Actors) > 0 {
 				var actors []string
@@ -236,10 +242,14 @@ func (avw *AVWiki) getBuildID() (buildID string, err error) {
 }
 
 type Work struct {
-	ID       int    `json:"id"`
-	WorkID   string `json:"work_id"`
-	Title    string `json:"title"`
-	MinDate  string `json:"min_date"`
+	ID      int    `json:"id"`
+	WorkID  string `json:"work_id"`
+	Title   string `json:"title"`
+	MinDate string `json:"min_date"`
+	Genres  []struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	} `json:"genres"`
 	Products []struct {
 		ID           int    `json:"id"`
 		ProductID    string `json:"product_id"`
