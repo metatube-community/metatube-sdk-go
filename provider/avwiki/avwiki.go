@@ -269,6 +269,6 @@ type Work struct {
 }
 
 func init() {
-	// The stability of this provider is still unknown, so we should not register it for now.
-	// provider.RegisterMovieFactory(Name, New)
+	// The stability of this provider is still unknown.
+	provider.RegisterMovieFactory(Name, New)
 }
