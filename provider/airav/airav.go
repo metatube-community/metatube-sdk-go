@@ -73,7 +73,7 @@ func (air *AirAV) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := air.ClonedCollector()
@@ -121,7 +121,7 @@ func (air *AirAV) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 				info.Maker = data.Result.Factories[0].Name
 			}
 			for _, tag := range data.Result.Tags {
-				info.Tags = append(info.Tags, tag.Name)
+				info.Genres = append(info.Genres, tag.Name)
 			}
 			for _, actor := range data.Result.Actors {
 				if actor.NameJP != "" {

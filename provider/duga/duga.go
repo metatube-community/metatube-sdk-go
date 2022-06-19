@@ -72,7 +72,7 @@ func (duga *DUGA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := duga.ClonedCollector()
@@ -138,9 +138,9 @@ func (duga *DUGA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		info.Actors = append(info.Actors, e.Text)
 	})
 
-	// Tags
+	// Genres
 	c.OnXML(`//ul[@class="categorylist"]//li//a`, func(e *colly.XMLElement) {
-		info.Tags = append(info.Tags, e.Text)
+		info.Genres = append(info.Genres, e.Text)
 	})
 
 	// Title (fallback)

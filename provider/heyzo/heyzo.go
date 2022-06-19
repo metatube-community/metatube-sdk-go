@@ -72,7 +72,7 @@ func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		Maker:         "HEYZO",
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := hzo.ClonedCollector()
@@ -148,9 +148,9 @@ func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		}
 	})
 
-	// Tags
+	// Genres
 	c.OnXML(`//ul[@class="tag-keyword-list"]`, func(e *colly.XMLElement) {
-		info.Tags = e.ChildTexts(`.//li/a`)
+		info.Genres = e.ChildTexts(`.//li/a`)
 	})
 
 	// Video+Runtime

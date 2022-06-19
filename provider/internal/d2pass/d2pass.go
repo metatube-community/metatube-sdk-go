@@ -78,7 +78,7 @@ func (core *Core) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 		Maker:         core.DefaultMaker,
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := core.ClonedCollector()
@@ -117,7 +117,7 @@ func (core *Core) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error)
 				info.Score = data.AvgRating
 			}
 			if len(data.UCNAME) > 0 {
-				info.Tags = data.UCNAME
+				info.Genres = data.UCNAME
 			}
 			if len(data.ActressesJa) > 0 {
 				info.Actors = data.ActressesJa

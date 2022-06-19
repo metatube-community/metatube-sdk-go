@@ -76,7 +76,7 @@ func (carib *Caribbeancom) GetMovieInfoByURL(rawURL string) (info *model.MovieIn
 		Maker:         carib.DefaultMaker,
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := carib.ClonedCollector()
@@ -117,7 +117,7 @@ func (carib *Caribbeancom) GetMovieInfoByURL(rawURL string) (info *model.MovieIn
 			info.Maker /* studio */ = e.ChildText(`.//span[2]/a[1]`)
 		case "タグ":
 			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `.//span[2]`),
-				(*[]string)(&info.Tags))
+				(*[]string)(&info.Genres))
 		case "ユーザー評価":
 			info.Score = float64(utf8.RuneCountInString(
 				strings.TrimSpace(e.ChildText(`.//span[2]`))))

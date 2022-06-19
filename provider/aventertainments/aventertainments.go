@@ -65,7 +65,7 @@ func (ave *AVE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := ave.ClonedCollector()
@@ -133,7 +133,7 @@ func (ave *AVE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 			info.Series = strings.TrimSpace(e.ChildText(`.//span[2]`))
 		case "カテゴリ":
 			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `.//span[2]`),
-				(*[]string)(&info.Tags))
+				(*[]string)(&info.Genres))
 		case "発売日":
 			info.ReleaseDate = parser.ParseDate(strings.Fields(e.ChildText(`.//span[2]`))[0])
 		case "収録時間":

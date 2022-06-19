@@ -76,7 +76,7 @@ func (az *ARZON) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := az.ClonedCollector()
@@ -147,7 +147,7 @@ func (az *ARZON) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		case "品番：":
 			info.Number = strings.Fields(e.ChildText(`.//td[2]`))[0]
 		case "タグ：":
-			// info.Tags = e.ChildTexts(`.//td[2]`)
+			// info.Genres = e.ChildTexts(`.//td[2]`)
 		}
 	})
 

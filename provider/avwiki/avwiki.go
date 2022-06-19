@@ -126,9 +126,9 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 				return
 			}
 			// Add genres if original genres is empty.
-			if len(data.PageProps.Work.Genres) > 0 && len(info.Tags) == 0 {
+			if len(data.PageProps.Work.Genres) > 0 && len(info.Genres) == 0 {
 				for _, genre := range data.PageProps.Work.Genres {
-					info.Tags = append(info.Tags, genre.Name)
+					info.Genres = append(info.Genres, genre.Name)
 				}
 			}
 			// replace actor names.

@@ -79,7 +79,7 @@ func (mgs *MGS) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := mgs.ClonedCollector()
@@ -149,7 +149,7 @@ func (mgs *MGS) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		case "レーベル：":
 			info.Label = e.ChildText(`.//td`)
 		case "ジャンル：":
-			info.Tags = e.ChildTexts(`.//td/a`)
+			info.Genres = e.ChildTexts(`.//td/a`)
 		case "評価：":
 			info.Score = parser.ParseScore(e.ChildText(`.//td`))
 		}

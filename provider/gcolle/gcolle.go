@@ -69,7 +69,7 @@ func (gcl *Gcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := gcl.ClonedCollector()
@@ -97,9 +97,9 @@ func (gcl *Gcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		info.Summary = strings.TrimSpace(e.Text)
 	})
 
-	// Tags
+	// Genres
 	c.OnXML(`//*[@id="cart_quantity"]/table/tbody/tr[4]/td/a`, func(e *colly.XMLElement) {
-		info.Tags = append(info.Tags, strings.TrimSpace(e.Text))
+		info.Genres = append(info.Genres, strings.TrimSpace(e.Text))
 	})
 
 	// Thumb+Cover

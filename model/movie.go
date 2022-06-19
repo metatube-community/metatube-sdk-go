@@ -47,7 +47,7 @@ type MovieInfo struct {
 	Maker  string         `json:"maker"`
 	Label  string         `json:"label"`
 	Series string         `json:"series"`
-	Tags   pq.StringArray `json:"tags" gorm:"type:text[]"`
+	Genres pq.StringArray `json:"genres" gorm:"type:text[]"`
 	Score  float64        `json:"score"`
 
 	Runtime     int            `json:"runtime"`

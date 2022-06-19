@@ -74,7 +74,7 @@ func (pcl *Pcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := pcl.ClonedCollector()
@@ -124,9 +124,9 @@ func (pcl *Pcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		info.CoverURL = info.ThumbURL
 	})
 
-	// Tags
+	// Genres
 	c.OnXML(`//section[@class="item_tags"]//ul//li`, func(e *colly.XMLElement) {
-		info.Tags = append(info.Tags, strings.TrimSpace(e.Text))
+		info.Genres = append(info.Genres, strings.TrimSpace(e.Text))
 	})
 
 	// Preview Images

@@ -70,7 +70,7 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 		Maker:         "TOKYO-HOT",
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := tht.ClonedCollector()
@@ -126,7 +126,7 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 				}
 			case "プレイ内容":
 				parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), dd),
-					(*[]string)(&info.Tags))
+					(*[]string)(&info.Genres))
 			case "シリーズ":
 				info.Series = e.ChildText(dda)
 			case "レーベル":

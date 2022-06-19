@@ -79,7 +79,7 @@ func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 		Homepage:      u,
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := pst.ClonedCollector()
@@ -150,7 +150,7 @@ func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 			case "品番：":
 				info.Number = strings.TrimSpace(e.ChildText(dd))
 			case "ジャンル：":
-				info.Tags = e.ChildTexts(dda)
+				info.Genres = e.ChildTexts(dda)
 			case "シリーズ：":
 				info.Series = strings.TrimSpace(e.ChildText(dd))
 			case "レーベル：":

@@ -76,7 +76,7 @@ func (bus *JavBus) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := bus.ClonedCollector()
@@ -112,10 +112,10 @@ func (bus *JavBus) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		}
 	})
 
-	// Tags
+	// Genres
 	c.OnXML(`//span[@class="genre"]`, func(e *colly.XMLElement) {
 		if tag := strings.TrimSpace(e.ChildText(`.//label/a`)); tag != "" {
-			info.Tags = append(info.Tags, tag)
+			info.Genres = append(info.Genres, tag)
 		}
 	})
 

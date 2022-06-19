@@ -68,7 +68,7 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := fc2.ClonedCollector()
@@ -76,7 +76,7 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 	// Headers
 	c.OnXML(`//div[@class="items_article_headerInfo"]`, func(e *colly.XMLElement) {
 		info.Title = e.ChildText(`.//h3`)
-		info.Tags = e.ChildTexts(`.//section[@class="items_article_TagArea"]/div/a`)
+		info.Genres = e.ChildTexts(`.//section[@class="items_article_TagArea"]/div/a`)
 		info.Maker = e.ChildText(`.//ul/li[last()]/a`)
 		{ /* score */
 			class := e.ChildAttr(`.//li[@class="items_article_StarA"]/a/p/span`, "class")

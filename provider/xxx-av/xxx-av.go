@@ -76,7 +76,7 @@ func (xav *TripleX) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err
 		Maker:         "トリプルエックス",
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := xav.ClonedCollector()
@@ -117,7 +117,7 @@ func (xav *TripleX) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err
 			info.Label = strings.TrimSpace(e.ChildText(`.//dd`))
 		case "キーワード:":
 			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `.//dd`),
-				(*[]string)(&info.Tags))
+				(*[]string)(&info.Genres))
 		}
 	})
 

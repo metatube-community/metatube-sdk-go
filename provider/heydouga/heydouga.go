@@ -77,7 +77,7 @@ func (hey *HeyDouga) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := hey.ClonedCollector()
@@ -164,7 +164,7 @@ func (hey *HeyDouga) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 			}
 		}()
 
-		// Tags
+		// Genres
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -192,7 +192,7 @@ func (hey *HeyDouga) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 					}{}
 					if json.Unmarshal(r.Body, &data) == nil {
 						for _, tag := range data.Tag {
-							info.Tags = append(info.Tags, tag.TagName)
+							info.Genres = append(info.Genres, tag.TagName)
 						}
 					}
 				})

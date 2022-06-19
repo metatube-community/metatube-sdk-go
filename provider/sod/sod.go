@@ -77,7 +77,7 @@ func (sod *SOD) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := sod.ClonedCollector()
@@ -117,7 +117,7 @@ func (sod *SOD) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 			info.Label = strings.TrimSpace(e.ChildText(`.//td[2]`))
 		case "ジャンル":
 			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `.//td[2]`),
-				(*[]string)(&info.Tags))
+				(*[]string)(&info.Genres))
 		}
 	})
 

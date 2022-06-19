@@ -106,7 +106,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
-		Tags:          []string{},
+		Genres:        []string{},
 	}
 
 	c := fz.ClonedCollector()
@@ -144,7 +144,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		case "レーベル：":
 			info.Label = strings.Trim(e.ChildText(`.//td[2]`), "-")
 		case "ジャンル：":
-			info.Tags = e.ChildTexts(`.//td[2]/a`)
+			info.Genres = e.ChildTexts(`.//td[2]/a`)
 		case "名前：":
 			info.Actors = e.ChildTexts(`.//td[2]`)
 		case "平均評価：":
@@ -193,7 +193,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 			info.Summary = data.Description
 			info.ThumbURL = e.Request.AbsoluteURL(data.Image)
 			if len(data.SubjectOf.Genre) > 0 {
-				info.Tags = data.SubjectOf.Genre
+				info.Genres = data.SubjectOf.Genre
 			}
 			if data.AggregateRating.RatingValue != "" {
 				info.Score = parser.ParseScore(data.AggregateRating.RatingValue)
