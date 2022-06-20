@@ -7,8 +7,8 @@ import (
 
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/priority"
+	"github.com/javtube/javtube-sdk-go/engine/utils"
 	"github.com/javtube/javtube-sdk-go/model"
-	"github.com/javtube/javtube-sdk-go/model/modelutil"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 )
 
@@ -53,7 +53,7 @@ func (e *Engine) searchMovie(keyword string, provider javtube.MovieProvider, fal
 					// overwrite error.
 					err = nil
 					// update results.
-					msr := modelutil.NewMovieSearchResultSet()
+					msr := utils.NewMovieSearchResultSet()
 					msr.Add(results...)
 					msr.Add(innerResults...)
 					results = msr.Results()
@@ -132,7 +132,7 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			return
 		}
 		// remove duplicate results, if any.
-		msr := modelutil.NewMovieSearchResultSet()
+		msr := utils.NewMovieSearchResultSet()
 		msr.Add(results...)
 		results = msr.Results()
 		// post-processing

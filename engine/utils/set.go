@@ -1,4 +1,4 @@
-package modelutil
+package utils
 
 import (
 	"github.com/iancoleman/orderedmap"
