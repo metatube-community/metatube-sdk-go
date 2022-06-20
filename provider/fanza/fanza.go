@@ -162,7 +162,9 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 
 	// Actors
 	c.OnXML(`//*[@id="performer"]`, func(e *colly.XMLElement) {
-		parser.ParseTexts(e.DOM.(*html.Node), (*[]string)(&info.Actors))
+		parser.ParseTexts(e.DOM.(*html.Node), (*[]string)(&info.Actors), func(s string) string {
+			return strings.Trim(strings.TrimSpace(s), "-")
+		})
 	})
 
 	// JSON
