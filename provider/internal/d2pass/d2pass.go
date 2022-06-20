@@ -4,15 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 	"path"
 	"sort"
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/nlnwa/whatwg-url/url"
 
 	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/common/urlutil"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 )
@@ -59,11 +58,11 @@ func (core *Core) GetMovieInfoByID(id string) (info *model.MovieInfo, err error)
 }
 
 func (core *Core) ParseIDFromURL(rawURL string) (string, error) {
-	homepage, err := url.Parse(rawURL)
+	homepage, err := urlParser.Parse(rawURL)
 	if err != nil {
 		return "", err
 	}
-	return path.Base(homepage.Path), nil
+	return path.Base(homepage.Pathname()), nil
 }
 
 func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
@@ -212,8 +211,18 @@ func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		}
 	})
 
-	if vErr := c.Visit(urlutil.Join(info.Homepage, fmt.Sprintf(movieDetailPath, id))); vErr != nil {
+	if vErr := c.Visit(urlJoin(info.Homepage, fmt.Sprintf(movieDetailPath, id))); vErr != nil {
 		err = vErr
 	}
 	return
+}
+
+var urlParser = url.NewParser(url.WithPercentEncodeSinglePercentSign())
+
+func urlJoin(url, path string) string {
+	absURL, err := urlParser.ParseRef(url, path)
+	if err != nil {
+		return ""
+	}
+	return absURL.Href(false)
 }
