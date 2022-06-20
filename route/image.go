@@ -10,8 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
 
+	R "github.com/javtube/javtube-sdk-go/constant"
 	"github.com/javtube/javtube-sdk-go/engine"
-	R "github.com/javtube/javtube-sdk-go/internal/constant"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 )
 

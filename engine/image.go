@@ -4,9 +4,9 @@ import (
 	"image"
 
 	"github.com/javtube/javtube-sdk-go/common/number"
+	R "github.com/javtube/javtube-sdk-go/constant"
 	"github.com/javtube/javtube-sdk-go/imageutil"
 	"github.com/javtube/javtube-sdk-go/imageutil/pigo"
-	R "github.com/javtube/javtube-sdk-go/internal/constant"
 	"github.com/javtube/javtube-sdk-go/model"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 )
