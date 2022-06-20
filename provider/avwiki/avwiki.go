@@ -31,7 +31,7 @@ var (
 
 const (
 	Name     = "AVWIKI"
-	Priority = 1000 - 2
+	Priority = 1000 - 4
 )
 
 const (

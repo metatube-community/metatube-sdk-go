@@ -24,7 +24,7 @@ var (
 
 const (
 	Name     = "JavBus"
-	Priority = 1000 - 4
+	Priority = 1000 - 5
 )
 
 const (
