@@ -66,15 +66,15 @@ func (core *Core) ParseIDFromURL(rawURL string) (string, error) {
 	return path.Base(homepage.Path), nil
 }
 
-func (core *Core) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	id, err := core.ParseIDFromURL(u)
+func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := core.ParseIDFromURL(rawURL)
 	if err != nil {
 		return
 	}
 
 	info = &model.MovieInfo{
 		Provider:      core.Name(),
-		Homepage:      u,
+		Homepage:      rawURL,
 		Maker:         core.DefaultMaker,
 		Actors:        []string{},
 		PreviewImages: []string{},
