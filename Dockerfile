@@ -7,7 +7,7 @@ RUN apk add --update --no-cache --no-progress make git \
     && make server
 
 FROM alpine:latest
-LABEL org.opencontainers.image.source="https://github.com/javtube/javtube-sdk-go"
+LABEL org.opencontainers.image.url="https://javtube.github.io"
 
 COPY --from=builder /src/build/javtube-server .
 
