@@ -11,7 +11,6 @@ import (
 
 	"github.com/javtube/javtube-sdk-go/common/fetch"
 	"github.com/javtube/javtube-sdk-go/common/singledo"
-	"github.com/javtube/javtube-sdk-go/common/urlutil"
 	"github.com/javtube/javtube-sdk-go/internal/sort"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
@@ -36,7 +35,7 @@ const (
 )
 
 var (
-	_baseURL = urlutil.MustParse(baseURL)
+	_baseURL = mustParse(baseURL)
 	_fetcher = fetch.Default(nil)
 )
 
@@ -146,6 +145,14 @@ func (ft *fileTree) update() error {
 	}
 	defer resp.Body.Close()
 	return json.NewDecoder(resp.Body).Decode(ft)
+}
+
+func mustParse(rawURL string) *url.URL {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		panic(err)
+	}
+	return u
 }
 
 func init() {
