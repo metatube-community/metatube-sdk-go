@@ -11,6 +11,7 @@ func TestTrim(t *testing.T) {
 		orig string
 		want string
 	}{
+		{"", ""},
 		{"ABP-030", "ABP-030"},
 		{"ABP-030-C", "ABP-030"},
 		{"ABP-030-C.mp4", "ABP-030"},

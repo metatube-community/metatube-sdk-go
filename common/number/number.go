@@ -36,7 +36,9 @@ func Trim(s string) string {
 	s = regexp.MustCompile(`^(?i)\s*(FC2[-_]?PPV)[-_]`).
 		ReplaceAllString(s, "FC2-") // normalize fc2 prefixes
 	s = s[:findFirstNonASCII(s)] // trim unicode content
-	s = strings.Fields(s)[0]     // trim possible alpha started title
+	if ss := strings.Fields(s); len(ss) > 0 {
+		s = ss[0] // trim possible alpha started title
+	}
 	for re := regexp.MustCompile(`(?i)([-_](c|ch|cd\d{1,2})|ch)\s*$`); re.MatchString(s); {
 		s = re.ReplaceAllString(s, "") // repeatedly trim suffixes
 	}
