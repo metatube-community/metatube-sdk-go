@@ -161,10 +161,13 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 		}
 	})
 
-	// Fallback
+	// Fallbacks
 	c.OnScraped(func(_ *colly.Response) {
-		if info.ThumbURL == "" {
+		switch {
+		case info.ThumbURL == "" && info.CoverURL != "":
 			info.ThumbURL = info.CoverURL // use cover as thumb.
+		case info.CoverURL == "" && info.ThumbURL != "":
+			info.CoverURL = info.ThumbURL // vice versa.
 		}
 	})
 
