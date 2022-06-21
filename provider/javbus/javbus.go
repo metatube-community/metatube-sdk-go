@@ -85,9 +85,6 @@ func (bus *JavBus) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 	c.OnXML(`//a[@class="bigImage"]/img`, func(e *colly.XMLElement) {
 		info.Title = e.Attr("title")
 		info.CoverURL = e.Request.AbsoluteURL(e.Attr("src"))
-		if re := regexp.MustCompile(`(?i)/cover/([a-z\d]+)(?:_b)?\.(jpg|png)`); re.MatchString(info.CoverURL) {
-			info.ThumbURL = re.ReplaceAllString(info.CoverURL, "/thumb/${1}.${2}")
-		}
 	})
 
 	// Fields
@@ -127,6 +124,33 @@ func (bus *JavBus) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 	// Actors
 	c.OnXML(`//div[@class="star-name"]`, func(e *colly.XMLElement) {
 		info.Actors = append(info.Actors, e.ChildAttr(`.//a`, "title"))
+	})
+
+	// Thumb
+	c.OnScraped(func(_ *colly.Response) {
+		if re := regexp.MustCompile(`(?i)/cover/([a-z\d]+)(?:_b)?\.(jpg|png)`); re.MatchString(info.CoverURL) {
+			var (
+				thumb  = re.ReplaceAllString(info.CoverURL, "/thumb/${1}.${2}")
+				thumbs = re.ReplaceAllString(info.CoverURL, "/thumbs/${1}.${2}")
+			)
+			defer func() {
+				if info.ThumbURL == "" {
+					info.ThumbURL = thumb // use thumb as default.
+				}
+			}()
+			var mu sync.Mutex
+			d := c.Clone()
+			d.Async = true
+			d.OnScraped(func(r *colly.Response) {
+				mu.Lock()
+				defer mu.Unlock()
+				info.ThumbURL = r.Request.URL.String()
+			})
+			// Head request to test if is a valid thumb url.
+			d.Head(thumb)
+			d.Head(thumbs)
+			d.Wait()
+		}
 	})
 
 	err = c.Visit(info.Homepage)

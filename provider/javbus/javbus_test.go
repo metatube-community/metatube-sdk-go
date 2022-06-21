@@ -10,6 +10,7 @@ import (
 func TestJavBus_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
+		"SMBD-77",
 		"SSNI-776",
 		"ABP-331",
 	} {
