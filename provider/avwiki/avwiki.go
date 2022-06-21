@@ -98,46 +98,30 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 			} `json:"pageProps"`
 		}{}
 		if err = json.Unmarshal(r.Body, &data); err == nil {
-			for _, product := range data.PageProps.Work.Products {
-				movieProvider, ok := avw.providers[product.Source]
-				if !ok {
-					continue
-				}
-				info, err = movieProvider.GetMovieInfoByID(product.ProductID)
-				if err != nil || info == nil || !info.Valid() {
-					continue
-				}
-				// supplement fields.
-				if info.Maker == "" {
-					info.Maker = product.Maker.Name
-				}
-				if info.Label == "" {
-					info.Label = product.Label.Name
-				}
-				if info.Series == "" {
-					info.Series = product.Series.Name
-				}
-				break
-			}
-			if info == nil || !info.Valid() {
-				if err == nil {
-					err = provider.ErrInfoNotFound
-				}
+			workInfo, _ := avw.getMovieInfoFromWork(data.PageProps.Work)
+			srcInfo, srcErr := avw.getMovieInfoFromSource(data.PageProps.Work)
+			if srcErr != nil {
+				info = workInfo /* ignore error and fallback to work info */
 				return
 			}
-			// Add genres if original genres are empty.
-			if len(data.PageProps.Work.Genres) > 0 && len(info.Genres) == 0 {
-				for _, genre := range data.PageProps.Work.Genres {
-					info.Genres = append(info.Genres, genre.Name)
-				}
+			// use source info.
+			info = srcInfo
+			// supplement info fields.
+			if info.Maker == "" {
+				info.Maker = workInfo.Maker
+			}
+			if info.Label == "" {
+				info.Label = workInfo.Label
+			}
+			if info.Series == "" {
+				info.Series = workInfo.Series
+			}
+			if len(info.Genres) == 0 {
+				info.Genres = workInfo.Genres
 			}
 			// replace actor names.
-			if len(data.PageProps.Work.Actors) > 0 {
-				var actors []string
-				for _, actor := range data.PageProps.Work.Actors {
-					actors = append(actors, actor.Name)
-				}
-				info.Actors = actors
+			if len(workInfo.Actors) > 0 {
+				info.Actors = workInfo.Actors
 			}
 		}
 	})
@@ -151,6 +135,73 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 
 	if vErr := c.Visit(fmt.Sprintf(movieAPIURL, buildID, id, url.QueryEscape(id))); vErr != nil {
 		err = vErr
+	}
+	return
+}
+
+func (avw *AVWiki) getMovieInfoFromWork(work Work) (info *model.MovieInfo, err error) {
+	info = &model.MovieInfo{
+		Number:        work.WorkID,
+		Actors:        []string{},
+		PreviewImages: []string{},
+		Genres:        []string{},
+	}
+	for _, product := range work.Products {
+		if info.Title == "" {
+			info.Title = product.Title
+		}
+		if info.CoverURL == "" {
+			info.CoverURL = product.ImageURL
+		}
+		if info.ThumbURL == "" {
+			info.ThumbURL = product.ThumbnailURL
+		}
+		if info.Maker == "" {
+			info.Maker = product.Maker.Name
+		}
+		if info.Label == "" {
+			info.Label = product.Label.Name
+		}
+		if info.Series == "" {
+			info.Series = product.Series.Name
+		}
+		if time.Time(info.ReleaseDate).IsZero() {
+			info.ReleaseDate = parser.ParseDate(product.Date)
+		}
+		if len(info.PreviewImages) == 0 {
+			for _, sample := range product.SampleImageURLS {
+				if sample.L == "" {
+					continue
+				}
+				info.PreviewImages = append(info.PreviewImages, sample.L)
+			}
+		}
+	}
+	for _, genre := range work.Genres {
+		info.Genres = append(info.Genres, genre.Name)
+	}
+	for _, actor := range work.Actors {
+		info.Actors = append(info.Actors, actor.Name)
+	}
+	return
+}
+
+func (avw *AVWiki) getMovieInfoFromSource(work Work) (info *model.MovieInfo, err error) {
+	for _, product := range work.Products {
+		movieProvider, ok := avw.providers[product.Source]
+		if !ok {
+			continue
+		}
+		info, err = movieProvider.GetMovieInfoByID(product.ProductID)
+		if err != nil || info == nil || !info.Valid() {
+			continue
+		}
+		break
+	}
+	if info == nil || !info.Valid() {
+		if err == nil {
+			err = provider.ErrInfoNotFound
+		}
 	}
 	return
 }

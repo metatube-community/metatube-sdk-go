@@ -10,6 +10,7 @@ import (
 func TestAVWiki_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
+		"PGD-919",
 		"ORECO-062",
 		"RECEN-012",
 		"DDH-079",
