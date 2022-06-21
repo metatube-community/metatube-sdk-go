@@ -97,8 +97,25 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 	// Image+Video
 	c.OnXML(`//div[@class="flowplayer"]`, func(e *colly.XMLElement) {
 		info.CoverURL = e.ChildAttr(`.//video`, "poster")
-		info.ThumbURL = info.CoverURL // same as cover
-		info.PreviewVideoURL = e.ChildAttr(`.//source`, "src")
+		info.PreviewVideoURL = e.Request.AbsoluteURL(e.ChildAttr(`.//source`, "src"))
+	})
+
+	// Thumb+Cover
+	c.OnXML(`//li[@class="package"]`, func(e *colly.XMLElement) {
+		for i, href := range e.ChildAttrs(`.//a`, "href") {
+			href = e.Request.AbsoluteURL(href)
+			if info.CoverURL == "" &&
+				(strings.HasSuffix(href, "L.jpg") ||
+					strings.Contains(href, "jacket") ||
+					i == 0) {
+				info.CoverURL = href
+			} else if info.ThumbURL == "" &&
+				(strings.HasSuffix(href, "v.jpg") ||
+					strings.HasSuffix(href, "vb.jpg") ||
+					strings.Contains(href, "package")) {
+				info.ThumbURL = href
+			}
+		}
 	})
 
 	// Preview Images
@@ -138,6 +155,13 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 			case "作品番号":
 				info.Number = e.ChildText(dd)
 			}
+		}
+	})
+
+	// Fallback
+	c.OnScraped(func(_ *colly.Response) {
+		if info.ThumbURL == "" {
+			info.ThumbURL = info.CoverURL // use cover as thumb.
 		}
 	})
 

@@ -10,6 +10,7 @@ import (
 func TestTokyoHot_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
+		"s2mbd-002",
 		"n1633",
 		"n1624",
 		"kb1624",
