@@ -94,20 +94,13 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 		}
 	})
 
-	// Image+Video
-	c.OnXML(`//div[@class="flowplayer"]`, func(e *colly.XMLElement) {
-		info.CoverURL = e.ChildAttr(`.//video`, "poster")
-		info.PreviewVideoURL = e.Request.AbsoluteURL(e.ChildAttr(`.//source`, "src"))
-	})
-
 	// Thumb+Cover
 	c.OnXML(`//li[@class="package"]`, func(e *colly.XMLElement) {
-		for i, href := range e.ChildAttrs(`.//a`, "href") {
+		for _, href := range e.ChildAttrs(`.//a`, "href") {
 			href = e.Request.AbsoluteURL(href)
 			if info.CoverURL == "" &&
 				(strings.HasSuffix(href, "L.jpg") ||
-					strings.Contains(href, "jacket") ||
-					i == 0) {
+					strings.Contains(href, "jacket")) {
 				info.CoverURL = href
 			} else if info.ThumbURL == "" &&
 				(strings.HasSuffix(href, "v.jpg") ||
@@ -115,6 +108,16 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 					strings.Contains(href, "package")) {
 				info.ThumbURL = href
 			}
+		}
+	})
+
+	// Cover (fallback) + Video
+	c.OnXML(`//div[@class="flowplayer"]`, func(e *colly.XMLElement) {
+		if poster := e.ChildAttr(`.//video`, "poster"); info.CoverURL == "" && poster != "" {
+			info.CoverURL = e.Request.AbsoluteURL(poster)
+		}
+		if src := e.ChildAttr(`.//source`, "src"); src != "" {
+			info.PreviewVideoURL = e.Request.AbsoluteURL(src)
 		}
 	})
 
