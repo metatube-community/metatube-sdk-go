@@ -230,9 +230,10 @@ func (jav *JAV321) SearchMovie(keyword string) (results []*model.MovieSearchResu
 				return
 			}
 			results = append(results, info.ToSearchResult())
-		} else if strings.HasPrefix(loc.Path, "/snp") {
-			// ignore
 		}
+		//if strings.HasPrefix(loc.Path, "/snp") {
+		//	// ignore
+		//}
 	})
 
 	if postErr := c.Post(searchURL, map[string]string{"sn": keyword}); postErr != nil {
