@@ -172,7 +172,7 @@ func (jav *JAV321) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 	})
 
 	// Preview Video
-	c.OnXML(`//video/source/@src`, func(e *colly.XMLElement) {
+	c.OnXML(`//div[@class="panel-body"]//video/source/@src`, func(e *colly.XMLElement) {
 		if src := strings.TrimSpace(e.Text); src != "" {
 			src = strings.ReplaceAll(src, "awscc3001.r18.com", "cc3001.dmm.co.jp")
 			src = strings.ReplaceAll(src, "cc3001.r18.com", "cc3001.dmm.co.jp")
