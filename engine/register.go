@@ -22,6 +22,7 @@ import (
 	_ "github.com/javtube/javtube-sdk-go/provider/getchu"
 	_ "github.com/javtube/javtube-sdk-go/provider/heydouga"
 	_ "github.com/javtube/javtube-sdk-go/provider/heyzo"
+	_ "github.com/javtube/javtube-sdk-go/provider/jav321"
 	_ "github.com/javtube/javtube-sdk-go/provider/javbus"
 	_ "github.com/javtube/javtube-sdk-go/provider/mgstage"
 	_ "github.com/javtube/javtube-sdk-go/provider/pacopacomama"
