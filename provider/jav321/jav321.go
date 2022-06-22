@@ -2,6 +2,7 @@ package jav321
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"path"
 	"regexp"
@@ -193,8 +194,30 @@ func (jav *JAV321) TidyKeyword(keyword string) string {
 
 func (jav *JAV321) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	c := jav.ClonedCollector()
+	c.ParseHTTPErrorResponse = true
+	c.SetRedirectHandler(func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	})
 
-	err = c.Post(searchURL, map[string]string{"sn": keyword})
+	c.OnResponse(func(r *colly.Response) {
+		var loc *url.URL
+		if loc, err = url.Parse(r.Request.AbsoluteURL(r.Headers.Get("Location"))); err != nil {
+			return
+		}
+		if strings.HasPrefix(loc.Path, "/video") {
+			var info *model.MovieInfo
+			if info, err = jav.GetMovieInfoByURL(loc.String()); err != nil {
+				return
+			}
+			results = append(results, info.ToSearchResult())
+		} else if strings.HasPrefix(loc.Path, "/") {
+			// ignore
+		}
+	})
+
+	if postErr := c.Post(searchURL, map[string]string{"sn": keyword}); postErr != nil {
+		err = postErr
+	}
 	return
 }
 
