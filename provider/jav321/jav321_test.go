@@ -12,8 +12,8 @@ func TestJAV321_GetMovieInfoByID(t *testing.T) {
 	for _, item := range []string{
 		"ebod00916",
 		"118abp00559",
-		//"nima00011",
-		//"pred00402",
+		"nima00011",
+		"pred00402",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
