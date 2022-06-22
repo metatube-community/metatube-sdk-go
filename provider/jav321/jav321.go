@@ -168,6 +168,15 @@ func (jav *JAV321) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		info.Actors = append(info.Actors, strings.TrimSpace(e.Text))
 	})
 
+	// Actors (fallback again)
+	c.OnXML(`//b[contains(text(),"出演者")]/following-sibling::node()[1]`, func(e *colly.XMLElement) {
+		if n := e.DOM.(*html.Node); n.Type == html.TextNode && len(info.Actors) == 0 {
+			if actor := strings.TrimSpace(strings.TrimLeft(n.Data, ":")); actor != "" {
+				info.Actors = append(info.Actors, actor)
+			}
+		}
+	})
+
 	// Score
 	c.OnXML(`//b[contains(text(),"平均評価")]/following-sibling::img/@data-original`, func(e *colly.XMLElement) {
 		if ss := regexp.MustCompile(`(\d+)\.gif`).FindStringSubmatch(e.Text); len(ss) == 2 {
