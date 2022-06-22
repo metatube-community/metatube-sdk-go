@@ -24,7 +24,7 @@ var (
 
 const (
 	Name     = "JAV321"
-	Priority = 1000 - 5
+	Priority = 1000 - 6
 )
 
 const (
