@@ -71,12 +71,12 @@ func (jav *JAV321) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 	c := jav.ClonedCollector()
 
 	// Title
-	c.OnXML(`/html/body/div[2]/div[1]/div[1]/div[1]/h3`, func(e *colly.XMLElement) {
+	c.OnXML(`/html/body/div[2]/div[1]/div[1]/div[1]/h3/text()`, func(e *colly.XMLElement) {
 		info.Title = strings.TrimSpace(e.Text)
 	})
 
 	// Title (fallback)
-	c.OnXML(`//div[@class='panel-heading']/h3`, func(e *colly.XMLElement) {
+	c.OnXML(`//div[@class='panel-heading']/h3/text()`, func(e *colly.XMLElement) {
 		if info.Title != "" {
 			return
 		}
