@@ -10,6 +10,7 @@ import (
 func TestJAV321_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
+		"sivr00215",
 		"ebod00916",
 		"118abp00559",
 		"nima00011",

@@ -85,6 +85,9 @@ func (jav *JAV321) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 
 	// Summary
 	c.OnXML(`/html/body/div[2]/div[1]/div[1]/div[2]/div[3]/div/text()`, func(e *colly.XMLElement) {
+		if info.Summary != "" {
+			return
+		}
 		info.Summary = strings.TrimSpace(e.Text)
 	})
 
