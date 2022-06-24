@@ -29,7 +29,7 @@ func Trim(s string) string {
 	}
 	s = regexp.MustCompile(`(?i)[,;#]`).
 		ReplaceAllString(s, " " /* space */) // fix special chars
-	s = regexp.MustCompile(`(?i)\s+-\s+`).
+	s = regexp.MustCompile(`(?i)\s+[-_+]\s+`).
 		ReplaceAllString(s, " " /* space */) // fix `number - title` style
 	s = regexp.MustCompile(`(?i)^(?:(?:f?hd|sd)[-_]|\d+\.)(.*$)`).
 		ReplaceAllString(s, "${1}") // trim special prefixes
