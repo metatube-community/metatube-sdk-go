@@ -24,8 +24,8 @@ func Trim(s string) string {
 	if ext := path.Ext(s); len(ext) < maxExtLength {
 		s = s[:len(s)-len(ext)] // trim extension
 	}
-	if ss := strings.SplitN(s, "@", 2); len(ss) == 2 {
-		s = ss[1] // trim @ char
+	if ss := strings.Split(s, "@"); len(ss) > 0 {
+		s = ss[len(ss)-1] // trim @ char
 	}
 	s = regexp.MustCompile(`(?i)[,;#]`).
 		ReplaceAllString(s, " " /* space */) // fix special chars

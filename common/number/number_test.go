@@ -35,6 +35,8 @@ func TestTrim(t *testing.T) {
 		{"FC2_PPV_123456", "FC2-123456"},
 		{"FC2-PPV_123456", "FC2-123456"},
 		{"FC2-PPV-123456-C.mp4", "FC2-123456"},
+		{"im-520@SIS001@FAX-146", "FAX-146"},
+		{"cllshuai@www.sexinsex.net@[中文字幕]FAX-146剧场版-和大嫂偷情、迷奸、强奸等4个故事", "FAX-146"},
 		{"HD_GS-333", "GS-333"},
 		{"FHD-MXGS-247-C", "MXGS-247"},
 		{"17.ebod-185", "ebod-185"},
