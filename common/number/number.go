@@ -28,13 +28,15 @@ func Trim(s string) string {
 		s = ss[1] // trim @ char
 	}
 	s = regexp.MustCompile(`(?i)[,;#]`).
-		ReplaceAllString(s, " " /* space */) // fix special chars.
+		ReplaceAllString(s, " " /* space */) // fix special chars
 	s = regexp.MustCompile(`(?i)\s+-\s+`).
 		ReplaceAllString(s, " " /* space */) // fix `number - title` style
+	s = regexp.MustCompile(`(?i)^(?:(?:f?hd|sd)[-_]|\d+\.)(.*$)`).
+		ReplaceAllString(s, "${1}") // trim special prefixes
 	s = regexp.MustCompile(`(?i)[-_.](dvd|iso|mkv|mp4|c?avi|\d*fps|whole|(f|hhb)?hd\d*|sd\d*|(?:360|480|720|1080|2160)p|uncensored|leak|[2468]k|[xh]26[45])+|[\[【(（].*[]】)）]`).
 		ReplaceAllString(s, "") // trim tags
 	s = regexp.MustCompile(`(?i)[-_\s]*(carib(b?ean)?|1?Pondo?|10musume|pacopacomama|muramura|Tokyo[-_\s]?Hot)([-_\s]*|$)`).
-		ReplaceAllString(s, "") // trim prefixes
+		ReplaceAllString(s, "") // trim makers
 	s = regexp.MustCompile(`^(?i)\s*(FC2[-_]?PPV)[-_]`).
 		ReplaceAllString(s, "FC2-") // normalize fc2 prefixes
 	s = s[:findFirstNonASCII(s)] // trim unicode content
