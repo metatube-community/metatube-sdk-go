@@ -64,7 +64,12 @@ func TestTrim(t *testing.T) {
 		{"Tokyo Hot n9001 FHD.mp4", "n9001"},
 		{"TokyoHot-n1287-HD .mp4", "n1287"},
 		{"caribean-020317_001.mp4", "020317_001"},
-		{"heydouga-4102-023-CD2.iso", "4102-023"},
+		{"caribbean-020317_001.mp4", "020317_001"},
+		{"carib-020317_001.mp4", "020317_001"},
+		{"pondo-020317-001.mp4", "020317-001"},
+		{"4102-023-CD2.iso", "4102-023"},
+		{"heydouga-4102-023-CD2.iso", "heydouga-4102-023"},
+		{"10musume-020317_01-CD2.iso", "020317_01"},
 	} {
 		assert.Equal(t, unit.want, Trim(unit.orig), unit.orig)
 	}
