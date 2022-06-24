@@ -140,6 +140,14 @@ func (e *Engine) getActorInfoWithCallback(provider javtube.ActorProvider, id str
 	if provider.Name() == gfriends.Name {
 		return provider.GetActorInfoByID(id)
 	}
+	defer func() {
+		// actor image injection.
+		if err == nil && info != nil {
+			if gInfo, gErr := e.MustGetActorProviderByName(gfriends.Name).GetActorInfoByID(info.Name); gErr == nil && len(info.Images) > 0 {
+				info.Images = append(gInfo.Images, info.Images...)
+			}
+		}
+	}()
 	// Query DB first (by id).
 	if lazy {
 		if info, err = e.getActorInfoFromDB(provider, id); err == nil && info.Valid() {

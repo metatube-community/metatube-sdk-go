@@ -141,14 +141,6 @@ func (xsl *XsList) GetActorInfoByURL(rawURL string) (info *model.ActorInfo, err 
 		info.Nationality = strings.ReplaceAll(e.Text, "n/a", "")
 	})
 
-	{ // GFriends Add-on
-		c.OnScraped(func(_ *colly.Response) {
-			if gInfo, gErr := xsl.gFriends.GetActorInfoByID(info.Name); gErr == nil && gInfo.Valid() {
-				info.Images = append(gInfo.Images, info.Images...)
-			}
-		})
-	}
-
 	err = c.Visit(info.Homepage)
 	return
 }
