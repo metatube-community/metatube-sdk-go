@@ -15,7 +15,6 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
-	"github.com/javtube/javtube-sdk-go/provider/gfriends"
 	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
 )
 
@@ -37,14 +36,10 @@ const (
 
 type XsList struct {
 	*scraper.Scraper
-	gFriends *gfriends.GFriends
 }
 
 func New() *XsList {
-	return &XsList{
-		Scraper:  scraper.NewDefaultScraper(Name, baseURL, Priority, scraper.WithDisableCookies()),
-		gFriends: gfriends.New(),
-	}
+	return &XsList{scraper.NewDefaultScraper(Name, baseURL, Priority, scraper.WithDisableCookies())}
 }
 
 func (xsl *XsList) GetActorInfoByID(id string) (info *model.ActorInfo, err error) {
@@ -158,14 +153,10 @@ func (xsl *XsList) SearchActor(keyword string) (results []*model.ActorSearchResu
 		}
 		// Images
 		var images []string
-		{ // GFriends Add-on
-			if gInfo, gErr := xsl.gFriends.GetActorInfoByID(actor); gErr == nil && gInfo.Valid() {
-				images = gInfo.Images
-			} else if img := e.ChildAttr(`.//div[1]/img`, "src"); img != "" {
-				// NOTE: this might be an anonymous image link.
-				// e.g.: https://xslist.org/assets/images/anonymous2.png
-				images = []string{e.Request.AbsoluteURL(img)}
-			}
+		if img := e.ChildAttr(`.//div[1]/img`, "src"); img != "" {
+			// NOTE: this might be an anonymous image link.
+			// e.g.: https://xslist.org/assets/images/anonymous2.png
+			images = []string{e.Request.AbsoluteURL(img)}
 		}
 
 		results = append(results, &model.ActorSearchResult{
