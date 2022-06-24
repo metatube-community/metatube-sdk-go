@@ -84,7 +84,7 @@ func RequireFaceDetection(s string) bool {
 	if regexp.MustCompile(`(?i)^\d+[a-z]+`).MatchString(s) {
 		return true
 	}
-	if regexp.MustCompile(`(?i)^(fcp|siro|msfh|mium|gana)`).MatchString(s) {
+	if regexp.MustCompile(`(?i)^(fcp|scp|siro|msfh|mium|gana)`).MatchString(s) {
 		return true
 	}
 	return false
