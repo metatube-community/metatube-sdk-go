@@ -194,6 +194,7 @@ func TestRequireFaceDetection(t *testing.T) {
 		{"pcolle-14491760b933a35cfab", true},
 		{"gyutto-254274", true},
 		{"getchu-4041236", true},
+		{"orec-062", true},
 	} {
 		assert.Equal(t, unit.want, RequireFaceDetection(unit.orig), unit.orig)
 	}
