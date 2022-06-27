@@ -54,4 +54,4 @@ var shiroutoList = []string{
 	"urf",
 }
 
-var shiroutoRe = regexp.MustCompile(fmt.Sprintf(`(?i)(%s)`, strings.Join(shiroutoList, "|")))
+var shiroutoRe = regexp.MustCompile(fmt.Sprintf(`(?i)(%s)[-_\d]`, strings.Join(shiroutoList, "|")))
