@@ -17,6 +17,7 @@ import (
 
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/parser"
+	"github.com/javtube/javtube-sdk-go/common/reverse"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
@@ -36,7 +37,7 @@ const (
 	baseURL                 = "https://www.dmm.co.jp/"
 	baseDigitalURL          = "https://www.dmm.co.jp/digital/"
 	baseMonoURL             = "https://www.dmm.co.jp/mono/"
-	searchURL               = "https://www.dmm.co.jp/search/=/searchstr=%s/limit=120/sort=ranking/"
+	searchURL               = "https://www.dmm.co.jp/search/=/searchstr=%s/limit=120/sort=date/"
 	movieDigitalVideoAURL   = "https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=%s/"
 	movieDigitalVideoCURL   = "https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=%s/"
 	movieDigitalAnimeURL    = "https://www.dmm.co.jp/digital/anime/-/detail/=/cid=%s/"
@@ -336,6 +337,13 @@ func (fz *FANZA) TidyKeyword(keyword string) string {
 }
 
 func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
+	defer func() {
+		if err == nil && len(results) > 0 {
+			// NOTE: oldest date has original release date.
+			reverse.Slice(results)
+		}
+	}()
+
 	c := fz.ClonedCollector()
 
 	c.OnXML(`//*[@id="list"]/li`, func(e *colly.XMLElement) {
