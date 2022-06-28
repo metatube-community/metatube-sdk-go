@@ -10,6 +10,7 @@ import (
 	"github.com/iancoleman/orderedmap"
 
 	"github.com/javtube/javtube-sdk-go/common/fetch"
+	"github.com/javtube/javtube-sdk-go/common/reverse"
 	"github.com/javtube/javtube-sdk-go/common/singledo"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
@@ -133,7 +134,7 @@ func (ft *fileTree) query(s string) (images []string, err error) {
 			}
 		}
 	}
-	reverse(images) // descending
+	reverse.Slice(images) // descending
 	return
 }
 
@@ -152,12 +153,6 @@ func mustParse(rawURL string) *url.URL {
 		panic(err)
 	}
 	return u
-}
-
-func reverse(ss []string) {
-	for i, j := 0, len(ss)-1; i < j; i, j = i+1, j-1 {
-		ss[i], ss[j] = ss[j], ss[i]
-	}
 }
 
 func init() {
