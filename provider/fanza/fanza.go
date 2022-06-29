@@ -358,15 +358,17 @@ func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult
 			thumb = re.ReplaceAllString(thumb, "ps.jpg")
 		}
 
+		rate := e.ChildText(`.//p[@class="rate"]`)
 		results = append(results, &model.MovieSearchResult{
-			ID:       id,
-			Number:   ParseNumber(id),
-			Title:    e.ChildAttr(`.//p[@class="tmb"]/a/span[1]/img`, "alt"),
-			Provider: fz.Name(),
-			Homepage: homepage,
-			ThumbURL: e.Request.AbsoluteURL(thumb),
-			CoverURL: e.Request.AbsoluteURL(PreviewSrc(thumb)),
-			Score:    parser.ParseScore(e.ChildText(`.//p[@class="rate"]/span/span`)),
+			ID:          id,
+			Number:      ParseNumber(id),
+			Title:       e.ChildAttr(`.//p[@class="tmb"]/a/span[1]/img`, "alt"),
+			Provider:    fz.Name(),
+			Homepage:    homepage,
+			ThumbURL:    e.Request.AbsoluteURL(thumb),
+			CoverURL:    e.Request.AbsoluteURL(PreviewSrc(thumb)),
+			Score:       parser.ParseScore(rate /* float or a dash (-) */),
+			ReleaseDate: parser.ParseDate(strings.TrimPrefix(rate, "発売日：") /* 発売日：2022/07/21 */),
 		})
 	})
 
