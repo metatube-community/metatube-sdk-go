@@ -76,7 +76,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.3.4 // indirect
 	gorm.io/driver/sqlite v1.3.2 // indirect
-	modernc.org/libc v1.16.11 // indirect
+	modernc.org/libc v1.16.12 // indirect
 	modernc.org/mathutil v1.4.1 // indirect
 	modernc.org/memory v1.1.1 // indirect
 	modernc.org/sqlite v1.17.3 // indirect
