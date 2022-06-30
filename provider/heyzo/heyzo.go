@@ -40,7 +40,7 @@ func New() *Heyzo {
 }
 
 func (hzo *Heyzo) NormalizeID(id string) string {
-	if ss := regexp.MustCompile(`^(?i)(?:heyzo-)?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
+	if ss := regexp.MustCompile(`^(?i)(?:heyzo[-_])?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}
 	return ""

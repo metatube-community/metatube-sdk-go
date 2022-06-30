@@ -39,7 +39,7 @@ func New() *HeyDouga {
 }
 
 func (hey *HeyDouga) NormalizeID(id string) string {
-	if ss := regexp.MustCompile(`^(?i)(?:heydouga-)?(\d{4}-[a-z\d]+)$`).FindStringSubmatch(id); len(ss) == 2 {
+	if ss := regexp.MustCompile(`^(?i)(?:heydouga[-_])?(\d{4}-[a-z\d]+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}
 	return ""

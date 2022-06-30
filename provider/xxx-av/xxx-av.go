@@ -44,7 +44,7 @@ func New() *TripleX {
 }
 
 func (xav *TripleX) NormalizeID(id string) string {
-	if ss := regexp.MustCompile(`^(?i)(?:xxx-av-)?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
+	if ss := regexp.MustCompile(`^(?i)(?:xxx[-_]av[-_])?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}
 	return ""

@@ -38,7 +38,7 @@ func New() *Gcolle {
 }
 
 func (gcl *Gcolle) NormalizeID(id string) string {
-	if ss := regexp.MustCompile(`^(?i)(?:GCOLLE-)?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
+	if ss := regexp.MustCompile(`^(?i)(?:GCOLLE[-_])?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}
 	return ""

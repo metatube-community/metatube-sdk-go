@@ -38,7 +38,7 @@ func New() *Getchu {
 }
 
 func (gcu *Getchu) NormalizeID(id string) string {
-	if ss := regexp.MustCompile(`^(?i)(?:GETCHU-)?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
+	if ss := regexp.MustCompile(`^(?i)(?:GETCHU[-_])?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}
 	return ""
