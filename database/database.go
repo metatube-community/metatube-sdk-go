@@ -68,6 +68,9 @@ func Open(cfg *Config) (db *gorm.DB, err error) {
 			IgnoreRecordNotFoundError: false,
 			Colorful:                  false,
 		}),
+		NowFunc: func() time.Time {
+			return time.Now().UTC()
+		},
 	})
 	if err != nil {
 		return
