@@ -24,6 +24,7 @@ func TestFANZA_GetMovieInfoByID(t *testing.T) {
 func TestFANZA_SearchMovie(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
+		"blk-052",
 		"mogi044",
 		"SSNI-379",
 		"SSIS-122",
