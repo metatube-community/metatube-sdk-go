@@ -38,6 +38,7 @@ type ActorInfo struct {
 	Images       pq.StringArray `json:"images" gorm:"type:text[]"`
 	Birthday     datatypes.Date `json:"birthday"`
 	DebutDate    datatypes.Date `json:"debut_date"`
+	TimeTracker  `json:"-"`
 }
 
 func (*ActorInfo) TableName() string {

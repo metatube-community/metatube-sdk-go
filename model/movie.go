@@ -52,6 +52,8 @@ type MovieInfo struct {
 
 	Runtime     int            `json:"runtime"`
 	ReleaseDate datatypes.Date `json:"release_date"`
+
+	TimeTracker `json:"-"`
 }
 
 func (*MovieInfo) TableName() string {
