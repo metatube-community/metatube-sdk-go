@@ -61,7 +61,6 @@ func Open(cfg *Config) (db *gorm.DB, err error) {
 	}
 
 	db, err = gorm.Open(dialector, &gorm.Config{
-		DisableAutomaticPing: cfg.DisableAutomaticPing,
 		Logger: logger.New(log.New(os.Stdout, "[GORM]\u0020", log.LstdFlags), logger.Config{
 			SlowThreshold:             100 * time.Millisecond,
 			LogLevel:                  logger.Info,
@@ -71,6 +70,8 @@ func Open(cfg *Config) (db *gorm.DB, err error) {
 		NowFunc: func() time.Time {
 			return time.Now().UTC()
 		},
+		PrepareStmt:          cfg.PreparedStmt,
+		DisableAutomaticPing: cfg.DisableAutomaticPing,
 	})
 	if err != nil {
 		return
