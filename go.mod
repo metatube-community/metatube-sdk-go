@@ -19,11 +19,11 @@ require (
 	github.com/stretchr/testify v1.7.2
 	go.uber.org/atomic v1.9.0
 	golang.org/x/image v0.0.0-20220617043117-41969df76e82
-	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e
+	golang.org/x/net v0.0.0-20220630215102-69896b714898
 	golang.org/x/text v0.3.7
-	gorm.io/datatypes v1.0.6
+	gorm.io/datatypes v1.0.7
 	gorm.io/driver/postgres v1.3.7
-	gorm.io/gorm v1.23.6
+	gorm.io/gorm v1.23.7
 )
 
 require (
