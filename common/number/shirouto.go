@@ -23,7 +23,6 @@ var shiroutoList = []string{
 	"jkz",
 	"jotk",
 	"ksko",
-	"lafbd",
 	"luxu",
 	"maan",
 	"mium",
