@@ -231,13 +231,14 @@ func (avw *AVWiki) SearchMovie(keyword string) (results []*model.MovieSearchResu
 		}{}
 		if json.Unmarshal(r.Body, &data) == nil {
 			for _, work := range data.PageProps.Works {
-				flag := false
-				for _, product := range work.Products {
+				index := -1
+				for i, product := range work.Products {
 					if _, ok := avw.providers[product.Source]; ok {
-						flag = true
+						index = i
+						break
 					}
 				}
-				if !flag {
+				if index < 0 {
 					// ignore if this work has no products or
 					// no suitable source providers.
 					continue
@@ -248,8 +249,8 @@ func (avw *AVWiki) SearchMovie(keyword string) (results []*model.MovieSearchResu
 					Title:       work.Title,
 					Provider:    avw.Name(),
 					Homepage:    fmt.Sprintf(movieURL, work.WorkID),
-					ThumbURL:    work.Products[0].ThumbnailURL,
-					CoverURL:    work.Products[0].ImageURL,
+					ThumbURL:    work.Products[index].ThumbnailURL,
+					CoverURL:    work.Products[index].ImageURL,
 					ReleaseDate: parser.ParseDate(work.MinDate),
 				})
 			}
