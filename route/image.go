@@ -29,6 +29,7 @@ type imageUri struct {
 
 type imageQuery struct {
 	URL      string  `form:"url"`
+	Ratio    float64 `form:"ratio"`
 	Position float64 `form:"pos"`
 	Auto     bool    `form:"auto"`
 	Quality  int     `form:"quality"`
@@ -96,7 +97,7 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 		} else /* movie */ {
 			switch typ {
 			case primaryImageType:
-				img, err = app.GetMoviePrimaryImage(uri.Provider, uri.ID, query.Position)
+				img, err = app.GetMoviePrimaryImage(uri.Provider, uri.ID, query.Ratio, query.Position)
 			case thumbImageType:
 				img, err = app.GetMovieThumbImage(uri.Provider, uri.ID)
 			case backdropImageType:

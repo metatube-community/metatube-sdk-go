@@ -30,17 +30,20 @@ func (e *Engine) GetActorPrimaryImage(name, id string) (image.Image, error) {
 	return e.GetImageByURL(e.MustGetActorProviderByName(name), info.Images[0], R.PrimaryImageRatio, defaultActorPrimaryImagePosition, false)
 }
 
-func (e *Engine) GetMoviePrimaryImage(name, id string, pos float64) (image.Image, error) {
+func (e *Engine) GetMoviePrimaryImage(name, id string, ratio, pos float64) (image.Image, error) {
 	url, info, err := e.getPreferredMovieImageURLAndInfo(name, id, true)
 	if err != nil {
 		return nil, err
+	}
+	if ratio <= 0 /* default primary ratio */ {
+		ratio = R.PrimaryImageRatio
 	}
 	var auto bool
 	if pos < 0 /* manual position disabled */ {
 		pos = defaultMoviePrimaryImagePosition
 		auto = number.RequireFaceDetection(info.Number)
 	}
-	return e.GetImageByURL(e.MustGetMovieProviderByName(name), url, R.PrimaryImageRatio, pos, auto)
+	return e.GetImageByURL(e.MustGetMovieProviderByName(name), url, ratio, pos, auto)
 }
 
 func (e *Engine) GetMovieThumbImage(name, id string) (image.Image, error) {
@@ -59,7 +62,7 @@ func (e *Engine) GetMovieBackdropImage(name, id string) (image.Image, error) {
 	return e.GetImageByURL(e.MustGetMovieProviderByName(name), url, R.BackdropImageRatio, defaultMovieBackdropImagePosition, false)
 }
 
-func (e *Engine) GetImageByURL(provider javtube.Provider, url string, ratio float64, pos float64, auto bool) (img image.Image, err error) {
+func (e *Engine) GetImageByURL(provider javtube.Provider, url string, ratio, pos float64, auto bool) (img image.Image, err error) {
 	if img, err = e.getImageByURL(provider, url); err != nil {
 		return
 	}
