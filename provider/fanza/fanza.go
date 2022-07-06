@@ -162,10 +162,8 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	})
 
 	// Actors
-	c.OnXML(`//*[@id="performer"]`, func(e *colly.XMLElement) {
-		parser.ParseTexts(e.DOM.(*html.Node), (*[]string)(&info.Actors), func(s string) string {
-			return strings.Trim(strings.TrimSpace(s), "-")
-		})
+	c.OnXML(`//span[@id="performer"]`, func(e *colly.XMLElement) {
+		parseActors(e.DOM.(*html.Node), (*[]string)(&info.Actors))
 	})
 
 	// JSON
@@ -378,6 +376,28 @@ func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult
 
 	err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword)))
 	return
+}
+
+func parseActors(n *html.Node, texts *[]string) {
+	if n.Type == html.TextNode {
+		// custom trim function.
+		if text := strings.Trim(strings.TrimSpace(n.Data), "-"); text != "" {
+			*texts = append(*texts, text)
+		}
+	}
+	for n := n.FirstChild; n != nil; n = n.NextSibling {
+		// handle `id="a_performer"` situation.
+		if n.Data == "a" {
+			for _, attr := range n.Attr {
+				if attr.Key == "id" && attr.Val == "a_performer" {
+					goto next
+				}
+			}
+		}
+		parseActors(n, texts)
+	next:
+		continue
+	}
 }
 
 func (fz *FANZA) parseScoreFromURL(s string) float64 {
