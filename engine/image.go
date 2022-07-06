@@ -35,7 +35,7 @@ func (e *Engine) GetMoviePrimaryImage(name, id string, ratio, pos float64) (imag
 	if err != nil {
 		return nil, err
 	}
-	if ratio < 0.2 || ratio > 5.0 /* default primary ratio */ {
+	if ratio < 0 /* default primary ratio */ {
 		ratio = R.PrimaryImageRatio
 	}
 	var auto bool

@@ -55,6 +55,7 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 			return
 		}
 		query := &imageQuery{
+			Ratio:    -1,
 			Position: -1,
 			Quality:  95,
 		}
