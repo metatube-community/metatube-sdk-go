@@ -190,7 +190,7 @@ func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 }
 
 func (pst *PRESTIGE) TidyKeyword(keyword string) string {
-	if number.IsUncensored(keyword) || number.IsSpecial(keyword) {
+	if number.IsUncensored(keyword) || number.IsFC2(keyword) || number.IsSpecial(keyword) {
 		return ""
 	}
 	return strings.ToUpper(keyword)

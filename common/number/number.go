@@ -44,6 +44,11 @@ func IsUncensored(s string) bool {
 		MatchString(s)
 }
 
+// IsFC2 returns true if the number is fc2 video type.
+func IsFC2(s string) bool {
+	return regexp.MustCompile(`^(?i)FC2([-_]?PPV)?[-_]?\d+$`).MatchString(s)
+}
+
 // IsSpecial returns true if the number is special compare to other regular numbers.
 func IsSpecial(s string) bool {
 	return regexp.
@@ -64,7 +69,7 @@ func Similarity(a, b string) float64 {
 // RequireFaceDetection returns true if the movie cover
 // requires face detection.
 func RequireFaceDetection(s string) bool {
-	if IsUncensored(s) || IsSpecial(s) {
+	if IsUncensored(s) || IsFC2(s) || IsSpecial(s) {
 		return true
 	}
 	if regexp.MustCompile(`(?i)^\d+[a-z]+`).MatchString(s) {

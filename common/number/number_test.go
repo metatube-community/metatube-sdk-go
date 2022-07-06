@@ -161,7 +161,7 @@ func TestIsUncensored(t *testing.T) {
 	}
 }
 
-func TestIsSpecial(t *testing.T) {
+func TestIsFC2(t *testing.T) {
 	for _, unit := range []struct {
 		orig string
 		want bool
@@ -170,6 +170,19 @@ func TestIsSpecial(t *testing.T) {
 		{"FC2_738573", true},
 		{"FC2-PPV-738573", true},
 		{"FC2PPV-738573", true},
+		{"FC2PPV738573", true},
+		{"ABC-123", false},
+		{"fc2996-123", false},
+	} {
+		assert.Equal(t, unit.want, IsFC2(unit.orig), unit.orig)
+	}
+}
+
+func TestIsSpecial(t *testing.T) {
+	for _, unit := range []struct {
+		orig string
+		want bool
+	}{
 		{"xxx-av-1789", true},
 		{"xxx-av_1789", true},
 		{"heydouga-1789-233", true},

@@ -214,7 +214,7 @@ func (duga *DUGA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 }
 
 func (duga *DUGA) TidyKeyword(keyword string) string {
-	if number.IsUncensored(keyword) || number.IsSpecial(keyword) {
+	if number.IsUncensored(keyword) || number.IsFC2(keyword) || number.IsSpecial(keyword) {
 		return ""
 	}
 	return strings.ToUpper(keyword)
