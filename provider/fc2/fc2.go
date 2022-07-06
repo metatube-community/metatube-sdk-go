@@ -37,10 +37,7 @@ func New() *FC2 {
 }
 
 func (fc2 *FC2) NormalizeID(id string) string {
-	if ss := regexp.MustCompile(`^(?i)(?:FC2[-_].*?)?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
-		return ss[1]
-	}
-	return ""
+	return ParseNumber(id)
 }
 
 func (fc2 *FC2) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -135,6 +132,13 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 
 	err = c.Visit(info.Homepage)
 	return
+}
+
+func ParseNumber(s string) string {
+	if ss := regexp.MustCompile(`^(?i)(?:FC2(?:[-_]?PPV)?[-_]?)?(\d+)$`).FindStringSubmatch(s); len(ss) == 2 {
+		return ss[1]
+	}
+	return ""
 }
 
 func init() {
