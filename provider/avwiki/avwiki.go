@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"sort"
 	"strings"
 	"time"
 
@@ -148,6 +149,10 @@ func (avw *AVWiki) getMovieInfoFromWork(work Work) (info *model.MovieInfo, err e
 		PreviewImages: []string{},
 		Genres:        []string{},
 	}
+	sort.SliceStable(work.Products, func(i, j int) bool {
+		// we want mgs > fanza > duga, etc.
+		return work.Products[i].Source > work.Products[j].Source
+	})
 	for _, product := range work.Products {
 		if info.Title == "" {
 			info.Title = product.Title
@@ -231,6 +236,9 @@ func (avw *AVWiki) SearchMovie(keyword string) (results []*model.MovieSearchResu
 		}{}
 		if json.Unmarshal(r.Body, &data) == nil {
 			for _, work := range data.PageProps.Works {
+				sort.SliceStable(work.Products, func(i, j int) bool {
+					return work.Products[i].Source > work.Products[j].Source
+				})
 				index := -1
 				for i, product := range work.Products {
 					if _, ok := avw.providers[product.Source]; ok {

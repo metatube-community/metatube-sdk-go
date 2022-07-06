@@ -10,6 +10,7 @@ import (
 func TestAVWiki_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
+		"ABP-588",
 		"PGD-919",
 		"ORECO-062",
 		"RECEN-012",
@@ -25,6 +26,7 @@ func TestAVWiki_GetMovieInfoByID(t *testing.T) {
 func TestAVWiki_SearchMovie(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
+		"ABP-588",
 		"ORECO-062",
 		"AKDL-030",
 		"SABA-099",
