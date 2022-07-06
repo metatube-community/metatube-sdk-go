@@ -1,6 +1,7 @@
 package fanza
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
 
@@ -161,7 +163,13 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		}
 	})
 
-	// Actors
+	// Actors (ajax)
+	hasAPerformer := false
+	c.OnXML(`//a[@id="a_performer"]`, func(e *colly.XMLElement) {
+		hasAPerformer = true
+	})
+
+	// Actors (regular)
 	c.OnXML(`//span[@id="performer"]`, func(e *colly.XMLElement) {
 		parseActors(e.DOM.(*html.Node), (*[]string)(&info.Actors))
 	})
@@ -311,11 +319,41 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 			e.Request.AbsoluteURL(PreviewSrc(e.ChildAttr(`.//img`, "src"))))
 	})
 
-	// Final
+	// Final (images)
 	c.OnScraped(func(r *colly.Response) {
 		if info.CoverURL == "" {
 			// try to convert thumb url to cover url.
 			info.CoverURL = PreviewSrc(info.ThumbURL)
+		}
+	})
+
+	// Final (actors)
+	c.OnScraped(func(r *colly.Response) {
+		if !hasAPerformer {
+			return
+		}
+
+		n, innerErr := htmlquery.Parse(bytes.NewReader(r.Body))
+		if innerErr != nil {
+			return
+		}
+
+		n = htmlquery.FindOne(n, `//script[contains(text(),"a#a_performer")]/text()`)
+		if n == nil {
+			return
+		}
+
+		if ss := regexp.MustCompile(`url:\s*'(.+?)',`).
+			FindStringSubmatch(n.Data); len(ss) == 2 && strings.TrimSpace(ss[1]) != "" {
+			d := c.Clone()
+			d.OnXML(`/` /* root */, func(e *colly.XMLElement) {
+				var actors []string
+				parseActors(e.DOM.(*html.Node), &actors)
+				if len(actors) > 0 {
+					info.Actors = actors // replace with new actors.
+				}
+			})
+			d.Visit(r.Request.AbsoluteURL(ss[1]))
 		}
 	})
 
