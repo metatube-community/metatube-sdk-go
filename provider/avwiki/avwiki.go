@@ -209,7 +209,7 @@ func (avw *AVWiki) getMovieInfoFromSource(work Work) (info *model.MovieInfo, err
 }
 
 func (avw *AVWiki) TidyKeyword(keyword string) string {
-	if number.IsUncensored(keyword) {
+	if number.IsUncensored(keyword) || number.IsFC2(keyword) {
 		return "" // no uncensored support.
 	}
 	return strings.ToUpper(keyword)

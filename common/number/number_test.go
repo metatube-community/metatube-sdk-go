@@ -183,6 +183,12 @@ func TestIsSpecial(t *testing.T) {
 		orig string
 		want bool
 	}{
+		{"FC2-738573", true},
+		{"FC2_738573", true},
+		{"133ARA-030", false},
+		{"123456_789", true},
+		{"123456-789", true},
+		{"FC2-PPV-738573", true},
 		{"xxx-av-1789", true},
 		{"xxx-av_1789", true},
 		{"heydouga-1789-233", true},

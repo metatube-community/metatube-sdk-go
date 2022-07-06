@@ -326,7 +326,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 }
 
 func (fz *FANZA) TidyKeyword(keyword string) string {
-	if number.IsUncensored(keyword) || number.IsFC2(keyword) || number.IsSpecial(keyword) {
+	if number.IsSpecial(keyword) {
 		return ""
 	}
 	return strings.Replace(
