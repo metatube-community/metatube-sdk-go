@@ -143,7 +143,7 @@ func (e *Engine) getActorInfoWithCallback(provider javtube.ActorProvider, id str
 	defer func() {
 		// actor image injection.
 		if err == nil && info != nil {
-			if gInfo, gErr := e.MustGetActorProviderByName(gfriends.Name).GetActorInfoByID(info.Name); gErr == nil && len(info.Images) > 0 {
+			if gInfo, gErr := e.MustGetActorProviderByName(gfriends.Name).GetActorInfoByID(info.Name); gErr == nil && len(gInfo.Images) > 0 {
 				info.Images = append(gInfo.Images, info.Images...)
 			}
 		}
