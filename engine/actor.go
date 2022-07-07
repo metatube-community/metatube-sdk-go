@@ -45,8 +45,10 @@ func (e *Engine) searchActor(keyword string, provider javtube.Provider, fallback
 						err = nil
 						// update results.
 						asr := utils.NewActorSearchResultSet()
-						asr.Add(results...)
+						// unlike movie searching, we want search results go first
+						// than DB data here, so we add results later than DB results.
 						asr.Add(innerResults...)
+						asr.Add(results...)
 						results = asr.Results()
 					}
 				}()
