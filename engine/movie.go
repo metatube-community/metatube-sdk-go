@@ -141,7 +141,7 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			if !result.Valid() /* validation check */ {
 				continue
 			}
-			ps.Append(number.Similarity(keyword, result.Number)*
+			ps.Append(utils.Similarity(keyword, result.Number)*
 				float64(e.MustGetMovieProviderByName(result.Provider).Priority()), result)
 		}
 		// sort according to priority.

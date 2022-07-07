@@ -6,7 +6,6 @@ import (
 
 	"gorm.io/gorm/clause"
 
-	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/common/priority"
 	"github.com/javtube/javtube-sdk-go/engine/utils"
@@ -119,7 +118,7 @@ func (e *Engine) SearchActorAll(keyword string, fallback bool) (results []*model
 
 	ps := new(priority.Slice[float64, *model.ActorSearchResult])
 	for _, result := range results {
-		ps.Append(number.Similarity(keyword, result.Name)*
+		ps.Append(utils.Similarity(keyword, result.Name)*
 			float64(e.MustGetActorProviderByName(result.Provider).Priority()), result)
 	}
 	results = ps.Sort().Underlying()

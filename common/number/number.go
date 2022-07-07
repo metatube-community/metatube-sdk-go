@@ -4,9 +4,6 @@ import (
 	"path"
 	"regexp"
 	"strings"
-
-	"github.com/adrg/strutil"
-	"github.com/adrg/strutil/metrics"
 )
 
 func Trim(s string) string {
@@ -59,16 +56,6 @@ func IsSpecial(s string) bool {
 	return regexp.
 		MustCompile(`^(?i)(gcolle|getchu|gyutto|pcolle)[-_]?.+$`).
 		MatchString(s)
-}
-
-// Similarity returns the similarity between two numbers.
-func Similarity(a, b string) float64 {
-	m := metrics.NewLevenshtein()
-	m.CaseSensitive = false
-	m.InsertCost = 1
-	m.DeleteCost = 1
-	m.ReplaceCost = 2
-	return strutil.Similarity(a, b, m)
 }
 
 // RequireFaceDetection returns true if the movie cover
