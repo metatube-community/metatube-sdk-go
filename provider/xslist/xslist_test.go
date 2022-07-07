@@ -10,6 +10,9 @@ import (
 func TestXsList_GetActorInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
+		"107",
+		"24490",
+		"5085",
 		"8",
 		"12",
 		"139",
@@ -26,6 +29,8 @@ func TestXsList_GetActorInfoByID(t *testing.T) {
 func TestXsList_SearchActor(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
+		"白川ゆず",
+		"果梨",
 		"Saki",
 		"美竹すず",
 	} {
