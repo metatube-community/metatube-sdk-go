@@ -122,7 +122,6 @@ func (e *Engine) SearchActorAll(keyword string, fallback bool) (results []*model
 		ps.Append(number.Similarity(keyword, result.Name)*
 			float64(e.MustGetActorProviderByName(result.Provider).Priority()), result)
 	}
-	// sort according to priority.
 	results = ps.Sort().Underlying()
 	return
 }
