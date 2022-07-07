@@ -85,8 +85,8 @@ func (xsl *XsList) GetActorInfoByURL(rawURL string) (info *model.ActorInfo, err 
 
 	// Images
 	c.OnXML(`//*[@id="gallery"]/a`, func(e *colly.XMLElement) {
-		if e.Attr("class") == "profile_img" {
-			return // ignore profile image due to its poor resolution
+		if class := e.Attr("class"); class == "profile_img" || class == "profile_img_c" {
+			return // ignore profile image here.
 		}
 		width := parser.ParseInt(e.Attr("data-width"))
 		height := parser.ParseInt(e.Attr("data-height"))
@@ -94,6 +94,18 @@ func (xsl *XsList) GetActorInfoByURL(rawURL string) (info *model.ActorInfo, err 
 			return // width & height
 		}
 		info.Images = append(info.Images, e.Attr("href"))
+	})
+
+	// Images (profile)
+	c.OnXML(`//img[@class="profile_img"]`, func(e *colly.XMLElement) {
+		src := e.Attr("src")
+		if strings.Trim(strings.TrimSpace(src), "#") == "" ||
+			// ignore anonymous image:
+			// https://xslist.org/assets/images/anonymous2.png
+			strings.Contains(src, "anonymous") {
+			return
+		}
+		info.Images = append(info.Images, e.Request.AbsoluteURL(src))
 	})
 
 	// Fields
