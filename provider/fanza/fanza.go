@@ -401,9 +401,10 @@ func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult
 			thumb = re.ReplaceAllString(thumb, "ps.jpg")
 		}
 
-		var rate, releaseDate string
-		if rate = e.ChildText(`.//p[@class="rate"]`); strings.Contains(rate, "発売日") {
-			releaseDate = strings.TrimLeft(rate, "発売日： ")
+		var releaseDate string
+		rate := e.ChildText(`.//p[@class="rate"]`)
+		if re := regexp.MustCompile(`(配信日|発売日|貸出日)：\s*`); re.MatchString(rate) {
+			releaseDate = re.ReplaceAllString(rate, "")
 			rate = "" // reset rate.
 		}
 		results = append(results, &model.MovieSearchResult{
