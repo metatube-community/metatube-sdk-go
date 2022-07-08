@@ -5,6 +5,7 @@ import (
 
 	"gorm.io/gorm/clause"
 
+	"github.com/javtube/javtube-sdk-go/common/comparer"
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/priority"
 	"github.com/javtube/javtube-sdk-go/engine/utils"
@@ -141,8 +142,7 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			if !result.Valid() /* validation check */ {
 				continue
 			}
-			ps.Append(utils.Similarity(keyword, result.Number)*
-				float64(e.MustGetMovieProviderByName(result.Provider).Priority()), result)
+			ps.Append(comparer.Compare(keyword, result.Number)*float64(e.MustGetMovieProviderByName(result.Provider).Priority()), result)
 		}
 		// sort according to priority.
 		results = ps.Stable().Underlying()
