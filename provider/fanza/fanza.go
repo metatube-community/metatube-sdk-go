@@ -369,7 +369,9 @@ func (fz *FANZA) TidyKeyword(keyword string) string {
 		/* FANZA prefers lowercase */
 		strings.ToLower(keyword),
 		/* FANZA cannot search hyphened number */
-		"-", "00", 1)
+		"-", "00", 1) +
+		/* Add a # sign to distinguish 001 style number */
+		"#"
 }
 
 func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
