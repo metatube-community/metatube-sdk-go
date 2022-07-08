@@ -380,7 +380,7 @@ func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult
 			sort.SliceStable(results, func(i, j int) bool {
 				a := r.ReplaceAllString(results[i].ID, "${1}${2}")
 				b := r.ReplaceAllString(results[j].ID, "${1}${2}")
-				return comparer.Compare(a, x) > comparer.Compare(b, x)
+				return comparer.Compare(a, x) >= comparer.Compare(b, x)
 			})
 		}
 	}()
