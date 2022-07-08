@@ -19,8 +19,13 @@ func (s *Slice[T, U]) Sort() *Slice[T, U] {
 	return s
 }
 
+func (s *Slice[T, U]) Stable() *Slice[T, U] {
+	sort.Stable(s)
+	return s
+}
+
 func (s *Slice[T, U]) Reverse() *Slice[T, U] {
-	sort.Sort(sort.Reverse(s))
+	sort.Stable(sort.Reverse(s))
 	return s
 }
 

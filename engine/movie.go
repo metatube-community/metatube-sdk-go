@@ -145,7 +145,7 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 				float64(e.MustGetMovieProviderByName(result.Provider).Priority()), result)
 		}
 		// sort according to priority.
-		results = ps.Sort().Underlying()
+		results = ps.Stable().Underlying()
 	}()
 
 	if fallback /* query database for missing results  */ {
