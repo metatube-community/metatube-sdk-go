@@ -13,13 +13,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/adrg/strutil/metrics"
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
 
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/common/reverse"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
@@ -375,8 +375,19 @@ func (fz *FANZA) TidyKeyword(keyword string) string {
 func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	defer func() {
 		if err == nil && len(results) > 0 {
-			// NOTE: oldest date has original release date.
-			reverse.Slice(results)
+			m := &metrics.Levenshtein{
+				CaseSensitive: false,
+				InsertCost:    1,
+				DeleteCost:    1,
+				ReplaceCost:   2,
+			}
+			r := regexp.MustCompile(`(?i)([A-Z]{2,})0*([1-9]*)`)
+			x := r.ReplaceAllString(keyword, "${1}${2}")
+			sort.SliceStable(results, func(i, j int) bool {
+				a := r.ReplaceAllString(results[i].ID, "${1}${2}")
+				b := r.ReplaceAllString(results[j].ID, "${1}${2}")
+				return m.Compare(a, x) > m.Compare(b, x)
+			})
 		}
 	}()
 
