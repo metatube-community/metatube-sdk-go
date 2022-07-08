@@ -1,8 +1,8 @@
-package utils
+package comparer
 
 import "testing"
 
-func TestSimilarity(t *testing.T) {
+func TestCompare(t *testing.T) {
 	for _, unit := range []struct {
 		a, b string
 	}{
@@ -13,6 +13,6 @@ func TestSimilarity(t *testing.T) {
 		{"KABP-030", "ABP-030"},
 		{"ABP-030SP", "ABP-030"},
 	} {
-		t.Log(unit.a, unit.b, Similarity(unit.a, unit.b))
+		t.Log(unit.a, unit.b, Compare(unit.a, unit.b))
 	}
 }
