@@ -2,13 +2,12 @@ package engine
 
 import (
 	"fmt"
+	"sort"
 	"sync"
 
 	"gorm.io/gorm/clause"
 
-	"github.com/javtube/javtube-sdk-go/common/comparer"
 	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/common/priority"
 	"github.com/javtube/javtube-sdk-go/engine/utils"
 	"github.com/javtube/javtube-sdk-go/model"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
@@ -117,11 +116,10 @@ func (e *Engine) SearchActorAll(keyword string, fallback bool) (results []*model
 	}
 	wg.Wait()
 
-	ps := new(priority.Slice[float64, *model.ActorSearchResult])
-	for _, result := range results {
-		ps.Append(comparer.Compare(keyword, result.Name)*float64(e.MustGetActorProviderByName(result.Provider).Priority()), result)
-	}
-	results = ps.Stable().Underlying()
+	sort.SliceStable(results, func(i, j int) bool {
+		return e.MustGetActorProviderByName(results[i].Provider).Priority() >
+			e.MustGetActorProviderByName(results[j].Provider).Priority()
+	})
 	return
 }
 
