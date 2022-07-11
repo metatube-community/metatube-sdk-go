@@ -19,6 +19,9 @@ func TestCompare(t *testing.T) {
 		{"つ", "つぼみ"},
 		{"木村夏菜子", "木村夏"},
 		{"木村夏菜子", "夏菜子"},
+		{"葵", "葵千恵"},
+		{"葵", "葵千"},
+		{"葵", "葵つかさ"},
 	} {
 		t.Log(unit.a, unit.b, Compare(unit.a, unit.b))
 	}
