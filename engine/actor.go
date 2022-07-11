@@ -42,9 +42,10 @@ func (e *Engine) searchActor(keyword string, provider javtube.Provider, fallback
 				if err != nil || len(results) == 0 {
 					return // ignore error or empty.
 				}
+				const minSimilarity = 0.3
 				ps := new(priority.Slice[float64, *model.ActorSearchResult])
 				for _, result := range results {
-					if similarity := comparer.Compare(result.Name, keyword); similarity > 0.5 {
+					if similarity := comparer.Compare(result.Name, keyword); similarity >= minSimilarity {
 						ps.Append(similarity, result)
 					}
 				}
