@@ -7,7 +7,9 @@ import (
 
 	"gorm.io/gorm/clause"
 
+	"github.com/javtube/javtube-sdk-go/common/comparer"
 	"github.com/javtube/javtube-sdk-go/common/parser"
+	"github.com/javtube/javtube-sdk-go/common/priority"
 	"github.com/javtube/javtube-sdk-go/engine/utils"
 	"github.com/javtube/javtube-sdk-go/model"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
@@ -36,6 +38,18 @@ func (e *Engine) searchActor(keyword string, provider javtube.Provider, fallback
 			return provider.(javtube.ActorSearcher).SearchActor(keyword)
 		}
 		if searcher, ok := provider.(javtube.ActorSearcher); ok {
+			defer func() {
+				if err != nil || len(results) == 0 {
+					return // ignore error or empty.
+				}
+				ps := new(priority.Slice[float64, *model.ActorSearchResult])
+				for _, result := range results {
+					if similarity := comparer.Compare(result.Name, keyword); similarity > 0.5 {
+						ps.Append(similarity, result)
+					}
+				}
+				results = ps.Stable().Underlying() // replace results.
+			}()
 			if fallback {
 				defer func() {
 					if innerResults, innerErr := e.searchActorFromDB(keyword, provider);
