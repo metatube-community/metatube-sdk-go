@@ -29,12 +29,9 @@ const (
 const gFriendsID = "gfriends-id"
 
 const (
-	//baseURL    = "https://github.com/xinxin8816/gfriends"
-	//contentURL = "https://raw.githubusercontent.com/xinxin8816/gfriends/master/Content/%s"
-	//jsonURL    = "https://raw.githubusercontent.com/xinxin8816/gfriends/master/Filetree.json"
 	baseURL    = "https://github.com/xinxin8816/gfriends"
-	contentURL = "https://gfriends.netlify.app/Content/%s"
-	jsonURL    = "https://gfriends.netlify.app/Filetree.json"
+	contentURL = "https://raw.githubusercontent.com/xinxin8816/gfriends/master/Content/%s"
+	jsonURL    = "https://raw.githubusercontent.com/xinxin8816/gfriends/master/Filetree.json"
 )
 
 var (
