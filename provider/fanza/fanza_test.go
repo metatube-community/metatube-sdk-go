@@ -10,6 +10,7 @@ import (
 func TestFANZA_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
+		"1silk00113",
 		"adn00306",
 		"1sdjs00033",
 		"okax841",

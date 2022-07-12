@@ -427,7 +427,7 @@ func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult
 func parseActors(n *html.Node, texts *[]string) {
 	if n.Type == html.TextNode {
 		// custom trim function.
-		if text := strings.Trim(strings.TrimSpace(n.Data), "-"); text != "" {
+		if text := strings.Trim(strings.TrimSpace(n.Data), "-/"); text != "" {
 			*texts = append(*texts, text)
 		}
 	}
