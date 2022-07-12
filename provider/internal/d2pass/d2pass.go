@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"path"
+	"regexp"
 	"sort"
 	"time"
 
@@ -143,6 +144,11 @@ func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 				data.ThumbMed, data.ThumbLow,
 			} {
 				if thumb != "" {
+					if re := regexp.MustCompile(`^https?:///`); re.MatchString(thumb) {
+						// Fix a rare case that causes incomplete url issue.
+						// e.g.: "https://moviepages/071319_870/images/str.jpg"
+						thumb = re.ReplaceAllString(thumb, "/")
+					}
 					info.CoverURL = r.Request.AbsoluteURL(thumb)
 					info.ThumbURL = info.CoverURL /* use thumb as cover */
 					break
