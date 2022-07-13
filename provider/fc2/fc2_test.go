@@ -10,6 +10,7 @@ import (
 func TestFC2_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
+		"406996",
 		"2812904",
 		"2676371",
 	} {
