@@ -132,6 +132,9 @@ func TestTrim(t *testing.T) {
 		{"[ThZu.Cc]080520-001-carib-720p", "080520-001"},
 		{"MCBD-18 Merci Beaucoup 18 Merci Beaucoup Beach Fuck Special 3Hrs 14Girls (Blu-ray) {18iso.com} [1080p].mp4", "MCBD-18"},
 		{"javcn.net_MCBD-18-H265.mp4", "MCBD-18"},
+		{"MIDV-111_X1080X.mp4", "MIDV-111"},
+		{"MIDV-111-C_X1080X.mp4", "MIDV-111"},
+		{"hhd800.com@MIDV-111-C_X1080X.mp4", "MIDV-111"},
 	} {
 		assert.Equal(t, unit.want, Trim(unit.orig), unit.orig)
 	}
