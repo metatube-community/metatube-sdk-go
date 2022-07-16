@@ -29,9 +29,9 @@ const (
 const gFriendsID = "gfriends-id"
 
 const (
-	baseURL    = "https://github.com/xinxin8816/gfriends"
-	contentURL = "https://raw.githubusercontent.com/xinxin8816/gfriends/master/Content/%s"
-	jsonURL    = "https://raw.githubusercontent.com/xinxin8816/gfriends/master/Filetree.json"
+	baseURL    = "https://github.com/gfriends/gfriends"
+	contentURL = "https://raw.githubusercontent.com/gfriends/gfriends/master/Content/%s"
+	jsonURL    = "https://raw.githubusercontent.com/gfriends/gfriends/master/Filetree.json"
 )
 
 var (
