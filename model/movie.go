@@ -17,6 +17,7 @@ type MovieSearchResult struct {
 	ThumbURL    string         `json:"thumb_url"`
 	CoverURL    string         `json:"cover_url"`
 	Score       float64        `json:"score"`
+	Actors      pq.StringArray `json:"actors"`
 	ReleaseDate datatypes.Date `json:"release_date"`
 }
 
@@ -75,6 +76,7 @@ func (m *MovieInfo) ToSearchResult() *MovieSearchResult {
 		ThumbURL:    m.ThumbURL,
 		CoverURL:    m.CoverURL,
 		Score:       m.Score,
+		Actors:      m.Actors,
 		ReleaseDate: m.ReleaseDate,
 	}
 }
