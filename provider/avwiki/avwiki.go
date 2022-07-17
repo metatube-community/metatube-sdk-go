@@ -251,7 +251,7 @@ func (avw *AVWiki) SearchMovie(keyword string) (results []*model.MovieSearchResu
 					// no suitable source providers.
 					continue
 				}
-				results = append(results, &model.MovieSearchResult{
+				result := &model.MovieSearchResult{
 					ID:          work.WorkID,
 					Number:      work.WorkID,
 					Title:       work.Title,
@@ -260,7 +260,11 @@ func (avw *AVWiki) SearchMovie(keyword string) (results []*model.MovieSearchResu
 					ThumbURL:    work.Products[index].ThumbnailURL,
 					CoverURL:    work.Products[index].ImageURL,
 					ReleaseDate: parser.ParseDate(work.MinDate),
-				})
+				}
+				for _, actor := range work.Actors {
+					result.Actors = append(result.Actors, actor.Name)
+				}
+				results = append(results, result)
 			}
 		}
 	})
