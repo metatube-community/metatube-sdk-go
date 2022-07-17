@@ -27,7 +27,7 @@ func TestARZON_SearchMovie(t *testing.T) {
 	for _, item := range []string{
 		"STARS",
 		"IENF-209",
-		//"DLDSS-02",
+		"DLDSS-02",
 	} {
 		results, err := provider.SearchMovie(provider.TidyKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
