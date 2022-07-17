@@ -104,8 +104,17 @@ func (gf *GFriends) SearchActor(keyword string) (results []*model.ActorSearchRes
 var defaultFileTree = newFileTree(2 * time.Hour)
 
 type fileTree struct {
-	single  *singledo.Single
+	single *singledo.Single
+
+	// `Content`
 	Content *orderedmap.OrderedMap `json:"Content"`
+
+	// `Information`
+	//Information struct {
+	//	TotalNum  int     `json:"TotalNum"`
+	//	TotalSize int     `json:"TotalSize"`
+	//	Timestamp float64 `json:"Timestamp"`
+	//} `json:"Information"`
 }
 
 func newFileTree(wait time.Duration) *fileTree {
