@@ -17,7 +17,7 @@ type MovieSearchResult struct {
 	ThumbURL    string         `json:"thumb_url"`
 	CoverURL    string         `json:"cover_url"`
 	Score       float64        `json:"score"`
-	Actors      pq.StringArray `json:"actors"`
+	Actors      pq.StringArray `json:"actors,omitempty"`
 	ReleaseDate datatypes.Date `json:"release_date"`
 }
 
