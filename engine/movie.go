@@ -8,7 +8,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/comparer"
 	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/priority"
-	"github.com/javtube/javtube-sdk-go/engine/utils"
+	"github.com/javtube/javtube-sdk-go/engine/internal/utils"
 	"github.com/javtube/javtube-sdk-go/model"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 )
