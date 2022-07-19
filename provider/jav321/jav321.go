@@ -205,7 +205,7 @@ func (jav *JAV321) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 	return
 }
 
-func (jav *JAV321) TidyKeyword(keyword string) string {
+func (jav *JAV321) NormalizeKeyword(keyword string) string {
 	if regexp.MustCompile(`^(?i)(fc2(ppv)?|gcolle|getchu|gyutto|pcolle|xxx-av|heydouga)[-_].+$`).MatchString(keyword) {
 		return "" // JAV321 has no those special contents.
 	}

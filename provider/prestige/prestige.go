@@ -189,7 +189,7 @@ func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 	return
 }
 
-func (pst *PRESTIGE) TidyKeyword(keyword string) string {
+func (pst *PRESTIGE) NormalizeKeyword(keyword string) string {
 	if number.IsSpecial(keyword) {
 		return ""
 	}

@@ -155,7 +155,7 @@ func (az *ARZON) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	return
 }
 
-func (az *ARZON) TidyKeyword(keyword string) string {
+func (az *ARZON) NormalizeKeyword(keyword string) string {
 	if number.IsSpecial(keyword) {
 		return ""
 	}

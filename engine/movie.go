@@ -43,7 +43,7 @@ func (e *Engine) searchMovieFromDB(keyword string, provider javtube.MovieProvide
 func (e *Engine) searchMovie(keyword string, provider javtube.MovieProvider, fallback bool) (results []*model.MovieSearchResult, err error) {
 	// Regular keyword searching.
 	if searcher, ok := provider.(javtube.MovieSearcher); ok {
-		if keyword = searcher.TidyKeyword(keyword); keyword == "" {
+		if keyword = searcher.NormalizeKeyword(keyword); keyword == "" {
 			return nil, javtube.ErrInvalidKeyword
 		}
 		if fallback {

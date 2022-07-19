@@ -213,7 +213,7 @@ func (avw *AVWiki) getMovieInfoFromSource(work Work) (info *model.MovieInfo, err
 	return
 }
 
-func (avw *AVWiki) TidyKeyword(keyword string) string {
+func (avw *AVWiki) NormalizeKeyword(keyword string) string {
 	if number.IsUncensored(keyword) || number.IsFC2(keyword) {
 		return "" // no uncensored support.
 	}

@@ -213,7 +213,7 @@ func (duga *DUGA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 	return
 }
 
-func (duga *DUGA) TidyKeyword(keyword string) string {
+func (duga *DUGA) NormalizeKeyword(keyword string) string {
 	if number.IsSpecial(keyword) {
 		return ""
 	}

@@ -175,7 +175,7 @@ func (air *AirAV) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 	return
 }
 
-func (air *AirAV) TidyKeyword(keyword string) string {
+func (air *AirAV) NormalizeKeyword(keyword string) string {
 	if ss := regexp.MustCompile(`^(?i)FC2-.*?(\d+)$`).FindStringSubmatch(keyword); len(ss) == 2 {
 		return fmt.Sprintf("FC2-PPV-%s", ss[1])
 	}

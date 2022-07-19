@@ -361,7 +361,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	return
 }
 
-func (fz *FANZA) TidyKeyword(keyword string) string {
+func (fz *FANZA) NormalizeKeyword(keyword string) string {
 	if number.IsSpecial(keyword) {
 		return ""
 	}
