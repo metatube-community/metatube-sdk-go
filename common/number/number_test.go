@@ -13,6 +13,10 @@ func TestTrim(t *testing.T) {
 	}{
 		{"", ""},
 		{"n9110", "n9110"},
+		{"18ntrd052", "18ntrd052"},
+		{"118abp077", "118abp077"},
+		{"5abp077", "5abp077"},
+		{"200gana-1350", "200gana-1350"},
 		{"ssis00123", "ssis00123"},
 		{"ABP-030", "ABP-030"},
 		{"MARRA-A030", "MARRA-A030"},

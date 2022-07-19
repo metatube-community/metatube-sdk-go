@@ -15,7 +15,7 @@ func Trim(s string) string {
 		ReplaceAllString(s, "") // trim domain
 	if ss := regexp.MustCompile(`(?i)([a-z\d]{2,}(?:[-_][a-z\d]{2,})+)`).FindStringSubmatch(s); len(ss) > 0 {
 		s = ss[1] // first find number with dashes
-	} else if ss = regexp.MustCompile(`(?i)([a-z]+\d+)`).FindStringSubmatch(s); len(ss) > 1 {
+	} else if ss = regexp.MustCompile(`(?i)((?:[a-z]+\d|\d+[a-z])[a-z\d]+)`).FindStringSubmatch(s); len(ss) > 1 {
 		s = ss[1] // otherwise find number with alphas & digits
 	}
 	s = regexp.MustCompile(`(?i)^(?:f?hd|sd)[-_](.*$)`).
