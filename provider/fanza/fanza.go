@@ -365,16 +365,24 @@ func (fz *FANZA) NormalizeKeyword(keyword string) string {
 	if number.IsSpecial(keyword) {
 		return ""
 	}
-	return strings.Replace(
-		/* FANZA prefers lowercase */
-		strings.ToLower(keyword),
-		/* FANZA cannot search hyphened number */
-		"-", "00", 1) +
-		/* Add a # sign to distinguish 001 style number */
-		"#"
+	return strings.ToLower(keyword) /* FANZA prefers lowercase */
 }
 
-func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
+func (fz *FANZA) SearchMovie(keyword string) ([]*model.MovieSearchResult, error) {
+	if strings.Contains(keyword, "-") {
+		if results, err := fz.searchMovie(strings.Replace(keyword,
+			/* FANZA cannot search hyphened number */
+			"-", "00", 1) +
+			/* Add a `#` sign to distinguish 001 style number */
+			"#"); err == nil && len(results) > 0 {
+			return results, nil
+		}
+	}
+	// fallback to normal dvd search.
+	return fz.searchMovie(strings.Replace(keyword, "-", "", 1))
+}
+
+func (fz *FANZA) searchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	defer func() {
 		if err == nil && len(results) > 0 {
 			r := regexp.MustCompile(`(?i)([A-Z]+)0*([1-9]*)`)
