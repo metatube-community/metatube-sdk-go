@@ -74,7 +74,7 @@ func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) 
 		fmt.Sprintf(movieMonoAnimeURL, id),
 		fmt.Sprintf(movieDigitalNikkatsuURL, id),
 	}
-	if regexp.MustCompile(`(?i)[a-z]{2,}00\d{3,}`).MatchString(id) {
+	if regexp.MustCompile(`(?i)[a-z]+00\d{3,}`).MatchString(id) {
 		// might be digital videoa url, try it first.
 		homepages[0], homepages[1] = homepages[1], homepages[0]
 	}
@@ -377,7 +377,7 @@ func (fz *FANZA) NormalizeKeyword(keyword string) string {
 func (fz *FANZA) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	defer func() {
 		if err == nil && len(results) > 0 {
-			r := regexp.MustCompile(`(?i)([A-Z]{2,})0*([1-9]*)`)
+			r := regexp.MustCompile(`(?i)([A-Z]+)0*([1-9]*)`)
 			x := r.ReplaceAllString(keyword, "${1}${2}")
 			sort.SliceStable(results, func(i, j int) bool {
 				a := r.ReplaceAllString(results[i].ID, "${1}${2}")
@@ -460,7 +460,7 @@ func (fz *FANZA) parseScoreFromURL(s string) float64 {
 
 // ParseNumber parses FANZA-formatted id to general ID.
 func ParseNumber(s string) string {
-	if ss := regexp.MustCompile(`([A-Z]{2,})(\d+)`).FindStringSubmatch(strings.ToUpper(s)); len(ss) >= 3 {
+	if ss := regexp.MustCompile(`([A-Z]+)(\d+)`).FindStringSubmatch(strings.ToUpper(s)); len(ss) >= 3 {
 		n, _ := strconv.Atoi(ss[2])
 		return fmt.Sprintf("%s-%03d", ss[1], n)
 	}
