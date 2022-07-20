@@ -13,7 +13,7 @@ func Trim(s string) string {
 	}
 	s = regexp.MustCompile(`(?i)([a-z\d]+\.(?:com|net|top|xyz|tv))(?:[^a-z\d]|$)`).
 		ReplaceAllString(s, "") // trim domain
-	if ss := regexp.MustCompile(`(?i)([a-z\d]{2,}(?:[-_][a-z\d]{2,})+)`).FindStringSubmatch(s); len(ss) > 0 {
+	if ss := regexp.MustCompile(`(?i)([a-z\d]+(?:[-_][a-z\d]{2,})+)`).FindStringSubmatch(s); len(ss) > 0 {
 		s = ss[1] // first find number with dashes
 	} else if ss = regexp.MustCompile(`(?i)((?:[a-z]+\d|\d+[a-z])[a-z\d]+)`).FindStringSubmatch(s); len(ss) > 1 {
 		s = ss[1] // otherwise find number with alphas & digits
