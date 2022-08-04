@@ -1,6 +1,6 @@
 module github.com/javtube/javtube-sdk-go
 
-go 1.18
+go 1.19
 
 require (
 	github.com/adrg/strutil v0.3.0

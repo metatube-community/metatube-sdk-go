@@ -13,4 +13,4 @@ linters-settings:
       - prefix(github.com/javtube/javtube-sdk-go)
       - default
   staticcheck:
-    go: '1.18'
+    go: '1.19'
