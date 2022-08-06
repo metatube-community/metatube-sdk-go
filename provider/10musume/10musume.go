@@ -20,11 +20,11 @@ const (
 	sampleVideoURL = "https://fms.10musume.com/sample/%s/mb.m3u8"
 )
 
-// sampleURLs: {
-//   preview: "/assets/sample/{MOVIE_ID}/{FILENAME}",
-//   fullsize: "/assets/sample/{MOVIE_ID}/{FILENAME}",
-//   movieIdKey: "MovieID"
-//}
+//	sampleURLs: {
+//	  preview: "/assets/sample/{MOVIE_ID}/{FILENAME}",
+//	  fullsize: "/assets/sample/{MOVIE_ID}/{FILENAME}",
+//	  movieIdKey: "MovieID"
+//	}
 const (
 	galleryPath       = "/dyn/dla/images/%s"
 	legacyGalleryPath = "/assets/sample/%s/%s"

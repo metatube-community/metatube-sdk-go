@@ -20,11 +20,11 @@ const (
 	sampleVideoURL = "https://fms.1pondo.tv/sample/%s/mb.m3u8"
 )
 
-//sampleURLs: {
-//   preview: "/assets/sample/{MOVIE_ID}/thum_106/{FILENAME}.jpg",
-//   fullsize: "/assets/sample/{MOVIE_ID}/popu/{FILENAME}.jpg",
-//   movieIdKey: "MovieID"
-//}
+//	sampleURLs: {
+//	  preview: "/assets/sample/{MOVIE_ID}/thum_106/{FILENAME}.jpg",
+//	  fullsize: "/assets/sample/{MOVIE_ID}/popu/{FILENAME}.jpg",
+//	  movieIdKey: "MovieID"
+//	}
 const (
 	galleryPath       = "/dyn/dla/images/%s"
 	legacyGalleryPath = "/assets/sample/%s/popu/%s"

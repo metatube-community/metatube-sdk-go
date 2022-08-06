@@ -20,11 +20,11 @@ const (
 	sampleVideoURL = "https://fms.pacopacomama.com/sample/%s/mb.m3u8"
 )
 
-//sampleURLs: {
-//	preview: "/assets/sample/{MOVIE_ID}/s/{FILENAME}",
-//	fullsize: "/assets/sample/{MOVIE_ID}/l/{FILENAME}",
-//	movieIdKey: "MovieID"
-//},
+//	sampleURLs: {
+//		preview: "/assets/sample/{MOVIE_ID}/s/{FILENAME}",
+//		fullsize: "/assets/sample/{MOVIE_ID}/l/{FILENAME}",
+//		movieIdKey: "MovieID"
+//	},
 const (
 	galleryPath       = "/dyn/dla/images/%s"
 	legacyGalleryPath = "/assets/sample/%s/l/%s"
