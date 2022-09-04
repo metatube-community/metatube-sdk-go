@@ -57,7 +57,7 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 		query := &imageQuery{
 			Ratio:    -1,
 			Position: -1,
-			Quality:  95,
+			Quality:  90,
 		}
 		if err := c.ShouldBindQuery(query); err != nil {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
