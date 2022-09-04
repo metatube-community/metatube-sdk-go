@@ -13,6 +13,7 @@ require (
 	github.com/grafov/m3u8 v0.11.1
 	github.com/hashicorp/go-retryablehttp v0.7.1
 	github.com/iancoleman/orderedmap v0.2.0
+	github.com/jellydator/ttlcache/v3 v3.0.0
 	github.com/lib/pq v1.10.6
 	github.com/nlnwa/whatwg-url v0.1.2
 	github.com/peterbourgon/ff/v3 v3.3.0
@@ -68,6 +69,7 @@ require (
 	github.com/temoto/robotstxt v1.1.2 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 	google.golang.org/appengine v1.6.7 // indirect
