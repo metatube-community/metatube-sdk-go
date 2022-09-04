@@ -18,7 +18,7 @@ func Resize(src image.Image, width, height int) image.Image {
 	}
 	rect := image.Rect(0, 0, width, height)
 	dst := image.NewRGBA(rect)
-	sc := draw.NearestNeighbor /* default interpolator */
+	sc := draw.BiLinear /* default interpolator */
 	sc.Scale(dst, rect, src, src.Bounds(), draw.Over, nil)
 	return dst
 }
