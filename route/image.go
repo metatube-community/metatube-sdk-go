@@ -12,6 +12,7 @@ import (
 
 	R "github.com/javtube/javtube-sdk-go/constant"
 	"github.com/javtube/javtube-sdk-go/engine"
+	"github.com/javtube/javtube-sdk-go/imageutil/badge"
 	javtube "github.com/javtube/javtube-sdk-go/provider"
 )
 
@@ -32,6 +33,7 @@ type imageQuery struct {
 	Ratio    float64 `form:"ratio"`
 	Position float64 `form:"pos"`
 	Auto     bool    `form:"auto"`
+	Badge    string  `form:"badge"`
 	Quality  int     `form:"quality"`
 }
 
@@ -112,6 +114,13 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 		if err != nil {
 			abortWithError(c, err)
 			return
+		}
+
+		if query.Badge != "" {
+			if img, err = badge.Badge(img, query.Badge); err != nil {
+				abortWithError(c, err)
+				return
+			}
 		}
 
 		c.Header("X-JavTube-Image-Width", strconv.Itoa(img.Bounds().Dx()))
