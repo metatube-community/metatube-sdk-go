@@ -194,7 +194,6 @@ func (tht *TokyoHot) SearchMovie(keyword string) (results []*model.MovieSearchRe
 		var number string
 		if ss := regexp.MustCompile(`\(作品番号: ([a-z\d-_]+)\)`).
 			FindStringSubmatch(e.Text); len(ss) == 2 {
-			fmt.Println(ss)
 			number = ss[1]
 		}
 		{ // number fallbacks
