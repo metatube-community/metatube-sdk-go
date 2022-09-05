@@ -43,7 +43,7 @@ func New() *Pcolle {
 }
 
 func (pcl *Pcolle) NormalizeID(id string) string {
-	if ss := regexp.MustCompile(`^(?i)(?:PCOLLE[-_])?(\w+)$`).FindStringSubmatch(id); len(ss) == 2 {
+	if ss := regexp.MustCompile(`^(?i)(?:PCOLLE[-_])?([a-z\d]{9,})$`).FindStringSubmatch(id); len(ss) == 2 {
 		return strings.ToLower(ss[1])
 	}
 	return ""
