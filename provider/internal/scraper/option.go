@@ -69,3 +69,10 @@ func WithDisableCookies() Option {
 		return nil
 	}
 }
+
+func WithTransport(transport http.RoundTripper) Option {
+	return func(s *Scraper) error {
+		s.c.WithTransport(transport)
+		return nil
+	}
+}
