@@ -1,7 +1,9 @@
 package tokyohot
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"net/url"
 	"path"
 	"regexp"
@@ -38,7 +40,18 @@ type TokyoHot struct {
 }
 
 func New() *TokyoHot {
-	return &TokyoHot{scraper.NewDefaultScraper(Name, baseURL, Priority)}
+	return &TokyoHot{scraper.NewDefaultScraper(Name, baseURL, Priority,
+		// Temporary workaround for unknown CA issue.
+		scraper.WithTransport(&http.Transport{
+			Proxy:                 http.DefaultTransport.(*http.Transport).Proxy,
+			DialContext:           http.DefaultTransport.(*http.Transport).DialContext,
+			ForceAttemptHTTP2:     http.DefaultTransport.(*http.Transport).ForceAttemptHTTP2,
+			MaxIdleConns:          http.DefaultTransport.(*http.Transport).MaxIdleConns,
+			IdleConnTimeout:       http.DefaultTransport.(*http.Transport).IdleConnTimeout,
+			TLSHandshakeTimeout:   http.DefaultTransport.(*http.Transport).TLSHandshakeTimeout,
+			ExpectContinueTimeout: http.DefaultTransport.(*http.Transport).ExpectContinueTimeout,
+			TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
+		}))}
 }
 
 func (tht *TokyoHot) NormalizeID(id string) string {
