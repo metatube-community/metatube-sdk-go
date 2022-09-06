@@ -463,6 +463,11 @@ func (fz *FANZA) parseScoreFromURL(s string) float64 {
 	ext := path.Ext(gif)
 	n := gif[:len(gif)-len(ext)]
 	score, _ := strconv.ParseFloat(n, 64)
+	if score > 5.0 {
+		// Fix scores for mono/anime.
+		// e.g.: https://review.dmm.com/web/images/pc/45.gif
+		score = score / 10.0
+	}
 	return score
 }
 
