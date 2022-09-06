@@ -18,6 +18,8 @@ func TestFANZA_GetMovieInfoByID(t *testing.T) {
 		"118chn064",
 		"h_346rebd655tk2",
 		"midv00047",
+		"403jdxa57676",
+		"pkpd00170",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
