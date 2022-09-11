@@ -133,6 +133,7 @@ func TestTrim(t *testing.T) {
 		{"xxx-av-1789-cd1.mp4", "xxx-av-1789"},
 		{"xxx-av-1789-C.mp4", "xxx-av-1789"},
 		{"10musume-020317_01-CD2.iso", "020317_01"},
+		{"[HND-620] 絶対にナマで連射させてくれる連続中出しソープ_あいだ飛鳥.mp4", "HND-620"},
 		{"HND-621 Jinguuji Nao Cry Unintentionally- HD", "HND-621"},
 		{"[ThZu.Cc]hnd-621", "hnd-621"},
 		{"[CAND-1196]恋するスチューピッド", "CAND-1196"},
