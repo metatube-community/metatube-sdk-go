@@ -133,11 +133,6 @@ func (bus *JavBus) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 				thumb  = re.ReplaceAllString(info.CoverURL, "/thumb/${1}.${2}")
 				thumbs = re.ReplaceAllString(info.CoverURL, "/thumbs/${1}.${2}")
 			)
-			defer func() {
-				if info.ThumbURL == "" {
-					info.ThumbURL = thumb // use thumb as default.
-				}
-			}()
 			var mu sync.Mutex
 			d := c.Clone()
 			d.Async = true
