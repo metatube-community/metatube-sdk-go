@@ -18,6 +18,7 @@ require (
 	github.com/nlnwa/whatwg-url v0.1.2
 	github.com/peterbourgon/ff/v3 v3.3.0
 	github.com/stretchr/testify v1.8.0
+	github.com/vitali-fedulov/images4 v1.1.3
 	go.uber.org/atomic v1.9.0
 	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69
 	golang.org/x/net v0.0.0-20220909164309-bea034e7d591
