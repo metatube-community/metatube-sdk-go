@@ -23,6 +23,7 @@ import (
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
 	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
+	"github.com/javtube/javtube-sdk-go/provider/internal/utils"
 )
 
 var (
@@ -324,6 +325,20 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		if info.CoverURL == "" {
 			// try to convert thumb url to cover url.
 			info.CoverURL = PreviewSrc(info.ThumbURL)
+		}
+	})
+
+	// Final (big thumb image)
+	c.OnScraped(func(_ *colly.Response) {
+		if info.BigThumbURL != "" /* big thumb already exist */ ||
+			info.ThumbURL == "" /* thumb url is empty */ ||
+			len(info.PreviewImages) == 0 /* no preview images */ {
+			return
+		}
+
+		if utils.SimilarImage(info.ThumbURL, info.PreviewImages[0], nil) {
+			// the first preview image is a big thumb image.
+			info.BigThumbURL = info.PreviewImages[0]
 		}
 	})
 
