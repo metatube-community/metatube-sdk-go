@@ -321,7 +321,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	})
 
 	// Final (images)
-	c.OnScraped(func(r *colly.Response) {
+	c.OnScraped(func(_ *colly.Response) {
 		if info.CoverURL == "" {
 			// try to convert thumb url to cover url.
 			info.CoverURL = PreviewSrc(info.ThumbURL)
