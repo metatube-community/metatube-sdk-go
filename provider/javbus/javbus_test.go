@@ -13,6 +13,7 @@ func TestJavBus_GetMovieInfoByID(t *testing.T) {
 		"SMBD-77",
 		"SSNI-776",
 		"ABP-331",
+		"CEMD-232",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
