@@ -1,4 +1,4 @@
-package utils
+package imhelper
 
 import (
 	"testing"
@@ -87,7 +87,7 @@ func TestSimilarImage(t *testing.T) {
 		//	"https://pics.dmm.co.jp/digital/video/1stars00200/1stars00200jp-1.jpg",
 		//},
 	} {
-		v := SimilarImage(item.imgUrl1, item.imgUrl2, nil)
+		v := Similar(item.imgUrl1, item.imgUrl2, nil)
 		if v {
 			t.Logf("No. %d is similar.", i)
 		} else {

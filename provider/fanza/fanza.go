@@ -22,8 +22,8 @@ import (
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/javtube-sdk-go/provider/internal/imhelper"
 	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
-	"github.com/javtube/javtube-sdk-go/provider/internal/utils"
 )
 
 var (
@@ -336,7 +336,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 			return
 		}
 
-		if utils.SimilarImage(info.ThumbURL, info.PreviewImages[0], nil) {
+		if imhelper.Similar(info.ThumbURL, info.PreviewImages[0], nil) {
 			// the first preview image is a big thumb image.
 			info.BigThumbURL = info.PreviewImages[0]
 			info.PreviewImages = info.PreviewImages[1:]

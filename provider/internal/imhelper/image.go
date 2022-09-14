@@ -1,7 +1,8 @@
-package utils
+package imhelper
 
 import (
 	"image"
+	"math"
 	"sync"
 
 	"github.com/javtube/javtube-sdk-go/common/fetch"
@@ -29,7 +30,7 @@ func getImageByURL(url string, fetcher provider.Fetcher) (image.Image, error) {
 	return img, nil
 }
 
-func SimilarImage(imageUrlA, imageUrlB string, fetcher provider.Fetcher) bool {
+func Similar(imageUrlA, imageUrlB string, fetcher provider.Fetcher) bool {
 	var (
 		wg         sync.WaitGroup
 		imgA, imgB image.Image
@@ -58,7 +59,23 @@ func SimilarImage(imageUrlA, imageUrlB string, fetcher provider.Fetcher) bool {
 		return false
 	}
 
-	imgA = imageutil.CropImagePosition(imgA, 0.7, 0.5)
-	imgB = imageutil.CropImagePosition(imgB, 0.7, 0.5)
+	ratioA := float64(imgA.Bounds().Dx()) / float64(imgA.Bounds().Dy())
+	ratioB := float64(imgB.Bounds().Dx()) / float64(imgB.Bounds().Dy())
+
+	const (
+		tol = 0.1 // tolerance
+		pos = 0.5 // center
+	)
+
+	if math.Abs(ratioA-ratioB) > tol {
+		return false
+	}
+
+	if ratioA < ratioB {
+		imgB = imageutil.CropImagePosition(imgB, ratioA, pos)
+	} else {
+		imgA = imageutil.CropImagePosition(imgA, ratioB, pos)
+	}
+
 	return imageutil.Similar(imgA, imgB)
 }
