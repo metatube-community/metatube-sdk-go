@@ -40,6 +40,7 @@ func SimilarImage(imageUrl1, imageUrl2 string, fetcher provider.Fetcher) bool {
 		imageUrl1,
 		imageUrl2,
 	} {
+		// Async fetching.
 		go func(i int, imageUrl string) {
 			defer wg.Done()
 			if img, err := getImageByURL(imageUrl, fetcher); err == nil {
