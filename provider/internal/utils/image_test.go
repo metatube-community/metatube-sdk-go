@@ -93,6 +93,6 @@ func TestSimilarImage(t *testing.T) {
 		} else {
 			t.Logf("No. %d is distinct.", i)
 		}
-		assert.True(t, v)
+		assert.True(t, v, item.imgUrl1)
 	}
 }
