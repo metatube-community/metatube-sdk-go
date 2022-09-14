@@ -339,6 +339,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		if utils.SimilarImage(info.ThumbURL, info.PreviewImages[0], nil) {
 			// the first preview image is a big thumb image.
 			info.BigThumbURL = info.PreviewImages[0]
+			info.PreviewImages = info.PreviewImages[1:]
 		}
 	})
 
