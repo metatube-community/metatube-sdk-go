@@ -29,36 +29,36 @@ func getImageByURL(url string, fetcher provider.Fetcher) (image.Image, error) {
 	return img, nil
 }
 
-func SimilarImage(imageUrl1, imageUrl2 string, fetcher provider.Fetcher) bool {
+func SimilarImage(imageUrlA, imageUrlB string, fetcher provider.Fetcher) bool {
 	var (
 		wg         sync.WaitGroup
-		img1, img2 image.Image
+		imgA, imgB image.Image
 	)
 
 	wg.Add(2)
 	for i, imageUrl := range []string{
-		imageUrl1,
-		imageUrl2,
+		imageUrlA,
+		imageUrlB,
 	} {
 		// Async fetching.
 		go func(i int, imageUrl string) {
 			defer wg.Done()
 			if img, err := getImageByURL(imageUrl, fetcher); err == nil {
 				if i%2 == 0 {
-					img1 = img
+					imgA = img
 				} else {
-					img2 = img
+					imgB = img
 				}
 			}
 		}(i, imageUrl)
 	}
 	wg.Wait()
 
-	if img1 == nil || img2 == nil {
+	if imgA == nil || imgB == nil {
 		return false
 	}
 
-	img1 = imageutil.CropImagePosition(img1, 0.7, 0.5)
-	img2 = imageutil.CropImagePosition(img2, 0.7, 0.5)
-	return imageutil.Similar(img1, img2)
+	imgA = imageutil.CropImagePosition(imgA, 0.7, 0.5)
+	imgB = imageutil.CropImagePosition(imgB, 0.7, 0.5)
+	return imageutil.Similar(imgA, imgB)
 }
