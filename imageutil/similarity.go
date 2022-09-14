@@ -16,5 +16,41 @@ func Similar(imgA, imgB image.Image) bool {
 	// Comparison.
 	// Images are not used directly. Icons are used instead,
 	// because they have tiny memory footprint and fast to compare.
-	return images4.Similar(iconA, iconB)
+	return similar(iconA, iconB)
+}
+
+// Similarity parameters.
+const (
+	iconSize  = 11
+	colorDiff = 50.0
+	euclCoeff = 0.2
+	chanCoeff = 2.0
+)
+
+// Similarity thresholds.
+const (
+	thY    = colorDiff * colorDiff * euclCoeff * iconSize * iconSize
+	thCbCr = colorDiff * colorDiff * euclCoeff * (iconSize + 1) * (iconSize + 1) * chanCoeff
+	thProp = 0.05
+)
+
+func similar(iconA, iconB images4.IconT) bool {
+	if !propSimilar(iconA, iconB) {
+		return false
+	}
+	if !eucSimilar(iconA, iconB) {
+		return false
+	}
+	return true
+}
+
+func propSimilar(iconA, iconB images4.IconT) bool {
+	return images4.PropMetric(iconA, iconB) < thProp
+}
+
+func eucSimilar(iconA, iconB images4.IconT) bool {
+	m1, m2, m3 := images4.EucMetric(iconA, iconB)
+	return m1 < thY && // Luma as most sensitive.
+		m2 < thCbCr &&
+		m3 < thCbCr
 }
