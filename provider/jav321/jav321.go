@@ -206,7 +206,7 @@ func (jav *JAV321) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 }
 
 func (jav *JAV321) NormalizeKeyword(keyword string) string {
-	if regexp.MustCompile(`^(?i)(fc2(ppv)?|gcolle|getchu|gyutto|pcolle|xxx-av|heydouga)[-_].+|(cz|gedo|k|n|kb|red-|se)\d{2,4}$`).MatchString(keyword) {
+	if regexp.MustCompile(`^(?i)(fc2(ppv)?|gcolle|getchu|gyutto|pcolle|xxx-av|heydouga|mywife)[-_].+|(cz|gedo|k|n|kb|red-|se)\d{2,4}$`).MatchString(keyword) {
 		return "" // JAV321 has no those special contents.
 	}
 	return strings.ToUpper(keyword)
