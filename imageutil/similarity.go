@@ -3,54 +3,46 @@ package imageutil
 import (
 	"image"
 
-	"github.com/vitali-fedulov/images4"
+	"github.com/corona10/goimagehash"
+)
+
+const (
+	thAverageHash    = 6
+	thDifferenceHash = 5
+	thPerceptionHash = 6
 )
 
 // Similar is a shortcut of images4.Similar.
 func Similar(imgA, imgB image.Image) bool {
-	// Icons are compact image representations (image "hashes").
-	// Name "hash" is not used intentionally.
-	iconA := images4.Icon(imgA)
-	iconB := images4.Icon(imgB)
-
-	// Comparison.
-	// Images are not used directly. Icons are used instead,
-	// because they have tiny memory footprint and fast to compare.
-	return similar(iconA, iconB)
-}
-
-// Similarity parameters.
-const (
-	iconSize  = 11
-	colorDiff = 50.0
-	euclCoeff = 0.2
-	chanCoeff = 2.0
-)
-
-// Similarity thresholds.
-const (
-	thY    = colorDiff * colorDiff * euclCoeff * iconSize * iconSize
-	thCbCr = colorDiff * colorDiff * euclCoeff * (iconSize + 1) * (iconSize + 1) * chanCoeff
-	thProp = 0.05
-)
-
-func similar(iconA, iconB images4.IconT) bool {
-	if !propSimilar(iconA, iconB) {
+	switch {
+	case averageHashDistance(imgA, imgB) < thAverageHash:
+		return true
+	case differenceHashDistance(imgA, imgB) < thDifferenceHash:
+		return true
+	case perceptionHashDistance(imgA, imgB) < thPerceptionHash:
+		return true
+	default:
 		return false
 	}
-	if !eucSimilar(iconA, iconB) {
-		return false
-	}
-	return true
 }
 
-func propSimilar(iconA, iconB images4.IconT) bool {
-	return images4.PropMetric(iconA, iconB) < thProp
+func averageHashDistance(imgA, imgB image.Image) (distance int) {
+	hashA, _ := goimagehash.AverageHash(imgA)
+	hashB, _ := goimagehash.AverageHash(imgB)
+	distance, _ = hashA.Distance(hashB)
+	return
 }
 
-func eucSimilar(iconA, iconB images4.IconT) bool {
-	m1, m2, m3 := images4.EucMetric(iconA, iconB)
-	return m1 < thY && // Luma as most sensitive.
-		m2 < thCbCr &&
-		m3 < thCbCr
+func differenceHashDistance(imgA, imgB image.Image) (distance int) {
+	hashA, _ := goimagehash.DifferenceHash(imgA)
+	hashB, _ := goimagehash.DifferenceHash(imgB)
+	distance, _ = hashA.Distance(hashB)
+	return
+}
+
+func perceptionHashDistance(imgA, imgB image.Image) (distance int) {
+	hashA, _ := goimagehash.PerceptionHash(imgA)
+	hashB, _ := goimagehash.PerceptionHash(imgB)
+	distance, _ = hashA.Distance(hashB)
+	return
 }
