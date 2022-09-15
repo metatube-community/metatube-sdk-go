@@ -30,7 +30,7 @@ const gFriendsID = "gfriends-id"
 
 const (
 	baseURL    = "https://github.com/gfriends/gfriends"
-	contentURL = "https://raw.githubusercontent.com/gfriends/gfriends/master/Content/%s"
+	contentURL = "https://raw.githubusercontent.com/gfriends/gfriends/master/Content/%s/%s"
 	jsonURL    = "https://raw.githubusercontent.com/gfriends/gfriends/master/Filetree.json"
 )
 
@@ -131,14 +131,15 @@ func (ft *fileTree) query(s string) (images []string, err error) {
 		return nil, nil
 	})
 	// query
-	for _, com := range ft.Content.Keys() {
-		if o, ok := ft.Content.Get(com); ok {
+	for _, c := range ft.Content.Keys() {
+		if o, ok := ft.Content.Get(c); ok {
 			am := o.(orderedmap.OrderedMap)
 			for _, n := range am.Keys() {
 				if n[:len(n)-len(path.Ext(n))] == s /* exact match */ {
 					p, _ := am.Get(n)
-					images = append(images, fmt.Sprintf(contentURL,
-						path.Join(url.PathEscape(com), url.PathEscape(p.(string)))))
+					if u, e := url.Parse(fmt.Sprintf(contentURL, c, p.(string))); e == nil {
+						images = append(images, u.String())
+					}
 				}
 			}
 		}

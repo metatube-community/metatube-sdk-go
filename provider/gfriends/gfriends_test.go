@@ -13,6 +13,7 @@ func TestGFriends_GetActorInfoByID(t *testing.T) {
 		"小澤マリア",
 		"小松凛花",
 		"谷あづさ",
+		"若宮はずき",
 	} {
 		info, err := provider.GetActorInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
