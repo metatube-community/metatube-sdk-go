@@ -54,7 +54,7 @@ func IsSpecial(s string) bool {
 		return true
 	}
 	return regexp.
-		MustCompile(`^(?i)(gcolle|getchu|gyutto|pcolle)[-_]?.+$`).
+		MustCompile(`^(?i)(gcolle|getchu|gyutto|pcolle|mywife)[-_]?.+$`).
 		MatchString(s)
 }
 
