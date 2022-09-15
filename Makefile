@@ -32,7 +32,9 @@ UNIX_ARCH_LIST = \
 	linux-arm64 \
 	linux-armv5 \
 	linux-armv6 \
-	linux-armv7
+	linux-armv7 \
+	linux-ppc64le \
+	linux-s390x \
 
 WINDOWS_ARCH_LIST = \
 	windows-386 \
@@ -83,6 +85,12 @@ linux-armv6:
 
 linux-armv7:
 	GOARCH=arm GOARM=7 GOOS=linux $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@ $(SERVER_CODE)
+
+linux-ppc64le:
+	GOARCH=ppc64le GOOS=linux $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@ $(SERVER_CODE)
+
+linux-s390x:
+	GOARCH=s390x GOOS=linux $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@ $(SERVER_CODE)
 
 windows-386:
 	GOARCH=386 GOOS=windows $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@.exe $(SERVER_CODE)
