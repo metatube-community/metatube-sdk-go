@@ -36,7 +36,9 @@ UNIX_ARCH_LIST = \
 	linux-ppc64le \
 	linux-s390x \
 	netbsd-amd64 \
-	openbsd-amd64
+	netbsd-amd64-v3 \
+	openbsd-amd64 \
+	openbsd-amd64-v3
 
 WINDOWS_ARCH_LIST = \
 	windows-386 \
@@ -97,8 +99,14 @@ linux-s390x:
 netbsd-amd64:
 	GOARCH=amd64 GOOS=netbsd $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@ $(SERVER_CODE)
 
+netbsd-amd64-v3:
+	GOARCH=amd64 GOOS=netbsd GOAMD64=v3 $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@ $(SERVER_CODE)
+
 openbsd-amd64:
 	GOARCH=amd64 GOOS=openbsd $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@ $(SERVER_CODE)
+
+openbsd-amd64-v3:
+	GOARCH=amd64 GOOS=openbsd GOAMD64=v3 $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@ $(SERVER_CODE)
 
 windows-386:
 	GOARCH=386 GOOS=windows $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@.exe $(SERVER_CODE)
