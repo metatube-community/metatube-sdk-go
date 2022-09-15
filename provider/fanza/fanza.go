@@ -329,15 +329,15 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	})
 
 	// Final (big thumb image)
-	c.OnScraped(func(r *colly.Response) {
+	c.OnScraped(func(_ *colly.Response) {
 		if info.BigThumbURL != "" /* big thumb already exist */ ||
 			info.ThumbURL == "" /* thumb url is empty */ ||
 			len(info.PreviewImages) == 0 /* no preview images */ {
 			return
 		}
 
-		if s := r.Request.URL.String(); !strings.Contains(s, "/digital/videoa") &&
-			!strings.Contains(s, "/mono/dvd") {
+		if !strings.Contains(info.Homepage, "/digital/videoa") &&
+			!strings.Contains(info.Homepage, "/mono/dvd") {
 			// must be VideoA or DVD videos.
 			return
 		}
