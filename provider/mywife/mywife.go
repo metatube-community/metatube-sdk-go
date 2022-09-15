@@ -78,9 +78,8 @@ func (mw *MyWife) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 	})
 
 	// Summary (Part1)
-	c.OnXML(`//div[@class="modelsamplephototop"]/strong`, func(e *colly.XMLElement) {
-
-	})
+	//c.OnXML(`//div[@class="modelsamplephototop"]/strong`, func(e *colly.XMLElement) {
+	//})
 
 	// Summary (Part2)
 	c.OnXML(`//div[@class="modelsamplephototop"]/span[@class="text_overflow"]`, func(e *colly.XMLElement) {
@@ -119,6 +118,7 @@ func (mw *MyWife) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		d := c.Clone()
 		d.OnScraped(func(r *colly.Response) {
 			info.ThumbURL = r.Request.URL.String()
+			info.BigThumbURL = info.ThumbURL /* thumb is usually quality */
 		})
 		d.Head(strings.ReplaceAll(info.CoverURL, "topview.jpg", "thumb.jpg"))
 	})
