@@ -16,6 +16,11 @@ func TestKIN8_GetMovieInfoByID(t *testing.T) {
 		"3521",
 		"3587",
 		"1045",
+		"3591",
+		"3421",
+		"3600",
+		"2508",
+		"1662",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
