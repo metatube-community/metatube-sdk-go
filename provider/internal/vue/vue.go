@@ -1,4 +1,4 @@
-package d2pass
+package vue
 
 import (
 	"encoding/json"

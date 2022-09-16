@@ -4,7 +4,7 @@ import (
 	"regexp"
 
 	"github.com/javtube/javtube-sdk-go/provider"
-	"github.com/javtube/javtube-sdk-go/provider/internal/d2pass"
+	"github.com/javtube/javtube-sdk-go/provider/internal/vue"
 )
 
 var _ provider.MovieProvider = (*TenMusume)(nil)
@@ -31,12 +31,12 @@ const (
 )
 
 type TenMusume struct {
-	*d2pass.Core
+	*vue.Core
 }
 
 func New() *TenMusume {
 	return &TenMusume{
-		Core: (&d2pass.Core{
+		Core: (&vue.Core{
 			BaseURL:           baseURL,
 			MovieURL:          movieURL,
 			SampleVideoURL:    sampleVideoURL,
