@@ -211,6 +211,7 @@ func TestIsUncensored(t *testing.T) {
 		{"kin8-1234", true},
 		{"h4610-tk1003", true},
 		{"h0930-ori1643", true},
+		{"c0930-ki220913", true},
 	} {
 		assert.Equal(t, unit.want, IsUncensored(unit.orig), unit.orig)
 	}
