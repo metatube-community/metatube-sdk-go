@@ -71,7 +71,7 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		Number:        fmt.Sprintf("KIN8-%s", id),
 		Provider:      k8.Name(),
 		Homepage:      rawURL,
-		Maker:         "金髪天國",
+		Maker:         "金8天國",
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Genres:        []string{},
@@ -80,7 +80,7 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 	c := k8.ClonedCollector()
 
 	// Title
-	c.OnXML(`//*[@id="sub_main"]/p[@class="sub_title"]`, func(e *colly.XMLElement) {
+	c.OnXML(`//*[@id="sub_main"]/p[@class="sub_title" or @class="sub_title_vip"]`, func(e *colly.XMLElement) {
 		info.Title = strings.TrimSpace(e.Text)
 	})
 
@@ -98,7 +98,7 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 	})
 
 	// Fields
-	c.OnXML(`//*[@id="detail_box"]//tr`, func(e *colly.XMLElement) {
+	c.OnXML(`//*[@id="detail_box" or @id="detail_box_vip"]//tr`, func(e *colly.XMLElement) {
 		switch e.ChildText(`//td[@class="movie_table_td"]`) {
 		case "モデル":
 			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `//td[@class="movie_table_td2"]`),
@@ -147,7 +147,7 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 	})
 
 	// Preview Images
-	c.OnXML(`//*[@id="gallery"]/div/a`, func(e *colly.XMLElement) {
+	c.OnXML(`//*[@id="gallery" or @id="gallery_vip"]/div/a`, func(e *colly.XMLElement) {
 		if href := e.Attr("href"); href != "" {
 			info.PreviewImages = append(info.PreviewImages, e.Request.AbsoluteURL(href))
 		}

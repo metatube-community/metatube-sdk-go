@@ -11,6 +11,7 @@ func TestKIN8_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"3604",
+		"3556",
 		"3580",
 		"3521",
 		"3587",
