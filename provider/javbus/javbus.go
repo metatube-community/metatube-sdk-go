@@ -11,6 +11,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 
+	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
@@ -153,7 +154,7 @@ func (bus *JavBus) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 }
 
 func (bus *JavBus) NormalizeKeyword(keyword string) string {
-	if regexp.MustCompile(`^(?i)(fc2(ppv)?|gcolle|getchu|gyutto|pcolle|xxx-av|heydouga|mywife)[-_].+$`).MatchString(keyword) {
+	if number.IsSpecial(keyword) && !regexp.MustCompile(`^(?i)([\d-_]{4,}|[a-z]{1,4}\d{2,4}|heyzo[-_].+)$`).MatchString(keyword) {
 		return "" // JavBus has no those special contents.
 	}
 	return strings.ToUpper(keyword)

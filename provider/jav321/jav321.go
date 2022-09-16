@@ -11,6 +11,7 @@ import (
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
 
+	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
@@ -206,8 +207,8 @@ func (jav *JAV321) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 }
 
 func (jav *JAV321) NormalizeKeyword(keyword string) string {
-	if regexp.MustCompile(`^(?i)(fc2(ppv)?|gcolle|getchu|gyutto|pcolle|xxx-av|heydouga|mywife)[-_].+|(cz|gedo|k|n|kb|red-|se)\d{2,4}$`).MatchString(keyword) {
-		return "" // JAV321 has no those special contents.
+	if number.IsSpecial(keyword) && !regexp.MustCompile(`^(?i)([a-z]{1,4}\d{2,4}|heyzo[-_].+)$`).MatchString(keyword) {
+		return "" // JavBus has no those special contents.
 	}
 	return strings.ToUpper(keyword)
 }
