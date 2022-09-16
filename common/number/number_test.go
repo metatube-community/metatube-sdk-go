@@ -181,6 +181,7 @@ func TestIsUncensored(t *testing.T) {
 		{"heyzo_1342", true},
 		{"n1342", true},
 		{"kb1342", true},
+		{"kin8-1234", true},
 	} {
 		assert.Equal(t, unit.want, IsUncensored(unit.orig), unit.orig)
 	}
@@ -217,6 +218,7 @@ func TestIsSpecial(t *testing.T) {
 		{"FC2-PPV-738573", true},
 		{"xxx-av-1789", true},
 		{"xxx-av_1789", true},
+		{"mywife-1234", true},
 		{"heydouga-1789-233", true},
 		{"heydouga_1789-233", true},
 		{"heyzo-1342", true},
