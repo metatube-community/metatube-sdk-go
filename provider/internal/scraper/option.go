@@ -2,6 +2,7 @@ package scraper
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gocolly/colly/v2"
 	"github.com/gocolly/colly/v2/debug"
@@ -60,6 +61,13 @@ func WithRandomUserAgent() Option {
 func WithCookies(url string, cookies []*http.Cookie) Option {
 	return func(s *Scraper) error {
 		return s.c.SetCookies(url, cookies)
+	}
+}
+
+func WithRequestTimeout(timeout time.Duration) Option {
+	return func(s *Scraper) error {
+		s.c.SetRequestTimeout(timeout)
+		return nil
 	}
 }
 
