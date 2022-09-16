@@ -20,10 +20,10 @@ func Trim(s string) string {
 	}
 	s = regexp.MustCompile(`(?i)^(?:f?hd|sd)[-_](.*$)`).
 		ReplaceAllString(s, "${1}") // trim special prefixes
-	s = regexp.MustCompile(`(?i)[-_.](dvd|iso|mkv|mp4|c?avi|\d*fps|whole|(f|hhb)?hd\d*|sd\d*|(?:360|480|720|1080|2160)p|X1080X|uncensored|leak|[2468]k|[xh]26[45])+`).
+	s = regexp.MustCompile(`(?i)[-_.](dvd|iso|mkv|mp4|c?avi|\d*fps|whole|(f|hhb)?hd\d*|sd\d*|(?:360|480|720|1080|2160)[pi]|X1080X|uncensored|leak|[2468]k|[xh]26[45])+`).
 		ReplaceAllString(s, "") // trim tags
-	s = regexp.MustCompile(`(?i)[-_\s]*(carib(b?ean)?(com)?(pr)?|1?Pond?o?|10musume|pacopacomama|muramura|Tokyo[-_\s]?Hot)([-_\s]*|$)`).
-		ReplaceAllString(s, "") // trim makers
+	s = regexp.MustCompile(`(?i)(^|[-_\s]+)(carib(b?ean)?(com)?(pr)?|1?Pond?o?|10mu(sume)?|paco(paco)?(mama)?|mura(mura)?|Tokyo[-_\s]?Hot)([-_\s]+(?P<pattern>\d{4,}[-_]\d{2,}|[a-z]{1,4}\d{2,4})|$)`).
+		ReplaceAllString(s, "${pattern}") // trim makers
 	s = regexp.MustCompile(`^(?i)\s*(FC2[-_]?PPV)[-_]`).
 		ReplaceAllString(s, "FC2-") // normalize fc2 prefixes
 	for re := regexp.MustCompile(`(?i)([-_](c|ch|cd\d{1,2})|ch|A|B|C|D)\s*$`); re.MatchString(s); {
