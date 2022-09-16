@@ -146,6 +146,8 @@ func TestTrim(t *testing.T) {
 		{"020317-01-10musume-1080p.mp4", "020317-01"},
 		{"020317-01-10mu-1080p.mp4", "020317-01"},
 		{"020317-01-10mu-1080i.mp4", "020317-01"},
+		{"h4610-tk1003-C.mp4", "h4610-tk1003"},
+		{"h0930-ki18492-SD.mp4", "h0930-ki18492"},
 		{"1pon-020317-001.mp4", "020317-001"},
 		{"1pondo-020317-001.mp4", "020317-001"},
 		{"_1PONDO_020317-001.mp4", "020317-001"},
@@ -207,6 +209,8 @@ func TestIsUncensored(t *testing.T) {
 		{"n1342", true},
 		{"kb1342", true},
 		{"kin8-1234", true},
+		{"h4610-tk1003", true},
+		{"h0930-ori1643", true},
 	} {
 		assert.Equal(t, unit.want, IsUncensored(unit.orig), unit.orig)
 	}
