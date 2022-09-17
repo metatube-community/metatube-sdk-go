@@ -1,4 +1,4 @@
-package vueapi
+package core
 
 import (
 	"encoding/json"

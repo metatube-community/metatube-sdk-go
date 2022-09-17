@@ -4,7 +4,7 @@ import (
 	"regexp"
 
 	"github.com/javtube/javtube-sdk-go/provider"
-	"github.com/javtube/javtube-sdk-go/provider/internal/vueapi"
+	"github.com/javtube/javtube-sdk-go/provider/1pondo/core"
 )
 
 var _ provider.MovieProvider = (*OnePondo)(nil)
@@ -31,12 +31,12 @@ const (
 )
 
 type OnePondo struct {
-	*vueapi.Core
+	*core.Core
 }
 
 func New() *OnePondo {
 	return &OnePondo{
-		Core: (&vueapi.Core{
+		Core: (&core.Core{
 			BaseURL:           baseURL,
 			MovieURL:          movieURL,
 			SampleVideoURL:    sampleVideoURL,

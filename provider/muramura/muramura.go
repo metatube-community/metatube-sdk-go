@@ -4,7 +4,7 @@ import (
 	"regexp"
 
 	"github.com/javtube/javtube-sdk-go/provider"
-	"github.com/javtube/javtube-sdk-go/provider/internal/vueapi"
+	"github.com/javtube/javtube-sdk-go/provider/1pondo/core"
 )
 
 var _ provider.MovieProvider = (*MuraMura)(nil)
@@ -21,12 +21,12 @@ const (
 )
 
 type MuraMura struct {
-	*vueapi.Core
+	*core.Core
 }
 
 func New() *MuraMura {
 	return &MuraMura{
-		Core: (&vueapi.Core{
+		Core: (&core.Core{
 			BaseURL:           baseURL,
 			MovieURL:          movieURL,
 			SampleVideoURL:    sampleVideoURL,
