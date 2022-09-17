@@ -196,19 +196,6 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 			if ss := regexp.MustCompile(`(?s)\w+\((.+?)\);`).FindSubmatch(r.Body); len(ss) == 2 {
 				var data []struct {
 					UserRating float64 `json:"user_rating"`
-					//CreatedJp     string  `json:"created_jp"`
-					//LikeCount     int     `json:"like_count"`
-					//ProfileID     int     `json:"profile_id"`
-					//Status        int     `json:"status"`
-					//UserComment   string  `json:"user_comment"`
-					//SiteID        int     `json:"site_id"`
-					//ReviewID      string  `json:"review_id"`
-					//Created       string  `json:"created"`
-					//ProductID     int     `json:"product_id"`
-					//ProductTypeID int     `json:"product_type_id"`
-					//UserID        int     `json:"user_id"`
-					//Updated       string  `json:"updated"`
-					//ProfileName   string  `json:"profile_name"`
 				}
 				if json.Unmarshal(ss[1], &data) == nil {
 					total := 0.0
