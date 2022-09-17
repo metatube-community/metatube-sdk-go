@@ -92,6 +92,7 @@ func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 			Gallery     bool
 			HasGallery  bool
 			MovieID     string
+			MovieThumb  string
 			Release     string
 			Series      string
 			ThumbHigh   string
@@ -154,6 +155,9 @@ func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 					break
 				}
 			}
+			if data.MovieThumb != "" {
+				info.ThumbURL = r.Request.AbsoluteURL(data.MovieThumb)
+			}
 			// Gallery Code:
 			// Ref: https://www.1pondo.tv/js/movieDetail.0155a1b9.js:formatted#1452
 			//
@@ -161,7 +165,7 @@ func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 			// this.hasGallery = !0 : this.movieDetail.HasGallery && (this.hasGallery = !0, this.legacyGallery = !0),
 			// e.getMovieGallery(this.movieDetail.MovieID, this.legacyGallery);
 			// Preview Images
-			if data.Gallery {
+			if data.Gallery && core.GalleryPath != "" {
 				d := c.Clone()
 				d.OnResponse(func(r *colly.Response) {
 					galleries := struct {
@@ -192,7 +196,7 @@ func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 					}
 				})
 				d.Visit(r.Request.AbsoluteURL(fmt.Sprintf(movieGalleryPath, id)))
-			} else if data.HasGallery /* Legacy Gallery */ {
+			} else if data.HasGallery /* Legacy Gallery */ && core.LegacyGalleryPath != "" {
 				d := c.Clone()
 				d.OnResponse(func(r *colly.Response) {
 					galleries := struct {
