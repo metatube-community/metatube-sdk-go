@@ -11,7 +11,7 @@ var _ provider.MovieProvider = (*Pacopacomama)(nil)
 
 const (
 	Name     = "PACOPACOMAMA"
-	Priority = 1000
+	Priority = 1000 - 1
 )
 
 const (
