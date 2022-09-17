@@ -1,4 +1,4 @@
-package caribapi
+package core
 
 import (
 	"encoding/json"

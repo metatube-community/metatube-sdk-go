@@ -4,7 +4,7 @@ import (
 	"regexp"
 
 	"github.com/javtube/javtube-sdk-go/provider"
-	"github.com/javtube/javtube-sdk-go/provider/internal/caribapi"
+	"github.com/javtube/javtube-sdk-go/provider/caribbeancom/core"
 )
 
 var _ provider.MovieProvider = (*CaribbeancomPremium)(nil)
@@ -20,12 +20,12 @@ const (
 )
 
 type CaribbeancomPremium struct {
-	*caribapi.Core
+	*core.Core
 }
 
 func New() *CaribbeancomPremium {
 	return &CaribbeancomPremium{
-		Core: (&caribapi.Core{
+		Core: (&core.Core{
 			BaseURL:         baseURL,
 			MovieURL:        movieURL,
 			DefaultName:     Name,
