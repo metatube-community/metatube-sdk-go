@@ -7,6 +7,7 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/gocolly/colly/v2"
 
@@ -126,6 +127,29 @@ func (h *H0930) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 	c.OnXML(`//*[@id="moviePlay"]//div[@class="moviePlay_title"]/h1/span`, func(e *colly.XMLElement) {
 		if title := strings.TrimSpace(e.Text); title != "" {
 			info.Title = title
+		}
+	})
+
+	// Fields
+	c.OnXML(`//*[@id="movieInfo"]//section/dl`, func(e *colly.XMLElement) {
+		for i, dt := range e.ChildTexts(`.//dt`) {
+			dd := fmt.Sprintf(`.//dd[%d]`, i+1)
+			switch dt {
+			case "年齢":
+			case "身長":
+			case "3サイズ":
+			case "タイプ":
+			case "動画":
+				if info.Runtime == 0 {
+					info.Runtime = parser.ParseRuntime(e.ChildText(dd))
+				}
+			case "公開日":
+				if time.Time(info.ReleaseDate).IsZero() {
+					info.ReleaseDate = parser.ParseDate(e.ChildText(dd))
+				}
+			case "プレイ内容":
+				info.Genres = strings.Fields(e.ChildText(dd))
+			}
 		}
 	})
 
