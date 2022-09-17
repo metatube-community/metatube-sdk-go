@@ -4,7 +4,7 @@ import (
 	"regexp"
 
 	"github.com/javtube/javtube-sdk-go/provider"
-	"github.com/javtube/javtube-sdk-go/provider/internal/vue"
+	"github.com/javtube/javtube-sdk-go/provider/internal/vueapi"
 )
 
 var _ provider.MovieProvider = (*Pacopacomama)(nil)
@@ -31,12 +31,12 @@ const (
 )
 
 type Pacopacomama struct {
-	*vue.Core
+	*vueapi.Core
 }
 
 func New() *Pacopacomama {
 	return &Pacopacomama{
-		Core: (&vue.Core{
+		Core: (&vueapi.Core{
 			BaseURL:           baseURL,
 			MovieURL:          movieURL,
 			SampleVideoURL:    sampleVideoURL,
