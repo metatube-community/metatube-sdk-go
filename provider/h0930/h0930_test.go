@@ -10,9 +10,11 @@ import (
 func TestH0930_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
-		//"ori1643",
-		//"ori1492",
+		"ori1643",
+		"ori1492",
 		"ori1396",
+		"orijuku823",
+		"orimrs695",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
