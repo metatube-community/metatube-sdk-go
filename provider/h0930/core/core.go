@@ -141,7 +141,12 @@ func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 					info.ReleaseDate = parser.ParseDate(e.ChildText(dd))
 				}
 			case "プレイ内容":
-				info.Genres = strings.Fields(e.ChildText(dd))
+				// info.Genres = strings.Fields(e.ChildText(dd))
+				for _, genre := range strings.Split(e.ChildText(dd), "\u00a0") {
+					if genre := strings.TrimSpace(genre); genre != "" {
+						info.Genres = append(info.Genres, genre)
+					}
+				}
 			}
 		}
 	})
