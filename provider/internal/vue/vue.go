@@ -7,6 +7,7 @@ import (
 	"path"
 	"regexp"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/gocolly/colly/v2"
@@ -120,9 +121,6 @@ func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 			if len(data.UCNAME) > 0 {
 				info.Genres = data.UCNAME
 			}
-			if len(data.ActressesJa) > 0 {
-				info.Actors = data.ActressesJa
-			}
 			if len(data.SampleFiles) > 0 {
 				// hasCensoredSample: function() {
 				//   var t = Date.parse(this.movie.Release) / 1e3;
@@ -139,6 +137,11 @@ func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 				//   movieIdKey: "MovieID"
 				// },
 				info.PreviewVideoHLSURL = fmt.Sprintf(core.SampleVideoURL, data.MovieID)
+			}
+			for _, actor := range data.ActressesJa {
+				if actor := strings.Trim(actor, "-"); actor != "" {
+					info.Actors = append(info.Actors, actor)
+				}
 			}
 			for _, thumb := range []string{
 				data.ThumbUltra, data.ThumbHigh,
