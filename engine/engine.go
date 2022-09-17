@@ -78,6 +78,10 @@ func (e *Engine) IsActorProvider(name string) (ok bool) {
 	return
 }
 
+func (e *Engine) GetActorProviders() map[string]javtube.ActorProvider {
+	return e.actorProviders
+}
+
 func (e *Engine) GetActorProviderByURL(rawURL string) (javtube.ActorProvider, error) {
 	u, err := url.Parse(rawURL)
 	if err != nil {
@@ -110,6 +114,10 @@ func (e *Engine) MustGetActorProviderByName(name string) javtube.ActorProvider {
 func (e *Engine) IsMovieProvider(name string) (ok bool) {
 	_, ok = e.movieProviders[strings.ToUpper(name)]
 	return
+}
+
+func (e *Engine) GetMovieProviders() map[string]javtube.MovieProvider {
+	return e.movieProviders
 }
 
 func (e *Engine) GetMovieProviderByURL(rawURL string) (javtube.MovieProvider, error) {

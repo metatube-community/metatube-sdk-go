@@ -32,6 +32,8 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 	{
 		public.GET("/translate", getTranslate())
 
+		public.GET("/providers", getProviders(app))
+
 		images := public.Group("/images")
 		{
 			images.GET("/primary/:provider/:id", getImage(app, primaryImageType))
@@ -91,6 +93,25 @@ func getIndex() gin.HandlerFunc {
 				"version": V.Version,
 			},
 		})
+	}
+}
+
+func getProviders(app *engine.Engine) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		data := struct {
+			ActorProviders map[string]string `json:"actor_providers"`
+			MovieProviders map[string]string `json:"movie_providers"`
+		}{
+			ActorProviders: make(map[string]string),
+			MovieProviders: make(map[string]string),
+		}
+		for name, provider := range app.GetActorProviders() {
+			data.ActorProviders[name] = provider.URL().String()
+		}
+		for name, provider := range app.GetMovieProviders() {
+			data.MovieProviders[name] = provider.URL().String()
+		}
+		c.JSON(http.StatusOK, &responseMessage{Data: data})
 	}
 }
 
