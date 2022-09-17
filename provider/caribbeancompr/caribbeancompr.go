@@ -1,13 +1,10 @@
 package caribbeancompr
 
 import (
-	"fmt"
 	"regexp"
 
-	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
-	"github.com/javtube/javtube-sdk-go/provider/caribbeancom"
-	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
+	"github.com/javtube/javtube-sdk-go/provider/internal/caribapi"
 )
 
 var _ provider.MovieProvider = (*CaribbeancomPremium)(nil)
@@ -23,16 +20,18 @@ const (
 )
 
 type CaribbeancomPremium struct {
-	*caribbeancom.Caribbeancom
+	*caribapi.Core
 }
 
 func New() *CaribbeancomPremium {
 	return &CaribbeancomPremium{
-		// Simply use Caribbeancom provider to scrape contents.
-		Caribbeancom: &caribbeancom.Caribbeancom{
-			Scraper:      scraper.NewDefaultScraper(Name, baseURL, Priority, scraper.WithDetectCharset()),
-			DefaultMaker: "カリビアンコムプレミアム",
-		},
+		Core: (&caribapi.Core{
+			BaseURL:         baseURL,
+			MovieURL:        movieURL,
+			DefaultName:     Name,
+			DefaultPriority: Priority,
+			DefaultMaker:    "カリビアンコムプレミアム",
+		}).Init(),
 	}
 }
 
@@ -41,10 +40,6 @@ func (carib *CaribbeancomPremium) NormalizeID(id string) string {
 		return id
 	}
 	return ""
-}
-
-func (carib *CaribbeancomPremium) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return carib.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
 func init() {
