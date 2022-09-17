@@ -58,7 +58,7 @@ func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 
 	info = &model.MovieInfo{
 		ID:            id,
-		Number:        fmt.Sprintf("%s-%s", core.DefaultName, strings.ToUpper(id)),
+		Number:        strings.ToLower(fmt.Sprintf("%s-%s", core.DefaultName, id)),
 		Provider:      core.Name(),
 		Homepage:      rawURL,
 		Maker:         core.DefaultMaker,
