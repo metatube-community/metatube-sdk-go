@@ -71,7 +71,7 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		Number:        fmt.Sprintf("KIN8-%s", id),
 		Provider:      k8.Name(),
 		Homepage:      rawURL,
-		Maker:         "金8天國",
+		Maker:         "金髪天國",
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Genres:        []string{},
