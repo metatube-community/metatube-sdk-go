@@ -95,8 +95,13 @@ func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 	c.OnXML(`//*[@id="moviepages"]//li`, func(e *colly.XMLElement) {
 		switch e.ChildText(`.//span[1]`) {
 		case "出演":
-			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `.//span[2]`),
-				(*[]string)(&info.Actors))
+			var actors []string
+			parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), `.//span[2]`), &actors)
+			for _, actor := range actors {
+				if actor := strings.Trim(actor, "-"); actor != "" {
+					info.Actors = append(info.Actors, actor)
+				}
+			}
 		case "配信日", "販売日":
 			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//span[2]`))
 		case "再生時間":
