@@ -22,6 +22,7 @@ import (
 	_ "github.com/javtube/javtube-sdk-go/provider/javbus"
 	_ "github.com/javtube/javtube-sdk-go/provider/kin8tengoku"
 	_ "github.com/javtube/javtube-sdk-go/provider/mgstage"
+	_ "github.com/javtube/javtube-sdk-go/provider/muramura"
 	_ "github.com/javtube/javtube-sdk-go/provider/mywife"
 	_ "github.com/javtube/javtube-sdk-go/provider/pacopacomama"
 	_ "github.com/javtube/javtube-sdk-go/provider/pcolle"
