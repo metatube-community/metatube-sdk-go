@@ -83,5 +83,5 @@ require (
 	modernc.org/libc v1.19.0 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.4.0 // indirect
-	modernc.org/sqlite v1.18.2 // indirect
+	modernc.org/sqlite v1.19.1 // indirect
 )
