@@ -105,11 +105,11 @@ func getProviders(app *engine.Engine) gin.HandlerFunc {
 			ActorProviders: make(map[string]string),
 			MovieProviders: make(map[string]string),
 		}
-		for name, provider := range app.GetActorProviders() {
-			data.ActorProviders[name] = provider.URL().String()
+		for _, provider := range app.GetActorProviders() {
+			data.ActorProviders[provider.Name()] = provider.URL().String()
 		}
-		for name, provider := range app.GetMovieProviders() {
-			data.MovieProviders[name] = provider.URL().String()
+		for _, provider := range app.GetMovieProviders() {
+			data.MovieProviders[provider.Name()] = provider.URL().String()
 		}
 		c.JSON(http.StatusOK, &responseMessage{Data: data})
 	}
