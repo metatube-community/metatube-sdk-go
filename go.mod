@@ -21,10 +21,10 @@ require (
 	github.com/stretchr/testify v1.8.0
 	go.uber.org/atomic v1.9.0
 	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69
-	golang.org/x/net v0.0.0-20220909164309-bea034e7d591
+	golang.org/x/net v0.0.0-20220919171627-f8f703f97925
 	golang.org/x/text v0.3.7
 	gorm.io/datatypes v1.0.7
-	gorm.io/driver/postgres v1.3.9
+	gorm.io/driver/postgres v1.3.10
 	gorm.io/gorm v1.23.9
 )
 
@@ -72,7 +72,7 @@ require (
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
 	golang.org/x/sync v0.0.0-20220907140024-f12130a52804 // indirect
-	golang.org/x/sys v0.0.0-20220915200043-7b5979e65e41 // indirect
+	golang.org/x/sys v0.0.0-20220919091848-fb04ddd9f9c8 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
