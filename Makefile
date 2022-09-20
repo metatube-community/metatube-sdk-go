@@ -41,7 +41,6 @@ UNIX_ARCH_LIST = \
 	openbsd-amd64-v3
 
 WINDOWS_ARCH_LIST = \
-	windows-386 \
 	windows-amd64 \
 	windows-amd64-v3 \
 	windows-arm64
@@ -107,9 +106,6 @@ openbsd-amd64:
 
 openbsd-amd64-v3:
 	GOARCH=amd64 GOOS=openbsd GOAMD64=v3 $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@ $(SERVER_CODE)
-
-windows-386:
-	GOARCH=386 GOOS=windows $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@.exe $(SERVER_CODE)
 
 windows-amd64:
 	GOARCH=amd64 GOOS=windows $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@.exe $(SERVER_CODE)
