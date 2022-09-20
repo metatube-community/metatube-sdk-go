@@ -26,6 +26,7 @@ UNIX_ARCH_LIST = \
 	freebsd-386 \
 	freebsd-amd64 \
 	freebsd-amd64-v3 \
+	freebsd-arm64 \
 	linux-386 \
 	linux-amd64 \
 	linux-amd64-v3 \
@@ -67,6 +68,9 @@ freebsd-amd64:
 
 freebsd-amd64-v3:
 	GOARCH=amd64 GOOS=freebsd GOAMD64=v3 $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@ $(SERVER_CODE)
+
+freebsd-arm64:
+	GOARCH=arm64 GOOS=freebsd $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@ $(SERVER_CODE)
 
 linux-386:
 	GOARCH=386 GOOS=linux $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@ $(SERVER_CODE)
