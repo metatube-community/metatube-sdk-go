@@ -28,6 +28,7 @@ func TestAVE_SearchMovie(t *testing.T) {
 	for _, item := range []string{
 		"lldv-12",
 		"mcbd-25",
+		"MKBD-S03",
 	} {
 		results, err := provider.SearchMovie(provider.NormalizeKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")

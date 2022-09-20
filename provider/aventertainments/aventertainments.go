@@ -29,7 +29,7 @@ const (
 
 const (
 	baseURL   = "https://www.aventertainments.com/"
-	movieURL  = "https://www.aventertainments.com/product_lists.aspx?product_id=%s&languageID=2&dept_id=29"
+	movieURL  = "https://www.aventertainments.com/%s/2/29/product_lists"
 	searchURL = "https://www.aventertainments.com/search_Products.aspx?languageID=2&dept_id=29&keyword=%s&searchby=keyword"
 )
 
@@ -50,7 +50,15 @@ func (ave *AVE) ParseIDFromURL(rawURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return homepage.Query().Get("product_id"), nil
+	// old url format.
+	if productID := homepage.Query().Get("product_id"); productID != "" {
+		return productID, nil
+	}
+	// new url format.
+	if ss := regexp.MustCompile(`^/(\d+)/\d+/\d+`).FindStringSubmatch(homepage.Path); len(ss) == 2 {
+		return ss[1], nil
+	}
+	return "", fmt.Errorf("parse id failed: %s", rawURL)
 }
 
 func (ave *AVE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
