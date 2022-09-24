@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"net/url"
 	"path"
-	"regexp"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
 
-	"github.com/javtube/javtube-sdk-go/common/number"
 	"github.com/javtube/javtube-sdk-go/common/parser"
 	"github.com/javtube/javtube-sdk-go/model"
 	"github.com/javtube/javtube-sdk-go/provider"
@@ -177,13 +175,16 @@ func (air *AirAV) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 }
 
 func (air *AirAV) NormalizeKeyword(keyword string) string {
-	if ss := regexp.MustCompile(`^(?i)FC2-.*?(\d+)$`).FindStringSubmatch(keyword); len(ss) == 2 {
-		return fmt.Sprintf("FC2-PPV-%s", ss[1])
-	}
-	if number.IsSpecial(keyword) {
-		return "" // Deprecate other searches if any.
-	}
-	return strings.ToUpper(keyword)
+	// Disable AIRAV due to its bad performance.
+	//
+	//if ss := regexp.MustCompile(`^(?i)FC2-.*?(\d+)$`).FindStringSubmatch(keyword); len(ss) == 2 {
+	//	return fmt.Sprintf("FC2-PPV-%s", ss[1])
+	//}
+	//if number.IsSpecial(keyword) {
+	//	return "" // Deprecate other searches if any.
+	//}
+	//return strings.ToUpper(keyword)
+	return ""
 }
 
 func (air *AirAV) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
