@@ -51,7 +51,7 @@ func (jav *JAV321) ParseIDFromURL(rawURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return jav.NormalizeID(path.Base(homepage.Path)), nil
+	return path.Base(homepage.Path), nil
 }
 
 func (jav *JAV321) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
