@@ -85,12 +85,12 @@ func (ave *AVE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 
 	// Summary (Part 1)
 	c.OnXML(`//*[@id="MyBody"]//div[@class="product-description mt-20"]`, func(e *colly.XMLElement) {
-		info.Summary = strings.TrimSpace(e.Text)
+		info.Summary += strings.TrimSpace(parseSummary(e))
 	})
 
 	// Summary (Part 2)
 	c.OnXML(`//div[@id="category"]`, func(e *colly.XMLElement) {
-		info.Summary += strings.TrimSpace(e.Text)
+		info.Summary += strings.TrimSpace(parseSummary(e))
 	})
 
 	// Thumb+Cover
@@ -194,6 +194,19 @@ func parserNumber(s string) string {
 		return strings.ToUpper(ss[1])
 	}
 	return ""
+}
+
+func parseSummary(e *colly.XMLElement) string {
+	sb := &strings.Builder{}
+	for n := e.DOM.(*html.Node).FirstChild; n != nil; n = n.NextSibling {
+		switch {
+		case n.Type == html.TextNode:
+			sb.WriteString(strings.TrimSpace(n.Data))
+		case n.Type == html.ElementNode && n.Data == "br":
+			sb.WriteByte('\n')
+		}
+	}
+	return sb.String()
 }
 
 func init() {

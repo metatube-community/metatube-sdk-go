@@ -10,11 +10,14 @@ import (
 func TestAVE_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
+		"7215",
+		"142802",
 		"9865",
 		"10161",
 		"12881",
 		"140930",
 		"115855",
+		"142800",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
