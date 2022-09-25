@@ -83,16 +83,14 @@ func (ave *AVE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		info.Title = strings.TrimSpace(e.Text)
 	})
 
-	// Summary
+	// Summary (Part 1)
 	c.OnXML(`//*[@id="MyBody"]//div[@class="product-description mt-20"]`, func(e *colly.XMLElement) {
-		for n := e.DOM.(*html.Node).FirstChild; n != nil; n = n.NextSibling {
-			if n.Type == html.TextNode {
-				info.Summary = strings.TrimSpace(n.Data)
-				return
-			}
-		}
-		// fallback
 		info.Summary = strings.TrimSpace(e.Text)
+	})
+
+	// Summary (Part 2)
+	c.OnXML(`//div[@id="category"]`, func(e *colly.XMLElement) {
+		info.Summary += strings.TrimSpace(e.Text)
 	})
 
 	// Thumb+Cover
