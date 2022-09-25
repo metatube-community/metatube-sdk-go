@@ -117,7 +117,16 @@ func (ave *AVE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 
 	// Screen Shot
 	c.OnXML(`//*[@id="sscontainerppv123"]/img`, func(e *colly.XMLElement) {
-		info.PreviewImages = []string{e.Request.AbsoluteURL(e.Attr("src"))}
+		if src := e.Attr("src"); src != "" {
+			info.PreviewImages = []string{e.Request.AbsoluteURL(src)}
+		}
+	})
+
+	// Preview Images
+	c.OnXML(`//div[@class="gallery-block grid-gallery"]//a[@class="lightbox"]`, func(e *colly.XMLElement) {
+		if href := e.Attr("href"); href != "" {
+			info.PreviewImages = append(info.PreviewImages, e.Request.AbsoluteURL(href))
+		}
 	})
 
 	// Preview Video
