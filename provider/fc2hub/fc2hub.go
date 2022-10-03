@@ -47,7 +47,8 @@ func (fc2hub *FC2HUB) GetMovieInfoByID(id string) (info *model.MovieInfo, err er
 	if len(ss) != 2 {
 		return nil, provider.ErrInvalidID
 	}
-	return fc2hub.GetMovieInfoByURL(fmt.Sprintf(movieURL, ss[0], ss[1], ""))
+	const padding = "%20" // use padding to fix weird colly trailing path issue.
+	return fc2hub.GetMovieInfoByURL(fmt.Sprintf(movieURL, ss[0], ss[1], padding))
 }
 
 func (fc2hub *FC2HUB) ParseIDFromURL(rawURL string) (string, error) {
