@@ -124,7 +124,7 @@ func (fc2hub *FC2HUB) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, e
 	c.OnXML(`/html/head/script[@type="application/ld+json"]`, func(e *colly.XMLElement) {
 		data := struct {
 			Type string `json:"@type"`
-			//Movie
+			// `Movie`
 			Name          string   `json:"name"`
 			Description   string   `json:"description"`
 			Image         string   `json:"image"`
@@ -134,14 +134,14 @@ func (fc2hub *FC2HUB) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, e
 			Actor         []string `json:"actor"`
 			Genre         []string `json:"genre"`
 			Director      string   `json:"director"`
-			//CreativeWorkSeries
+			// `CreativeWorkSeries`
 			AggregateRating struct {
 				BestRating  float64 `json:"bestRating"`
 				WorstRating float64 `json:"worstRating"`
 				RatingCount int     `json:"ratingCount"`
 				RatingValue float64 `json:"ratingValue"`
 			}
-			//WebPage
+			// `WebPage`
 			URL string `json:"url"`
 		}{}
 		if json.Unmarshal([]byte(e.Text), &data) == nil {
