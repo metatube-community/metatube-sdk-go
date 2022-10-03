@@ -14,6 +14,8 @@ func TestFC2HUB_GetMovieInfoByID(t *testing.T) {
 		"1258474-3104947",
 		"1258463-3104926",
 		"1258427-3104805",
+		"1258427-3104805",
+		"230929-803681",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
