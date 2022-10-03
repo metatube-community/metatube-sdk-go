@@ -14,6 +14,7 @@ import (
 	_ "github.com/javtube/javtube-sdk-go/provider/duga"
 	_ "github.com/javtube/javtube-sdk-go/provider/fanza"
 	_ "github.com/javtube/javtube-sdk-go/provider/fc2"
+	_ "github.com/javtube/javtube-sdk-go/provider/fc2hub"
 	_ "github.com/javtube/javtube-sdk-go/provider/gcolle"
 	_ "github.com/javtube/javtube-sdk-go/provider/getchu"
 	_ "github.com/javtube/javtube-sdk-go/provider/gfriends"
