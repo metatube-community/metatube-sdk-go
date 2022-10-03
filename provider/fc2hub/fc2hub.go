@@ -68,7 +68,7 @@ func (fc2hub *FC2HUB) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, e
 	}
 
 	info = &model.MovieInfo{
-		ID:            id,
+		ID:            id, // Dual-ID (id+number)
 		Provider:      fc2hub.Name(),
 		Homepage:      rawURL,
 		Actors:        []string{},
@@ -84,7 +84,7 @@ func (fc2hub *FC2HUB) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, e
 	})
 
 	// Summary
-	c.OnXML(`//*[@id="content"]/div/div[2]/div[1]/div[1]/div[2]/div[2]/div/p`, func(e *colly.XMLElement) {
+	c.OnXML(`//*[@id="content"]/div/div[2]/div[1]/div[1]/div[2]/div[2]/div`, func(e *colly.XMLElement) {
 		info.Summary = strings.TrimSpace(e.Text)
 	})
 
