@@ -9,7 +9,7 @@ require (
 	github.com/corona10/goimagehash v1.1.0
 	github.com/esimov/pigo v1.4.6
 	github.com/gin-gonic/gin v1.8.1
-	github.com/glebarez/sqlite v1.4.8
+	github.com/glebarez/sqlite v1.5.0
 	github.com/gocolly/colly/v2 v2.1.1-0.20220706081359-947eeead97b3
 	github.com/grafov/m3u8 v0.11.1
 	github.com/hashicorp/go-retryablehttp v0.7.1
@@ -24,7 +24,7 @@ require (
 	golang.org/x/net v0.0.0-20221004154528-8021a29435af
 	golang.org/x/text v0.3.7
 	gorm.io/datatypes v1.0.7
-	gorm.io/driver/postgres v1.4.3
+	gorm.io/driver/postgres v1.4.4
 	gorm.io/gorm v1.24.0
 )
 
@@ -78,9 +78,9 @@ require (
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/driver/mysql v1.4.0 // indirect
+	gorm.io/driver/mysql v1.4.1 // indirect
 	gorm.io/driver/sqlite v1.3.2 // indirect
-	modernc.org/libc v1.20.2 // indirect
+	modernc.org/libc v1.20.3 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.4.0 // indirect
 	modernc.org/sqlite v1.19.1 // indirect
