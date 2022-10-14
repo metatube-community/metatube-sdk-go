@@ -58,6 +58,8 @@ jobs:
           tags: |
             javtube/javtube-server:dev
             ghcr.io/javtube/javtube-server:dev
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build and Push (latest)
         if: startsWith(github.ref, 'refs/tags/')
@@ -72,3 +74,5 @@ jobs:
             javtube/javtube-server:${{ steps.shell.outputs.version }}
             ghcr.io/javtube/javtube-server:latest
             ghcr.io/javtube/javtube-server:${{ steps.shell.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
