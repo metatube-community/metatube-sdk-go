@@ -16,8 +16,8 @@ import (
 // ParseInt parses string to int regardless.
 func ParseInt(s string) int {
 	s = strings.TrimSpace(s)
-	n, _ := strconv.ParseInt(s, 10, 64)
-	return int(n)
+	n, _ := strconv.Atoi(s)
+	return n
 }
 
 // ParseTime parses a string with valid time format into time.Time.
