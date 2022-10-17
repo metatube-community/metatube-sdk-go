@@ -9,7 +9,7 @@ MADE BY 12X WITH LOVE.
     - [Installation](#installation)
     - [Quickstart](#quickstart)
     - [API Examples](#api-examples)
-        - [Initiate SDK engine](#initiate-sdk-engine)
+        - [Initiate SDK engine manually](#initiate-sdk-engine-manually)
         - [Search and get actor info](#search-and-get-actor-info)
         - [Search and get movie info](#search-and-get-movie-info)
         - [Get actor and movie images](#get-actor-and-movie-images)
@@ -64,7 +64,7 @@ $ go run example.go
 
 You can find detailed examples in [examples folder](https://github.com/javtube/javtube-sdk-go/tree/main/_examples/) or specific implementations in [cmd folder](https://github.com/javtube/javtube-sdk-go/tree/main/cmd/).
 
-### Initiate SDK engine
+### Initiate SDK engine manually
 
 ```go
 package main
