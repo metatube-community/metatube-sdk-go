@@ -13,6 +13,7 @@ MADE BY 12X WITH LOVE.
         - [Search and get actor info](#search-and-get-actor-info)
         - [Search and get movie info](#search-and-get-movie-info)
         - [Get actor and movie images](#get-actor-and-movie-images)
+        - [Text translate engine](#text-translate-engine)
     - [License](#license)
     - [Credits](#credits)
 
@@ -156,6 +157,29 @@ func main() {
     
     // Get movie backdrop image id `DLDSS-077` from SOD.
     app.GetMovieBackdropImage(sod.Name, "DLDSS-077")
+}
+```
+
+### Text translate engine
+
+```go
+package main
+
+import (
+	"github.com/javtube/javtube-sdk-go/translate"
+)
+
+func main() {
+	var (
+		appId  = "XXX"
+		appKey = "XXX"
+	)
+	// Translate `Hello` from auto to Japanese by Baidu.
+	translate.BaiduTranslate("Hello", "auto", "ja", appId, appKey)
+
+	var apiKey = "XXX"
+	// Translate `Hello` from auto to simplified Chinese by Google.
+	translate.GoogleTranslate("Hello", "auto", "zh-cn", apiKey)
 }
 ```
 
