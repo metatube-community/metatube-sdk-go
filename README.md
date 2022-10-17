@@ -14,6 +14,7 @@ Just Another Video Tube SDK in Golang.
 
 - [JavTube SDK Go](#javtube-sdk-go)
 	- [Contents](#contents)
+    - [Features](#features)
 	- [Installation](#installation)
 	- [Quickstart](#quickstart)
 	- [API Examples](#api-examples)
@@ -24,6 +25,25 @@ Just Another Video Tube SDK in Golang.
 		- [Text translate engine](#text-translate-engine)
 	- [License](#license)
 	- [Credits](#credits)
+
+## Features
+
+- Supported platforms
+  - Linux
+  - Darwin
+  - Windows
+  - BSD(s)
+- Supported Databases
+  - [SQLite](https://gitlab.com/cznic/sqlite)
+  - [PostgreSQL](https://github.com/jackc/pgx)
+- Image processing
+  - Auto cropping
+  - Badge support
+  - Face detection
+  - Image hashing
+- RESTful API
+- 20+ providers
+- Text translation
 
 ## Installation
 
