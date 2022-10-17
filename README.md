@@ -7,6 +7,7 @@ MADE BY 12X WITH LOVE.
 - [JavTube SDK Go](#javtube-sdk-go)
     - [Contents](#contents)
     - [Installation](#installation)
+    - [Quickstart](#quickstart)
     - [API Examples](#api-examples)
         - [Initiate SDK engine](#initiate-sdk-engine)
         - [Search and get actor info](#search-and-get-actor-info)
@@ -23,9 +24,45 @@ To install this package, you first need [Go](https://golang.org/) installed (**v
 go get -u github.com/javtube/javtube-sdk-go
 ```
 
+## Quickstart
+
+```sh
+# assume the following codes in example.go file
+$ cat example.go
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+
+	"github.com/javtube/javtube-sdk-go/engine"
+)
+
+func main() {
+	app := engine.Default()
+
+	results, err := app.SearchMovieAll("GVH-466", false)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, result := range results {
+		fmt.Println(result.Provider, result.ID, result.Number, result.Title)
+	}
+}
+```
+
+```sh
+# run example.go and see output on console
+$ go run example.go
+```
+
 ## API Examples
 
-You can find specific implementations in [cmd folder](https://github.com/javtube/javtube-sdk-go/tree/main/cmd/).
+You can find detailed examples in [examples folder](https://github.com/javtube/javtube-sdk-go/tree/main/_examples/) or specific implementations in [cmd folder](https://github.com/javtube/javtube-sdk-go/tree/main/cmd/).
 
 ### Initiate SDK engine
 
@@ -108,7 +145,6 @@ app.GetMoviePrimaryImage(fanza.Name, "hmn00268", 0.70, 0.5)
 
 // Get movie backdrop image id `DLDSS-077` from SOD.
 app.GetMovieBackdropImage(sod.Name, "DLDSS-077")
-}
 ```
 
 ## License
