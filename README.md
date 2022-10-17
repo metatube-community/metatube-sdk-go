@@ -1,6 +1,13 @@
 # JavTube SDK Go
 
-MADE BY 12X WITH LOVE.
+[![Build Status](https://img.shields.io/github/workflow/status/javtube/javtube-sdk-go/Publish%20Go%20Releases?style=flat-square&logo=github-actions)](https://github.com/javtube/javtube-sdk-go/actions/workflows/release.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/javtube/javtube-sdk-go?style=flat-square)](https://github.com/javtube/javtube-sdk-go)
+[![Require Go Version](https://img.shields.io/badge/go-%3E%3D1.19-30dff3?style=flat-square&logo=go)](https://github.com/javtube/javtube-sdk-go/blob/main/go.mod)
+[![GitHub License](https://img.shields.io/github/license/javtube/javtube-sdk-go?color=A42E2B&logo=gnu&style=flat-square)](https://github.com/javtube/javtube-sdk-go/blob/main/LICENSE)
+[![Supported Platforms](https://img.shields.io/badge/platform-Linux%20%7C%20FreeBSD%20%7C%20NetBSD%20%7C%20OpenBSD%20%7C%20Darwin%20%7C%20Windows-549688?style=flat-square&logo=launchpad)](https://github.com/javtube/javtube-sdk-go)
+[![Tag](https://img.shields.io/github/v/tag/javtube/javtube-sdk-go?color=%23ff8936&logo=fitbit&style=flat-square)](https://github.com/javtube/javtube-sdk-go/tags)
+
+Just Another Video Tube SDK in Golang.
 
 ## Contents
 
