@@ -13,17 +13,17 @@ Just Another Video Tube SDK in Golang.
 ## Contents
 
 - [JavTube SDK Go](#javtube-sdk-go)
-    - [Contents](#contents)
-    - [Installation](#installation)
-    - [Quickstart](#quickstart)
-    - [API Examples](#api-examples)
-        - [Initiate SDK engine manually](#initiate-sdk-engine-manually)
-        - [Search and get actor info](#search-and-get-actor-info)
-        - [Search and get movie info](#search-and-get-movie-info)
-        - [Get actor and movie images](#get-actor-and-movie-images)
-        - [Text translate engine](#text-translate-engine)
-    - [License](#license)
-    - [Credits](#credits)
+	- [Contents](#contents)
+	- [Installation](#installation)
+	- [Quickstart](#quickstart)
+	- [API Examples](#api-examples)
+		- [Initiate SDK engine manually](#initiate-sdk-engine-manually)
+		- [Search and get actor info](#search-and-get-actor-info)
+		- [Search and get movie info](#search-and-get-movie-info)
+		- [Get actor and movie images](#get-actor-and-movie-images)
+		- [Text translate engine](#text-translate-engine)
+	- [License](#license)
+	- [Credits](#credits)
 
 ## Installation
 
@@ -89,7 +89,7 @@ import (
 func main() {
 	// Open database using in-memory SQLite.
 	db, _ := database.Open(&database.Config{
-		DSN:          ":memory:",
+		DSN:		  ":memory:",
 		PreparedStmt: false,
 	})
 
@@ -107,19 +107,19 @@ func main() {
 
 ```go
 func main() {
-    app := engine.Default()
-    
-    // Search actor named `ひなたまりん` from Xs/List with fallback enabled.
-    app.SearchActor("ひなたまりん", xslist.Name, true)
-    
-    // Search actor named `一ノ瀬もも` from all available providers with fallback enabled.
-    app.SearchActorAll("一ノ瀬もも", true)
-    
-    // Get actor metadata id `5085` from Xs/List with lazy enabled.
-    app.GetActorInfoByProviderID(xslist.Name, "5085", true)
-    
-    // Get actor metadata from given URL with lazy enabled.
-    app.GetActorInfoByURL("https://xslist.org/zh/model/15659.html", true)
+	app := engine.Default()
+	
+	// Search actor named `ひなたまりん` from Xs/List with fallback enabled.
+	app.SearchActor("ひなたまりん", xslist.Name, true)
+	
+	// Search actor named `一ノ瀬もも` from all available providers with fallback enabled.
+	app.SearchActorAll("一ノ瀬もも", true)
+	
+	// Get actor metadata id `5085` from Xs/List with lazy enabled.
+	app.GetActorInfoByProviderID(xslist.Name, "5085", true)
+	
+	// Get actor metadata from given URL with lazy enabled.
+	app.GetActorInfoByURL("https://xslist.org/zh/model/15659.html", true)
 }
 ```
 
@@ -127,24 +127,24 @@ func main() {
 
 ```go
 func main() {
-    app := engine.Default()
-    
-    // Search movie named `ABP-330` from JavBus with fallback enabled.
-    app.SearchMovie("ABP-330", javbus.Name, true)
-    
-    // Search movie named `SSIS-110` from all available providers with fallback enabled.
-    // Option fallback will search the database for movie info if the corresponding providers
-    // fail to return valid metadata.
-    app.SearchMovieAll("SSIS-110", true)
-    
-    // Get movie metadata id `1252925` from ARZON with lazy enable.
-    // With the lazy option set to true, it will first try to search the database and return
-    // the info directly if it exists. If the lazy option is set to false, it will fetch info
-    // from the given provider and update the database.
-    app.GetMovieInfoByProviderID(arzon.Name, "1252925", true)
-    
-    // Get movie metadata from given URL with lazy enabled.
-    app.GetMovieInfoByURL("https://www.heyzo.com/moviepages/2189/index.html", true)
+	app := engine.Default()
+	
+	// Search movie named `ABP-330` from JavBus with fallback enabled.
+	app.SearchMovie("ABP-330", javbus.Name, true)
+	
+	// Search movie named `SSIS-110` from all available providers with fallback enabled.
+	// Option fallback will search the database for movie info if the corresponding providers
+	// fail to return valid metadata.
+	app.SearchMovieAll("SSIS-110", true)
+	
+	// Get movie metadata id `1252925` from ARZON with lazy enable.
+	// With the lazy option set to true, it will first try to search the database and return
+	// the info directly if it exists. If the lazy option is set to false, it will fetch info
+	// from the given provider and update the database.
+	app.GetMovieInfoByProviderID(arzon.Name, "1252925", true)
+	
+	// Get movie metadata from given URL with lazy enabled.
+	app.GetMovieInfoByURL("https://www.heyzo.com/moviepages/2189/index.html", true)
 }
 ```
 
@@ -152,20 +152,20 @@ func main() {
 
 ```go
 func main() {
-    app := engine.Default()
-    
-    // Get actor primary image id `24490` from Xs/List.
-    app.GetActorPrimaryImage(xslist.Name, "24490")
-    
-    // Get movie primary image id `hmn00268` from FANZA with aspect ratio and pos set to default.
-    app.GetMoviePrimaryImage(fanza.Name, "hmn00268", -1, -1)
-    
-    // Get movie primary image id `hmn00268` from FANZA with aspect ratio set to 7:10 and pos
+	app := engine.Default()
+	
+	// Get actor primary image id `24490` from Xs/List.
+	app.GetActorPrimaryImage(xslist.Name, "24490")
+	
+	// Get movie primary image id `hmn00268` from FANZA with aspect ratio and pos set to default.
+	app.GetMoviePrimaryImage(fanza.Name, "hmn00268", -1, -1)
+	
+	// Get movie primary image id `hmn00268` from FANZA with aspect ratio set to 7:10 and pos
 	// set to the center.
-    app.GetMoviePrimaryImage(fanza.Name, "hmn00268", 0.70, 0.5)
-    
-    // Get movie backdrop image id `DLDSS-077` from SOD.
-    app.GetMovieBackdropImage(sod.Name, "DLDSS-077")
+	app.GetMoviePrimaryImage(fanza.Name, "hmn00268", 0.70, 0.5)
+	
+	// Get movie backdrop image id `DLDSS-077` from SOD.
+	app.GetMovieBackdropImage(sod.Name, "DLDSS-077")
 }
 ```
 
@@ -198,12 +198,12 @@ This project is opened under the [GNU GPLv3](https://github.com/javtube/javtube-
 
 ## Credits
 
-| Library                                                         | Description                                                                                          |
+| Library														                                           | Description																						                                                                    |
 |-----------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
-| [gocolly/colly](https://github.com/gocolly/colly)               | Elegant Scraper and Crawler Framework for Golang                                                     |
-| [gin-gonic/gin](https://github.com/gin-gonic/gin)               | Gin is a HTTP web framework written in Go                                                            |
-| [gorm.io/gorm](https://gorm.io/)                                | The fantastic ORM library for Golang                                                                 |
-| [esimov/pigo](https://github.com/esimov/pigo)                   | Fast face detection, pupil/eyes localization and facial landmark points detection library in pure Go |
-| [modernc.org/sqlite](https://gitlab.com/cznic/sqlite)           | Package sqlite is a CGo-free port of SQLite/SQLite3                                                  |
-| [corona10/goimagehash](https://github.com/corona10/goimagehash) | Go Perceptual image hashing package                                                                  |
-| [antchfx/xpath](https://github.com/antchfx/xpath)               | XPath package for Golang, supports HTML, XML, JSON document query                                    |
+| [gocolly/colly](https://github.com/gocolly/colly)			            | Elegant Scraper and Crawler Framework for Golang													                                        |
+| [gin-gonic/gin](https://github.com/gin-gonic/gin)			            | Gin is a HTTP web framework written in Go															                                             |
+| [gorm.io/gorm](https://gorm.io/)								                        | The fantastic ORM library for Golang																                                                 |
+| [esimov/pigo](https://github.com/esimov/pigo)				               | Fast face detection, pupil/eyes localization and facial landmark points detection library in pure Go |
+| [modernc.org/sqlite](https://gitlab.com/cznic/sqlite)		         | Package sqlite is a CGo-free port of SQLite/SQLite3												                                      |
+| [corona10/goimagehash](https://github.com/corona10/goimagehash) | Go Perceptual image hashing package																                                                  |
+| [antchfx/xpath](https://github.com/antchfx/xpath)			            | XPath package for Golang, supports HTML, XML, JSON document query									                           |
