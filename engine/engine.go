@@ -35,6 +35,16 @@ func New(db *gorm.DB, timeout time.Duration) *Engine {
 	return engine
 }
 
+func Default() *Engine {
+	db, _ := database.Open(&database.Config{
+		DSN:                  "",
+		DisableAutomaticPing: true,
+	})
+	engine := New(db, time.Minute)
+	defer engine.AutoMigrate(true)
+	return engine
+}
+
 // initActorProviders initializes actor providers.
 func (e *Engine) initActorProviders(timeout time.Duration) {
 	{ // init
