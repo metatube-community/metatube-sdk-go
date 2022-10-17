@@ -192,10 +192,6 @@ func main() {
 }
 ```
 
-## License
-
-This project is opened under the [GNU GPLv3](https://github.com/javtube/javtube-sdk-go/blob/main/LICENSE) license.
-
 ## Credits
 
 | Library														                                           | Description																						                                                                    |
@@ -207,3 +203,7 @@ This project is opened under the [GNU GPLv3](https://github.com/javtube/javtube-
 | [modernc.org/sqlite](https://gitlab.com/cznic/sqlite)		         | Package sqlite is a CGo-free port of SQLite/SQLite3												                                      |
 | [corona10/goimagehash](https://github.com/corona10/goimagehash) | Go Perceptual image hashing package																                                                  |
 | [antchfx/xpath](https://github.com/antchfx/xpath)			            | XPath package for Golang, supports HTML, XML, JSON document query									                           |
+
+## License
+
+[GNU GPLv3 License](https://github.com/javtube/javtube-sdk-go/blob/main/LICENSE)
