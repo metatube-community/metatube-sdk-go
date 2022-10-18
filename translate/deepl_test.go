@@ -15,7 +15,7 @@ func TestDeeplTranslate(t *testing.T) {
 		{`Oh yeah! I'm a translator!`, "", "de"},
 		{`Oh yeah! I'm a translator!`, "", "fr"},
 	} {
-		result, err := DeeplTranslate(unit.text, unit.from, unit.to, os.Getenv("DEEPL_API_KEY"))
+		result, err := DeepLTranslate(unit.text, unit.from, unit.to, os.Getenv("DEEPL_API_KEY"))
 		if err != nil {
 			t.Fatal(err)
 		}

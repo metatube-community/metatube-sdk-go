@@ -10,14 +10,7 @@ import (
 
 const deeplTranslateAPI = "https://api-free.deepl.com/v2/translate"
 
-type deeplData struct {
-	Translations []struct {
-		DetectedSourceLanguage string `json:"detected_source_language"`
-		Text                   string `json:"text"`
-	} `json:"translations"`
-}
-
-func DeeplTranslate(q, source, target, key string) (result string, err error) {
+func DeepLTranslate(q, source, target, key string) (result string, err error) {
 	var resp *http.Response
 	if resp, err = fetch.Post(
 		deeplTranslateAPI,
@@ -25,7 +18,7 @@ func DeeplTranslate(q, source, target, key string) (result string, err error) {
 			"text":            q,
 			"source_lang":     parseToDeeplSupportedLanguage(source),
 			"target_lang":     parseToDeeplSupportedLanguage(target),
-			"split_sentences": "0", // disable stntence split
+			"split_sentences": "0", // disable sentence split
 		}),
 		fetch.WithRaiseForStatus(true),
 		fetch.WithHeader("Authorization", "DeepL-Auth-Key "+key),
@@ -35,8 +28,13 @@ func DeeplTranslate(q, source, target, key string) (result string, err error) {
 	}
 	defer resp.Body.Close()
 
-	data := new(deeplData)
-	if err = json.NewDecoder(resp.Body).Decode(data); err == nil {
+	data := struct {
+		Translations []struct {
+			DetectedSourceLanguage string `json:"detected_source_language"`
+			Text                   string `json:"text"`
+		} `json:"translations"`
+	}{}
+	if err = json.NewDecoder(resp.Body).Decode(&data); err == nil {
 		result = data.Translations[0].Text
 	}
 	return

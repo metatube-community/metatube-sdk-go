@@ -55,7 +55,7 @@ func getTranslate() gin.HandlerFunc {
 			result, err = translate.BaiduTranslate(query.Q, query.From, query.To,
 				c.Query(baiduAPPID), c.Query(baiduAPPKey))
 		case deeplTranslateEngine:
-			result, err = translate.DeeplTranslate(query.Q, query.From, query.To,
+			result, err = translate.DeepLTranslate(query.Q, query.From, query.To,
 				c.Query(deeplAPIKey))
 		default:
 			abortWithStatusMessage(c, http.StatusBadRequest, "invalid translate engine")
