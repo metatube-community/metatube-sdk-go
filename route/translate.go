@@ -12,11 +12,14 @@ import (
 const (
 	googleTranslateEngine = "google"
 	baiduTranslateEngine  = "baidu"
+	deeplTranslateEngine  = "deepl"
 )
 
 const (
 	// GoogleAPI extra query
 	googleAPIKey = "google-api-key"
+
+	deeplAPIKey = "deepl-api-key"
 
 	// BaiduAPI extra query
 	baiduAPPID  = "baidu-app-id"
@@ -51,6 +54,9 @@ func getTranslate() gin.HandlerFunc {
 		case baiduTranslateEngine:
 			result, err = translate.BaiduTranslate(query.Q, query.From, query.To,
 				c.Query(baiduAPPID), c.Query(baiduAPPKey))
+		case deeplTranslateEngine:
+			result, err = translate.DeeplTranslate(query.Q, query.From, query.To,
+				c.Query(deeplAPIKey))
 		default:
 			abortWithStatusMessage(c, http.StatusBadRequest, "invalid translate engine")
 			return
