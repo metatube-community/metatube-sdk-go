@@ -16,12 +16,13 @@ const (
 )
 
 const (
-	// GoogleAPI extra query
+	// Google
 	googleAPIKey = "google-api-key"
 
+	// DeepL
 	deeplAPIKey = "deepl-api-key"
 
-	// BaiduAPI extra query
+	// Baidu
 	baiduAPPID  = "baidu-app-id"
 	baiduAPPKey = "baidu-app-key"
 )
