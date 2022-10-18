@@ -2,6 +2,7 @@ package translate
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -22,9 +23,10 @@ func DeeplTranslate(q, source, target, key string) (result string, err error) {
 	if resp, err = fetch.Post(
 		deelpTranslateAPI,
 		fetch.WithURLEncodedBody(map[string]string{
-			"text":        q,
-			"source_lang": parseToDeeplSupportedLanguage(source),
-			"target_lang": parseToDeeplSupportedLanguage(target),
+			"text":            q,
+			"source_lang":     parseToDeeplSupportedLanguage(source),
+			"target_lang":     parseToDeeplSupportedLanguage(target),
+			"split_sentences": "0", // disable stntence split
 		}),
 		fetch.WithRaiseForStatus(false),
 		fetch.WithHeader("Authorization", "DeepL-Auth-Key "+key),
@@ -35,7 +37,11 @@ func DeeplTranslate(q, source, target, key string) (result string, err error) {
 	defer resp.Body.Close()
 
 	data := new(deeplData)
-	if err = json.NewDecoder(resp.Body).Decode(&data); err == nil {
+	if err = json.NewDecoder(resp.Body).Decode(data); err == nil {
+		if len(data.Translations) == 0 {
+			err = fmt.Errorf("translate text is nil: %v", data.Translations)
+			return
+		}
 		result = data.Translations[0].Text
 	}
 	return
