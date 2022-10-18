@@ -47,6 +47,8 @@ func parseToDeeplSupportedLanguage(lang string) string {
 	switch lang {
 	case "ZH", "CHS", "ZH-CN", "ZH-HANS", "CHT", "ZH-TW", "ZH-HK", "ZH-HANT":
 		return "ZH"
+	case "AUTO":
+		return ""
 	default:
 		return lang
 	}
