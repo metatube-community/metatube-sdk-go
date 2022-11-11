@@ -190,7 +190,7 @@ func (ave *AVE) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 }
 
 func parserNumber(s string) string {
-	if ss := regexp.MustCompile(`(?i)/(?:dvd\d)?([a-z\d-_]+)\.jpg`).FindStringSubmatch(s); len(ss) == 2 {
+	if ss := regexp.MustCompile(`(?i)/(?:dvd\d)?([a-z\d-_]+)\.(?:jpe?g|png|gif|webp)`).FindStringSubmatch(s); len(ss) == 2 {
 		return strings.ToUpper(ss[1])
 	}
 	return ""

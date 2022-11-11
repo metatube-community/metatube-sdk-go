@@ -10,6 +10,7 @@ import (
 func TestAVE_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
+		"4319",
 		"7215",
 		"142802",
 		"9865",
@@ -32,6 +33,7 @@ func TestAVE_SearchMovie(t *testing.T) {
 		"lldv-12",
 		"mcbd-25",
 		"MKBD-S03",
+		"FDD2002",
 	} {
 		results, err := provider.SearchMovie(provider.NormalizeKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
