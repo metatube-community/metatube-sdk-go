@@ -1,11 +1,12 @@
 module github.com/javtube/javtube-sdk-go
 
-go 1.19
+go 1.18
 
 require (
 	github.com/adrg/strutil v0.3.0
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
+	github.com/bregydoc/gtranslate v0.0.0-20200913051839-1bd07f6c1fc5
 	github.com/corona10/goimagehash v1.1.0
 	github.com/esimov/pigo v1.4.6
 	github.com/gin-gonic/gin v1.8.1
@@ -67,6 +68,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20220927061507-ef77025ab5aa // indirect
+	github.com/robertkrimen/otto v0.0.0-20221025135307-511d75fba9f8 // indirect
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
@@ -75,6 +77,7 @@ require (
 	golang.org/x/sys v0.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
+	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.4.4 // indirect
