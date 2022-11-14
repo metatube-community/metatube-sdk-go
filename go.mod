@@ -1,6 +1,6 @@
 module github.com/javtube/javtube-sdk-go
 
-go 1.18
+go 1.19
 
 require (
 	github.com/adrg/strutil v0.3.0
@@ -19,8 +19,8 @@ require (
 	github.com/lib/pq v1.10.7
 	github.com/nlnwa/whatwg-url v0.1.2
 	github.com/peterbourgon/ff/v3 v3.3.0
-	github.com/stretchr/testify v1.8.0
-	go.uber.org/atomic v1.9.0
+	github.com/stretchr/testify v1.8.1
+	go.uber.org/atomic v1.10.0
 	golang.org/x/image v0.1.0
 	golang.org/x/net v0.2.0
 	golang.org/x/text v0.4.0
@@ -81,7 +81,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.4.4 // indirect
-	gorm.io/driver/sqlite v1.3.2 // indirect
+	gorm.io/driver/sqlite v1.4.3 // indirect
 	modernc.org/libc v1.21.4 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.4.0 // indirect
