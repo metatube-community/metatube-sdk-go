@@ -31,12 +31,12 @@ require (
 require (
 	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
-	github.com/antchfx/xmlquery v1.3.12 // indirect
+	github.com/antchfx/xmlquery v1.3.13 // indirect
 	github.com/antchfx/xpath v1.2.1 // indirect
 	github.com/bits-and-blooms/bitset v1.4.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/glebarez/go-sqlite v1.19.2 // indirect
+	github.com/glebarez/go-sqlite v1.19.5 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.11.1 // indirect
@@ -82,5 +82,5 @@ require (
 	modernc.org/libc v1.21.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.4.0 // indirect
-	modernc.org/sqlite v1.19.4 // indirect
+	modernc.org/sqlite v1.19.5 // indirect
 )
