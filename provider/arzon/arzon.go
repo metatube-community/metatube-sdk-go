@@ -141,13 +141,28 @@ func (az *ARZON) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		case "監督：":
 			info.Director = e.ChildText(`.//td[2]`)
 		case "発売日：":
-			info.ReleaseDate = parser.ParseDate(strings.Fields(e.ChildText(`.//td[2]`))[0])
+			if fields := strings.Fields(e.ChildText(`.//td[2]`)); len(fields) > 0 {
+				info.ReleaseDate = parser.ParseDate(fields[0])
+			}
 		case "収録時間：":
 			info.Runtime = parser.ParseRuntime(e.ChildText(`.//td[2]`))
 		case "品番：":
-			info.Number = strings.Fields(e.ChildText(`.//td[2]`))[0]
+			if fields := strings.Fields(e.ChildText(`.//td[2]`)); len(fields) > 0 {
+				// Number can be empty occasionally.
+				info.Number = fields[0]
+			}
 		case "タグ：":
 			// info.Genres = e.ChildTexts(`.//td[2]`)
+		}
+	})
+
+	c.OnXML(`//*[@id="allstock"]//strong`, func(e *colly.XMLElement) {
+		if info.Number != "" {
+			// Number is already fetched.
+			return
+		}
+		if e.Text == "品番：" && e.DOM.(*html.Node).NextSibling != nil {
+			info.Number = e.DOM.(*html.Node).NextSibling.Data
 		}
 	})
 

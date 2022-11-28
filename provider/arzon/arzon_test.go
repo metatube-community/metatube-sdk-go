@@ -28,6 +28,7 @@ func TestARZON_SearchMovie(t *testing.T) {
 		"STARS",
 		"IENF-209",
 		"DLDSS-02",
+		"FNEO-061",
 	} {
 		results, err := provider.SearchMovie(provider.NormalizeKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
