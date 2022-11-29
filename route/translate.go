@@ -11,7 +11,7 @@ import (
 
 const (
 	googleTranslateEngine     = "google"
-	googleFreeTranslateEngine = "google-free"
+	googleFreeTranslateEngine = "google_free"
 	baiduTranslateEngine      = "baidu"
 	deeplTranslateEngine      = "deepl"
 )
