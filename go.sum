@@ -298,8 +298,8 @@ github.com/ugorji/go/codec v1.2.7/go.mod h1:WGN1fab3R1fzQlVQTkfxVtIBhWDRqOviHU95
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/zenazn/goji v0.9.0/go.mod h1:7S9M489iMyHBNxwZnk9/EHS098H4/F6TATF2mIxtB1Q=
-github.com/zijiren233/google-translater v0.2.0 h1:2sKwDX12Ac0PLYPbgaAWLF6B/npmJbde35hd4XSElJ4=
-github.com/zijiren233/google-translater v0.2.0/go.mod h1:36eq5XDJub3tMPaBk50/fvJlFVFeeLa2S3FlbpeVbFM=
+github.com/zijiren233/google-translater v0.2.1 h1:FPgeCAbzfsv3svNvMk7aIRbVmt+oM49B66tn5eJiCfo=
+github.com/zijiren233/google-translater v0.2.1/go.mod h1:36eq5XDJub3tMPaBk50/fvJlFVFeeLa2S3FlbpeVbFM=
 go.uber.org/atomic v1.3.2/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.5.0/go.mod h1:sABNBOSYdrvTF6hTgEIbc7YasKWGhgEQZyfxyTvoXHQ=
