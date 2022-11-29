@@ -7,7 +7,8 @@ import (
 )
 
 func GoogleFreeTranslate(q, source, target string) (result string, err error) {
-	if data, err := translater.Translate(q, translater.TranslationParams{
+	var data translater.Translated
+	if data, err = translater.Translate(q, translater.TranslationParams{
 		From:       source,
 		To:         target,
 		Retry:      2,
