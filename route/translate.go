@@ -10,9 +10,10 @@ import (
 )
 
 const (
-	googleTranslateEngine = "google"
-	baiduTranslateEngine  = "baidu"
-	deeplTranslateEngine  = "deepl"
+	googleTranslateEngine     = "google"
+	googleFreeTranslateEngine = "googlefree"
+	baiduTranslateEngine      = "baidu"
+	deeplTranslateEngine      = "deepl"
 )
 
 const (
@@ -52,6 +53,8 @@ func getTranslate() gin.HandlerFunc {
 		case googleTranslateEngine:
 			result, err = translate.GoogleTranslate(query.Q, query.From, query.To,
 				c.Query(googleAPIKey))
+		case googleFreeTranslateEngine:
+			result, err = translate.GoogleFreeTranslate(query.Q, query.From, query.To)
 		case baiduTranslateEngine:
 			result, err = translate.BaiduTranslate(query.Q, query.From, query.To,
 				c.Query(baiduAPPID), c.Query(baiduAPPKey))
