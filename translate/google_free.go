@@ -12,7 +12,7 @@ func GoogleFreeTranslate(q, source, target string) (result string, err error) {
 		From:       source,
 		To:         target,
 		Retry:      2,
-		RetryDelay: time.Second * 3,
+		RetryDelay: 3 * time.Second,
 	}); err != nil {
 		result = q
 	} else {
