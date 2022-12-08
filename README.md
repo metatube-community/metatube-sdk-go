@@ -73,7 +73,7 @@ import (
 func main() {
 	app := engine.Default()
 
-	results, err := app.SearchMovieAll("GVH-466", false)
+	results, err := app.SearchMovieAll("<movie_id>", false)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -129,17 +129,17 @@ func main() {
 func main() {
 	app := engine.Default()
 	
-	// Search actor named `ひなたまりん` from Xs/List with fallback enabled.
-	app.SearchActor("ひなたまりん", xslist.Name, true)
+	// Search actor from Xs/List with fallback enabled.
+	app.SearchActor("<actor_name>", xslist.Name, true)
 	
-	// Search actor named `一ノ瀬もも` from all available providers with fallback enabled.
-	app.SearchActorAll("一ノ瀬もも", true)
+	// Search actor from all available providers with fallback enabled.
+	app.SearchActorAll("<actor_name>", true)
 	
-	// Get actor metadata id `5085` from Xs/List with lazy enabled.
-	app.GetActorInfoByProviderID(xslist.Name, "5085", true)
+	// Get actor metadata id from Xs/List with lazy enabled.
+	app.GetActorInfoByProviderID(xslist.Name, "<id>", true)
 	
 	// Get actor metadata from given URL with lazy enabled.
-	app.GetActorInfoByURL("https://xslist.org/zh/model/15659.html", true)
+	app.GetActorInfoByURL("https://xslist.org/zh/model/<id>.html", true)
 }
 ```
 
@@ -149,22 +149,22 @@ func main() {
 func main() {
 	app := engine.Default()
 	
-	// Search movie named `ABP-330` from JavBus with fallback enabled.
-	app.SearchMovie("ABP-330", javbus.Name, true)
+	// Search movie from JavBus with fallback enabled.
+	app.SearchMovie("<movie_id>", javbus.Name, true)
 	
-	// Search movie named `SSIS-110` from all available providers with fallback enabled.
+	// Search movie from all available providers with fallback enabled.
 	// Option fallback will search the database for movie info if the corresponding providers
 	// fail to return valid metadata.
-	app.SearchMovieAll("SSIS-110", true)
+	app.SearchMovieAll("<movie_id>", true)
 	
-	// Get movie metadata id `1252925` from ARZON with lazy enable.
+	// Get movie metadata id from ARZON with lazy enable.
 	// With the lazy option set to true, it will first try to search the database and return
 	// the info directly if it exists. If the lazy option is set to false, it will fetch info
 	// from the given provider and update the database.
-	app.GetMovieInfoByProviderID(arzon.Name, "1252925", true)
+	app.GetMovieInfoByProviderID(arzon.Name, "<id>", true)
 	
 	// Get movie metadata from given URL with lazy enabled.
-	app.GetMovieInfoByURL("https://www.heyzo.com/moviepages/2189/index.html", true)
+	app.GetMovieInfoByURL("https://www.heyzo.com/moviepages/<id>/index.html", true)
 }
 ```
 
@@ -174,18 +174,18 @@ func main() {
 func main() {
 	app := engine.Default()
 	
-	// Get actor primary image id `24490` from Xs/List.
-	app.GetActorPrimaryImage(xslist.Name, "24490")
+	// Get actor primary image id from Xs/List.
+	app.GetActorPrimaryImage(xslist.Name, "<id>")
 	
-	// Get movie primary image id `hmn00268` from FANZA with aspect ratio and pos set to default.
-	app.GetMoviePrimaryImage(fanza.Name, "hmn00268", -1, -1)
+	// Get movie primary image id from FANZA with aspect ratio and pos set to default.
+	app.GetMoviePrimaryImage(fanza.Name, "<id>", -1, -1)
 	
-	// Get movie primary image id `hmn00268` from FANZA with aspect ratio set to 7:10 and pos
+	// Get movie primary image id from FANZA with aspect ratio set to 7:10 and pos
 	// set to the center.
-	app.GetMoviePrimaryImage(fanza.Name, "hmn00268", 0.70, 0.5)
+	app.GetMoviePrimaryImage(fanza.Name, "<id>", 0.70, 0.5)
 	
-	// Get movie backdrop image id `DLDSS-077` from SOD.
-	app.GetMovieBackdropImage(sod.Name, "DLDSS-077")
+	// Get movie backdrop image id from SOD.
+	app.GetMovieBackdropImage(sod.Name, "<id>")
 }
 ```
 
