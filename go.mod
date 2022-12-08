@@ -21,8 +21,8 @@ require (
 	github.com/stretchr/testify v1.8.1
 	github.com/zijiren233/google-translater v0.2.2
 	go.uber.org/atomic v1.10.0
-	golang.org/x/image v0.1.0
-	golang.org/x/net v0.2.0
+	golang.org/x/image v0.2.0
+	golang.org/x/net v0.4.0
 	golang.org/x/text v0.5.0
 	gorm.io/datatypes v1.1.0
 	gorm.io/driver/postgres v1.4.5
@@ -37,7 +37,7 @@ require (
 	github.com/bits-and-blooms/bitset v1.4.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/glebarez/go-sqlite v1.19.5 // indirect
+	github.com/glebarez/go-sqlite v1.20.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.11.1 // indirect
@@ -72,7 +72,7 @@ require (
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
-	golang.org/x/crypto v0.3.0 // indirect
+	golang.org/x/crypto v0.4.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
