@@ -7,9 +7,9 @@ RUN apk add --update --no-cache --no-progress make git \
     && make server
 
 FROM alpine:latest
-LABEL org.opencontainers.image.source="https://github.com/javtube/javtube-sdk-go"
+LABEL org.opencontainers.image.source="https://github.com/javtube/metatube-sdk-go"
 
-COPY --from=builder /src/build/javtube-server .
+COPY --from=builder /src/build/metatube-server .
 
 RUN apk add --update --no-cache --no-progress ca-certificates tzdata
 
@@ -23,4 +23,4 @@ ENV DB_MAX_OPEN_CONNS=0
 ENV DB_PREPARED_STMT=0
 ENV DB_AUTO_MIGRATE=0
 
-ENTRYPOINT ["/javtube-server"]
+ENTRYPOINT ["/metatube-server"]

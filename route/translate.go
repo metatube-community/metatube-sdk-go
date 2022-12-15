@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/javtube/javtube-sdk-go/translate"
+	"github.com/javtube/metatube-sdk-go/translate"
 )
 
 const (

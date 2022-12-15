@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/text/language"
 
-	"github.com/javtube/javtube-sdk-go/common/fetch"
-	"github.com/javtube/javtube-sdk-go/errors"
+	"github.com/javtube/metatube-sdk-go/common/fetch"
+	"github.com/javtube/metatube-sdk-go/errors"
 )
 
 const googleTranslateAPI = "https://translation.googleapis.com/language/translate/v2"

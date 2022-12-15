@@ -5,15 +5,15 @@ import (
 
 	"gorm.io/gorm/clause"
 
-	"github.com/javtube/javtube-sdk-go/common/comparer"
-	"github.com/javtube/javtube-sdk-go/common/number"
-	"github.com/javtube/javtube-sdk-go/common/priority"
-	"github.com/javtube/javtube-sdk-go/engine/internal/utils"
-	"github.com/javtube/javtube-sdk-go/model"
-	javtube "github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/metatube-sdk-go/common/comparer"
+	"github.com/javtube/metatube-sdk-go/common/number"
+	"github.com/javtube/metatube-sdk-go/common/priority"
+	"github.com/javtube/metatube-sdk-go/engine/internal/utils"
+	"github.com/javtube/metatube-sdk-go/model"
+	mt "github.com/javtube/metatube-sdk-go/provider"
 )
 
-func (e *Engine) searchMovieFromDB(keyword string, provider javtube.MovieProvider, all bool) (results []*model.MovieSearchResult, err error) {
+func (e *Engine) searchMovieFromDB(keyword string, provider mt.MovieProvider, all bool) (results []*model.MovieSearchResult, err error) {
 	var infos []*model.MovieInfo
 	tx := e.db.
 		// Note: keyword might be an ID or just a regular number, so we should
@@ -40,11 +40,11 @@ func (e *Engine) searchMovieFromDB(keyword string, provider javtube.MovieProvide
 	return
 }
 
-func (e *Engine) searchMovie(keyword string, provider javtube.MovieProvider, fallback bool) (results []*model.MovieSearchResult, err error) {
+func (e *Engine) searchMovie(keyword string, provider mt.MovieProvider, fallback bool) (results []*model.MovieSearchResult, err error) {
 	// Regular keyword searching.
-	if searcher, ok := provider.(javtube.MovieSearcher); ok {
+	if searcher, ok := provider.(mt.MovieSearcher); ok {
 		if keyword = searcher.NormalizeKeyword(keyword); keyword == "" {
-			return nil, javtube.ErrInvalidKeyword
+			return nil, mt.ErrInvalidKeyword
 		}
 		if fallback {
 			defer func() {
@@ -73,7 +73,7 @@ func (e *Engine) searchMovie(keyword string, provider javtube.MovieProvider, fal
 
 func (e *Engine) SearchMovie(keyword, name string, fallback bool) ([]*model.MovieSearchResult, error) {
 	if keyword = number.Trim(keyword); keyword == "" {
-		return nil, javtube.ErrInvalidKeyword
+		return nil, mt.ErrInvalidKeyword
 	}
 	provider, err := e.GetMovieProviderByName(name)
 	if err != nil {
@@ -93,7 +93,7 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 	for _, provider := range e.movieProviders {
 		wg.Add(1)
 		// Async searching.
-		go func(provider javtube.MovieProvider) {
+		go func(provider mt.MovieProvider) {
 			defer wg.Done()
 			innerResults, innerErr := e.searchMovie(keyword, provider, false)
 			respCh <- response{
@@ -121,7 +121,7 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 // SearchMovieAll searches the keyword from all providers.
 func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model.MovieSearchResult, err error) {
 	if keyword = number.Trim(keyword); keyword == "" {
-		return nil, javtube.ErrInvalidKeyword
+		return nil, mt.ErrInvalidKeyword
 	}
 
 	defer func() {
@@ -129,7 +129,7 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			return
 		}
 		if len(results) == 0 {
-			err = javtube.ErrInfoNotFound
+			err = mt.ErrInfoNotFound
 			return
 		}
 		// remove duplicate results, if any.
@@ -165,7 +165,7 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 	return
 }
 
-func (e *Engine) getMovieInfoFromDB(provider javtube.MovieProvider, id string) (*model.MovieInfo, error) {
+func (e *Engine) getMovieInfoFromDB(provider mt.MovieProvider, id string) (*model.MovieInfo, error) {
 	info := &model.MovieInfo{}
 	err := e.db. // Exact match here.
 			Where("provider = ?", provider.Name()).
@@ -174,11 +174,11 @@ func (e *Engine) getMovieInfoFromDB(provider javtube.MovieProvider, id string) (
 	return info, err
 }
 
-func (e *Engine) getMovieInfoWithCallback(provider javtube.MovieProvider, id string, lazy bool, callback func() (*model.MovieInfo, error)) (info *model.MovieInfo, err error) {
+func (e *Engine) getMovieInfoWithCallback(provider mt.MovieProvider, id string, lazy bool, callback func() (*model.MovieInfo, error)) (info *model.MovieInfo, err error) {
 	defer func() {
 		// metadata validation check.
 		if err == nil && (info == nil || !info.Valid()) {
-			err = javtube.ErrIncompleteMetadata
+			err = mt.ErrIncompleteMetadata
 		}
 	}()
 	// Query DB first (by id).
@@ -198,9 +198,9 @@ func (e *Engine) getMovieInfoWithCallback(provider javtube.MovieProvider, id str
 	return callback()
 }
 
-func (e *Engine) getMovieInfoByProviderID(provider javtube.MovieProvider, id string, lazy bool) (*model.MovieInfo, error) {
+func (e *Engine) getMovieInfoByProviderID(provider mt.MovieProvider, id string, lazy bool) (*model.MovieInfo, error) {
 	if id = provider.NormalizeID(id); id == "" {
-		return nil, javtube.ErrInvalidID
+		return nil, mt.ErrInvalidID
 	}
 	return e.getMovieInfoWithCallback(provider, id, lazy, func() (*model.MovieInfo, error) {
 		return provider.GetMovieInfoByID(id)
@@ -215,13 +215,13 @@ func (e *Engine) GetMovieInfoByProviderID(name, id string, lazy bool) (*model.Mo
 	return e.getMovieInfoByProviderID(provider, id, lazy)
 }
 
-func (e *Engine) getMovieInfoByProviderURL(provider javtube.MovieProvider, rawURL string, lazy bool) (*model.MovieInfo, error) {
+func (e *Engine) getMovieInfoByProviderURL(provider mt.MovieProvider, rawURL string, lazy bool) (*model.MovieInfo, error) {
 	id, err := provider.ParseIDFromURL(rawURL)
 	switch {
 	case err != nil:
 		return nil, err
 	case id == "":
-		return nil, javtube.ErrInvalidURL
+		return nil, mt.ErrInvalidURL
 	}
 	return e.getMovieInfoWithCallback(provider, id, lazy, func() (*model.MovieInfo, error) {
 		return provider.GetMovieInfoByURL(rawURL)

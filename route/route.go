@@ -6,10 +6,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/javtube/javtube-sdk-go/engine"
-	"github.com/javtube/javtube-sdk-go/errors"
-	V "github.com/javtube/javtube-sdk-go/internal/version"
-	"github.com/javtube/javtube-sdk-go/route/auth"
+	"github.com/javtube/metatube-sdk-go/engine"
+	"github.com/javtube/metatube-sdk-go/errors"
+	V "github.com/javtube/metatube-sdk-go/internal/version"
+	"github.com/javtube/metatube-sdk-go/route/auth"
 )
 
 func New(app *engine.Engine, v auth.Validator) *gin.Engine {
@@ -88,7 +88,7 @@ func getIndex() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, &responseMessage{
 			Data: gin.H{
-				"app":     "javtube",
+				"app":     "metatube",
 				"commit":  V.GitCommit,
 				"version": V.Version,
 			},

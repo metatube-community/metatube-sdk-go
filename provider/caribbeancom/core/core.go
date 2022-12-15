@@ -13,9 +13,9 @@ import (
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
 
-	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/model"
-	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
+	"github.com/javtube/metatube-sdk-go/common/parser"
+	"github.com/javtube/metatube-sdk-go/model"
+	"github.com/javtube/metatube-sdk-go/provider/internal/scraper"
 )
 
 type Core struct {

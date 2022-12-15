@@ -3,12 +3,12 @@ package engine
 import (
 	"image"
 
-	"github.com/javtube/javtube-sdk-go/common/number"
-	R "github.com/javtube/javtube-sdk-go/constant"
-	"github.com/javtube/javtube-sdk-go/imageutil"
-	"github.com/javtube/javtube-sdk-go/imageutil/pigo"
-	"github.com/javtube/javtube-sdk-go/model"
-	javtube "github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/metatube-sdk-go/common/number"
+	R "github.com/javtube/metatube-sdk-go/constant"
+	"github.com/javtube/metatube-sdk-go/imageutil"
+	"github.com/javtube/metatube-sdk-go/imageutil/pigo"
+	"github.com/javtube/metatube-sdk-go/model"
+	mt "github.com/javtube/metatube-sdk-go/provider"
 )
 
 // Default position constants for different kind of images.
@@ -25,7 +25,7 @@ func (e *Engine) GetActorPrimaryImage(name, id string) (image.Image, error) {
 		return nil, err
 	}
 	if len(info.Images) == 0 {
-		return nil, javtube.ErrImageNotFound
+		return nil, mt.ErrImageNotFound
 	}
 	return e.GetImageByURL(e.MustGetActorProviderByName(name), info.Images[0], R.PrimaryImageRatio, defaultActorPrimaryImagePosition, false)
 }
@@ -62,7 +62,7 @@ func (e *Engine) GetMovieBackdropImage(name, id string) (image.Image, error) {
 	return e.GetImageByURL(e.MustGetMovieProviderByName(name), url, R.BackdropImageRatio, defaultMovieBackdropImagePosition, false)
 }
 
-func (e *Engine) GetImageByURL(provider javtube.Provider, url string, ratio, pos float64, auto bool) (img image.Image, err error) {
+func (e *Engine) GetImageByURL(provider mt.Provider, url string, ratio, pos float64, auto bool) (img image.Image, err error) {
 	if img, err = e.getImageByURL(provider, url); err != nil {
 		return
 	}
@@ -72,7 +72,7 @@ func (e *Engine) GetImageByURL(provider javtube.Provider, url string, ratio, pos
 	return imageutil.CropImagePosition(img, ratio, pos), nil
 }
 
-func (e *Engine) getImageByURL(provider javtube.Provider, url string) (img image.Image, err error) {
+func (e *Engine) getImageByURL(provider mt.Provider, url string) (img image.Image, err error) {
 	resp, err := e.Fetch(url, provider)
 	if err != nil {
 		return

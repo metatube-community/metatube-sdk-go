@@ -8,8 +8,8 @@ import (
 
 	"github.com/hashicorp/go-retryablehttp"
 
-	"github.com/javtube/javtube-sdk-go/common/random"
-	"github.com/javtube/javtube-sdk-go/errors"
+	"github.com/javtube/metatube-sdk-go/common/random"
+	"github.com/javtube/metatube-sdk-go/errors"
 )
 
 var DefaultFetcher = Default(&Config{RandomUserAgent: true})

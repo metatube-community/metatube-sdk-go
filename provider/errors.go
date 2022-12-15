@@ -3,7 +3,7 @@ package provider
 import (
 	"net/http"
 
-	"github.com/javtube/javtube-sdk-go/errors"
+	"github.com/javtube/metatube-sdk-go/errors"
 )
 
 var (

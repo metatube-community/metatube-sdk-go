@@ -7,7 +7,7 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/gocolly/colly/v2/debug"
 
-	"github.com/javtube/javtube-sdk-go/common/random"
+	"github.com/javtube/metatube-sdk-go/common/random"
 )
 
 type Option func(*Scraper) error

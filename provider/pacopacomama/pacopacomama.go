@@ -3,8 +3,8 @@ package pacopacomama
 import (
 	"regexp"
 
-	"github.com/javtube/javtube-sdk-go/provider"
-	"github.com/javtube/javtube-sdk-go/provider/1pondo/core"
+	"github.com/javtube/metatube-sdk-go/provider"
+	"github.com/javtube/metatube-sdk-go/provider/1pondo/core"
 )
 
 var _ provider.MovieProvider = (*Pacopacomama)(nil)

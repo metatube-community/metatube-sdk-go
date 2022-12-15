@@ -7,16 +7,16 @@ import (
 
 	"gorm.io/gorm/clause"
 
-	"github.com/javtube/javtube-sdk-go/common/comparer"
-	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/common/priority"
-	"github.com/javtube/javtube-sdk-go/engine/internal/utils"
-	"github.com/javtube/javtube-sdk-go/model"
-	javtube "github.com/javtube/javtube-sdk-go/provider"
-	"github.com/javtube/javtube-sdk-go/provider/gfriends"
+	"github.com/javtube/metatube-sdk-go/common/comparer"
+	"github.com/javtube/metatube-sdk-go/common/parser"
+	"github.com/javtube/metatube-sdk-go/common/priority"
+	"github.com/javtube/metatube-sdk-go/engine/internal/utils"
+	"github.com/javtube/metatube-sdk-go/model"
+	mt "github.com/javtube/metatube-sdk-go/provider"
+	"github.com/javtube/metatube-sdk-go/provider/gfriends"
 )
 
-func (e *Engine) searchActorFromDB(keyword string, provider javtube.Provider) (results []*model.ActorSearchResult, err error) {
+func (e *Engine) searchActorFromDB(keyword string, provider mt.Provider) (results []*model.ActorSearchResult, err error) {
 	var infos []*model.ActorInfo
 	if err = e.db.
 		Where("provider = ? AND name = ? COLLATE NOCASE",
@@ -32,12 +32,12 @@ func (e *Engine) searchActorFromDB(keyword string, provider javtube.Provider) (r
 	return
 }
 
-func (e *Engine) searchActor(keyword string, provider javtube.Provider, fallback bool) ([]*model.ActorSearchResult, error) {
+func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool) ([]*model.ActorSearchResult, error) {
 	innerSearch := func(keyword string) (results []*model.ActorSearchResult, err error) {
 		if provider.Name() == gfriends.Name {
-			return provider.(javtube.ActorSearcher).SearchActor(keyword)
+			return provider.(mt.ActorSearcher).SearchActor(keyword)
 		}
-		if searcher, ok := provider.(javtube.ActorSearcher); ok {
+		if searcher, ok := provider.(mt.ActorSearcher); ok {
 			defer func() {
 				if err != nil || len(results) == 0 {
 					return // ignore error or empty.
@@ -71,11 +71,11 @@ func (e *Engine) searchActor(keyword string, provider javtube.Provider, fallback
 			return searcher.SearchActor(keyword)
 		}
 		// All providers should implement ActorSearcher interface.
-		return nil, javtube.ErrInfoNotFound
+		return nil, mt.ErrInfoNotFound
 	}
 	names := parser.ParseActorNames(keyword)
 	if len(names) == 0 {
-		return nil, javtube.ErrInvalidKeyword
+		return nil, mt.ErrInvalidKeyword
 	}
 	var (
 		results []*model.ActorSearchResult
@@ -85,7 +85,7 @@ func (e *Engine) searchActor(keyword string, provider javtube.Provider, fallback
 		innerResults, innerErr := innerSearch(name)
 		if innerErr != nil &&
 			// ignore InfoNotFound error.
-			innerErr != javtube.ErrInfoNotFound {
+			innerErr != mt.ErrInfoNotFound {
 			// add error to chain and handle it later.
 			errors = append(errors, innerErr)
 			continue
@@ -96,7 +96,7 @@ func (e *Engine) searchActor(keyword string, provider javtube.Provider, fallback
 		if len(errors) > 0 {
 			return nil, fmt.Errorf("search errors: %v", errors)
 		}
-		return nil, javtube.ErrInfoNotFound
+		return nil, mt.ErrInfoNotFound
 	}
 	return results, nil
 }
@@ -116,7 +116,7 @@ func (e *Engine) SearchActorAll(keyword string, fallback bool) (results []*model
 	)
 	for _, provider := range e.actorProviders {
 		wg.Add(1)
-		go func(provider javtube.ActorProvider) {
+		go func(provider mt.ActorProvider) {
 			defer wg.Done()
 			if innerResults, innerErr := e.searchActor(keyword, provider, fallback); innerErr == nil {
 				for _, result := range innerResults {
@@ -138,7 +138,7 @@ func (e *Engine) SearchActorAll(keyword string, fallback bool) (results []*model
 	return
 }
 
-func (e *Engine) getActorInfoFromDB(provider javtube.ActorProvider, id string) (*model.ActorInfo, error) {
+func (e *Engine) getActorInfoFromDB(provider mt.ActorProvider, id string) (*model.ActorInfo, error) {
 	info := &model.ActorInfo{}
 	err := e.db. // Exact match here.
 			Where("provider = ?", provider.Name()).
@@ -147,11 +147,11 @@ func (e *Engine) getActorInfoFromDB(provider javtube.ActorProvider, id string) (
 	return info, err
 }
 
-func (e *Engine) getActorInfoWithCallback(provider javtube.ActorProvider, id string, lazy bool, callback func() (*model.ActorInfo, error)) (info *model.ActorInfo, err error) {
+func (e *Engine) getActorInfoWithCallback(provider mt.ActorProvider, id string, lazy bool, callback func() (*model.ActorInfo, error)) (info *model.ActorInfo, err error) {
 	defer func() {
 		// metadata validation check.
 		if err == nil && (info == nil || !info.Valid()) {
-			err = javtube.ErrIncompleteMetadata
+			err = mt.ErrIncompleteMetadata
 		}
 	}()
 	if provider.Name() == gfriends.Name {
@@ -183,9 +183,9 @@ func (e *Engine) getActorInfoWithCallback(provider javtube.ActorProvider, id str
 	return callback()
 }
 
-func (e *Engine) getActorInfoByProviderID(provider javtube.ActorProvider, id string, lazy bool) (*model.ActorInfo, error) {
+func (e *Engine) getActorInfoByProviderID(provider mt.ActorProvider, id string, lazy bool) (*model.ActorInfo, error) {
 	if id = provider.NormalizeID(id); id == "" {
-		return nil, javtube.ErrInvalidID
+		return nil, mt.ErrInvalidID
 	}
 	return e.getActorInfoWithCallback(provider, id, lazy, func() (*model.ActorInfo, error) {
 		return provider.GetActorInfoByID(id)
@@ -200,13 +200,13 @@ func (e *Engine) GetActorInfoByProviderID(name, id string, lazy bool) (*model.Ac
 	return e.getActorInfoByProviderID(provider, id, lazy)
 }
 
-func (e *Engine) getActorInfoByProviderURL(provider javtube.ActorProvider, rawURL string, lazy bool) (*model.ActorInfo, error) {
+func (e *Engine) getActorInfoByProviderURL(provider mt.ActorProvider, rawURL string, lazy bool) (*model.ActorInfo, error) {
 	id, err := provider.ParseIDFromURL(rawURL)
 	switch {
 	case err != nil:
 		return nil, err
 	case id == "":
-		return nil, javtube.ErrInvalidURL
+		return nil, mt.ErrInvalidURL
 	}
 	return e.getActorInfoWithCallback(provider, id, lazy, func() (*model.ActorInfo, error) {
 		return provider.GetActorInfoByURL(rawURL)

@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/javtube/javtube-sdk-go/engine"
-	"github.com/javtube/javtube-sdk-go/model"
-	javtube "github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/metatube-sdk-go/engine"
+	"github.com/javtube/metatube-sdk-go/model"
+	mt "github.com/javtube/metatube-sdk-go/provider"
 )
 
 func redirect(app *engine.Engine) gin.HandlerFunc {
@@ -36,7 +36,7 @@ func redirect(app *engine.Engine) gin.HandlerFunc {
 			case app.IsMovieProvider(provider):
 				info, err = app.GetMovieInfoByProviderID(provider, id, true)
 			default:
-				abortWithError(c, javtube.ErrProviderNotFound)
+				abortWithError(c, mt.ErrProviderNotFound)
 				return
 			}
 			if err != nil {

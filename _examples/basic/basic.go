@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/javtube/javtube-sdk-go/engine"
+	"github.com/javtube/metatube-sdk-go/engine"
 )
 
 func main() {

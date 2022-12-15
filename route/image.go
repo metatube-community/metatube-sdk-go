@@ -10,10 +10,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
 
-	R "github.com/javtube/javtube-sdk-go/constant"
-	"github.com/javtube/javtube-sdk-go/engine"
-	"github.com/javtube/javtube-sdk-go/imageutil/badge"
-	javtube "github.com/javtube/javtube-sdk-go/provider"
+	R "github.com/javtube/metatube-sdk-go/constant"
+	"github.com/javtube/metatube-sdk-go/engine"
+	"github.com/javtube/metatube-sdk-go/imageutil/badge"
+	mt "github.com/javtube/metatube-sdk-go/provider"
 )
 
 type imageType uint8
@@ -73,7 +73,7 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 		case app.IsMovieProvider(uri.Provider):
 			isActorProvider = false
 		default:
-			abortWithError(c, javtube.ErrProviderNotFound)
+			abortWithError(c, mt.ErrProviderNotFound)
 			return
 		}
 
@@ -82,7 +82,7 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 			err error
 		)
 		if query.URL != "" /* specified URL */ {
-			var provider javtube.Provider
+			var provider mt.Provider
 			if isActorProvider {
 				provider = app.MustGetActorProviderByName(uri.Provider)
 			} else {
@@ -123,8 +123,8 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 			}
 		}
 
-		c.Header("X-JavTube-Image-Width", strconv.Itoa(img.Bounds().Dx()))
-		c.Header("X-JavTube-Image-Height", strconv.Itoa(img.Bounds().Dy()))
+		c.Header("X-MetaTube-Image-Width", strconv.Itoa(img.Bounds().Dx()))
+		c.Header("X-MetaTube-Image-Height", strconv.Itoa(img.Bounds().Dy()))
 
 		buf := &bytes.Buffer{}
 		if err = jpeg.Encode(buf, img, &jpeg.Options{Quality: query.Quality}); err != nil {

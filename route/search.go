@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/javtube/javtube-sdk-go/engine"
-	"github.com/javtube/javtube-sdk-go/errors"
-	"github.com/javtube/javtube-sdk-go/model"
+	"github.com/javtube/metatube-sdk-go/engine"
+	"github.com/javtube/metatube-sdk-go/errors"
+	"github.com/javtube/metatube-sdk-go/model"
 )
 
 type searchType uint8

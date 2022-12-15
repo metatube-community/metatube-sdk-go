@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/javtube/javtube-sdk-go/engine"
-	"github.com/javtube/javtube-sdk-go/provider/arzon"
-	"github.com/javtube/javtube-sdk-go/provider/fanza"
-	"github.com/javtube/javtube-sdk-go/provider/javbus"
-	"github.com/javtube/javtube-sdk-go/provider/sod"
-	"github.com/javtube/javtube-sdk-go/provider/xslist"
+	"github.com/javtube/metatube-sdk-go/engine"
+	"github.com/javtube/metatube-sdk-go/provider/arzon"
+	"github.com/javtube/metatube-sdk-go/provider/fanza"
+	"github.com/javtube/metatube-sdk-go/provider/javbus"
+	"github.com/javtube/metatube-sdk-go/provider/sod"
+	"github.com/javtube/metatube-sdk-go/provider/xslist"
 )
 
 func main() {
@@ -50,7 +50,7 @@ func main() {
 
 	// Get movie primary image id `hmn00268` from FANZA with aspect ratio set to 7:10 and pos set to center.
 	app.GetMoviePrimaryImage(fanza.Name, "hmn00268", 0.70, 0.5)
-	
+
 	// Get movie backdrop image id `DLDSS-077` from SOD.
 	app.GetMovieBackdropImage(sod.Name, "DLDSS-077")
 }

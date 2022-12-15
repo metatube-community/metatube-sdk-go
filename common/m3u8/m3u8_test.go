@@ -3,7 +3,7 @@ package m3u8
 import (
 	"testing"
 
-	"github.com/javtube/javtube-sdk-go/common/fetch"
+	"github.com/javtube/metatube-sdk-go/common/fetch"
 )
 
 func TestParseBestMediaURI(t *testing.T) {

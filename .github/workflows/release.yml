@@ -41,5 +41,5 @@ jobs:
           files: build/*
           draft: false
           prerelease: false
-          repository: javtube/javtube-server-releases
+          repository: javtube/metatube-server-releases
           token: ${{ secrets.BOT_PAT }}

@@ -6,7 +6,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 
-	"github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/metatube-sdk-go/provider"
 )
 
 var _ provider.Provider = (*Scraper)(nil)

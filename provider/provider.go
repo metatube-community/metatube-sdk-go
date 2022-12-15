@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/javtube/javtube-sdk-go/model"
+	"github.com/javtube/metatube-sdk-go/model"
 )
 
 type Provider interface {

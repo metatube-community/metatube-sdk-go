@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/javtube/javtube-sdk-go/errors"
-	"github.com/javtube/javtube-sdk-go/route/auth"
+	"github.com/javtube/metatube-sdk-go/errors"
+	"github.com/javtube/metatube-sdk-go/route/auth"
 )
 
 func authentication(v auth.Validator) gin.HandlerFunc {

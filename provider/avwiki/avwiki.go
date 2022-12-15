@@ -12,17 +12,17 @@ import (
 
 	"github.com/gocolly/colly/v2"
 
-	"github.com/javtube/javtube-sdk-go/common/number"
-	"github.com/javtube/javtube-sdk-go/common/parser"
-	"github.com/javtube/javtube-sdk-go/common/singledo"
-	"github.com/javtube/javtube-sdk-go/model"
-	"github.com/javtube/javtube-sdk-go/provider"
-	"github.com/javtube/javtube-sdk-go/provider/duga"
-	"github.com/javtube/javtube-sdk-go/provider/fanza"
-	"github.com/javtube/javtube-sdk-go/provider/getchu"
-	"github.com/javtube/javtube-sdk-go/provider/internal/scraper"
-	"github.com/javtube/javtube-sdk-go/provider/mgstage"
-	"github.com/javtube/javtube-sdk-go/provider/pcolle"
+	"github.com/javtube/metatube-sdk-go/common/number"
+	"github.com/javtube/metatube-sdk-go/common/parser"
+	"github.com/javtube/metatube-sdk-go/common/singledo"
+	"github.com/javtube/metatube-sdk-go/model"
+	"github.com/javtube/metatube-sdk-go/provider"
+	"github.com/javtube/metatube-sdk-go/provider/duga"
+	"github.com/javtube/metatube-sdk-go/provider/fanza"
+	"github.com/javtube/metatube-sdk-go/provider/getchu"
+	"github.com/javtube/metatube-sdk-go/provider/internal/scraper"
+	"github.com/javtube/metatube-sdk-go/provider/mgstage"
+	"github.com/javtube/metatube-sdk-go/provider/pcolle"
 )
 
 var (

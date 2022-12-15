@@ -12,11 +12,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/peterbourgon/ff/v3"
 
-	"github.com/javtube/javtube-sdk-go/database"
-	"github.com/javtube/javtube-sdk-go/engine"
-	V "github.com/javtube/javtube-sdk-go/internal/version"
-	"github.com/javtube/javtube-sdk-go/route"
-	"github.com/javtube/javtube-sdk-go/route/auth"
+	"github.com/javtube/metatube-sdk-go/database"
+	"github.com/javtube/metatube-sdk-go/engine"
+	V "github.com/javtube/metatube-sdk-go/internal/version"
+	"github.com/javtube/metatube-sdk-go/route"
+	"github.com/javtube/metatube-sdk-go/route/auth"
 )
 
 const defaultRequestTimeout = time.Minute

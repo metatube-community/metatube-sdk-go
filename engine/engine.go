@@ -8,21 +8,21 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/javtube/javtube-sdk-go/common/fetch"
-	"github.com/javtube/javtube-sdk-go/database"
-	"github.com/javtube/javtube-sdk-go/model"
-	javtube "github.com/javtube/javtube-sdk-go/provider"
+	"github.com/javtube/metatube-sdk-go/common/fetch"
+	"github.com/javtube/metatube-sdk-go/database"
+	"github.com/javtube/metatube-sdk-go/model"
+	mt "github.com/javtube/metatube-sdk-go/provider"
 )
 
 type Engine struct {
 	db      *gorm.DB
 	fetcher *fetch.Fetcher
 	// Name:Provider Map
-	actorProviders map[string]javtube.ActorProvider
-	movieProviders map[string]javtube.MovieProvider
+	actorProviders map[string]mt.ActorProvider
+	movieProviders map[string]mt.MovieProvider
 	// Host:Providers Map
-	actorHostProviders map[string][]javtube.ActorProvider
-	movieHostProviders map[string][]javtube.MovieProvider
+	actorHostProviders map[string][]mt.ActorProvider
+	movieHostProviders map[string][]mt.MovieProvider
 }
 
 func New(db *gorm.DB, timeout time.Duration) *Engine {
@@ -48,12 +48,12 @@ func Default() *Engine {
 // initActorProviders initializes actor providers.
 func (e *Engine) initActorProviders(timeout time.Duration) {
 	{ // init
-		e.actorProviders = make(map[string]javtube.ActorProvider)
-		e.actorHostProviders = make(map[string][]javtube.ActorProvider)
+		e.actorProviders = make(map[string]mt.ActorProvider)
+		e.actorHostProviders = make(map[string][]mt.ActorProvider)
 	}
-	javtube.RangeActorFactory(func(name string, factory javtube.ActorFactory) {
+	mt.RangeActorFactory(func(name string, factory mt.ActorFactory) {
 		provider := factory()
-		if s, ok := provider.(javtube.RequestTimeoutSetter); ok {
+		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(timeout)
 		}
 		// Add actor provider by name.
@@ -67,12 +67,12 @@ func (e *Engine) initActorProviders(timeout time.Duration) {
 // initMovieProviders initializes movie providers.
 func (e *Engine) initMovieProviders(timeout time.Duration) {
 	{ // init
-		e.movieProviders = make(map[string]javtube.MovieProvider)
-		e.movieHostProviders = make(map[string][]javtube.MovieProvider)
+		e.movieProviders = make(map[string]mt.MovieProvider)
+		e.movieHostProviders = make(map[string][]mt.MovieProvider)
 	}
-	javtube.RangeMovieFactory(func(name string, factory javtube.MovieFactory) {
+	mt.RangeMovieFactory(func(name string, factory mt.MovieFactory) {
 		provider := factory()
-		if s, ok := provider.(javtube.RequestTimeoutSetter); ok {
+		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(timeout)
 		}
 		// Add movie provider by name.
@@ -88,11 +88,11 @@ func (e *Engine) IsActorProvider(name string) (ok bool) {
 	return
 }
 
-func (e *Engine) GetActorProviders() map[string]javtube.ActorProvider {
+func (e *Engine) GetActorProviders() map[string]mt.ActorProvider {
 	return e.actorProviders
 }
 
-func (e *Engine) GetActorProviderByURL(rawURL string) (javtube.ActorProvider, error) {
+func (e *Engine) GetActorProviderByURL(rawURL string) (mt.ActorProvider, error) {
 	u, err := url.Parse(rawURL)
 	if err != nil {
 		return nil, err
@@ -102,18 +102,18 @@ func (e *Engine) GetActorProviderByURL(rawURL string) (javtube.ActorProvider, er
 			return p, nil
 		}
 	}
-	return nil, javtube.ErrProviderNotFound
+	return nil, mt.ErrProviderNotFound
 }
 
-func (e *Engine) GetActorProviderByName(name string) (javtube.ActorProvider, error) {
+func (e *Engine) GetActorProviderByName(name string) (mt.ActorProvider, error) {
 	provider, ok := e.actorProviders[strings.ToUpper(name)]
 	if !ok {
-		return nil, javtube.ErrProviderNotFound
+		return nil, mt.ErrProviderNotFound
 	}
 	return provider, nil
 }
 
-func (e *Engine) MustGetActorProviderByName(name string) javtube.ActorProvider {
+func (e *Engine) MustGetActorProviderByName(name string) mt.ActorProvider {
 	provider, err := e.GetActorProviderByName(name)
 	if err != nil {
 		panic(err)
@@ -126,11 +126,11 @@ func (e *Engine) IsMovieProvider(name string) (ok bool) {
 	return
 }
 
-func (e *Engine) GetMovieProviders() map[string]javtube.MovieProvider {
+func (e *Engine) GetMovieProviders() map[string]mt.MovieProvider {
 	return e.movieProviders
 }
 
-func (e *Engine) GetMovieProviderByURL(rawURL string) (javtube.MovieProvider, error) {
+func (e *Engine) GetMovieProviderByURL(rawURL string) (mt.MovieProvider, error) {
 	u, err := url.Parse(rawURL)
 	if err != nil {
 		return nil, err
@@ -140,18 +140,18 @@ func (e *Engine) GetMovieProviderByURL(rawURL string) (javtube.MovieProvider, er
 			return p, nil
 		}
 	}
-	return nil, javtube.ErrProviderNotFound
+	return nil, mt.ErrProviderNotFound
 }
 
-func (e *Engine) GetMovieProviderByName(name string) (javtube.MovieProvider, error) {
+func (e *Engine) GetMovieProviderByName(name string) (mt.MovieProvider, error) {
 	provider, ok := e.movieProviders[strings.ToUpper(name)]
 	if !ok {
-		return nil, javtube.ErrProviderNotFound
+		return nil, mt.ErrProviderNotFound
 	}
 	return provider, nil
 }
 
-func (e *Engine) MustGetMovieProviderByName(name string) javtube.MovieProvider {
+func (e *Engine) MustGetMovieProviderByName(name string) mt.MovieProvider {
 	provider, err := e.GetMovieProviderByName(name)
 	if err != nil {
 		panic(err)
@@ -177,10 +177,10 @@ func (e *Engine) AutoMigrate(v bool) error {
 
 // Fetch fetches content from url. If provider is nil, the
 // default fetcher will be used.
-func (e *Engine) Fetch(url string, provider javtube.Provider) (*http.Response, error) {
+func (e *Engine) Fetch(url string, provider mt.Provider) (*http.Response, error) {
 	// Provider which implements Fetcher interface should be
 	// used to fetch all its corresponding resources.
-	if fetcher, ok := provider.(javtube.Fetcher); ok {
+	if fetcher, ok := provider.(mt.Fetcher); ok {
 		return fetcher.Fetch(url)
 	}
 	return e.fetcher.Fetch(url)
