@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/javtube/metatube-sdk-go/engine"
-	"github.com/javtube/metatube-sdk-go/provider/arzon"
-	"github.com/javtube/metatube-sdk-go/provider/fanza"
-	"github.com/javtube/metatube-sdk-go/provider/javbus"
-	"github.com/javtube/metatube-sdk-go/provider/sod"
-	"github.com/javtube/metatube-sdk-go/provider/xslist"
+	"github.com/metatube-community/metatube-sdk-go/engine"
+	"github.com/metatube-community/metatube-sdk-go/provider/arzon"
+	"github.com/metatube-community/metatube-sdk-go/provider/fanza"
+	"github.com/metatube-community/metatube-sdk-go/provider/javbus"
+	"github.com/metatube-community/metatube-sdk-go/provider/sod"
+	"github.com/metatube-community/metatube-sdk-go/provider/xslist"
 )
 
 func main() {

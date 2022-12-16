@@ -1,4 +1,4 @@
-module github.com/javtube/metatube-sdk-go
+module github.com/metatube-community/metatube-sdk-go
 
 go 1.19
 

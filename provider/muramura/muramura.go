@@ -3,8 +3,8 @@ package muramura
 import (
 	"regexp"
 
-	"github.com/javtube/metatube-sdk-go/provider"
-	"github.com/javtube/metatube-sdk-go/provider/1pondo/core"
+	"github.com/metatube-community/metatube-sdk-go/provider"
+	"github.com/metatube-community/metatube-sdk-go/provider/1pondo/core"
 )
 
 var _ provider.MovieProvider = (*MuraMura)(nil)

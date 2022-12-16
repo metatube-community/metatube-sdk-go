@@ -3,7 +3,7 @@ package utils
 import (
 	"github.com/iancoleman/orderedmap"
 
-	"github.com/javtube/metatube-sdk-go/model"
+	"github.com/metatube-community/metatube-sdk-go/model"
 )
 
 type ActorSearchResultSet struct {

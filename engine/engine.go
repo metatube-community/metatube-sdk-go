@@ -8,10 +8,10 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/javtube/metatube-sdk-go/common/fetch"
-	"github.com/javtube/metatube-sdk-go/database"
-	"github.com/javtube/metatube-sdk-go/model"
-	mt "github.com/javtube/metatube-sdk-go/provider"
+	"github.com/metatube-community/metatube-sdk-go/common/fetch"
+	"github.com/metatube-community/metatube-sdk-go/database"
+	"github.com/metatube-community/metatube-sdk-go/model"
+	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
 
 type Engine struct {

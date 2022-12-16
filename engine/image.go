@@ -3,12 +3,12 @@ package engine
 import (
 	"image"
 
-	"github.com/javtube/metatube-sdk-go/common/number"
-	R "github.com/javtube/metatube-sdk-go/constant"
-	"github.com/javtube/metatube-sdk-go/imageutil"
-	"github.com/javtube/metatube-sdk-go/imageutil/pigo"
-	"github.com/javtube/metatube-sdk-go/model"
-	mt "github.com/javtube/metatube-sdk-go/provider"
+	"github.com/metatube-community/metatube-sdk-go/common/number"
+	R "github.com/metatube-community/metatube-sdk-go/constant"
+	"github.com/metatube-community/metatube-sdk-go/imageutil"
+	"github.com/metatube-community/metatube-sdk-go/imageutil/pigo"
+	"github.com/metatube-community/metatube-sdk-go/model"
+	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
 
 // Default position constants for different kind of images.

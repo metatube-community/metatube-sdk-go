@@ -5,12 +5,12 @@ import (
 
 	"gorm.io/gorm/clause"
 
-	"github.com/javtube/metatube-sdk-go/common/comparer"
-	"github.com/javtube/metatube-sdk-go/common/number"
-	"github.com/javtube/metatube-sdk-go/common/priority"
-	"github.com/javtube/metatube-sdk-go/engine/internal/utils"
-	"github.com/javtube/metatube-sdk-go/model"
-	mt "github.com/javtube/metatube-sdk-go/provider"
+	"github.com/metatube-community/metatube-sdk-go/common/comparer"
+	"github.com/metatube-community/metatube-sdk-go/common/number"
+	"github.com/metatube-community/metatube-sdk-go/common/priority"
+	"github.com/metatube-community/metatube-sdk-go/engine/internal/utils"
+	"github.com/metatube-community/metatube-sdk-go/model"
+	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
 
 func (e *Engine) searchMovieFromDB(keyword string, provider mt.MovieProvider, all bool) (results []*model.MovieSearchResult, err error) {

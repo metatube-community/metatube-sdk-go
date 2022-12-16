@@ -3,8 +3,8 @@ package caribbeancompr
 import (
 	"regexp"
 
-	"github.com/javtube/metatube-sdk-go/provider"
-	"github.com/javtube/metatube-sdk-go/provider/caribbeancom/core"
+	"github.com/metatube-community/metatube-sdk-go/provider"
+	"github.com/metatube-community/metatube-sdk-go/provider/caribbeancom/core"
 )
 
 var _ provider.MovieProvider = (*CaribbeancomPremium)(nil)

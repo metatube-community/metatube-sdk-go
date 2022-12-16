@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/javtube/metatube-sdk-go/engine"
-	"github.com/javtube/metatube-sdk-go/model"
-	mt "github.com/javtube/metatube-sdk-go/provider"
+	"github.com/metatube-community/metatube-sdk-go/engine"
+	"github.com/metatube-community/metatube-sdk-go/model"
+	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
 
 func redirect(app *engine.Engine) gin.HandlerFunc {

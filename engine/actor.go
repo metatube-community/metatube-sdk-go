@@ -7,13 +7,13 @@ import (
 
 	"gorm.io/gorm/clause"
 
-	"github.com/javtube/metatube-sdk-go/common/comparer"
-	"github.com/javtube/metatube-sdk-go/common/parser"
-	"github.com/javtube/metatube-sdk-go/common/priority"
-	"github.com/javtube/metatube-sdk-go/engine/internal/utils"
-	"github.com/javtube/metatube-sdk-go/model"
-	mt "github.com/javtube/metatube-sdk-go/provider"
-	"github.com/javtube/metatube-sdk-go/provider/gfriends"
+	"github.com/metatube-community/metatube-sdk-go/common/comparer"
+	"github.com/metatube-community/metatube-sdk-go/common/parser"
+	"github.com/metatube-community/metatube-sdk-go/common/priority"
+	"github.com/metatube-community/metatube-sdk-go/engine/internal/utils"
+	"github.com/metatube-community/metatube-sdk-go/model"
+	mt "github.com/metatube-community/metatube-sdk-go/provider"
+	"github.com/metatube-community/metatube-sdk-go/provider/gfriends"
 )
 
 func (e *Engine) searchActorFromDB(keyword string, provider mt.Provider) (results []*model.ActorSearchResult, err error) {

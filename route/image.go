@@ -10,10 +10,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
 
-	R "github.com/javtube/metatube-sdk-go/constant"
-	"github.com/javtube/metatube-sdk-go/engine"
-	"github.com/javtube/metatube-sdk-go/imageutil/badge"
-	mt "github.com/javtube/metatube-sdk-go/provider"
+	R "github.com/metatube-community/metatube-sdk-go/constant"
+	"github.com/metatube-community/metatube-sdk-go/engine"
+	"github.com/metatube-community/metatube-sdk-go/imageutil/badge"
+	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
 
 type imageType uint8

@@ -5,9 +5,9 @@ import (
 	"math"
 	"sync"
 
-	"github.com/javtube/metatube-sdk-go/common/fetch"
-	"github.com/javtube/metatube-sdk-go/imageutil"
-	"github.com/javtube/metatube-sdk-go/provider"
+	"github.com/metatube-community/metatube-sdk-go/common/fetch"
+	"github.com/metatube-community/metatube-sdk-go/imageutil"
+	"github.com/metatube-community/metatube-sdk-go/provider"
 )
 
 var imageFetcher = fetch.Default(nil)

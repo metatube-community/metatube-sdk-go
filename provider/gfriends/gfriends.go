@@ -9,11 +9,11 @@ import (
 
 	"github.com/iancoleman/orderedmap"
 
-	"github.com/javtube/metatube-sdk-go/common/fetch"
-	"github.com/javtube/metatube-sdk-go/common/reverse"
-	"github.com/javtube/metatube-sdk-go/common/singledo"
-	"github.com/javtube/metatube-sdk-go/model"
-	"github.com/javtube/metatube-sdk-go/provider"
+	"github.com/metatube-community/metatube-sdk-go/common/fetch"
+	"github.com/metatube-community/metatube-sdk-go/common/reverse"
+	"github.com/metatube-community/metatube-sdk-go/common/singledo"
+	"github.com/metatube-community/metatube-sdk-go/model"
+	"github.com/metatube-community/metatube-sdk-go/provider"
 )
 
 var (

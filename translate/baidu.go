@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/javtube/metatube-sdk-go/common/fetch"
+	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 )
 
 const baiduTranslateAPI = "https://api.fanyi.baidu.com/api/trans/vip/translate"

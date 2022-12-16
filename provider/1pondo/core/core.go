@@ -13,9 +13,9 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/nlnwa/whatwg-url/url"
 
-	"github.com/javtube/metatube-sdk-go/common/parser"
-	"github.com/javtube/metatube-sdk-go/model"
-	"github.com/javtube/metatube-sdk-go/provider/internal/scraper"
+	"github.com/metatube-community/metatube-sdk-go/common/parser"
+	"github.com/metatube-community/metatube-sdk-go/model"
+	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
 
 // API Paths

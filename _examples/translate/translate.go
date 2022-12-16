@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/javtube/metatube-sdk-go/translate"
+	"github.com/metatube-community/metatube-sdk-go/translate"
 )
 
 func main() {
