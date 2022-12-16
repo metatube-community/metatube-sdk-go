@@ -56,8 +56,8 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            javtube/metatube-server:dev
-            ghcr.io/javtube/metatube-server:dev
+            metatube-community/metatube-server:dev
+            ghcr.io/metatube-community/metatube-server:dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -70,9 +70,9 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            javtube/metatube-server:latest
-            javtube/metatube-server:${{ steps.shell.outputs.version }}
-            ghcr.io/javtube/metatube-server:latest
-            ghcr.io/javtube/metatube-server:${{ steps.shell.outputs.version }}
+            metatube-community/metatube-server:latest
+            metatube-community/metatube-server:${{ steps.shell.outputs.version }}
+            ghcr.io/metatube-community/metatube-server:latest
+            ghcr.io/metatube-community/metatube-server:${{ steps.shell.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

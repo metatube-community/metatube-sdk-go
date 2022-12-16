@@ -1,4 +1,4 @@
-MODULE := github.com/javtube/metatube-sdk-go
+MODULE := github.com/metatube-community/metatube-sdk-go
 
 SERVER_NAME := metatube-server
 SERVER_CODE := cmd/server/main.go

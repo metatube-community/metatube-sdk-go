@@ -10,7 +10,7 @@ linters-settings:
   gci:
     sections:
       - standard
-      - prefix(github.com/javtube/metatube-sdk-go)
+      - prefix(github.com/metatube-community/metatube-sdk-go)
       - default
   staticcheck:
     go: '1.19'

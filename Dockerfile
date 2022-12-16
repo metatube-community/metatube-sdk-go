@@ -7,7 +7,7 @@ RUN apk add --update --no-cache --no-progress make git \
     && make server
 
 FROM alpine:latest
-LABEL org.opencontainers.image.source="https://github.com/javtube/metatube-sdk-go"
+LABEL org.opencontainers.image.source="https://github.com/metatube-community/metatube-sdk-go"
 
 COPY --from=builder /src/build/metatube-server .
 
