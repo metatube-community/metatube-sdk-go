@@ -1,6 +1,6 @@
 # MetaTube SDK Go
 
-[![Build Status](https://img.shields.io/github/workflow/status/metatube-community/metatube-sdk-go/Publish%20Go%20Releases?style=flat-square&logo=github-actions)](https://github.com/metatube-community/metatube-sdk-go/actions/workflows/release.yml)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/metatube-community/metatube-sdk-go/release.yml?branch=main&style=flat-square&logo=github-actions)](https://github.com/metatube-community/metatube-sdk-go/actions/workflows/release.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/metatube-community/metatube-sdk-go?style=flat-square)](https://github.com/metatube-community/metatube-sdk-go)
 [![Require Go Version](https://img.shields.io/badge/go-%3E%3D1.19-30dff3?style=flat-square&logo=go)](https://github.com/metatube-community/metatube-sdk-go/blob/main/go.mod)
 [![GitHub License](https://img.shields.io/github/license/metatube-community/metatube-sdk-go?color=A42E2B&logo=gnu&style=flat-square)](https://github.com/metatube-community/metatube-sdk-go/blob/main/LICENSE)
