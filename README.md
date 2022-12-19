@@ -139,7 +139,7 @@ func main() {
 	app.GetActorInfoByProviderID(xslist.Name, "<id>", true)
 	
 	// Get actor metadata from given URL with lazy enabled.
-	app.GetActorInfoByURL("https://xslist.org/zh/model/<id>.html", true)
+	app.GetActorInfoByURL("https://<actor_page_url>", true)
 }
 ```
 
@@ -164,7 +164,7 @@ func main() {
 	app.GetMovieInfoByProviderID(arzon.Name, "<id>", true)
 	
 	// Get movie metadata from given URL with lazy enabled.
-	app.GetMovieInfoByURL("https://www.heyzo.com/moviepages/<id>/index.html", true)
+	app.GetMovieInfoByURL("https://<movie_page_url>", true)
 }
 ```
 
