@@ -159,7 +159,10 @@ func (fc2hub *FC2HUB) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, e
 					info.Maker = data.Director
 				}
 				if len(info.Genres) == 0 {
-					info.Genres = data.Genre
+					info.Genres = removeEmpty(data.Genre)
+				}
+				if len(data.Actor) > 0 {
+					info.Actors = removeEmpty(data.Actor)
 				}
 				for _, identifier := range data.Identifier {
 					if num := fc2.ParseNumber(identifier); num != "" {
@@ -231,6 +234,19 @@ func (fc2hub *FC2HUB) SearchMovie(keyword string) (results []*model.MovieSearchR
 	})
 
 	err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword)))
+	return
+}
+
+func removeEmpty(in []string) (out []string) {
+	if len(in) == 0 {
+		return in
+	}
+	out = make([]string, 0, len(in))
+	for _, elem := range in {
+		if strings.TrimSpace(elem) != "" {
+			out = append(out, elem)
+		}
+	}
 	return
 }
 
