@@ -36,7 +36,7 @@ require (
 	github.com/antchfx/xpath v1.2.2 // indirect
 	github.com/bits-and-blooms/bitset v1.4.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/dustin/go-humanize v1.0.0 // indirect
+	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/glebarez/go-sqlite v1.20.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
