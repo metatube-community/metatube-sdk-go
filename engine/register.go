@@ -30,7 +30,6 @@ import (
 	_ "github.com/metatube-community/metatube-sdk-go/provider/mywife"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/pacopacomama"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/pcolle"
-	_ "github.com/metatube-community/metatube-sdk-go/provider/prestige"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/sod"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/tokyo-hot"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/xslist"
