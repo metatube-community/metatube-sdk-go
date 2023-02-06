@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 )
@@ -125,7 +124,3 @@ func parseToBaiduSupportedLanguage(lang string) string {
 //	58002: "服务当前已关闭",
 //	90107: "认证未通过或未生效",
 //}
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
