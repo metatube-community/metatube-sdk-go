@@ -1,6 +1,6 @@
 module github.com/metatube-community/metatube-sdk-go
 
-go 1.19
+go 1.20
 
 require (
 	github.com/adrg/strutil v0.3.0
