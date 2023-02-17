@@ -22,7 +22,7 @@ require (
 	github.com/zijiren233/google-translater v0.2.2
 	go.uber.org/atomic v1.10.0
 	golang.org/x/image v0.5.0
-	golang.org/x/net v0.6.0
+	golang.org/x/net v0.7.0
 	golang.org/x/text v0.7.0
 	gorm.io/datatypes v1.1.0
 	gorm.io/driver/postgres v1.4.7
