@@ -200,8 +200,8 @@ github.com/twitchyliquid64/golang-asm v0.15.1/go.mod h1:a1lVb/DtPvCB8fslRZhAngC2
 github.com/ugorji/go/codec v1.2.10 h1:eimT6Lsr+2lzmSZxPhLFoOWFmQqwk0fllJJ5hEbTXtQ=
 github.com/ugorji/go/codec v1.2.10/go.mod h1:UNopzCgEMSXjBc6AOMqYvWC1ktqTAfzJZUZgYf6w6lg=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
-github.com/zijiren233/google-translater v0.2.2 h1:qb852tu53SNh8789XZu30JFskHA3D8s+s/Vxbsgh0bs=
-github.com/zijiren233/google-translater v0.2.2/go.mod h1:QbDlXjzkG8T3JCyfb7faCpm9oP4OuiL4z1/6lKorKzQ=
+github.com/zijiren233/google-translater v0.3.0 h1:dE9XTCKZesN7hWUB5sg+9yRLvhxNWML/9UBF7t2wNkQ=
+github.com/zijiren233/google-translater v0.3.0/go.mod h1:QbDlXjzkG8T3JCyfb7faCpm9oP4OuiL4z1/6lKorKzQ=
 go.uber.org/atomic v1.10.0 h1:9qC72Qh0+3MqyJbAn8YU5xVq1frD8bn3JtD2oXtafVQ=
 go.uber.org/atomic v1.10.0/go.mod h1:LUxbIzbOniOlMKjJjyPfpl4v+PKK2cNJn91OQbhoJI0=
 go.uber.org/goleak v1.1.10 h1:z+mqJhf6ss6BSfSM671tgKyZBFPTTJM+HLxnhPC3wu0=
