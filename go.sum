@@ -202,12 +202,8 @@ github.com/ugorji/go/codec v1.2.10/go.mod h1:UNopzCgEMSXjBc6AOMqYvWC1ktqTAfzJZUZ
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/zijiren233/google-translater v0.4.0 h1:8i8KVTQb53DdsWbhWO2Ef7RSdmbq8qj/gdIrQldT/4o=
 github.com/zijiren233/google-translater v0.4.0/go.mod h1:6UHDdxlVQ959nf8PoVE/um70QeWrnZagBd58nXUVtpQ=
-github.com/zijiren233/openai-translater v0.0.0-20230314001311-670f0f56f8b3 h1:Ulo7vpYcUv3Zu+pjo+PWXKfyP6eaAiW+ZOZCIToFOB4=
-github.com/zijiren233/openai-translater v0.0.0-20230314001311-670f0f56f8b3/go.mod h1:PvONEZIlmn87oXIlbOv0yR11ogsv6HrvgB5k++o4NMw=
-github.com/zijiren233/openai-translater v0.0.0-20230314002056-1f62b226c996 h1:zn2GRSOm9zWhZU/mHZULLH+5/yemSRIhjALJ1nyNM/k=
-github.com/zijiren233/openai-translater v0.0.0-20230314002056-1f62b226c996/go.mod h1:PvONEZIlmn87oXIlbOv0yR11ogsv6HrvgB5k++o4NMw=
-github.com/zijiren233/openai-translater v0.0.0-20230314003011-bfa548d07bb4 h1:uoAcoqAKW+eKknz3s+ZfOd2gCsw31C2Xmr3+xfvIYwM=
-github.com/zijiren233/openai-translater v0.0.0-20230314003011-bfa548d07bb4/go.mod h1:PvONEZIlmn87oXIlbOv0yR11ogsv6HrvgB5k++o4NMw=
+github.com/zijiren233/openai-translater v0.1.0 h1:FEqntj2DJ8YS6iEgYXxBtAWlhUBpYTXdJS94A/jNXTw=
+github.com/zijiren233/openai-translater v0.1.0/go.mod h1:PvONEZIlmn87oXIlbOv0yR11ogsv6HrvgB5k++o4NMw=
 go.uber.org/atomic v1.10.0 h1:9qC72Qh0+3MqyJbAn8YU5xVq1frD8bn3JtD2oXtafVQ=
 go.uber.org/atomic v1.10.0/go.mod h1:LUxbIzbOniOlMKjJjyPfpl4v+PKK2cNJn91OQbhoJI0=
 go.uber.org/goleak v1.1.10 h1:z+mqJhf6ss6BSfSM671tgKyZBFPTTJM+HLxnhPC3wu0=
