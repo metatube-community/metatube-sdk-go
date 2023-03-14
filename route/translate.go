@@ -14,6 +14,7 @@ const (
 	googleFreeTranslateEngine = "googlefree"
 	baiduTranslateEngine      = "baidu"
 	deeplTranslateEngine      = "deepl"
+	openaiTranslateEngine     = "openai"
 )
 
 const (
@@ -22,6 +23,9 @@ const (
 
 	// DeepL
 	deeplAPIKey = "deepl-api-key"
+
+	// Openai
+	openaiAPIKey = "openai-api-key"
 
 	// Baidu
 	baiduAPPID  = "baidu-app-id"
@@ -61,6 +65,9 @@ func getTranslate() gin.HandlerFunc {
 		case deeplTranslateEngine:
 			result, err = translate.DeepLTranslate(query.Q, query.From, query.To,
 				c.Query(deeplAPIKey))
+		case openaiTranslateEngine:
+			result, err = translate.OpenaiTranslate(query.Q, query.From, query.To,
+				c.Query(openaiAPIKey))
 		default:
 			abortWithStatusMessage(c, http.StatusBadRequest, "invalid translate engine")
 			return
