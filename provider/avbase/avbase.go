@@ -117,6 +117,9 @@ func (ab *AVBase) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 			if info.Series == "" {
 				info.Series = workInfo.Series
 			}
+			if info.Summary == "" {
+				info.Summary = workInfo.Summary
+			}
 			if len(info.Genres) == 0 {
 				info.Genres = workInfo.Genres
 			}
@@ -172,6 +175,9 @@ func (ab *AVBase) getMovieInfoFromWork(work Work) (info *model.MovieInfo, err er
 		if info.Series == "" {
 			info.Series = product.Series.Name
 		}
+		if info.Summary == "" {
+			info.Summary = product.ItemInfo.Description
+		}
 		if time.Time(info.ReleaseDate).IsZero() {
 			info.ReleaseDate = parser.ParseDate(product.Date)
 		}
@@ -187,8 +193,8 @@ func (ab *AVBase) getMovieInfoFromWork(work Work) (info *model.MovieInfo, err er
 	for _, genre := range work.Genres {
 		info.Genres = append(info.Genres, genre.Name)
 	}
-	for _, actor := range work.Actors {
-		info.Actors = append(info.Actors, actor.Name)
+	for _, cast := range work.Casts {
+		info.Actors = append(info.Actors, cast.Actor.Name)
 	}
 	return
 }
@@ -338,12 +344,22 @@ type Work struct {
 			S string `json:"s"`
 			L string `json:"l"`
 		} `json:"sample_image_urls"`
+		ItemInfo struct {
+			Description string `json:"description"`
+			Price       string `json:"price"`
+			Volume      string `json:"volume"`
+		} `json:"iteminfo"`
 	} `json:"products"`
-	Actors []struct {
-		ID       int    `json:"id"`
-		Name     string `json:"name"`
-		ImageURL string `json:"image_url"`
-	} `json:"actors"`
+	Actors []Actor `json:"actors"`
+	Casts  []struct {
+		Actor Actor `json:"actor"`
+	} `json:"casts"`
+}
+
+type Actor struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	ImageURL string `json:"image_url"`
 }
 
 func init() {
