@@ -1,4 +1,4 @@
-package avwiki
+package avbase
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAVWiki_GetMovieInfoByID(t *testing.T) {
+func TestAVBase_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"ABP-588",
@@ -23,7 +23,7 @@ func TestAVWiki_GetMovieInfoByID(t *testing.T) {
 	}
 }
 
-func TestAVWiki_SearchMovie(t *testing.T) {
+func TestAVBase_SearchMovie(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"ABP-588",

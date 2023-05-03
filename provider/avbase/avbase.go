@@ -1,4 +1,4 @@
-package avwiki
+package avbase
 
 import (
 	"encoding/json"
@@ -26,30 +26,30 @@ import (
 )
 
 var (
-	_ provider.MovieProvider = (*AVWiki)(nil)
-	_ provider.MovieSearcher = (*AVWiki)(nil)
+	_ provider.MovieProvider = (*AVBase)(nil)
+	_ provider.MovieSearcher = (*AVBase)(nil)
 )
 
 const (
-	Name     = "AVWIKI"
+	Name     = "AVBASE"
 	Priority = 1000 - 4
 )
 
 const (
-	baseURL      = "https://www.avwiki.org/"
-	movieURL     = "https://www.avwiki.org/works/%s"
-	movieAPIURL  = "https://www.avwiki.org/_next/data/%s/works/%s.json?id=%s"
-	searchAPIURL = "https://www.avwiki.org/_next/data/%s/works.json?q=%s"
+	baseURL      = "https://www.avbase.net/"
+	movieURL     = "https://www.avbase.net/works/%s"
+	movieAPIURL  = "https://www.avbase.net/_next/data/%s/works/%s.json?id=%s"
+	searchAPIURL = "https://www.avbase.net/_next/data/%s/works.json?q=%s"
 )
 
-type AVWiki struct {
+type AVBase struct {
 	*scraper.Scraper
 	single    *singledo.Single
 	providers map[string]provider.MovieProvider
 }
 
-func New() *AVWiki {
-	return &AVWiki{
+func New() *AVBase {
+	return &AVBase{
 		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
 			scraper.WithHeaders(map[string]string{
 				"Referer": baseURL,
@@ -65,32 +65,32 @@ func New() *AVWiki {
 	}
 }
 
-func (avw *AVWiki) NormalizeID(id string) string { return strings.ToUpper(id) }
+func (ab *AVBase) NormalizeID(id string) string { return strings.ToUpper(id) }
 
-func (avw *AVWiki) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return avw.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
+func (ab *AVBase) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	return ab.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (avw *AVWiki) ParseIDFromURL(rawURL string) (string, error) {
+func (ab *AVBase) ParseIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
 	}
-	return avw.NormalizeID(path.Base(homepage.Path)), nil
+	return ab.NormalizeID(path.Base(homepage.Path)), nil
 }
 
-func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := avw.ParseIDFromURL(rawURL)
+func (ab *AVBase) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := ab.ParseIDFromURL(rawURL)
 	if err != nil {
 		return
 	}
 
-	buildID, err := avw.GetBuildID()
+	buildID, err := ab.GetBuildID()
 	if err != nil {
 		return
 	}
 
-	c := avw.ClonedCollector()
+	c := ab.ClonedCollector()
 
 	c.OnResponse(func(r *colly.Response) {
 		data := struct {
@@ -99,8 +99,8 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 			} `json:"pageProps"`
 		}{}
 		if err = json.Unmarshal(r.Body, &data); err == nil {
-			workInfo, _ := avw.getMovieInfoFromWork(data.PageProps.Work)
-			srcInfo, srcErr := avw.getMovieInfoFromSource(data.PageProps.Work)
+			workInfo, _ := ab.getMovieInfoFromWork(data.PageProps.Work)
+			srcInfo, srcErr := ab.getMovieInfoFromSource(data.PageProps.Work)
 			if srcErr != nil {
 				info = workInfo /* ignore error and fallback to work info */
 				return
@@ -131,7 +131,7 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		if info != nil {
 			// As a provider wrapper.
 			info.ID = id
-			info.Provider = avw.Name()
+			info.Provider = ab.Name()
 			info.Homepage = rawURL
 		}
 	})
@@ -142,7 +142,7 @@ func (avw *AVWiki) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 	return
 }
 
-func (avw *AVWiki) getMovieInfoFromWork(work Work) (info *model.MovieInfo, err error) {
+func (ab *AVBase) getMovieInfoFromWork(work Work) (info *model.MovieInfo, err error) {
 	info = &model.MovieInfo{
 		Number:        work.WorkID,
 		Actors:        []string{},
@@ -193,9 +193,9 @@ func (avw *AVWiki) getMovieInfoFromWork(work Work) (info *model.MovieInfo, err e
 	return
 }
 
-func (avw *AVWiki) getMovieInfoFromSource(work Work) (info *model.MovieInfo, err error) {
+func (ab *AVBase) getMovieInfoFromSource(work Work) (info *model.MovieInfo, err error) {
 	for _, product := range work.Products {
-		movieProvider, ok := avw.providers[product.Source]
+		movieProvider, ok := ab.providers[product.Source]
 		if !ok {
 			continue
 		}
@@ -213,20 +213,20 @@ func (avw *AVWiki) getMovieInfoFromSource(work Work) (info *model.MovieInfo, err
 	return
 }
 
-func (avw *AVWiki) NormalizeKeyword(keyword string) string {
+func (ab *AVBase) NormalizeKeyword(keyword string) string {
 	if number.IsUncensored(keyword) || number.IsFC2(keyword) {
 		return "" // no uncensored support.
 	}
 	return strings.ToUpper(keyword)
 }
 
-func (avw *AVWiki) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	buildID, err := avw.GetBuildID()
+func (ab *AVBase) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
+	buildID, err := ab.GetBuildID()
 	if err != nil {
 		return
 	}
 
-	c := avw.ClonedCollector()
+	c := ab.ClonedCollector()
 
 	c.OnResponse(func(r *colly.Response) {
 		data := struct {
@@ -241,7 +241,7 @@ func (avw *AVWiki) SearchMovie(keyword string) (results []*model.MovieSearchResu
 				})
 				index := -1
 				for i, product := range work.Products {
-					if _, ok := avw.providers[product.Source]; ok {
+					if _, ok := ab.providers[product.Source]; ok {
 						index = i
 						break
 					}
@@ -255,7 +255,7 @@ func (avw *AVWiki) SearchMovie(keyword string) (results []*model.MovieSearchResu
 					ID:          work.WorkID,
 					Number:      work.WorkID,
 					Title:       work.Title,
-					Provider:    avw.Name(),
+					Provider:    ab.Name(),
 					Homepage:    fmt.Sprintf(movieURL, work.WorkID),
 					ThumbURL:    work.Products[index].ThumbnailURL,
 					CoverURL:    work.Products[index].ImageURL,
@@ -273,9 +273,9 @@ func (avw *AVWiki) SearchMovie(keyword string) (results []*model.MovieSearchResu
 	return
 }
 
-func (avw *AVWiki) GetBuildID() (string, error) {
-	v, err, _ := avw.single.Do(func() (any, error) {
-		return avw.getBuildID()
+func (ab *AVBase) GetBuildID() (string, error) {
+	v, err, _ := ab.single.Do(func() (any, error) {
+		return ab.getBuildID()
 	})
 	if err != nil {
 		return "", err
@@ -283,14 +283,14 @@ func (avw *AVWiki) GetBuildID() (string, error) {
 	return v.(string), nil
 }
 
-func (avw *AVWiki) getBuildID() (buildID string, err error) {
+func (ab *AVBase) getBuildID() (buildID string, err error) {
 	defer func() {
 		if err == nil && buildID == "" {
 			err = errors.New("empty build id")
 		}
 	}()
 
-	c := avw.ClonedCollector()
+	c := ab.ClonedCollector()
 
 	c.OnXML(`//*[@id="__NEXT_DATA__"]`, func(e *colly.XMLElement) {
 		data := struct {
