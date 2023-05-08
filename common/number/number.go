@@ -26,7 +26,7 @@ func Trim(s string) string {
 		ReplaceAllString(s, "${pattern}") // trim makers
 	s = regexp.MustCompile(`^(?i)\s*(FC2[-_]?PPV)[-_]`).
 		ReplaceAllString(s, "FC2-") // normalize fc2 prefixes
-	for re := regexp.MustCompile(`(?i)([-_](c|ch|cd\d{1,2})|ch|A|B|C|D)\s*$`); re.MatchString(s); {
+	for re := regexp.MustCompile(`(?i)([-_](c|uc|ch|cd\d{1,2})|ch|A|B|C|D)\s*$`); re.MatchString(s); {
 		s = re.ReplaceAllString(s, "") // repeatedly trim suffixes
 	}
 	return strings.TrimSpace(s)
