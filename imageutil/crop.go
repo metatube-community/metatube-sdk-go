@@ -22,8 +22,8 @@ func CropImagePosition(img image.Image, ratio float64, pos float64) image.Image 
 	width := img.Bounds().Dx()
 	height := img.Bounds().Dy()
 	var (
-		w, h = width, height
-		x, y = 0, 0 // default
+		w, h = width, height //nolint:ineffassign
+		x, y = 0, 0          // default
 	)
 	if w = int(float64(height) * ratio); w < width {
 		x = max(min(int(float64(width)*pos)-int(float64(w)/2), width-w), 0)
