@@ -17,17 +17,17 @@ require (
 	github.com/jellydator/ttlcache/v3 v3.0.1
 	github.com/lib/pq v1.10.9
 	github.com/nlnwa/whatwg-url v0.1.3
-	github.com/peterbourgon/ff/v3 v3.3.0
+	github.com/peterbourgon/ff/v3 v3.3.1
 	github.com/stretchr/testify v1.8.2
 	github.com/zijiren233/google-translater v0.4.0
 	github.com/zijiren233/openai-translater v0.1.1
 	go.uber.org/atomic v1.10.0
 	golang.org/x/image v0.7.0
-	golang.org/x/net v0.9.0
+	golang.org/x/net v0.10.0
 	golang.org/x/text v0.9.0
 	gorm.io/datatypes v1.2.0
 	gorm.io/driver/postgres v1.5.0
-	gorm.io/gorm v1.25.0
+	gorm.io/gorm v1.25.1
 )
 
 require (
@@ -69,19 +69,19 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
-	github.com/sashabaranov/go-openai v1.9.3 // indirect
+	github.com/sashabaranov/go-openai v1.9.4 // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	golang.org/x/arch v0.3.0 // indirect
-	golang.org/x/crypto v0.8.0 // indirect
+	golang.org/x/crypto v0.9.0 // indirect
 	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.0 // indirect
-	modernc.org/libc v1.22.5 // indirect
+	modernc.org/libc v1.22.6 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.5.0 // indirect
 	modernc.org/sqlite v1.22.1 // indirect
