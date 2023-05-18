@@ -226,4 +226,4 @@ func main() {
 
 ## License
 
-[GNU GPLv3 License](https://github.com/metatube-community/metatube-sdk-go/blob/main/LICENSE)
+[Apache-2.0 License](https://github.com/metatube-community/metatube-sdk-go/blob/main/LICENSE)
