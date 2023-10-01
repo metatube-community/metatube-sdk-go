@@ -10,7 +10,7 @@ require (
 	github.com/esimov/pigo v1.4.6
 	github.com/gin-gonic/gin v1.9.1
 	github.com/glebarez/sqlite v1.9.0
-	github.com/gocolly/colly/v2 v2.1.1-0.20220706081359-947eeead97b3
+	github.com/gocolly/colly/v2 v2.1.1-0.20230620150846-a6e3d81fe6b7
 	github.com/grafov/m3u8 v0.12.0
 	github.com/hashicorp/go-retryablehttp v0.7.4
 	github.com/iancoleman/orderedmap v0.3.0
