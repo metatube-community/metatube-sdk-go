@@ -78,6 +78,16 @@ func WithDisableCookies() Option {
 	}
 }
 
+func WithDisableRedirects() Option {
+	return func(s *Scraper) error {
+		s.c.ParseHTTPErrorResponse = true
+		s.c.SetRedirectHandler(func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		})
+		return nil
+	}
+}
+
 func WithTransport(transport http.RoundTripper) Option {
 	return func(s *Scraper) error {
 		s.c.WithTransport(transport)
