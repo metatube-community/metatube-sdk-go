@@ -19,8 +19,8 @@ require (
 	github.com/nlnwa/whatwg-url v0.4.0
 	github.com/peterbourgon/ff/v3 v3.4.0
 	github.com/stretchr/testify v1.8.4
-	github.com/zijiren233/google-translater v0.4.0
-	github.com/zijiren233/openai-translater v0.1.1
+	github.com/zijiren233/google-translator v1.0.1
+	github.com/zijiren233/openai-translator v0.2.1
 	go.uber.org/atomic v1.10.0
 	golang.org/x/image v0.12.0
 	golang.org/x/net v0.15.0

@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"time"
 
-	translator "github.com/zijiren233/google-translater" //nolint:misspell
+	translator "github.com/zijiren233/google-translator"
 )
 
 func GoogleFreeTranslate(q, source, target string) (string, error) {

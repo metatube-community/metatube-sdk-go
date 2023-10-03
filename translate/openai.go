@@ -1,7 +1,7 @@
 package translate
 
 import (
-	openai "github.com/zijiren233/openai-translater" //nolint:misspell
+	openai "github.com/zijiren233/openai-translator"
 )
 
 func OpenaiTranslate(q, source, target, key string) (result string, err error) {
