@@ -10,11 +10,9 @@ import (
 func TestAVBase_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
-		"ABP-588",
-		"PGD-919",
-		"ORECO-062",
-		"RECEN-012",
-		"DDH-079",
+		"prestige:ABP-588",
+		"tameike:MEYD-856",
+		"SSIS-354",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
@@ -27,9 +25,8 @@ func TestAVBase_SearchMovie(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"ABP-588",
-		"ORECO-062",
-		"AKDL-030",
-		"SABA-099",
+		"MEYD-856",
+		"SSIS-354",
 	} {
 		results, err := provider.SearchMovie(provider.NormalizeKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
