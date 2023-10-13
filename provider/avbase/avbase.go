@@ -65,7 +65,14 @@ func New() *AVBase {
 	}
 }
 
-func (ab *AVBase) NormalizeID(id string) string { return strings.ToUpper(id) }
+func (ab *AVBase) NormalizeID(id string) string {
+	if !strings.Contains(id, ":") {
+		return strings.ToUpper(id)
+	}
+	ss := strings.SplitN(id, ":", 2)
+	prefix, workID := ss[0], ss[1]
+	return ab.JoinPrefixID(prefix, workID)
+}
 
 func (ab *AVBase) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return ab.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
@@ -127,6 +134,10 @@ func (ab *AVBase) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 			if len(workInfo.Actors) > 0 {
 				info.Actors = workInfo.Actors
 			}
+			// choose right ID for info.
+			if len(workInfo.ID) > len(id) && strings.Contains(workInfo.ID, ":") {
+				id = workInfo.ID
+			}
 		}
 	})
 
@@ -147,6 +158,7 @@ func (ab *AVBase) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 
 func (ab *AVBase) getMovieInfoFromWork(work Work) (info *model.MovieInfo, err error) {
 	info = &model.MovieInfo{
+		ID:            ab.JoinPrefixID(work.Prefix, work.WorkID),
 		Number:        work.WorkID,
 		Actors:        []string{},
 		PreviewImages: []string{},
@@ -258,7 +270,7 @@ func (ab *AVBase) SearchMovie(keyword string) (results []*model.MovieSearchResul
 					continue
 				}
 				result := &model.MovieSearchResult{
-					ID:          work.WorkID,
+					ID:          ab.JoinPrefixID(work.Prefix, work.WorkID),
 					Number:      work.WorkID,
 					Title:       work.Title,
 					Provider:    ab.Name(),
@@ -277,6 +289,13 @@ func (ab *AVBase) SearchMovie(keyword string) (results []*model.MovieSearchResul
 
 	err = c.Visit(fmt.Sprintf(searchAPIURL, buildID, url.QueryEscape(keyword)))
 	return
+}
+
+func (ab *AVBase) JoinPrefixID(prefix, workID string) string {
+	if strings.TrimSpace(prefix) == "" {
+		return workID
+	}
+	return fmt.Sprintf("%s:%s", prefix, workID)
 }
 
 func (ab *AVBase) GetBuildID() (string, error) {
@@ -315,6 +334,7 @@ func (ab *AVBase) getBuildID() (buildID string, err error) {
 
 type Work struct {
 	ID      int    `json:"id"`
+	Prefix  string `json:"prefix"`
 	WorkID  string `json:"work_id"`
 	Title   string `json:"title"`
 	MinDate string `json:"min_date"`
