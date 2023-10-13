@@ -2,6 +2,7 @@ package route
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -17,12 +18,12 @@ func redirect(app *engine.Engine) gin.HandlerFunc {
 		queryKey  = "redirect"
 	)
 	return func(c *gin.Context) {
-		if url := c.Query(queryKey); url != "" {
+		if link := c.Query(queryKey); link != "" {
 			var (
 				provider string
 				id       string
 			)
-			if ss := strings.Split(url, separator); len(ss) > 1 {
+			if ss := strings.Split(link, separator); len(ss) > 1 {
 				provider, id = ss[0], ss[1]
 			}
 
@@ -30,6 +31,11 @@ func redirect(app *engine.Engine) gin.HandlerFunc {
 				info any
 				err  error
 			)
+			if id, err = url.QueryUnescape(id); err != nil {
+				abortWithError(c, err)
+				return
+			}
+
 			switch {
 			case app.IsActorProvider(provider):
 				info, err = app.GetActorInfoByProviderID(provider, id, true)
