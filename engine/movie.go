@@ -199,7 +199,7 @@ func (e *Engine) getMovieInfoWithCallback(provider mt.MovieProvider, id string, 
 }
 
 func (e *Engine) getMovieInfoByProviderID(provider mt.MovieProvider, id string, lazy bool) (*model.MovieInfo, error) {
-	if id = provider.NormalizeID(id); id == "" {
+	if id = provider.NormalizeMovieID(id); id == "" {
 		return nil, mt.ErrInvalidID
 	}
 	return e.getMovieInfoWithCallback(provider, id, lazy, func() (*model.MovieInfo, error) {
@@ -216,7 +216,7 @@ func (e *Engine) GetMovieInfoByProviderID(name, id string, lazy bool) (*model.Mo
 }
 
 func (e *Engine) getMovieInfoByProviderURL(provider mt.MovieProvider, rawURL string, lazy bool) (*model.MovieInfo, error) {
-	id, err := provider.ParseIDFromURL(rawURL)
+	id, err := provider.ParseMovieIDFromURL(rawURL)
 	switch {
 	case err != nil:
 		return nil, err

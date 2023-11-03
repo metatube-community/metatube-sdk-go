@@ -35,7 +35,7 @@ func New() *Caribbeancom {
 	}
 }
 
-func (carib *Caribbeancom) NormalizeID(id string) string {
+func (carib *Caribbeancom) NormalizeMovieID(id string) string {
 	if regexp.MustCompile(`^\d{6}-\d{3}$`).MatchString(id) {
 		return id
 	}

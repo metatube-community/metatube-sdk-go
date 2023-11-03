@@ -49,7 +49,7 @@ func New() *TenMusume {
 	}
 }
 
-func (mse *TenMusume) NormalizeID(id string) string {
+func (mse *TenMusume) NormalizeMovieID(id string) string {
 	if regexp.MustCompile(`^\d{6}_\d{2}$`).MatchString(id) {
 		return id
 	}

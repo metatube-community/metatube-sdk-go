@@ -43,7 +43,7 @@ func New() *TripleX {
 	}
 }
 
-func (xav *TripleX) NormalizeID(id string) string {
+func (xav *TripleX) NormalizeMovieID(id string) string {
 	if ss := regexp.MustCompile(`^(?i)(?:xxx[-_]av[-_])?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}
@@ -54,7 +54,7 @@ func (xav *TripleX) GetMovieInfoByID(id string) (info *model.MovieInfo, err erro
 	return xav.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (xav *TripleX) ParseIDFromURL(rawURL string) (string, error) {
+func (xav *TripleX) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
@@ -63,7 +63,7 @@ func (xav *TripleX) ParseIDFromURL(rawURL string) (string, error) {
 }
 
 func (xav *TripleX) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := xav.ParseIDFromURL(rawURL)
+	id, err := xav.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}

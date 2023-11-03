@@ -46,7 +46,7 @@ func (jav *JAV321) GetMovieInfoByID(id string) (info *model.MovieInfo, err error
 	return jav.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (jav *JAV321) ParseIDFromURL(rawURL string) (string, error) {
+func (jav *JAV321) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
@@ -55,7 +55,7 @@ func (jav *JAV321) ParseIDFromURL(rawURL string) (string, error) {
 }
 
 func (jav *JAV321) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := jav.ParseIDFromURL(rawURL)
+	id, err := jav.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}

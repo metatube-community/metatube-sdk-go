@@ -42,7 +42,7 @@ func New() *Pcolle {
 	}
 }
 
-func (pcl *Pcolle) NormalizeID(id string) string {
+func (pcl *Pcolle) NormalizeMovieID(id string) string {
 	if ss := regexp.MustCompile(`^(?i)(?:PCOLLE[-_])?([a-z\d]{9,})$`).FindStringSubmatch(id); len(ss) == 2 {
 		return strings.ToLower(ss[1])
 	}
@@ -53,16 +53,16 @@ func (pcl *Pcolle) GetMovieInfoByID(id string) (info *model.MovieInfo, err error
 	return pcl.GetMovieInfoByURL(fmt.Sprintf(movieURL, url.QueryEscape(id)))
 }
 
-func (pcl *Pcolle) ParseIDFromURL(rawURL string) (string, error) {
+func (pcl *Pcolle) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
 	}
-	return pcl.NormalizeID(homepage.Query().Get("product_id")), nil
+	return pcl.NormalizeMovieID(homepage.Query().Get("product_id")), nil
 }
 
 func (pcl *Pcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := pcl.ParseIDFromURL(rawURL)
+	id, err := pcl.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}

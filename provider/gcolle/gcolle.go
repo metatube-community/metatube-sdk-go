@@ -37,7 +37,7 @@ func New() *Gcolle {
 	return &Gcolle{scraper.NewDefaultScraper(Name, baseURL, Priority, scraper.WithDetectCharset())}
 }
 
-func (gcl *Gcolle) NormalizeID(id string) string {
+func (gcl *Gcolle) NormalizeMovieID(id string) string {
 	if ss := regexp.MustCompile(`^(?i)(?:GCOLLE[-_])?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}
@@ -48,7 +48,7 @@ func (gcl *Gcolle) GetMovieInfoByID(id string) (info *model.MovieInfo, err error
 	return gcl.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (gcl *Gcolle) ParseIDFromURL(rawURL string) (string, error) {
+func (gcl *Gcolle) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
@@ -57,7 +57,7 @@ func (gcl *Gcolle) ParseIDFromURL(rawURL string) (string, error) {
 }
 
 func (gcl *Gcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := gcl.ParseIDFromURL(rawURL)
+	id, err := gcl.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}

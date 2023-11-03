@@ -38,7 +38,7 @@ func New() *HeyDouga {
 	return &HeyDouga{scraper.NewDefaultScraper(Name, baseURL, Priority)}
 }
 
-func (hey *HeyDouga) NormalizeID(id string) string {
+func (hey *HeyDouga) NormalizeMovieID(id string) string {
 	if ss := regexp.MustCompile(`^(?i)(?:heydouga[-_])?(\d{4}-[a-z\d]+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}
@@ -52,7 +52,7 @@ func (hey *HeyDouga) GetMovieInfoByID(id string) (info *model.MovieInfo, err err
 	return nil, provider.ErrInvalidID
 }
 
-func (hey *HeyDouga) ParseIDFromURL(rawURL string) (id string, err error) {
+func (hey *HeyDouga) ParseMovieIDFromURL(rawURL string) (id string, err error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return
@@ -65,7 +65,7 @@ func (hey *HeyDouga) ParseIDFromURL(rawURL string) (id string, err error) {
 }
 
 func (hey *HeyDouga) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := hey.ParseIDFromURL(rawURL)
+	id, err := hey.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}

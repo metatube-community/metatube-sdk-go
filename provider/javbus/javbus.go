@@ -50,7 +50,7 @@ func New() *JavBus {
 	}
 }
 
-func (bus *JavBus) NormalizeID(id string) string {
+func (bus *JavBus) NormalizeMovieID(id string) string {
 	return strings.ToUpper(id)
 }
 
@@ -58,16 +58,16 @@ func (bus *JavBus) GetMovieInfoByID(id string) (info *model.MovieInfo, err error
 	return bus.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (bus *JavBus) ParseIDFromURL(rawURL string) (string, error) {
+func (bus *JavBus) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
 	}
-	return bus.NormalizeID(path.Base(homepage.Path)), nil
+	return bus.NormalizeMovieID(path.Base(homepage.Path)), nil
 }
 
 func (bus *JavBus) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := bus.ParseIDFromURL(rawURL)
+	id, err := bus.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}
@@ -177,7 +177,7 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.MovieSearchResu
 		}
 
 		homepage := e.Request.AbsoluteURL(e.Attr("href"))
-		id, _ := bus.ParseIDFromURL(homepage)
+		id, _ := bus.ParseMovieIDFromURL(homepage)
 		results = append(results, &model.MovieSearchResult{
 			ID:          id,
 			Number:      e.ChildText(`.//div[2]/span/date[1]`),

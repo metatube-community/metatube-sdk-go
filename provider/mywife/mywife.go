@@ -34,7 +34,7 @@ func New() *MyWife {
 	return &MyWife{scraper.NewDefaultScraper(Name, baseURL, Priority)}
 }
 
-func (mw *MyWife) NormalizeID(id string) string {
+func (mw *MyWife) NormalizeMovieID(id string) string {
 	if ss := regexp.MustCompile(`^(?i)(?:mywife[-_])?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}
@@ -45,7 +45,7 @@ func (mw *MyWife) GetMovieInfoByID(id string) (info *model.MovieInfo, err error)
 	return mw.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (mw *MyWife) ParseIDFromURL(rawURL string) (string, error) {
+func (mw *MyWife) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
@@ -54,7 +54,7 @@ func (mw *MyWife) ParseIDFromURL(rawURL string) (string, error) {
 }
 
 func (mw *MyWife) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := mw.ParseIDFromURL(rawURL)
+	id, err := mw.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}

@@ -49,7 +49,7 @@ func New() *OnePondo {
 	}
 }
 
-func (opd *OnePondo) NormalizeID(id string) string {
+func (opd *OnePondo) NormalizeMovieID(id string) string {
 	if regexp.MustCompile(`^\d{6}_\d{3}$`).MatchString(id) {
 		return id
 	}

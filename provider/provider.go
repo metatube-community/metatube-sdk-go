@@ -17,12 +17,6 @@ type Provider interface {
 
 	// URL returns the base url of the provider.
 	URL() *url.URL
-
-	// NormalizeID normalizes ID to conform to standard.
-	NormalizeID(id string) string
-
-	// ParseIDFromURL parses ID from given URL.
-	ParseIDFromURL(rawURL string) (string, error)
 }
 
 type MovieSearcher interface {
@@ -36,6 +30,12 @@ type MovieSearcher interface {
 type MovieProvider interface {
 	// Provider should be implemented.
 	Provider
+
+	// NormalizeMovieID normalizes movie ID to conform to standard.
+	NormalizeMovieID(id string) string
+
+	// ParseMovieIDFromURL parses movie ID from given URL.
+	ParseMovieIDFromURL(rawURL string) (string, error)
 
 	// GetMovieInfoByID gets movie's info by id.
 	GetMovieInfoByID(id string) (*model.MovieInfo, error)
@@ -52,6 +52,12 @@ type ActorSearcher interface {
 type ActorProvider interface {
 	// Provider should be implemented.
 	Provider
+
+	// NormalizeMovieID normalizes movie ID to conform to standard.
+	NormalizeMovieID(id string) string
+
+	// ParseMovieIDFromURL parses movie ID from given URL.
+	ParseMovieIDFromURL(rawURL string) (string, error)
 
 	// GetActorInfoByID gets actor's info by id.
 	GetActorInfoByID(id string) (*model.ActorInfo, error)

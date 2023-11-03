@@ -37,7 +37,7 @@ func New() *Getchu {
 	return &Getchu{scraper.NewDefaultScraper(Name, baseURL, Priority)}
 }
 
-func (gcu *Getchu) NormalizeID(id string) string {
+func (gcu *Getchu) NormalizeMovieID(id string) string {
 	if ss := regexp.MustCompile(`^(?i)(?:GETCHU[-_])?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}
@@ -48,7 +48,7 @@ func (gcu *Getchu) GetMovieInfoByID(id string) (info *model.MovieInfo, err error
 	return gcu.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (gcu *Getchu) ParseIDFromURL(rawURL string) (string, error) {
+func (gcu *Getchu) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
@@ -57,7 +57,7 @@ func (gcu *Getchu) ParseIDFromURL(rawURL string) (string, error) {
 }
 
 func (gcu *Getchu) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := gcu.ParseIDFromURL(rawURL)
+	id, err := gcu.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}
