@@ -53,11 +53,11 @@ type ActorProvider interface {
 	// Provider should be implemented.
 	Provider
 
-	// NormalizeMovieID normalizes movie ID to conform to standard.
-	NormalizeMovieID(id string) string
+	// NormalizeActorID normalizes actor ID to conform to standard.
+	NormalizeActorID(id string) string
 
-	// ParseMovieIDFromURL parses movie ID from given URL.
-	ParseMovieIDFromURL(rawURL string) (string, error)
+	// ParseActorIDFromURL parses actor ID from given URL.
+	ParseActorIDFromURL(rawURL string) (string, error)
 
 	// GetActorInfoByID gets actor's info by id.
 	GetActorInfoByID(id string) (*model.ActorInfo, error)

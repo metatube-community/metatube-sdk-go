@@ -59,6 +59,10 @@ func (s *Scraper) NormalizeMovieID(id string) string { return id /* AS IS */ }
 
 func (s *Scraper) ParseMovieIDFromURL(string) (string, error) { panic("unimplemented") }
 
+func (s *Scraper) NormalizeActorID(id string) string { return id /* AS IS */ }
+
+func (s *Scraper) ParseActorIDFromURL(string) (string, error) { panic("unimplemented") }
+
 // ClonedCollector returns cloned internal collector.
 func (s *Scraper) ClonedCollector() *colly.Collector { return s.c.Clone() }
 
