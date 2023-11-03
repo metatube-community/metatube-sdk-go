@@ -46,7 +46,7 @@ func (jav *JAV321) GetMovieInfoByID(id string) (info *model.MovieInfo, err error
 	return jav.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (jav *JAV321) ParseIDFromURL(rawURL string) (string, error) {
+func (jav *JAV321) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
@@ -55,7 +55,7 @@ func (jav *JAV321) ParseIDFromURL(rawURL string) (string, error) {
 }
 
 func (jav *JAV321) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := jav.ParseIDFromURL(rawURL)
+	id, err := jav.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}
@@ -206,7 +206,7 @@ func (jav *JAV321) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 	return
 }
 
-func (jav *JAV321) NormalizeKeyword(keyword string) string {
+func (jav *JAV321) NormalizeMovieKeyword(keyword string) string {
 	if number.IsSpecial(keyword) && !regexp.MustCompile(`^(?i)([a-z]{1,4}\d{2,4}|heyzo[-_].+)$`).MatchString(keyword) {
 		return "" // JavBus has no those special contents.
 	}

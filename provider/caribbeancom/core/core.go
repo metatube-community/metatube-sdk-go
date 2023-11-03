@@ -44,7 +44,7 @@ func (core *Core) GetMovieInfoByID(id string) (info *model.MovieInfo, err error)
 	return core.GetMovieInfoByURL(fmt.Sprintf(core.MovieURL, id))
 }
 
-func (core *Core) ParseIDFromURL(rawURL string) (string, error) {
+func (core *Core) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
@@ -53,7 +53,7 @@ func (core *Core) ParseIDFromURL(rawURL string) (string, error) {
 }
 
 func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := core.ParseIDFromURL(rawURL)
+	id, err := core.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}

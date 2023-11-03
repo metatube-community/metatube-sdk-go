@@ -36,7 +36,7 @@ func New() *FC2 {
 	return &FC2{scraper.NewDefaultScraper(Name, baseURL, Priority)}
 }
 
-func (fc2 *FC2) NormalizeID(id string) string {
+func (fc2 *FC2) NormalizeMovieID(id string) string {
 	return ParseNumber(id)
 }
 
@@ -44,7 +44,7 @@ func (fc2 *FC2) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return fc2.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (fc2 *FC2) ParseIDFromURL(rawURL string) (string, error) {
+func (fc2 *FC2) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
@@ -53,7 +53,7 @@ func (fc2 *FC2) ParseIDFromURL(rawURL string) (string, error) {
 }
 
 func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := fc2.ParseIDFromURL(rawURL)
+	id, err := fc2.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}

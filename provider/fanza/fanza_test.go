@@ -45,7 +45,7 @@ func TestFANZA_SearchMovie(t *testing.T) {
 		"MIDV-047",
 		"abw",
 	} {
-		results, err := provider.SearchMovie(provider.NormalizeKeyword(item))
+		results, err := provider.SearchMovie(provider.NormalizeMovieKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
 		if assert.NoError(t, err) {
 			for _, result := range results {

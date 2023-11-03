@@ -39,7 +39,7 @@ func New() *Heyzo {
 	return &Heyzo{scraper.NewDefaultScraper(Name, baseURL, Priority)}
 }
 
-func (hzo *Heyzo) NormalizeID(id string) string {
+func (hzo *Heyzo) NormalizeMovieID(id string) string {
 	if ss := regexp.MustCompile(`^(?i)(?:heyzo[-_])?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}
@@ -50,7 +50,7 @@ func (hzo *Heyzo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error)
 	return hzo.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (hzo *Heyzo) ParseIDFromURL(rawURL string) (string, error) {
+func (hzo *Heyzo) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
@@ -59,7 +59,7 @@ func (hzo *Heyzo) ParseIDFromURL(rawURL string) (string, error) {
 }
 
 func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := hzo.ParseIDFromURL(rawURL)
+	id, err := hzo.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}

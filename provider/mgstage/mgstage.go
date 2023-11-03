@@ -51,7 +51,7 @@ func New() *MGS {
 	}
 }
 
-func (mgs *MGS) NormalizeID(id string) string {
+func (mgs *MGS) NormalizeMovieID(id string) string {
 	return strings.ToUpper(id)
 }
 
@@ -59,16 +59,16 @@ func (mgs *MGS) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return mgs.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (mgs *MGS) ParseIDFromURL(rawURL string) (string, error) {
+func (mgs *MGS) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
 	}
-	return mgs.NormalizeID(path.Base(homepage.Path)), nil
+	return mgs.NormalizeMovieID(path.Base(homepage.Path)), nil
 }
 
 func (mgs *MGS) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := mgs.ParseIDFromURL(rawURL)
+	id, err := mgs.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}
@@ -159,7 +159,7 @@ func (mgs *MGS) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 	return
 }
 
-func (mgs *MGS) NormalizeKeyword(keyword string) string {
+func (mgs *MGS) NormalizeMovieKeyword(keyword string) string {
 	if number.IsSpecial(keyword) {
 		return ""
 	}
@@ -171,7 +171,7 @@ func (mgs *MGS) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 
 	c.OnXML(`//*[@id="center_column"]/div[2]/div/ul/li`, func(e *colly.XMLElement) {
 		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//h5/a`, "href"))
-		id, _ := mgs.ParseIDFromURL(homepage)
+		id, _ := mgs.ParseMovieIDFromURL(homepage)
 		results = append(results, &model.MovieSearchResult{
 			ID:       id,
 			Number:   id, /* same as ID */

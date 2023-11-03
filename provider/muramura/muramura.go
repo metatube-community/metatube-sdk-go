@@ -39,7 +39,7 @@ func New() *MuraMura {
 	}
 }
 
-func (ppm *MuraMura) NormalizeID(id string) string {
+func (ppm *MuraMura) NormalizeMovieID(id string) string {
 	if regexp.MustCompile(`^\d{6}_\d{3}$`).MatchString(id) {
 		return id
 	}

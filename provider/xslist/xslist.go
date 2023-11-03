@@ -46,7 +46,7 @@ func (xsl *XsList) GetActorInfoByID(id string) (info *model.ActorInfo, err error
 	return xsl.GetActorInfoByURL(fmt.Sprintf(actorURL, id))
 }
 
-func (xsl *XsList) ParseIDFromURL(rawURL string) (id string, err error) {
+func (xsl *XsList) ParseActorIDFromURL(rawURL string) (id string, err error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return
@@ -58,7 +58,7 @@ func (xsl *XsList) ParseIDFromURL(rawURL string) (id string, err error) {
 }
 
 func (xsl *XsList) GetActorInfoByURL(rawURL string) (info *model.ActorInfo, err error) {
-	id, err := xsl.ParseIDFromURL(rawURL)
+	id, err := xsl.ParseActorIDFromURL(rawURL)
 	if err != nil {
 		return
 	}
@@ -157,7 +157,7 @@ func (xsl *XsList) SearchActor(keyword string) (results []*model.ActorSearchResu
 
 	c.OnXML(`//ul/li`, func(e *colly.XMLElement) {
 		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//h3/a`, "href"))
-		id, _ := xsl.ParseIDFromURL(homepage)
+		id, _ := xsl.ParseActorIDFromURL(homepage)
 		// Name
 		actor := e.ChildAttr(`.//h3/a`, "title")
 		if ss := strings.SplitN(actor, "-", 2); len(ss) == 2 {

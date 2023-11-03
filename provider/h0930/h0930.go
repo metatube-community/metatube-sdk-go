@@ -36,7 +36,7 @@ func New() *H0930 {
 	}
 }
 
-func (h *H0930) NormalizeID(id string) string {
+func (h *H0930) NormalizeMovieID(id string) string {
 	if ss := regexp.MustCompile(`^(?i)(?:h0930[-_])?([a-z\d]+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return strings.ToLower(ss[1])
 	}

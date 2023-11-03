@@ -49,7 +49,7 @@ func New() *PRESTIGE {
 	}
 }
 
-func (pst *PRESTIGE) NormalizeID(id string) string {
+func (pst *PRESTIGE) NormalizeMovieID(id string) string {
 	// PRESTIGE doesn't care about SKU cases, but we
 	// use uppercase for better alignment.
 	return strings.ToUpper(id)
@@ -59,16 +59,16 @@ func (pst *PRESTIGE) GetMovieInfoByID(id string) (info *model.MovieInfo, err err
 	return pst.GetMovieInfoByURL(fmt.Sprintf(movieURL, url.QueryEscape(id)))
 }
 
-func (pst *PRESTIGE) ParseIDFromURL(rawURL string) (string, error) {
+func (pst *PRESTIGE) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
 	}
-	return pst.NormalizeID(homepage.Query().Get("sku")), nil
+	return pst.NormalizeMovieID(homepage.Query().Get("sku")), nil
 }
 
 func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err error) {
-	id, err := pst.ParseIDFromURL(u)
+	id, err := pst.ParseMovieIDFromURL(u)
 	if err != nil {
 		return
 	}
@@ -189,7 +189,7 @@ func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 	return
 }
 
-func (pst *PRESTIGE) NormalizeKeyword(keyword string) string {
+func (pst *PRESTIGE) NormalizeMovieKeyword(keyword string) string {
 	if number.IsSpecial(keyword) {
 		return ""
 	}
@@ -203,7 +203,7 @@ func (pst *PRESTIGE) SearchMovie(keyword string) (results []*model.MovieSearchRe
 		thumb := e.ChildAttr(`.//a/img`, "src")
 
 		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//a`, "href"))
-		id, _ := pst.ParseIDFromURL(homepage)
+		id, _ := pst.ParseMovieIDFromURL(homepage)
 
 		var title string // colly.XMLElement takes all texts from elem, so we need to filter extra texts.
 		for n := htmlquery.FindOne(e.DOM.(*html.Node), `.//a/span`).

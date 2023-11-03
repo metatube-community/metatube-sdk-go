@@ -51,7 +51,7 @@ func (fc2hub *FC2HUB) GetMovieInfoByID(id string) (info *model.MovieInfo, err er
 	return fc2hub.GetMovieInfoByURL(fmt.Sprintf(movieURL, ss[0], ss[1], padding))
 }
 
-func (fc2hub *FC2HUB) ParseIDFromURL(rawURL string) (string, error) {
+func (fc2hub *FC2HUB) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
@@ -63,7 +63,7 @@ func (fc2hub *FC2HUB) ParseIDFromURL(rawURL string) (string, error) {
 }
 
 func (fc2hub *FC2HUB) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := fc2hub.ParseIDFromURL(rawURL)
+	id, err := fc2hub.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}
@@ -208,7 +208,7 @@ func (fc2hub *FC2HUB) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, e
 	return
 }
 
-func (fc2hub *FC2HUB) NormalizeKeyword(keyword string) string {
+func (fc2hub *FC2HUB) NormalizeMovieKeyword(keyword string) string {
 	return fc2.ParseNumber(keyword)
 }
 

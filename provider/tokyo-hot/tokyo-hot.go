@@ -54,7 +54,7 @@ func New() *TokyoHot {
 		}))}
 }
 
-func (tht *TokyoHot) NormalizeID(id string) string {
+func (tht *TokyoHot) NormalizeMovieID(id string) string {
 	return strings.ToLower(id) /* Tokyo-Hot uses lowercase ID */
 }
 
@@ -62,16 +62,16 @@ func (tht *TokyoHot) GetMovieInfoByID(id string) (info *model.MovieInfo, err err
 	return tht.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (tht *TokyoHot) ParseIDFromURL(rawURL string) (string, error) {
+func (tht *TokyoHot) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
 	}
-	return tht.NormalizeID(path.Base(homepage.Path)), nil
+	return tht.NormalizeMovieID(path.Base(homepage.Path)), nil
 }
 
 func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := tht.ParseIDFromURL(rawURL)
+	id, err := tht.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}
@@ -188,7 +188,7 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 	return
 }
 
-func (tht *TokyoHot) NormalizeKeyword(keyword string) string {
+func (tht *TokyoHot) NormalizeMovieKeyword(keyword string) string {
 	if regexp.MustCompile(`^(?i)[a-z_]*\d+$`).MatchString(keyword) {
 		return strings.ToLower(keyword)
 	}
@@ -201,7 +201,7 @@ func (tht *TokyoHot) SearchMovie(keyword string) (results []*model.MovieSearchRe
 	c.OnXML(`//*[@id="main"]/ul/li`, func(e *colly.XMLElement) {
 		img := e.Request.AbsoluteURL(e.ChildAttr(`.//a/img`, "src"))
 		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//a`, "href"))
-		id, _ := tht.ParseIDFromURL(homepage)
+		id, _ := tht.ParseMovieIDFromURL(homepage)
 
 		// id is not always the number.
 		var number string

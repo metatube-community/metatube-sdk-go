@@ -65,7 +65,7 @@ func New() *AVBase {
 	}
 }
 
-func (ab *AVBase) NormalizeID(id string) string {
+func (ab *AVBase) NormalizeMovieID(id string) string {
 	if !strings.Contains(id, ":") {
 		return strings.ToUpper(id)
 	}
@@ -78,16 +78,16 @@ func (ab *AVBase) GetMovieInfoByID(id string) (info *model.MovieInfo, err error)
 	return ab.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (ab *AVBase) ParseIDFromURL(rawURL string) (string, error) {
+func (ab *AVBase) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
 	}
-	return ab.NormalizeID(path.Base(homepage.Path)), nil
+	return ab.NormalizeMovieID(path.Base(homepage.Path)), nil
 }
 
 func (ab *AVBase) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := ab.ParseIDFromURL(rawURL)
+	id, err := ab.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}
@@ -231,7 +231,7 @@ func (ab *AVBase) getMovieInfoFromSource(work Work) (info *model.MovieInfo, err 
 	return
 }
 
-func (ab *AVBase) NormalizeKeyword(keyword string) string {
+func (ab *AVBase) NormalizeMovieKeyword(keyword string) string {
 	if number.IsUncensored(keyword) || number.IsFC2(keyword) {
 		return "" // no uncensored support.
 	}

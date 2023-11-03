@@ -184,7 +184,7 @@ func (e *Engine) getActorInfoWithCallback(provider mt.ActorProvider, id string, 
 }
 
 func (e *Engine) getActorInfoByProviderID(provider mt.ActorProvider, id string, lazy bool) (*model.ActorInfo, error) {
-	if id = provider.NormalizeID(id); id == "" {
+	if id = provider.NormalizeActorID(id); id == "" {
 		return nil, mt.ErrInvalidID
 	}
 	return e.getActorInfoWithCallback(provider, id, lazy, func() (*model.ActorInfo, error) {
@@ -201,7 +201,7 @@ func (e *Engine) GetActorInfoByProviderID(name, id string, lazy bool) (*model.Ac
 }
 
 func (e *Engine) getActorInfoByProviderURL(provider mt.ActorProvider, rawURL string, lazy bool) (*model.ActorInfo, error) {
-	id, err := provider.ParseIDFromURL(rawURL)
+	id, err := provider.ParseActorIDFromURL(rawURL)
 	switch {
 	case err != nil:
 		return nil, err

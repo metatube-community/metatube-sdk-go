@@ -47,22 +47,22 @@ func New() *AirAV {
 	}
 }
 
-func (air *AirAV) NormalizeID(id string) string { return strings.ToUpper(id) }
+func (air *AirAV) NormalizeMovieID(id string) string { return strings.ToUpper(id) }
 
 func (air *AirAV) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return air.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (air *AirAV) ParseIDFromURL(rawURL string) (string, error) {
+func (air *AirAV) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
 	}
-	return air.NormalizeID(path.Base(homepage.Path)), nil
+	return air.NormalizeMovieID(path.Base(homepage.Path)), nil
 }
 
 func (air *AirAV) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := air.ParseIDFromURL(rawURL)
+	id, err := air.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}
@@ -174,7 +174,7 @@ func (air *AirAV) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 	return
 }
 
-func (air *AirAV) NormalizeKeyword(keyword string) string {
+func (air *AirAV) NormalizeMovieKeyword(keyword string) string {
 	// Disable AIRAV due to its bad performance.
 	//
 	//if ss := regexp.MustCompile(`^(?i)FC2-.*?(\d+)$`).FindStringSubmatch(keyword); len(ss) == 2 {

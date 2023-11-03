@@ -62,7 +62,7 @@ func New() *FANZA {
 	}
 }
 
-func (fz *FANZA) NormalizeID(id string) string {
+func (fz *FANZA) NormalizeMovieID(id string) string {
 	return strings.ToLower(id) /* FANZA uses lowercase ID */
 }
 
@@ -87,20 +87,20 @@ func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) 
 	return nil, provider.ErrInfoNotFound
 }
 
-func (fz *FANZA) ParseIDFromURL(rawURL string) (id string, err error) {
+func (fz *FANZA) ParseMovieIDFromURL(rawURL string) (id string, err error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return
 	}
 	if sub := regexp.MustCompile(`/cid=(.*?)/`).
 		FindStringSubmatch(homepage.Path); len(sub) == 2 {
-		id = fz.NormalizeID(sub[1])
+		id = fz.NormalizeMovieID(sub[1])
 	}
 	return
 }
 
 func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := fz.ParseIDFromURL(rawURL)
+	id, err := fz.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}
@@ -384,7 +384,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	return
 }
 
-func (fz *FANZA) NormalizeKeyword(keyword string) string {
+func (fz *FANZA) NormalizeMovieKeyword(keyword string) string {
 	if number.IsSpecial(keyword) {
 		return ""
 	}
@@ -425,7 +425,7 @@ func (fz *FANZA) searchMovie(keyword string) (results []*model.MovieSearchResult
 		if !strings.HasPrefix(homepage, baseDigitalURL) && !strings.HasPrefix(homepage, baseMonoURL) {
 			return // ignore other contents.
 		}
-		id, _ := fz.ParseIDFromURL(homepage) // ignore error.
+		id, _ := fz.ParseMovieIDFromURL(homepage) // ignore error.
 
 		thumb := e.ChildAttr(`.//p[@class="tmb"]/a/span[1]/img`, "src")
 		if re := regexp.MustCompile(`(p[a-z]\.)jpg`); re.MatchString(thumb) {

@@ -48,7 +48,7 @@ func New() *SOD {
 	}
 }
 
-func (sod *SOD) NormalizeID(id string) string {
+func (sod *SOD) NormalizeMovieID(id string) string {
 	return strings.ToUpper(id) /* SOD requires uppercase ID */
 }
 
@@ -56,16 +56,16 @@ func (sod *SOD) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return sod.GetMovieInfoByURL(fmt.Sprintf(movieURL, url.QueryEscape(id)))
 }
 
-func (sod *SOD) ParseIDFromURL(rawURL string) (string, error) {
+func (sod *SOD) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
 	}
-	return sod.NormalizeID(homepage.Query().Get("id")), nil
+	return sod.NormalizeMovieID(homepage.Query().Get("id")), nil
 }
 
 func (sod *SOD) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := sod.ParseIDFromURL(rawURL)
+	id, err := sod.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}
@@ -160,7 +160,7 @@ func (sod *SOD) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 	return
 }
 
-func (sod *SOD) NormalizeKeyword(keyword string) string {
+func (sod *SOD) NormalizeMovieKeyword(keyword string) string {
 	if number.IsSpecial(keyword) {
 		return ""
 	}
@@ -186,7 +186,7 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 	c.OnXML(`//*[@id="videos_s_mainbox"]`, func(e *colly.XMLElement) {
 		thumb := e.Request.AbsoluteURL(e.ChildAttr(`.//div[@class="videis_s_img"]/a/img`, "src"))
 		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//div[@class="videis_s_img"]/a`, "href"))
-		id, _ := sod.ParseIDFromURL(homepage)
+		id, _ := sod.ParseMovieIDFromURL(homepage)
 		results = append(results, &model.MovieSearchResult{
 			ID:          id,
 			Number:      id,

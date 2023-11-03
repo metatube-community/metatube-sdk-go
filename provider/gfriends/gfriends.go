@@ -49,7 +49,7 @@ func (gf *GFriends) Priority() int { return Priority }
 
 func (gf *GFriends) URL() *url.URL { return _baseURL }
 
-func (gf *GFriends) NormalizeID(id string) string { return id /* AS IS */ }
+func (gf *GFriends) NormalizeActorID(id string) string { return id /* AS IS */ }
 
 func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
 	images, err := defaultFileTree.query(id)
@@ -77,7 +77,7 @@ func (gf *GFriends) formatURL(id string) string {
 	return u.String()
 }
 
-func (gf *GFriends) ParseIDFromURL(rawURL string) (string, error) {
+func (gf *GFriends) ParseActorIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
@@ -86,7 +86,7 @@ func (gf *GFriends) ParseIDFromURL(rawURL string) (string, error) {
 }
 
 func (gf *GFriends) GetActorInfoByURL(u string) (*model.ActorInfo, error) {
-	id, err := gf.ParseIDFromURL(u)
+	id, err := gf.ParseActorIDFromURL(u)
 	if err != nil {
 		return nil, err
 	}
