@@ -208,7 +208,7 @@ func (fc2hub *FC2HUB) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, e
 	return
 }
 
-func (fc2hub *FC2HUB) NormalizeKeyword(keyword string) string {
+func (fc2hub *FC2HUB) NormalizeMovieKeyword(keyword string) string {
 	return fc2.ParseNumber(keyword)
 }
 

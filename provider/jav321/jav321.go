@@ -206,7 +206,7 @@ func (jav *JAV321) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 	return
 }
 
-func (jav *JAV321) NormalizeKeyword(keyword string) string {
+func (jav *JAV321) NormalizeMovieKeyword(keyword string) string {
 	if number.IsSpecial(keyword) && !regexp.MustCompile(`^(?i)([a-z]{1,4}\d{2,4}|heyzo[-_].+)$`).MatchString(keyword) {
 		return "" // JavBus has no those special contents.
 	}

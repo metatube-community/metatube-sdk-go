@@ -31,7 +31,7 @@ func TestFC2HUB_SearchMovie(t *testing.T) {
 		"FC2-PPV-2725031",
 		"fc2-2417378",
 	} {
-		results, err := provider.SearchMovie(provider.NormalizeKeyword(item))
+		results, err := provider.SearchMovie(provider.NormalizeMovieKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
 		if assert.NoError(t, err) {
 			for _, result := range results {

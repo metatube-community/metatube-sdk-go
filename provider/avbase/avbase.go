@@ -231,7 +231,7 @@ func (ab *AVBase) getMovieInfoFromSource(work Work) (info *model.MovieInfo, err 
 	return
 }
 
-func (ab *AVBase) NormalizeKeyword(keyword string) string {
+func (ab *AVBase) NormalizeMovieKeyword(keyword string) string {
 	if number.IsUncensored(keyword) || number.IsFC2(keyword) {
 		return "" // no uncensored support.
 	}

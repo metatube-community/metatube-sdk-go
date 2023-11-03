@@ -188,7 +188,7 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 	return
 }
 
-func (tht *TokyoHot) NormalizeKeyword(keyword string) string {
+func (tht *TokyoHot) NormalizeMovieKeyword(keyword string) string {
 	if regexp.MustCompile(`^(?i)[a-z_]*\d+$`).MatchString(keyword) {
 		return strings.ToLower(keyword)
 	}

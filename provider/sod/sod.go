@@ -160,7 +160,7 @@ func (sod *SOD) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 	return
 }
 
-func (sod *SOD) NormalizeKeyword(keyword string) string {
+func (sod *SOD) NormalizeMovieKeyword(keyword string) string {
 	if number.IsSpecial(keyword) {
 		return ""
 	}

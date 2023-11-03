@@ -43,7 +43,7 @@ func (e *Engine) searchMovieFromDB(keyword string, provider mt.MovieProvider, al
 func (e *Engine) searchMovie(keyword string, provider mt.MovieProvider, fallback bool) (results []*model.MovieSearchResult, err error) {
 	// Regular keyword searching.
 	if searcher, ok := provider.(mt.MovieSearcher); ok {
-		if keyword = searcher.NormalizeKeyword(keyword); keyword == "" {
+		if keyword = searcher.NormalizeMovieKeyword(keyword); keyword == "" {
 			return nil, mt.ErrInvalidKeyword
 		}
 		if fallback {

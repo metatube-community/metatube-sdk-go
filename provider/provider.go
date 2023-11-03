@@ -23,8 +23,8 @@ type MovieSearcher interface {
 	// SearchMovie searches matched movies.
 	SearchMovie(keyword string) ([]*model.MovieSearchResult, error)
 
-	// NormalizeKeyword converts keyword to provider-friendly form.
-	NormalizeKeyword(Keyword string) string
+	// NormalizeMovieKeyword converts movie keyword to provider-friendly form.
+	NormalizeMovieKeyword(Keyword string) string
 }
 
 type MovieProvider interface {

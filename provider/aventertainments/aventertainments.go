@@ -160,7 +160,7 @@ func (ave *AVE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 	return
 }
 
-func (ave *AVE) NormalizeKeyword(keyword string) string {
+func (ave *AVE) NormalizeMovieKeyword(keyword string) string {
 	if number.IsSpecial(keyword) {
 		return ""
 	}

@@ -174,7 +174,7 @@ func (air *AirAV) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 	return
 }
 
-func (air *AirAV) NormalizeKeyword(keyword string) string {
+func (air *AirAV) NormalizeMovieKeyword(keyword string) string {
 	// Disable AIRAV due to its bad performance.
 	//
 	//if ss := regexp.MustCompile(`^(?i)FC2-.*?(\d+)$`).FindStringSubmatch(keyword); len(ss) == 2 {
