@@ -7,6 +7,7 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
@@ -40,6 +41,10 @@ type JAV321 struct {
 
 func New() *JAV321 {
 	return &JAV321{scraper.NewDefaultScraper(Name, baseURL, Priority)}
+}
+
+func (jav *JAV321) SetRequestTimeout(_ time.Duration) {
+	jav.Scraper.SetRequestTimeout(10 * time.Second)
 }
 
 func (jav *JAV321) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
