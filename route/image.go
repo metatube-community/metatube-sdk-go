@@ -88,8 +88,8 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 			} else {
 				provider = app.MustGetMovieProviderByName(uri.Provider)
 			}
-			// query.Ratio should apply only to the movie primary images.
-			if typ != primaryImageType || isActorProvider || query.Ratio < 0 {
+			// query.Ratio should apply only to the primary images.
+			if typ != primaryImageType || query.Ratio < 0 {
 				query.Ratio = ratio
 			}
 			img, err = app.GetImageByURL(provider, query.URL, query.Ratio, query.Position, query.Auto)
