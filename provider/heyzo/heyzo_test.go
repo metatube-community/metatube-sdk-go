@@ -20,3 +20,21 @@ func TestHeyzo_GetMovieInfoByID(t *testing.T) {
 		t.Logf("%s", data)
 	}
 }
+
+func TestHeyzo_GetMovieReviewsByID(t *testing.T) {
+	provider := New()
+	for _, item := range []string{
+		"2949",
+		"0328",
+		"0805",
+	} {
+		reviews, err := provider.GetMovieReviewsByID(item)
+		data, _ := json.MarshalIndent(reviews, "", "\t")
+		if assert.NoError(t, err) {
+			for _, review := range reviews {
+				assert.True(t, review.Valid())
+			}
+		}
+		t.Logf("%s", data)
+	}
+}

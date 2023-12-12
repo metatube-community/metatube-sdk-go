@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/url"
 	"path"
 	"regexp"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 
+	"github.com/metatube-community/metatube-sdk-go/common/js"
 	"github.com/metatube-community/metatube-sdk-go/common/m3u8"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -18,7 +20,10 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
 
-var _ provider.MovieProvider = (*Heyzo)(nil)
+var (
+	_ provider.MovieProvider = (*Heyzo)(nil)
+	_ provider.MovieReviewer = (*Heyzo)(nil)
+)
 
 const (
 	Name     = "HEYZO"
@@ -26,9 +31,11 @@ const (
 )
 
 const (
-	baseURL   = "https://www.heyzo.com/"
-	movieURL  = "https://www.heyzo.com/moviepages/%04s/index.html"
-	sampleURL = "https://www.heyzo.com/contents/%s/%s/%s"
+	baseURL          = "https://www.heyzo.com/"
+	movieURL         = "https://www.heyzo.com/moviepages/%04s/index.html"
+	sampleURL        = "https://www.heyzo.com/contents/%s/%s/%s"
+	reviewPageURL    = "https://www.heyzo.com/app_v2/review_getjs/?id=%s&page=%d&r=%f&lang=%s"
+	reviewShowAllURL = "https://www.heyzo.com/app_v2/review_getjs/?id=%s&showall=1&r=%f&lang=%s"
 )
 
 type Heyzo struct {
@@ -37,6 +44,75 @@ type Heyzo struct {
 
 func New() *Heyzo {
 	return &Heyzo{scraper.NewDefaultScraper(Name, baseURL, Priority)}
+}
+
+func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo, err error) {
+	c := hzo.ClonedCollector()
+
+	c.OnXML(`//script`, func(e *colly.XMLElement) {
+		if !strings.Contains(e.Text, "reviews_get") {
+			return
+		}
+
+		obj := struct {
+			MovieSeq     string `json:"movie_seq"`
+			Page         int    `json:"page"`
+			Lang         string `json:"lang"`
+			ProviderName string `json:"provider_name"`
+		}{}
+		if err = js.UnmarshalObject(e.Text, "object", &obj); err != nil {
+			return
+		}
+		if obj.MovieSeq == "" {
+			err = fmt.Errorf("no movie seq found on `%s`", e.Text)
+			return
+		}
+
+		// Get reviews
+		d := c.Clone()
+
+		d.OnResponse(func(r *colly.Response) {
+			data := struct {
+				Comments []struct {
+					Username string `json:"user_name"`
+					Date     string `json:"date"`
+					Comment  string `json:"comment"`
+					Eng      string `json:"eng"`
+					Score    struct {
+						Overall string `json:"overall"`
+					} `json:"score"`
+				} `json:"comments"`
+			}{}
+			if err = js.UnmarshalObject(r.Body, "reviews", &data); err == nil {
+				for _, row := range data.Comments {
+					if row.Username == "" || row.Comment == "" {
+						continue
+					}
+					reviews = append(reviews, &model.MovieReviewInfo{
+						Reviewer:    row.Username,
+						Comment:     row.Comment,
+						Score:       parser.ParseScore(row.Score.Overall),
+						CreatedDate: parser.ParseDate(row.Date),
+					})
+				}
+			}
+		})
+
+		var reviewURL string
+		if obj.Page > 0 {
+			reviewURL = fmt.Sprintf(reviewPageURL, obj.MovieSeq, obj.Page, rand.Float64(), obj.Lang)
+		} else {
+			reviewURL = fmt.Sprintf(reviewShowAllURL, obj.MovieSeq, rand.Float64(), obj.Lang)
+		}
+		if vErr := d.Visit(reviewURL); vErr != nil {
+			err = vErr
+		}
+	})
+
+	if vErr := c.Visit(fmt.Sprintf(movieURL, id)); vErr != nil {
+		err = vErr
+	}
+	return
 }
 
 func (hzo *Heyzo) NormalizeMovieID(id string) string {

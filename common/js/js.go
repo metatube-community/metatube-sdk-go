@@ -7,7 +7,7 @@ import (
 	"github.com/robertkrimen/otto"
 )
 
-func UnmarshalObject(jsCode, objName string, i any) error {
+func UnmarshalObject(jsCode any, objName string, i any) error {
 	vm := otto.New()
 	_, _ = vm.Run(jsCode)
 
