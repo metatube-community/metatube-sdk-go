@@ -19,3 +19,19 @@ func TestPacopacomama_GetMovieInfoByID(t *testing.T) {
 		t.Logf("%s", data)
 	}
 }
+
+func TestPacopacomama_GetReviewInfo(t *testing.T) {
+	provider := New()
+	for _, item := range []string{
+		"032622_623",
+	} {
+		reviews, err := provider.GetMovieReviewInfo(item)
+		data, _ := json.MarshalIndent(reviews, "", "\t")
+		if assert.NoError(t, err) {
+			for _, review := range reviews {
+				assert.True(t, review.Valid())
+			}
+		}
+		t.Logf("%s", data)
+	}
+}

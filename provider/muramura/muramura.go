@@ -3,6 +3,7 @@ package muramura
 import (
 	"regexp"
 
+	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/1pondo/core"
 )
@@ -37,6 +38,10 @@ func New() *MuraMura {
 			LegacyGalleryPath: "",
 		}).Init(),
 	}
+}
+
+func (ppm *MuraMura) GetMovieReviewInfo(_ string) ([]*model.MovieReviewInfo, error) {
+	return nil, nil // no reviews provided.
 }
 
 func (ppm *MuraMura) NormalizeMovieID(id string) string {
