@@ -24,6 +24,7 @@ import (
 var (
 	_ provider.MovieProvider = (*MGS)(nil)
 	_ provider.MovieSearcher = (*MGS)(nil)
+	_ provider.MovieReviewer = (*MGS)(nil)
 )
 
 const (
@@ -49,6 +50,40 @@ func New() *MGS {
 				{Name: "adc", Value: "1"},
 			})),
 	}
+}
+
+func (mgs *MGS) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo, err error) {
+	c := mgs.ClonedCollector()
+
+	c.OnXML(`//*[@id="user_review"]/ul/li`, func(e *colly.XMLElement) {
+		name := strings.TrimSpace(regexp.MustCompile(`(さん)?のレビュー`).ReplaceAllString(
+			e.ChildText(`.//div[@class="user_date"]/p[@class="name"]`), ""))
+		comment := strings.TrimSpace(e.ChildText(`.//p[@class="text"]`))
+		if name == "" || comment == "" {
+			return
+		}
+
+		score := 0.0
+		stars := strings.Split(strings.TrimSpace(e.ChildAttr(`.//div[@class="user_date"]/p[@class="review"]/span`, "class")), "_")
+		if len(stars) > 0 {
+			score = parser.ParseScore(stars[len(stars)-1]) / 10
+			if score > 5.0 {
+				score = 0 // reset, must be an error
+			}
+		}
+
+		reviews = append(reviews, &model.MovieReviewInfo{
+			Reviewer: name,
+			Comment:  comment,
+			Score:    score,
+			Title:    strings.TrimSpace(e.ChildText(`.//h4`)),
+			CreatedDate: parser.ParseDate(strings.ReplaceAll(
+				e.ChildText(`.//p[@class="date"]`), "投稿日：", "")),
+		})
+	})
+
+	err = c.Visit(fmt.Sprintf(movieURL, id))
+	return
 }
 
 func (mgs *MGS) NormalizeMovieID(id string) string {

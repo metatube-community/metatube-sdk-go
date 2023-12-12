@@ -37,3 +37,24 @@ func TestMGStage_SearchMovie(t *testing.T) {
 		t.Logf("%s", data)
 	}
 }
+
+func TestMGStage_GetMovieReviewsByID(t *testing.T) {
+	provider := New()
+	for _, item := range []string{
+		"200GANA-2701",
+		"MAAN-930",
+		"217MTVR-048",
+		"300MIUM-973",
+		"MAAN-929",
+		"ABP-177",
+	} {
+		reviews, err := provider.GetMovieReviewsByID(item)
+		data, _ := json.MarshalIndent(reviews, "", "\t")
+		if assert.NoError(t, err) {
+			for _, review := range reviews {
+				assert.True(t, review.Valid())
+			}
+		}
+		t.Logf("%s", data)
+	}
+}

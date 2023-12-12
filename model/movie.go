@@ -27,6 +27,7 @@ func (m *MovieSearchResult) Valid() bool {
 }
 
 type MovieReviewInfo struct {
+	Title       string
 	Reviewer    string
 	Comment     string
 	Score       float64
