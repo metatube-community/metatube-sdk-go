@@ -29,6 +29,7 @@ import (
 var (
 	_ provider.MovieProvider = (*FANZA)(nil)
 	_ provider.MovieSearcher = (*FANZA)(nil)
+	_ provider.MovieReviewer = (*FANZA)(nil)
 )
 
 const (
@@ -60,6 +61,10 @@ func New() *FANZA {
 				{Name: "age_check_done", Value: "1"},
 			})),
 	}
+}
+
+func (fz *FANZA) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo, err error) {
+	return nil, err
 }
 
 func (fz *FANZA) NormalizeMovieID(id string) string {
