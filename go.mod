@@ -18,6 +18,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/nlnwa/whatwg-url v0.4.0
 	github.com/peterbourgon/ff/v3 v3.4.0
+	github.com/robertkrimen/otto v0.2.1
 	github.com/stretchr/testify v1.8.4
 	github.com/zijiren233/google-translator v1.0.1
 	github.com/zijiren233/openai-translator v0.2.1
@@ -83,6 +84,7 @@ require (
 	golang.org/x/sys v0.15.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
+	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.2 // indirect
 	modernc.org/libc v1.37.0 // indirect
