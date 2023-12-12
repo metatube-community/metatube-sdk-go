@@ -81,10 +81,10 @@ func (core *Core) GetMovieReviewInfoByID(id string) (reviews []*model.MovieRevie
 					continue
 				}
 				reviews = append(reviews, &model.MovieReviewInfo{
-					Username:    row.Nickname,
-					UserComment: row.UserComment,
-					UserRating:  parser.ParseScore(row.UserRating),
-					ReviewDate:  parser.ParseDate(row.Created),
+					Reviewer:    row.Nickname,
+					Comment:     row.UserComment,
+					Score:       parser.ParseScore(row.UserRating),
+					CreatedDate: parser.ParseDate(row.Created),
 				})
 			}
 		}

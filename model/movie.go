@@ -27,14 +27,14 @@ func (m *MovieSearchResult) Valid() bool {
 }
 
 type MovieReviewInfo struct {
-	Username    string
-	UserRating  float64
-	UserComment string
-	ReviewDate  datatypes.Date
+	Reviewer    string
+	Comment     string
+	Score       float64
+	CreatedDate datatypes.Date
 }
 
 func (m *MovieReviewInfo) Valid() bool {
-	return m.Username != "" && m.UserComment != ""
+	return m.Reviewer != "" && m.Comment != ""
 }
 
 type MovieInfo struct {
