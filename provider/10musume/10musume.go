@@ -8,6 +8,7 @@ import (
 )
 
 var _ provider.MovieProvider = (*TenMusume)(nil)
+var _ provider.MovieReviewer = (*TenMusume)(nil)
 
 const (
 	Name     = "10musume"

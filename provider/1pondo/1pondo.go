@@ -8,6 +8,7 @@ import (
 )
 
 var _ provider.MovieProvider = (*OnePondo)(nil)
+var _ provider.MovieReviewer = (*OnePondo)(nil)
 
 const (
 	Name     = "1Pondo"

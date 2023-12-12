@@ -56,7 +56,7 @@ func (core *Core) Init() *Core {
 	return core
 }
 
-func (core *Core) GetMovieReviewInfo(id string) (reviews []*model.MovieReviewInfo, err error) {
+func (core *Core) GetMovieReviewInfoByID(id string) (reviews []*model.MovieReviewInfo, err error) {
 	c := core.ClonedCollector()
 
 	c.OnResponse(func(r *colly.Response) {

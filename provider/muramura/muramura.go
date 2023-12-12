@@ -9,6 +9,7 @@ import (
 )
 
 var _ provider.MovieProvider = (*MuraMura)(nil)
+var _ provider.MovieReviewer = (*MuraMura)(nil)
 
 const (
 	Name     = "MURAMURA"
@@ -40,7 +41,7 @@ func New() *MuraMura {
 	}
 }
 
-func (ppm *MuraMura) GetMovieReviewInfo(_ string) ([]*model.MovieReviewInfo, error) {
+func (ppm *MuraMura) GetMovieReviewInfoByID(_ string) ([]*model.MovieReviewInfo, error) {
 	return nil, nil // no reviews provided.
 }
 

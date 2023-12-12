@@ -8,6 +8,7 @@ import (
 )
 
 var _ provider.MovieProvider = (*Pacopacomama)(nil)
+var _ provider.MovieReviewer = (*Pacopacomama)(nil)
 
 const (
 	Name     = "PACOPACOMAMA"
