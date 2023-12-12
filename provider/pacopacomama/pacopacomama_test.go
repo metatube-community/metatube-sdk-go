@@ -20,12 +20,12 @@ func TestPacopacomama_GetMovieInfoByID(t *testing.T) {
 	}
 }
 
-func TestPacopacomama_GetReviewInfo(t *testing.T) {
+func TestPacopacomama_GetMovieReviewsByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"032622_623",
 	} {
-		reviews, err := provider.GetMovieReviewInfoByID(item)
+		reviews, err := provider.GetMovieReviewsByID(item)
 		data, _ := json.MarshalIndent(reviews, "", "\t")
 		if assert.NoError(t, err) {
 			for _, review := range reviews {

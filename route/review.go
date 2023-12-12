@@ -23,7 +23,7 @@ func getReview(app *engine.Engine) gin.HandlerFunc {
 			return
 		}
 
-		reviews, err := app.GetMovieReviewInfoByProviderID(uri.Provider, uri.ID)
+		reviews, err := app.GetMovieReviewsByProviderID(uri.Provider, uri.ID)
 		if err != nil {
 			abortWithError(c, err)
 			return
