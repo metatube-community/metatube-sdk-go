@@ -1,12 +1,12 @@
 package route
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/metatube-community/metatube-sdk-go/engine"
+	"github.com/metatube-community/metatube-sdk-go/errors"
 )
 
 func getReview(app *engine.Engine) gin.HandlerFunc {
@@ -18,8 +18,8 @@ func getReview(app *engine.Engine) gin.HandlerFunc {
 		}
 
 		if !app.IsMovieProvider(uri.Provider) {
-			abortWithStatusMessage(c, http.StatusBadRequest,
-				errors.New("only movie provider is supported"))
+			abortWithError(c, errors.New(http.StatusBadRequest,
+				"only movie provider is supported"))
 			return
 		}
 
