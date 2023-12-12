@@ -16,7 +16,7 @@ func UnmarshalObject(jsCode any, objName string, i any) error {
 		return err
 	}
 	if !v.IsObject() {
-		err = fmt.Errorf("object not found for `%s`", objName)
+		return fmt.Errorf("object not found for `%s`", objName)
 	}
 	b, err := v.Object().MarshalJSON()
 	if err != nil {
