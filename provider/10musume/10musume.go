@@ -7,8 +7,10 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/provider/1pondo/core"
 )
 
-var _ provider.MovieProvider = (*TenMusume)(nil)
-var _ provider.MovieReviewer = (*TenMusume)(nil)
+var (
+	_ provider.MovieProvider = (*TenMusume)(nil)
+	_ provider.MovieReviewer = (*TenMusume)(nil)
+)
 
 const (
 	Name     = "10musume"
