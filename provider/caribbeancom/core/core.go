@@ -52,6 +52,14 @@ func (core *Core) ParseMovieIDFromURL(rawURL string) (string, error) {
 	return path.Base(path.Dir(homepage.Path)), nil
 }
 
+func (core *Core) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewInfo, err error) {
+	id, err := core.ParseMovieIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
+	return core.GetMovieReviewsByID(id)
+}
+
 func (core *Core) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo, err error) {
 	c := core.ClonedCollector()
 

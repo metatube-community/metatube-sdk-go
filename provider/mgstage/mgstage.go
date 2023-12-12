@@ -86,6 +86,14 @@ func (mgs *MGS) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo
 	return
 }
 
+func (mgs *MGS) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewInfo, err error) {
+	id, err := mgs.ParseMovieIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
+	return mgs.GetMovieReviewsByID(id)
+}
+
 func (mgs *MGS) NormalizeMovieID(id string) string {
 	return strings.ToUpper(id)
 }

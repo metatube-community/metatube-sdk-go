@@ -115,6 +115,14 @@ func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewIn
 	return
 }
 
+func (hzo *Heyzo) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewInfo, err error) {
+	id, err := hzo.ParseMovieIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
+	return hzo.GetMovieReviewsByID(id)
+}
+
 func (hzo *Heyzo) NormalizeMovieID(id string) string {
 	if ss := regexp.MustCompile(`^(?i)(?:heyzo[-_])?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]

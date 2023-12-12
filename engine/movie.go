@@ -251,3 +251,18 @@ func (e *Engine) GetMovieReviewsByProviderID(name, id string) ([]*model.MovieRev
 	}
 	return e.getMovieReviewsByProviderID(provider, id)
 }
+
+func (e *Engine) getMovieReviewsByProviderURL(provider mt.MovieProvider, rawURL string) ([]*model.MovieReviewInfo, error) {
+	if reviewer, ok := provider.(mt.MovieReviewer); ok {
+		return reviewer.GetMovieReviewsByURL(rawURL)
+	}
+	return nil, fmt.Errorf("reviews not supported by %s", provider.Name())
+}
+
+func (e *Engine) GetMovieReviewsByProviderURL(name, rawURL string) ([]*model.MovieReviewInfo, error) {
+	provider, err := e.GetMovieProviderByName(name)
+	if err != nil {
+		return nil, err
+	}
+	return e.getMovieReviewsByProviderID(provider, rawURL)
+}

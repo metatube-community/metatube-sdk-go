@@ -67,6 +67,10 @@ func (fz *FANZA) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInf
 	return nil, err
 }
 
+func (fz *FANZA) GetMovieReviewsByURL(id string) (reviews []*model.MovieReviewInfo, err error) {
+	return nil, err
+}
+
 func (fz *FANZA) NormalizeMovieID(id string) string {
 	return strings.ToLower(id) /* FANZA uses lowercase ID */
 }

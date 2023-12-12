@@ -96,6 +96,14 @@ func (core *Core) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewIn
 	return
 }
 
+func (core *Core) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewInfo, err error) {
+	id, err := core.ParseMovieIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
+	return core.GetMovieReviewsByID(id)
+}
+
 func (core *Core) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return core.GetMovieInfoByURL(fmt.Sprintf(core.MovieURL, id))
 }
