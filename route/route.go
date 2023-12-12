@@ -1,6 +1,7 @@
 package route
 
 import (
+	goerr "errors"
 	"fmt"
 	"net/http"
 
@@ -54,6 +55,11 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 		{
 			movies.GET("/:provider/:id", getInfo(app, movieInfoType))
 			movies.GET("/search", getSearch(app, movieSearchType))
+		}
+
+		reviews := private.Group("/reviews")
+		{
+			reviews.GET("/:provider/:id", getReview(app))
 		}
 	}
 
@@ -116,7 +122,8 @@ func getProviders(app *engine.Engine) gin.HandlerFunc {
 }
 
 func abortWithError(c *gin.Context, err error) {
-	if e, ok := err.(*errors.HTTPError); ok {
+	var e *errors.HTTPError
+	if goerr.As(err, &e) {
 		c.AbortWithStatusJSON(e.Code, &responseMessage{Error: e})
 		return
 	}

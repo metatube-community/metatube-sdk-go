@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"sync"
 
 	"gorm.io/gorm/clause"
@@ -234,4 +235,19 @@ func (e *Engine) GetMovieInfoByURL(rawURL string, lazy bool) (*model.MovieInfo, 
 		return nil, err
 	}
 	return e.getMovieInfoByProviderURL(provider, rawURL, lazy)
+}
+
+func (e *Engine) getMovieReviewInfoByProviderID(provider mt.MovieProvider, id string) ([]*model.MovieReviewInfo, error) {
+	if reviewer, ok := provider.(mt.MovieReviewer); ok {
+		return reviewer.GetMovieReviewInfoByID(id)
+	}
+	return nil, fmt.Errorf("reviews not supported by %s", provider.Name())
+}
+
+func (e *Engine) GetMovieReviewInfoByProviderID(name, id string) ([]*model.MovieReviewInfo, error) {
+	provider, err := e.GetMovieProviderByName(name)
+	if err != nil {
+		return nil, err
+	}
+	return e.getMovieReviewInfoByProviderID(provider, id)
 }
