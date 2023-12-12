@@ -264,5 +264,5 @@ func (e *Engine) GetMovieReviewsByProviderURL(name, rawURL string) ([]*model.Mov
 	if err != nil {
 		return nil, err
 	}
-	return e.getMovieReviewsByProviderID(provider, rawURL)
+	return e.getMovieReviewsByProviderURL(provider, rawURL)
 }
