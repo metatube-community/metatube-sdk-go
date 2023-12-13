@@ -56,10 +56,18 @@ func TestFANZA_SearchMovie(t *testing.T) {
 	}
 }
 
-func TestFANZA_GetMovieReviewsByID(t *testing.T) {
+func TestFANZA_GetMovieReviewsByURL(t *testing.T) {
 	provider := New()
-	for _, item := range []string{} {
-		reviews, err := provider.GetMovieReviewsByID(item)
+	for _, item := range []string{
+		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=dass00256/",
+		"https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=1fsdss301/",
+		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=ssis00964/",
+		"https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=smus029/",
+		"https://www.dmm.co.jp/digital/nikkatsu/-/detail/=/cid=5421ksd00051/",
+		"https://www.dmm.co.jp/digital/anime/-/detail/=/cid=h_402mjad00329/",
+		"https://www.dmm.co.jp/mono/anime/-/detail/=/cid=196glod0154/",
+	} {
+		reviews, err := provider.GetMovieReviewsByURL(item)
 		data, _ := json.MarshalIndent(reviews, "", "\t")
 		if assert.NoError(t, err) {
 			for _, review := range reviews {

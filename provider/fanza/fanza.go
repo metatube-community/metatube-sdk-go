@@ -63,19 +63,11 @@ func New() *FANZA {
 	}
 }
 
-func (fz *FANZA) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo, err error) {
-	return nil, err
-}
-
-func (fz *FANZA) GetMovieReviewsByURL(id string) (reviews []*model.MovieReviewInfo, err error) {
-	return nil, err
-}
-
 func (fz *FANZA) NormalizeMovieID(id string) string {
 	return strings.ToLower(id) /* FANZA uses lowercase ID */
 }
 
-func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+func (fz *FANZA) getHomepagesByID(id string) []string {
 	homepages := []string{
 		fmt.Sprintf(movieMonoDVDURL, id),
 		fmt.Sprintf(movieDigitalVideoAURL, id),
@@ -88,7 +80,11 @@ func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) 
 		// might be digital videoa url, try it first.
 		homepages[0], homepages[1] = homepages[1], homepages[0]
 	}
-	for _, homepage := range homepages {
+	return homepages
+}
+
+func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	for _, homepage := range fz.getHomepagesByID(id) {
 		if info, err = fz.GetMovieInfoByURL(homepage); err == nil && info.Valid() {
 			return
 		}
@@ -461,6 +457,59 @@ func (fz *FANZA) searchMovie(keyword string) (results []*model.MovieSearchResult
 	})
 
 	err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword)))
+	return
+}
+
+func (fz *FANZA) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo, err error) {
+	for _, homepage := range fz.getHomepagesByID(id) {
+		if reviews, err = fz.GetMovieReviewsByURL(homepage); err == nil && len(reviews) > 0 {
+			return
+		}
+	}
+	return nil, provider.ErrInfoNotFound
+}
+
+func (fz *FANZA) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewInfo, err error) {
+	c := fz.ClonedCollector()
+
+	c.OnXML(`//*[starts-with(@id, 'review')]//div[ends-with(@class, 'review__list')]/ul/li`, func(e *colly.XMLElement) {
+		comment := strings.TrimSpace(e.ChildText(`.//div[1]`))
+
+		var name string
+		if n := htmlquery.FindOne(e.DOM.(*html.Node), `.//div[2]/p/span[ends-with(@class, 'review__unit__reviewer')]/a`); n != nil {
+			if n := n.FirstChild; n != nil && n.Type == html.TextNode {
+				name = strings.TrimSpace(n.Data)
+			}
+		}
+		if name == "" /* fallback */ {
+			name = strings.TrimSpace(regexp.MustCompile(`(さん)?(のレビュー)?`).ReplaceAllString(
+				e.ChildText(`.//div[2]/p/span[ends-with(@class, 'review__unit__reviewer')]`), ""))
+		}
+
+		if name == "" || comment == "" {
+			return
+		}
+
+		score := 0.0
+		ratings := strings.Split(strings.TrimSpace(e.ChildAttr(`.//p/span[1]`, "class")), "-")
+		if len(ratings) > 0 {
+			score = parser.ParseScore(ratings[len(ratings)-1]) / 10
+			if score > 5.0 {
+				score = 0 // reset, must be an error
+			}
+		}
+
+		reviews = append(reviews, &model.MovieReviewInfo{
+			Reviewer: name,
+			Comment:  comment,
+			Score:    score,
+			Title:    strings.TrimSpace(e.ChildText(`.//p/span[ends-with(@class, 'review__unit__title')]`)),
+			CreatedDate: parser.ParseDate(strings.Trim(
+				e.ChildText(`.//div[2]/p/span[ends-with(@class, 'review__unit__postdate')]`), "- ")),
+		})
+	})
+
+	err = c.Visit(rawURL)
 	return
 }
 
