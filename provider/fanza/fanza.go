@@ -500,11 +500,11 @@ func (fz *FANZA) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieRevi
 		}
 
 		reviews = append(reviews, &model.MovieReviewInfo{
-			Reviewer: name,
-			Comment:  comment,
-			Score:    score,
-			Title:    strings.TrimSpace(e.ChildText(`.//p/span[ends-with(@class, 'review__unit__title')]`)),
-			CreatedDate: parser.ParseDate(strings.Trim(
+			Auther:  name,
+			Comment: comment,
+			Score:   score,
+			Title:   strings.TrimSpace(e.ChildText(`.//p/span[ends-with(@class, 'review__unit__title')]`)),
+			Date: parser.ParseDate(strings.Trim(
 				e.ChildText(`.//div[2]/p/span[ends-with(@class, 'review__unit__postdate')]`), "- ")),
 		})
 	})

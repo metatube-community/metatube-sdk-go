@@ -73,11 +73,11 @@ func (mgs *MGS) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo
 		}
 
 		reviews = append(reviews, &model.MovieReviewInfo{
-			Reviewer: name,
-			Comment:  comment,
-			Score:    score,
-			Title:    strings.TrimSpace(e.ChildText(`.//h4`)),
-			CreatedDate: parser.ParseDate(strings.ReplaceAll(
+			Auther:  name,
+			Comment: comment,
+			Score:   score,
+			Title:   strings.TrimSpace(e.ChildText(`.//h4`)),
+			Date: parser.ParseDate(strings.ReplaceAll(
 				e.ChildText(`.//p[@class="date"]`), "投稿日：", "")),
 		})
 	})
