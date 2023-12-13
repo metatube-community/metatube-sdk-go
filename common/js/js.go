@@ -8,11 +8,14 @@ import (
 
 func UnmarshalObject(jsCode any, objName string, i any) error {
 	vm := otto.New()
-	_, _ = vm.Run(jsCode)
+	v, _ := vm.Run(jsCode)
 
-	v, err := vm.Get(objName)
-	if err != nil {
-		return err
+	var err error
+	if objName != "" {
+		v, err = vm.Get(objName)
+		if err != nil {
+			return err
+		}
 	}
 	b, err := v.MarshalJSON()
 	if err != nil {
