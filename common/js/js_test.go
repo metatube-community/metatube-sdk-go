@@ -36,4 +36,13 @@ func TestUnmarshalObject(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "HEY", data.Comments[0].Username)
 	}
+
+	{
+		data := ""
+		jsCode := `var abc = 'hello'`
+		objName := "abc"
+		err := UnmarshalObject(jsCode, objName, &data)
+		assert.NoError(t, err)
+		assert.Equal(t, "hello", data)
+	}
 }

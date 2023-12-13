@@ -2,7 +2,6 @@ package js
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/robertkrimen/otto"
 )
@@ -15,10 +14,7 @@ func UnmarshalObject(jsCode any, objName string, i any) error {
 	if err != nil {
 		return err
 	}
-	if !v.IsObject() {
-		return fmt.Errorf("object not found for `%s`", objName)
-	}
-	b, err := v.Object().MarshalJSON()
+	b, err := v.MarshalJSON()
 	if err != nil {
 		return err
 	}
