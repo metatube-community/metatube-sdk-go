@@ -56,7 +56,7 @@ func (mgs *MGS) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo
 	c := mgs.ClonedCollector()
 
 	c.OnXML(`//*[@id="user_review"]/ul/li`, func(e *colly.XMLElement) {
-		name := strings.TrimSpace(regexp.MustCompile(`(さん)?のレビュー`).ReplaceAllString(
+		name := strings.TrimSpace(regexp.MustCompile(`(さん)?(のレビュー)?`).ReplaceAllString(
 			e.ChildText(`.//div[@class="user_date"]/p[@class="name"]`), ""))
 		comment := strings.TrimSpace(e.ChildText(`.//p[@class="text"]`))
 		if name == "" || comment == "" {
