@@ -7,7 +7,10 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/provider/caribbeancom/core"
 )
 
-var _ provider.MovieProvider = (*Caribbeancom)(nil)
+var (
+	_ provider.MovieProvider = (*Caribbeancom)(nil)
+	_ provider.MovieReviewer = (*Caribbeancom)(nil)
+)
 
 const (
 	Name     = "Caribbeancom"

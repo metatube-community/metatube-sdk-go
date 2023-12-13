@@ -27,6 +27,14 @@ type MovieSearcher interface {
 	NormalizeMovieKeyword(Keyword string) string
 }
 
+type MovieReviewer interface {
+	// GetMovieReviewsByID gets the user reviews of given movie id.
+	GetMovieReviewsByID(id string) ([]*model.MovieReviewInfo, error)
+
+	// GetMovieReviewsByURL gets the user reviews of given movie URL.
+	GetMovieReviewsByURL(rawURL string) ([]*model.MovieReviewInfo, error)
+}
+
 type MovieProvider interface {
 	// Provider should be implemented.
 	Provider

@@ -52,6 +52,55 @@ func (core *Core) ParseMovieIDFromURL(rawURL string) (string, error) {
 	return path.Base(path.Dir(homepage.Path)), nil
 }
 
+func (core *Core) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewInfo, err error) {
+	id, err := core.ParseMovieIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
+	return core.GetMovieReviewsByID(id)
+}
+
+func (core *Core) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo, err error) {
+	c := core.ClonedCollector()
+
+	parseReviews := func(e *colly.XMLElement) {
+		comment := strings.TrimSpace(e.ChildText(`.//div[@class="review-comment"]`))
+		reviewer := strings.TrimSpace(e.ChildText(`.//div[@class="review-info"]/span[@class="review-info__user"]`))
+		reviewer = strings.TrimSpace(strings.TrimPrefix(reviewer, "by "))
+
+		if comment == "" || reviewer == "" {
+			return
+		}
+		reviews = append(reviews, &model.MovieReviewInfo{
+			Author:  reviewer,
+			Comment: comment,
+			Score: float64(utf8.RuneCountInString(
+				strings.TrimSpace(e.ChildText(`.//div[@class="rating"]`)))),
+			Date: parser.ParseDate(
+				strings.TrimSpace(e.ChildText(`.//div[@class="review-info"]/span[@class="review-info__date"]`))),
+		})
+	}
+
+	isCaribbeancom := false
+
+	// Caribbeancom
+	c.OnXML(`//div[@class="movie-review section"]/div[@class="section is-dense"]`, func(e *colly.XMLElement) {
+		parseReviews(e)
+		isCaribbeancom = len(reviews) > 0
+	})
+
+	// CaribbeancomPremium
+	c.OnXML(`//div[@class="movie-review"]//div[@class="section"]`, func(e *colly.XMLElement) {
+		if isCaribbeancom {
+			return
+		}
+		parseReviews(e)
+	})
+
+	err = c.Visit(fmt.Sprintf(core.MovieURL, id))
+	return
+}
+
 func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
 	id, err := core.ParseMovieIDFromURL(rawURL)
 	if err != nil {

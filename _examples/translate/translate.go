@@ -12,7 +12,7 @@ func main() {
 	// Translate `Hello` from auto to Japanese by Baidu.
 	translate.BaiduTranslate("Hello", "auto", "ja", appId, appKey)
 
-	var apiKey = "XXX"
+	apiKey := "XXX"
 	// Translate `Hello` from auto to simplified Chinese by Google.
 	translate.GoogleTranslate("Hello", "auto", "zh-cn", apiKey)
 }

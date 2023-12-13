@@ -24,3 +24,19 @@ func TestMuraMura_NormalizeID(t *testing.T) {
 		t.Logf("%s", data)
 	}
 }
+
+func TestMuraMura_GetMovieReviewsByID(t *testing.T) {
+	provider := New()
+	for _, item := range []string{
+		"091522_959",
+	} {
+		reviews, err := provider.GetMovieReviewsByID(item)
+		data, _ := json.MarshalIndent(reviews, "", "\t")
+		if assert.NoError(t, err) {
+			for _, review := range reviews {
+				assert.True(t, review.Valid())
+			}
+		}
+		t.Logf("%s", data)
+	}
+}

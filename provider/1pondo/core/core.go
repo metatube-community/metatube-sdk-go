@@ -21,6 +21,7 @@ import (
 // API Paths
 const (
 	movieDetailPath        = "/dyn/phpauto/movie_details/movie_id/%s.json"
+	movieReviewPath        = "/dyn/phpauto/new_movie_reviews/movie_id/%s.json"
 	movieGalleryPath       = "/dyn/dla/json/movie_gallery/%s.json"
 	movieLegacyGalleryPath = "/dyn/phpauto/movie_galleries/movie_id/%s.json"
 )
@@ -53,6 +54,54 @@ func (core *Core) Init() *Core {
 		}),
 	)
 	return core
+}
+
+func (core *Core) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo, err error) {
+	c := core.ClonedCollector()
+
+	c.OnResponse(func(r *colly.Response) {
+		data := struct {
+			AvgRating   float64 `json:"AvgRating"`
+			MetaMovieID int     `json:"MetaMovieID"`
+			MovieID     string  `json:"MovieID"`
+			SiteID      int     `json:"SiteID"`
+			Rows        []struct {
+				Created     string `json:"Created"`
+				MovieID     string `json:"MovieID"`
+				Nickname    string `json:"Nickname"`
+				ReviewID    string `json:"ReviewID"`
+				UserComment string `json:"UserComment"`
+				UserRating  string `json:"UserRating"`
+			} `json:"Rows"`
+		}{}
+		if err = json.Unmarshal(r.Body, &data); err == nil {
+			for _, row := range data.Rows {
+				if strings.TrimSpace(row.UserComment) == "" ||
+					strings.TrimSpace(row.Nickname) == "" {
+					continue
+				}
+				reviews = append(reviews, &model.MovieReviewInfo{
+					Author:  row.Nickname,
+					Comment: row.UserComment,
+					Score:   parser.ParseScore(row.UserRating),
+					Date:    parser.ParseDate(row.Created),
+				})
+			}
+		}
+	})
+
+	if vErr := c.Visit(urlJoin(core.BaseURL, fmt.Sprintf(movieReviewPath, id))); vErr != nil {
+		err = vErr
+	}
+	return
+}
+
+func (core *Core) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewInfo, err error) {
+	id, err := core.ParseMovieIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
+	return core.GetMovieReviewsByID(id)
 }
 
 func (core *Core) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
