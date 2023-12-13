@@ -28,14 +28,14 @@ func (m *MovieSearchResult) Valid() bool {
 
 type MovieReviewInfo struct {
 	Title   string         `json:"title"`
-	Auther  string         `json:"auther"`
+	Author  string         `json:"author"`
 	Comment string         `json:"comment"`
 	Score   float64        `json:"score"`
 	Date    datatypes.Date `json:"date"`
 }
 
 func (m *MovieReviewInfo) Valid() bool {
-	return m.Auther != "" && m.Comment != ""
+	return m.Author != "" && m.Comment != ""
 }
 
 type MovieInfo struct {

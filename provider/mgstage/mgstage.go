@@ -73,7 +73,7 @@ func (mgs *MGS) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo
 		}
 
 		reviews = append(reviews, &model.MovieReviewInfo{
-			Auther:  name,
+			Author:  name,
 			Comment: comment,
 			Score:   score,
 			Title:   strings.TrimSpace(e.ChildText(`.//h4`)),

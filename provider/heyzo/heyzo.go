@@ -89,7 +89,7 @@ func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewIn
 						continue
 					}
 					reviews = append(reviews, &model.MovieReviewInfo{
-						Auther:  row.Username,
+						Author:  row.Username,
 						Comment: row.Comment,
 						Score:   parser.ParseScore(row.Score.Overall),
 						Date:    parser.ParseDate(row.Date),

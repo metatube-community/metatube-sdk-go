@@ -72,7 +72,7 @@ func (core *Core) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewIn
 			return
 		}
 		reviews = append(reviews, &model.MovieReviewInfo{
-			Auther:  reviewer,
+			Author:  reviewer,
 			Comment: comment,
 			Score: float64(utf8.RuneCountInString(
 				strings.TrimSpace(e.ChildText(`.//div[@class="rating"]`)))),
