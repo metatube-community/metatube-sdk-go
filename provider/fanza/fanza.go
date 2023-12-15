@@ -418,6 +418,11 @@ func (fz *FANZA) searchMovie(keyword string) (results []*model.MovieSearchResult
 			sort.SliceStable(results, func(i, j int) bool {
 				a := r.ReplaceAllString(results[i].ID, "${1}${2}")
 				b := r.ReplaceAllString(results[j].ID, "${1}${2}")
+				if a == b {
+					// prefer digital results.
+					return strings.Contains(results[i].Homepage, "/digital/") ||
+						!strings.Contains(results[j].Homepage, "/digital/")
+				}
 				return comparer.Compare(a, x) >= comparer.Compare(b, x)
 			})
 		}
