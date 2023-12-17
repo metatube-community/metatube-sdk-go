@@ -37,7 +37,7 @@ func getReview(app *engine.Engine) gin.HandlerFunc {
 		}
 
 		var (
-			reviews *model.MovieReviews
+			reviews *model.MovieReviewInfo
 			err     error
 		)
 		if query.Homepage != "" {

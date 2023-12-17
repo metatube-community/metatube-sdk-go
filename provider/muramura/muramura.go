@@ -43,7 +43,7 @@ func New() *MuraMura {
 	}
 }
 
-func (ppm *MuraMura) GetMovieReviewsByID(_ string) ([]*model.MovieReviewInfo, error) {
+func (ppm *MuraMura) GetMovieReviewsByID(_ string) ([]*model.MovieReviewDetail, error) {
 	return nil, nil // no reviews provided.
 }
 

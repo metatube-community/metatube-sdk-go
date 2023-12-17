@@ -5,7 +5,7 @@ import (
 	"gorm.io/datatypes"
 )
 
-const ActorTableName = "actor_metadata"
+const ActorMetadataTableName = "actor_metadata"
 
 // ActorSearchResult is a subset of ActorInfo.
 type ActorSearchResult struct {
@@ -42,7 +42,7 @@ type ActorInfo struct {
 }
 
 func (*ActorInfo) TableName() string {
-	return ActorTableName
+	return ActorMetadataTableName
 }
 
 func (a *ActorInfo) Valid() bool {

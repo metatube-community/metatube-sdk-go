@@ -10,8 +10,8 @@ import (
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
 
-func (e *Engine) getMovieReviewsFromDB(provider mt.MovieProvider, id string) (*model.MovieReviews, error) {
-	info := &model.MovieReviews{}
+func (e *Engine) getMovieReviewsFromDB(provider mt.MovieProvider, id string) (*model.MovieReviewInfo, error) {
+	info := &model.MovieReviewInfo{}
 	err := e.db. // Exact match here.
 			Where("provider = ?", provider.Name()).
 			Where("id = ? COLLATE NOCASE", id).
@@ -19,7 +19,8 @@ func (e *Engine) getMovieReviewsFromDB(provider mt.MovieProvider, id string) (*m
 	return info, err
 }
 
-func (e *Engine) getMovieReviewsWithCallback(provider mt.MovieProvider, id string, lazy bool, callback func() ([]*model.MovieReviewInfo, error)) (info *model.MovieReviews, err error) {
+func (e *Engine) getMovieReviewsWithCallback(provider mt.MovieProvider, id string, lazy bool,
+	callback func() ([]*model.MovieReviewDetail, error)) (info *model.MovieReviewInfo, err error) {
 	defer func() {
 		// metadata validation check.
 		if err == nil && (info == nil || !info.Valid()) {
@@ -41,12 +42,12 @@ func (e *Engine) getMovieReviewsWithCallback(provider mt.MovieProvider, id strin
 		}
 	}()
 
-	var reviews []*model.MovieReviewInfo
+	var reviews []*model.MovieReviewDetail
 	if reviews, err = callback(); err != nil {
 		return
 	}
 
-	info = &model.MovieReviews{
+	info = &model.MovieReviewInfo{
 		ID:       id,
 		Provider: provider.Name(),
 		Reviews:  datatypes.NewJSONType(reviews),
@@ -54,7 +55,7 @@ func (e *Engine) getMovieReviewsWithCallback(provider mt.MovieProvider, id strin
 	return
 }
 
-func (e *Engine) getMovieReviewsByProviderID(provider mt.MovieProvider, id string, lazy bool) (*model.MovieReviews, error) {
+func (e *Engine) getMovieReviewsByProviderID(provider mt.MovieProvider, id string, lazy bool) (*model.MovieReviewInfo, error) {
 	if id = provider.NormalizeMovieID(id); id == "" {
 		return nil, mt.ErrInvalidID
 	}
@@ -64,12 +65,12 @@ func (e *Engine) getMovieReviewsByProviderID(provider mt.MovieProvider, id strin
 		return nil, fmt.Errorf("reviews not supported by %s", provider.Name())
 	}
 
-	return e.getMovieReviewsWithCallback(provider, id, lazy, func() ([]*model.MovieReviewInfo, error) {
+	return e.getMovieReviewsWithCallback(provider, id, lazy, func() ([]*model.MovieReviewDetail, error) {
 		return reviewer.GetMovieReviewsByID(id)
 	})
 }
 
-func (e *Engine) GetMovieReviewsByProviderID(name, id string, lazy bool) (*model.MovieReviews, error) {
+func (e *Engine) GetMovieReviewsByProviderID(name, id string, lazy bool) (*model.MovieReviewInfo, error) {
 	provider, err := e.GetMovieProviderByName(name)
 	if err != nil {
 		return nil, err
@@ -77,7 +78,7 @@ func (e *Engine) GetMovieReviewsByProviderID(name, id string, lazy bool) (*model
 	return e.getMovieReviewsByProviderID(provider, id, lazy)
 }
 
-func (e *Engine) getMovieReviewsByProviderURL(provider mt.MovieProvider, rawURL string, lazy bool) (*model.MovieReviews, error) {
+func (e *Engine) getMovieReviewsByProviderURL(provider mt.MovieProvider, rawURL string, lazy bool) (*model.MovieReviewInfo, error) {
 	id, err := provider.ParseMovieIDFromURL(rawURL)
 	switch {
 	case err != nil:
@@ -91,12 +92,12 @@ func (e *Engine) getMovieReviewsByProviderURL(provider mt.MovieProvider, rawURL 
 		return nil, fmt.Errorf("reviews not supported by %s", provider.Name())
 	}
 
-	return e.getMovieReviewsWithCallback(provider, id, lazy, func() ([]*model.MovieReviewInfo, error) {
+	return e.getMovieReviewsWithCallback(provider, id, lazy, func() ([]*model.MovieReviewDetail, error) {
 		return reviewer.GetMovieReviewsByURL(rawURL)
 	})
 }
 
-func (e *Engine) GetMovieReviewsByProviderURL(name, rawURL string, lazy bool) (*model.MovieReviews, error) {
+func (e *Engine) GetMovieReviewsByProviderURL(name, rawURL string, lazy bool) (*model.MovieReviewInfo, error) {
 	provider, err := e.GetMovieProviderByName(name)
 	if err != nil {
 		return nil, err

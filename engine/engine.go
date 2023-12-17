@@ -173,7 +173,7 @@ func (e *Engine) AutoMigrate(v bool) error {
 	return e.db.AutoMigrate(
 		&model.MovieInfo{},
 		&model.ActorInfo{},
-		&model.MovieReviews{},
+		&model.MovieReviewInfo{},
 	)
 }
 
