@@ -26,6 +26,20 @@ func (m *MovieSearchResult) Valid() bool {
 		m.Provider != "" && m.Homepage != ""
 }
 
+type MovieReviews struct {
+	ID       string                                 `json:"id" gorm:"primaryKey"`
+	Provider string                                 `json:"provider" gorm:"primaryKey"`
+	Reviews  datatypes.JSONType[[]*MovieReviewInfo] `json:"reviews"`
+}
+
+func (*MovieReviews) TableName() string {
+	return "movie_reviews"
+}
+
+func (m *MovieReviews) Valid() bool {
+	return m.ID != "" && m.Provider != ""
+}
+
 type MovieReviewInfo struct {
 	Title   string         `json:"title"`
 	Author  string         `json:"author"`

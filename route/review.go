@@ -12,6 +12,7 @@ import (
 
 type reviewQuery struct {
 	Homepage string `form:"homepage"`
+	Lazy     bool   `form:"lazy"`
 }
 
 func getReview(app *engine.Engine) gin.HandlerFunc {
@@ -21,7 +22,9 @@ func getReview(app *engine.Engine) gin.HandlerFunc {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
 			return
 		}
-		query := &reviewQuery{}
+		query := &reviewQuery{
+			Lazy: true, // enable lazy by default.
+		}
 		if err := c.ShouldBindQuery(query); err != nil {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
 			return
@@ -34,19 +37,19 @@ func getReview(app *engine.Engine) gin.HandlerFunc {
 		}
 
 		var (
-			reviews []*model.MovieReviewInfo
+			reviews *model.MovieReviews
 			err     error
 		)
 		if query.Homepage != "" {
-			reviews, err = app.GetMovieReviewsByProviderURL(uri.Provider, query.Homepage)
+			reviews, err = app.GetMovieReviewsByProviderURL(uri.Provider, query.Homepage, query.Lazy)
 		} else {
-			reviews, err = app.GetMovieReviewsByProviderID(uri.Provider, uri.ID)
+			reviews, err = app.GetMovieReviewsByProviderID(uri.Provider, uri.ID, query.Lazy)
 		}
 		if err != nil {
 			abortWithError(c, err)
 			return
 		}
 
-		c.JSON(http.StatusOK, &responseMessage{Data: reviews})
+		c.JSON(http.StatusOK, &responseMessage{Data: reviews.Reviews.Data()})
 	}
 }

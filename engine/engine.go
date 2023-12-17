@@ -172,7 +172,9 @@ func (e *Engine) AutoMigrate(v bool) error {
 	}
 	return e.db.AutoMigrate(
 		&model.MovieInfo{},
-		&model.ActorInfo{})
+		&model.ActorInfo{},
+		&model.MovieReviews{},
+	)
 }
 
 // Fetch fetches content from url. If provider is nil, the
