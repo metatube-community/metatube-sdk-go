@@ -1,7 +1,11 @@
 package engine
 
 import (
+	"fmt"
+	"log"
+	"strings"
 	"sync"
+	"time"
 
 	"gorm.io/gorm/clause"
 
@@ -84,21 +88,29 @@ func (e *Engine) SearchMovie(keyword, name string, fallback bool) ([]*model.Movi
 
 func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchResult, err error) {
 	type response struct {
-		Results []*model.MovieSearchResult
-		Error   error
+		Results   []*model.MovieSearchResult
+		Error     error
+		Provider  mt.MovieProvider
+		StartTime time.Time
+		EndTime   time.Time
 	}
 	respCh := make(chan response)
 
 	var wg sync.WaitGroup
 	for _, provider := range e.movieProviders {
 		wg.Add(1)
+		// Goroutine started time.
+		startTime := time.Now()
 		// Async searching.
 		go func(provider mt.MovieProvider) {
 			defer wg.Done()
 			innerResults, innerErr := e.searchMovie(keyword, provider, false)
 			respCh <- response{
-				Results: innerResults,
-				Error:   innerErr,
+				Results:   innerResults,
+				Error:     innerErr,
+				Provider:  provider,
+				StartTime: startTime,
+				EndTime:   time.Now(),
 			}
 		}(provider)
 	}
@@ -108,13 +120,22 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 		close(respCh)
 	}()
 
+	ds := &strings.Builder{}
+
 	// response channel.
 	for resp := range respCh {
+		ds.WriteString(fmt.Sprintf("%s(%s): %v\n",
+			resp.Provider.Name(),
+			resp.EndTime.Sub(resp.StartTime),
+			resp.Error))
+
 		if resp.Error != nil {
 			continue
 		}
 		results = append(results, resp.Results...)
 	}
+
+	log.Printf("Search %s: \n%s", keyword, ds.String())
 	return
 }
 
