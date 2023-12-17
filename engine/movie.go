@@ -2,7 +2,6 @@ package engine
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"sync"
 	"time"
@@ -124,7 +123,7 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 
 	// response channel.
 	for resp := range respCh {
-		ds.WriteString(fmt.Sprintf("%s(%s): %v\n",
+		ds.WriteString(fmt.Sprintf(" %s(%s): %v",
 			resp.Provider.Name(),
 			resp.EndTime.Sub(resp.StartTime),
 			resp.Error))
@@ -135,7 +134,7 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 		results = append(results, resp.Results...)
 	}
 
-	log.Printf("Search %s: \n%s", keyword, ds.String())
+	e.logger.Infof("Search keyword %s:%s", keyword, ds.String())
 	return
 }
 
