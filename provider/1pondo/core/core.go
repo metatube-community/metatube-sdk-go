@@ -44,7 +44,7 @@ type Core struct {
 	GalleryPath       string
 	LegacyGalleryPath string
 
-	//semaphore
+	// Semaphore
 	sem *semaphore.Semaphore
 }
 
