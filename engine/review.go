@@ -20,7 +20,8 @@ func (e *Engine) getMovieReviewsFromDB(provider mt.MovieProvider, id string) (*m
 }
 
 func (e *Engine) getMovieReviewsWithCallback(provider mt.MovieProvider, id string, lazy bool,
-	callback func() ([]*model.MovieReviewDetail, error)) (info *model.MovieReviewInfo, err error) {
+	callback func() ([]*model.MovieReviewDetail, error),
+) (info *model.MovieReviewInfo, err error) {
 	defer func() {
 		// metadata validation check.
 		if err == nil && (info == nil || !info.Valid()) {
