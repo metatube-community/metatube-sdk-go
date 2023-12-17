@@ -15,6 +15,7 @@ import (
 
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
+	"github.com/iancoleman/orderedmap"
 	"golang.org/x/net/html"
 
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
@@ -319,10 +320,25 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 			FindString(e.Attr("onclick"))))
 	})
 
-	// Preview Images
+	// In case of any duplication
+	previewImageSet := orderedmap.New()
+
+	// Preview Images Digital/DVD
+	c.OnXML(`//*[@id="sample-image-block"]//a[@name="sample-image"]`, func(e *colly.XMLElement) {
+		previewImageSet.Set(e.Request.AbsoluteURL(PreviewSrc(e.ChildAttr(`.//img`, "src"))), nil)
+	})
+
+	// Preview Images Digital (Fallback)
 	c.OnXML(`//*[@id="sample-image-block"]/a`, func(e *colly.XMLElement) {
-		info.PreviewImages = append(info.PreviewImages,
-			e.Request.AbsoluteURL(PreviewSrc(e.ChildAttr(`.//img`, "src"))))
+		if len(previewImageSet.Keys()) == 0 {
+			return
+		}
+		previewImageSet.Set(e.Request.AbsoluteURL(PreviewSrc(e.ChildAttr(`.//img`, "src"))), nil)
+	})
+
+	// Final Preview Images
+	c.OnScraped(func(_ *colly.Response) {
+		info.PreviewImages = append(info.PreviewImages, previewImageSet.Keys()...)
 	})
 
 	// Final (images)

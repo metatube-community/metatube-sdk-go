@@ -32,6 +32,22 @@ func TestFANZA_GetMovieInfoByID(t *testing.T) {
 	}
 }
 
+func TestFANZA_GetMovieInfoByURL(t *testing.T) {
+	provider := New()
+	for _, item := range []string{
+		"https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=41hodv21810/",
+		"https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=h_346rebd655/",
+		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=ipvr00231/",
+		"https://www.dmm.co.jp/mono/anime/-/detail/=/cid=196glod0323t/",
+		"https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=fuyu079/",
+	} {
+		info, err := provider.GetMovieInfoByURL(item)
+		data, _ := json.MarshalIndent(info, "", "\t")
+		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
+		t.Logf("%s", data)
+	}
+}
+
 func TestFANZA_SearchMovie(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
