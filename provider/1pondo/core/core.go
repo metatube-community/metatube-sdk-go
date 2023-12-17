@@ -14,7 +14,6 @@ import (
 	"github.com/nlnwa/whatwg-url/url"
 
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
-	"github.com/metatube-community/metatube-sdk-go/common/semaphore"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
@@ -43,9 +42,6 @@ type Core struct {
 	// Paths
 	GalleryPath       string
 	LegacyGalleryPath string
-
-	// Semaphore
-	sem *semaphore.Semaphore
 }
 
 func (core *Core) Init() *Core {
@@ -56,16 +52,17 @@ func (core *Core) Init() *Core {
 		scraper.WithCookies(core.BaseURL, []*http.Cookie{
 			{Name: "ageCheck", Value: "1"},
 		}),
+		scraper.WithLimit(&colly.LimitRule{
+			DomainGlob:  "*",
+			Parallelism: 1,
+			Delay:       500 * time.Millisecond,
+			RandomDelay: 200 * time.Millisecond,
+		}),
 	)
-	// limit concurrent numbers.
-	core.sem = semaphore.New(2)
 	return core
 }
 
 func (core *Core) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {
-	core.sem.Acquire()
-	defer core.sem.Release()
-
 	c := core.ClonedCollector()
 
 	c.OnResponse(func(r *colly.Response) {
@@ -126,9 +123,6 @@ func (core *Core) ParseMovieIDFromURL(rawURL string) (string, error) {
 }
 
 func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	core.sem.Acquire()
-	defer core.sem.Release()
-
 	id, err := core.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return

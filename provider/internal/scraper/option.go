@@ -94,3 +94,9 @@ func WithTransport(transport http.RoundTripper) Option {
 		return nil
 	}
 }
+
+func WithLimit(rule *colly.LimitRule) Option {
+	return func(s *Scraper) error {
+		return s.c.Limit(rule)
+	}
+}
