@@ -465,7 +465,7 @@ func (fz *FANZA) searchMovie(keyword string) (results []*model.MovieSearchResult
 	return
 }
 
-func (fz *FANZA) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo, err error) {
+func (fz *FANZA) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {
 	for _, homepage := range fz.getHomepagesByID(id) {
 		if reviews, err = fz.GetMovieReviewsByURL(homepage); err == nil && len(reviews) > 0 {
 			return
@@ -474,7 +474,7 @@ func (fz *FANZA) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInf
 	return nil, provider.ErrInfoNotFound
 }
 
-func (fz *FANZA) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewInfo, err error) {
+func (fz *FANZA) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewDetail, err error) {
 	c := fz.ClonedCollector()
 
 	c.OnXML(`//*[starts-with(@id, 'review')]//div[ends-with(@class, 'review__list')]/ul/li`, func(e *colly.XMLElement) {
@@ -504,7 +504,7 @@ func (fz *FANZA) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieRevi
 			}
 		}
 
-		reviews = append(reviews, &model.MovieReviewInfo{
+		reviews = append(reviews, &model.MovieReviewDetail{
 			Author:  name,
 			Comment: comment,
 			Score:   score,

@@ -46,7 +46,7 @@ func New() *Heyzo {
 	return &Heyzo{scraper.NewDefaultScraper(Name, baseURL, Priority)}
 }
 
-func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo, err error) {
+func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {
 	c := hzo.ClonedCollector()
 
 	c.OnXML(`//script`, func(e *colly.XMLElement) {
@@ -88,7 +88,7 @@ func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewIn
 					if row.Username == "" || row.Comment == "" {
 						continue
 					}
-					reviews = append(reviews, &model.MovieReviewInfo{
+					reviews = append(reviews, &model.MovieReviewDetail{
 						Author:  row.Username,
 						Comment: row.Comment,
 						Score:   parser.ParseScore(row.Score.Overall),
@@ -115,7 +115,7 @@ func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewIn
 	return
 }
 
-func (hzo *Heyzo) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewInfo, err error) {
+func (hzo *Heyzo) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewDetail, err error) {
 	id, err := hzo.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return

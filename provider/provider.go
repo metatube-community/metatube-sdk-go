@@ -29,10 +29,10 @@ type MovieSearcher interface {
 
 type MovieReviewer interface {
 	// GetMovieReviewsByID gets the user reviews of given movie id.
-	GetMovieReviewsByID(id string) ([]*model.MovieReviewInfo, error)
+	GetMovieReviewsByID(id string) ([]*model.MovieReviewDetail, error)
 
 	// GetMovieReviewsByURL gets the user reviews of given movie URL.
-	GetMovieReviewsByURL(rawURL string) ([]*model.MovieReviewInfo, error)
+	GetMovieReviewsByURL(rawURL string) ([]*model.MovieReviewDetail, error)
 }
 
 type MovieProvider interface {

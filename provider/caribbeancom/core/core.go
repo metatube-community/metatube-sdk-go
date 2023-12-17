@@ -52,7 +52,7 @@ func (core *Core) ParseMovieIDFromURL(rawURL string) (string, error) {
 	return path.Base(path.Dir(homepage.Path)), nil
 }
 
-func (core *Core) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewInfo, err error) {
+func (core *Core) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewDetail, err error) {
 	id, err := core.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
@@ -60,7 +60,7 @@ func (core *Core) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieRev
 	return core.GetMovieReviewsByID(id)
 }
 
-func (core *Core) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo, err error) {
+func (core *Core) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {
 	c := core.ClonedCollector()
 
 	parseReviews := func(e *colly.XMLElement) {
@@ -71,7 +71,7 @@ func (core *Core) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewIn
 		if comment == "" || reviewer == "" {
 			return
 		}
-		reviews = append(reviews, &model.MovieReviewInfo{
+		reviews = append(reviews, &model.MovieReviewDetail{
 			Author:  reviewer,
 			Comment: comment,
 			Score: float64(utf8.RuneCountInString(

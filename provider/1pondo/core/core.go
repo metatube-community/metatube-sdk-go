@@ -62,7 +62,7 @@ func (core *Core) Init() *Core {
 	return core
 }
 
-func (core *Core) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo, err error) {
+func (core *Core) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {
 	core.sem.Acquire()
 	defer core.sem.Release()
 
@@ -89,7 +89,7 @@ func (core *Core) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewIn
 					strings.TrimSpace(row.Nickname) == "" {
 					continue
 				}
-				reviews = append(reviews, &model.MovieReviewInfo{
+				reviews = append(reviews, &model.MovieReviewDetail{
 					Author:  row.Nickname,
 					Comment: row.UserComment,
 					Score:   parser.ParseScore(row.UserRating),
@@ -105,7 +105,7 @@ func (core *Core) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewIn
 	return
 }
 
-func (core *Core) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewInfo, err error) {
+func (core *Core) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewDetail, err error) {
 	id, err := core.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return

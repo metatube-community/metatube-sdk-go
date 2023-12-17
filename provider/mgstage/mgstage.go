@@ -52,7 +52,7 @@ func New() *MGS {
 	}
 }
 
-func (mgs *MGS) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo, err error) {
+func (mgs *MGS) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {
 	c := mgs.ClonedCollector()
 
 	c.OnXML(`//*[@id="user_review"]/ul/li`, func(e *colly.XMLElement) {
@@ -72,7 +72,7 @@ func (mgs *MGS) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo
 			}
 		}
 
-		reviews = append(reviews, &model.MovieReviewInfo{
+		reviews = append(reviews, &model.MovieReviewDetail{
 			Author:  name,
 			Comment: comment,
 			Score:   score,
@@ -86,7 +86,7 @@ func (mgs *MGS) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewInfo
 	return
 }
 
-func (mgs *MGS) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewInfo, err error) {
+func (mgs *MGS) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewDetail, err error) {
 	id, err := mgs.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
