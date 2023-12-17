@@ -163,6 +163,10 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			if !result.Valid() /* validation check */ {
 				continue
 			}
+			if _, err := e.GetMovieProviderByName(result.Provider); err != nil {
+				e.logger.Warnf("ignore provider %s as not found", result.Provider)
+				continue
+			}
 			ps.Append(comparer.Compare(keyword, result.Number)*float64(e.MustGetMovieProviderByName(result.Provider).Priority()), result)
 		}
 		// sort according to priority.

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
@@ -17,6 +18,8 @@ import (
 type Engine struct {
 	db      *gorm.DB
 	fetcher *fetch.Fetcher
+	// Engine Logger
+	logger *zap.SugaredLogger
 	// Name:Provider Map
 	actorProviders map[string]mt.ActorProvider
 	movieProviders map[string]mt.MovieProvider
@@ -30,6 +33,8 @@ func New(db *gorm.DB, timeout time.Duration) *Engine {
 		db:      db,
 		fetcher: fetch.Default(nil),
 	}
+	logger, _ := zap.NewProduction()
+	engine.logger = logger.Sugar()
 	engine.initActorProviders(timeout)
 	engine.initMovieProviders(timeout)
 	return engine
