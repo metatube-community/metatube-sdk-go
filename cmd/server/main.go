@@ -61,7 +61,7 @@ func init() {
 	flag.BoolVar(&opts.dbAutoMigrate, "db-auto-migrate", false, "Database auto migration")
 	flag.BoolVar(&opts.dbPreparedStmt, "db-prepared-stmt", false, "Database prepared statement")
 	flag.BoolVar(&opts.versionFlag, "version", false, "Show version")
-	ff.Parse(flag, os.Args[1:], ff.WithEnvVarNoPrefix())
+	ff.Parse(flag, os.Args[1:], ff.WithEnvVars())
 }
 
 func showVersionAndExit() {
