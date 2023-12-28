@@ -75,7 +75,6 @@ func (mdq *MadouQu) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err
 	c := mdq.ClonedCollector()
 
 	c.OnXML(`//article[starts-with(@id,'post')]//div[@class="container"]//p`, func(e *colly.XMLElement) {
-
 		if src := e.ChildAttr(`./img`, "src"); src != "" {
 			info.CoverURL = ExtractImgSrc(src)
 			return
@@ -112,7 +111,6 @@ func (mdq *MadouQu) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err
 
 	// Fallback
 	c.OnScraped(func(_ *colly.Response) {
-
 		// Number = Upper ID
 		if info.Number == "" {
 			info.Number = ParseNumber(info.ID)
@@ -127,7 +125,6 @@ func (mdq *MadouQu) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err
 		if len(info.Actors) == 0 && len(actorTags) > 0 {
 			info.Actors = actorTags // fallback
 		}
-
 	})
 
 	err = c.Visit(info.Homepage)
