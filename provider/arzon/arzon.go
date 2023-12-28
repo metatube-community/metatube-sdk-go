@@ -9,6 +9,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
@@ -44,7 +45,7 @@ type ARZON struct {
 func New() *ARZON {
 	return &ARZON{
 		Fetcher: fetch.Default(&fetch.Config{Referer: baseURL}),
-		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority),
+		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese),
 	}
 }
 

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gocolly/colly/v2"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -39,7 +40,7 @@ type AirAV struct {
 
 func New() *AirAV {
 	return &AirAV{
-		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
+		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese,
 			scraper.WithHeaders(map[string]string{
 				"Origin":  baseURL,
 				"Referer": baseURL,

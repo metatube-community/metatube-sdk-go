@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/iancoleman/orderedmap"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/reverse"
@@ -46,6 +47,8 @@ func New() *GFriends { return &GFriends{} }
 func (gf *GFriends) Name() string { return Name }
 
 func (gf *GFriends) Priority() int { return Priority }
+
+func (gf *GFriends) Language() language.Tag { return language.Japanese }
 
 func (gf *GFriends) URL() *url.URL { return _baseURL }
 
