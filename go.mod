@@ -14,11 +14,11 @@ require (
 	github.com/grafov/m3u8 v0.12.0
 	github.com/hashicorp/go-retryablehttp v0.7.5
 	github.com/iancoleman/orderedmap v0.3.0
-	github.com/jellydator/ttlcache/v3 v3.1.0
+	github.com/jellydator/ttlcache/v3 v3.1.1
 	github.com/lib/pq v1.10.9
 	github.com/nlnwa/whatwg-url v0.4.0
 	github.com/peterbourgon/ff/v3 v3.4.0
-	github.com/robertkrimen/otto v0.2.1
+	github.com/robertkrimen/otto v0.3.0
 	github.com/stretchr/testify v1.8.4
 	github.com/zijiren233/google-translator v1.0.1
 	github.com/zijiren233/openai-translator v0.2.1
@@ -37,7 +37,7 @@ require (
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/antchfx/xmlquery v1.3.18 // indirect
 	github.com/antchfx/xpath v1.2.5 // indirect
-	github.com/bits-and-blooms/bitset v1.12.0 // indirect
+	github.com/bits-and-blooms/bitset v1.13.0 // indirect
 	github.com/bytedance/sonic v1.10.2 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect
@@ -45,7 +45,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/glebarez/go-sqlite v1.21.2 // indirect
+	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.16.0 // indirect
@@ -85,12 +85,12 @@ require (
 	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/protobuf v1.31.0 // indirect
+	google.golang.org/protobuf v1.32.0 // indirect
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.2 // indirect
-	modernc.org/libc v1.37.1 // indirect
+	modernc.org/libc v1.38.0 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.7.2 // indirect
-	modernc.org/sqlite v1.27.0 // indirect
+	modernc.org/sqlite v1.28.0 // indirect
 )
