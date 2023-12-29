@@ -89,7 +89,7 @@ type RequestTimeoutSetter interface {
 	SetRequestTimeout(timeout time.Duration)
 }
 
-type FlareSolverrURLSetter interface {
-	// SetFlareSolverrURL sets the flaresolverr url for HTTP requests.
-	SetFlareSolverrURL(baseURL string)
+type FlareSolverrSetter interface {
+	// SetFlareSolverr initiates the flaresolverr client for HTTP requests.
+	SetFlareSolverr(baseURL string)
 }

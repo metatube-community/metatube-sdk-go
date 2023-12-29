@@ -62,8 +62,8 @@ func (e *Engine) initActorProviders(timeout time.Duration, flareSolverrURL strin
 		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(timeout)
 		}
-		if s, ok := provider.(mt.FlareSolverrURLSetter); ok {
-			s.SetFlareSolverrURL(flareSolverrURL)
+		if s, ok := provider.(mt.FlareSolverrSetter); ok {
+			s.SetFlareSolverr(flareSolverrURL)
 		}
 		// Add actor provider by name.
 		e.actorProviders[strings.ToUpper(name)] = provider
@@ -84,8 +84,8 @@ func (e *Engine) initMovieProviders(timeout time.Duration, flareSolverrURL strin
 		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(timeout)
 		}
-		if s, ok := provider.(mt.FlareSolverrURLSetter); ok {
-			s.SetFlareSolverrURL(flareSolverrURL)
+		if s, ok := provider.(mt.FlareSolverrSetter); ok {
+			s.SetFlareSolverr(flareSolverrURL)
 		}
 		// Add movie provider by name.
 		e.movieProviders[strings.ToUpper(name)] = provider

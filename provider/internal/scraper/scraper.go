@@ -12,7 +12,11 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/solverr"
 )
 
-var _ provider.Provider = (*Scraper)(nil)
+var (
+	_ provider.Provider             = (*Scraper)(nil)
+	_ provider.RequestTimeoutSetter = (*Scraper)(nil)
+	_ provider.FlareSolverrSetter   = (*Scraper)(nil)
+)
 
 // Scraper implements basic Provider interface.
 type Scraper struct {
@@ -87,8 +91,8 @@ func (s *Scraper) SetRequestTimeout(timeout time.Duration) {
 	s.c.SetRequestTimeout(s.timeout)
 }
 
-// SetFlareSolverrURL sets the flaresolverr url for HTTP requests.
-func (s *Scraper) SetFlareSolverrURL(baseURL string) {
+// SetFlareSolverr initiates the flaresolverr client for HTTP requests.
+func (s *Scraper) SetFlareSolverr(baseURL string) {
 	if s.flareSolverrEnabled && baseURL != "" {
 		u, err := url.Parse(baseURL)
 		if err != nil {
