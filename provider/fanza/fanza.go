@@ -17,7 +17,6 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/iancoleman/orderedmap"
 	"golang.org/x/net/html"
-	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
@@ -58,7 +57,7 @@ type FANZA struct {
 
 func New() *FANZA {
 	return &FANZA{
-		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese,
+		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
 			scraper.WithCookies(baseURL, []*http.Cookie{
 				{Name: "age_check_done", Value: "1"},
 			})),

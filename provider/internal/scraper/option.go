@@ -64,9 +64,8 @@ func WithCookies(url string, cookies []*http.Cookie) Option {
 	}
 }
 
-func WithForcedRequestTimeout(timeout time.Duration) Option {
+func WithRequestTimeout(timeout time.Duration) Option {
 	return func(s *Scraper) error {
-		s.timeout = timeout
 		s.c.SetRequestTimeout(timeout)
 		return nil
 	}
@@ -92,13 +91,6 @@ func WithDisableRedirects() Option {
 func WithTransport(transport http.RoundTripper) Option {
 	return func(s *Scraper) error {
 		s.c.WithTransport(transport)
-		return nil
-	}
-}
-
-func WithEnableFlareSolverr() Option {
-	return func(s *Scraper) error {
-		s.flareSolverrEnabled = true
 		return nil
 	}
 }

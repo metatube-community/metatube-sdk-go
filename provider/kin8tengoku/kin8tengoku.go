@@ -13,7 +13,6 @@ import (
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
-	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -39,7 +38,7 @@ type KIN8 struct {
 }
 
 func New() *KIN8 {
-	return &KIN8{scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese)}
+	return &KIN8{scraper.NewDefaultScraper(Name, baseURL, Priority)}
 }
 
 func (k8 *KIN8) NormalizeMovieID(id string) string {

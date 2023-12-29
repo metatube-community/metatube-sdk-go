@@ -6,9 +6,9 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/gocolly/colly/v2"
-	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -38,10 +38,11 @@ type MadouQu struct {
 }
 
 func New() *MadouQu {
-	return &MadouQu{scraper.NewDefaultScraper(
-		Name, baseURL, Priority, language.Chinese,
-		scraper.WithEnableFlareSolverr(),
-	)}
+	return &MadouQu{scraper.NewDefaultScraper(Name, baseURL, Priority)}
+}
+
+func (mdq *MadouQu) SetRequestTimeout(_ time.Duration) {
+	mdq.Scraper.SetRequestTimeout(10 * time.Second) // force timeout setting.
 }
 
 func (mdq *MadouQu) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {

@@ -10,7 +10,6 @@ import (
 	"sync"
 
 	"github.com/gocolly/colly/v2"
-	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -42,7 +41,7 @@ type JavBus struct {
 
 func New() *JavBus {
 	return &JavBus{
-		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese,
+		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
 			scraper.WithDisableRedirects(),
 			scraper.WithCookies(baseURL, []*http.Cookie{
 				// existmag=all

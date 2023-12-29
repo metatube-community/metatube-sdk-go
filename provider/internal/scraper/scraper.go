@@ -5,36 +5,22 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
-	"github.com/google/uuid"
-	"golang.org/x/text/language"
 
-	"github.com/metatube-community/metatube-sdk-go/common/flaresolverr"
 	"github.com/metatube-community/metatube-sdk-go/provider"
 )
 
-var (
-	_ provider.Provider             = (*Scraper)(nil)
-	_ provider.RequestTimeoutSetter = (*Scraper)(nil)
-	_ provider.FlareSolverrSetter   = (*Scraper)(nil)
-)
+var _ provider.Provider = (*Scraper)(nil)
 
 // Scraper implements basic Provider interface.
 type Scraper struct {
 	name     string
 	priority int
-	lang     language.Tag
 	baseURL  *url.URL
 	c        *colly.Collector
-
-	// Timeout
-	timeout time.Duration
-
-	// FlareSolverr
-	flareSolverrEnabled bool
 }
 
 // NewScraper returns Provider implemented *Scraper.
-func NewScraper(name, baseURL string, priority int, lang language.Tag, opts ...Option) *Scraper {
+func NewScraper(name, baseURL string, priority int, opts ...Option) *Scraper {
 	u, err := url.Parse(baseURL)
 	if err != nil {
 		panic(err)
@@ -42,7 +28,6 @@ func NewScraper(name, baseURL string, priority int, lang language.Tag, opts ...O
 	s := &Scraper{
 		name:     name,
 		priority: priority,
-		lang:     lang,
 		baseURL:  u,
 		c:        colly.NewCollector(),
 	}
@@ -56,8 +41,8 @@ func NewScraper(name, baseURL string, priority int, lang language.Tag, opts ...O
 }
 
 // NewDefaultScraper returns a *Scraper with default options enabled.
-func NewDefaultScraper(name, baseURL string, priority int, lang language.Tag, opts ...Option) *Scraper {
-	return NewScraper(name, baseURL, priority, lang, append([]Option{
+func NewDefaultScraper(name, baseURL string, priority int, opts ...Option) *Scraper {
+	return NewScraper(name, baseURL, priority, append([]Option{
 		WithAllowURLRevisit(),
 		WithIgnoreRobotsTxt(),
 		WithRandomUserAgent(),
@@ -69,8 +54,6 @@ func (s *Scraper) Name() string { return s.name }
 func (s *Scraper) URL() *url.URL { return s.baseURL }
 
 func (s *Scraper) Priority() int { return s.priority }
-
-func (s *Scraper) Language() language.Tag { return s.lang }
 
 func (s *Scraper) NormalizeMovieID(id string) string { return id /* AS IS */ }
 
@@ -84,22 +67,4 @@ func (s *Scraper) ParseActorIDFromURL(string) (string, error) { panic("unimpleme
 func (s *Scraper) ClonedCollector() *colly.Collector { return s.c.Clone() }
 
 // SetRequestTimeout sets timeout for HTTP requests.
-func (s *Scraper) SetRequestTimeout(timeout time.Duration) {
-	if s.timeout == 0 {
-		s.timeout = timeout
-	}
-	s.c.SetRequestTimeout(s.timeout)
-}
-
-// SetFlareSolverr initiates the flaresolverr client for HTTP requests.
-func (s *Scraper) SetFlareSolverr(baseURL string) {
-	if s.flareSolverrEnabled && baseURL != "" {
-		u, err := url.Parse(baseURL)
-		if err != nil {
-			panic(err)
-		}
-		s.c.WithTransport(&flaresolverr.RoundTripper{
-			Client: flaresolverr.New(u.String(), s.timeout, uuid.NameSpaceURL /* as Session Key */),
-		})
-	}
-}
+func (s *Scraper) SetRequestTimeout(timeout time.Duration) { s.c.SetRequestTimeout(timeout) }

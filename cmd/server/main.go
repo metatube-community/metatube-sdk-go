@@ -34,8 +34,7 @@ type options struct {
 	dsn   string
 
 	// engine options
-	requestTimeout  time.Duration
-	flareSolverrURL string
+	requestTimeout time.Duration
 
 	// database options
 	dbMaxIdleConns int
@@ -57,7 +56,6 @@ func init() {
 	flag.StringVar(&opts.token, "token", "", "Token to access server")
 	flag.StringVar(&opts.dsn, "dsn", "", "Database Service Name")
 	flag.DurationVar(&opts.requestTimeout, "request-timeout", time.Minute, "Timeout per request")
-	flag.StringVar(&opts.flareSolverrURL, "flaresolverr-url", "", "FlareSolverr base url")
 	flag.IntVar(&opts.dbMaxIdleConns, "db-max-idle-conns", 0, "Database max idle connections")
 	flag.IntVar(&opts.dbMaxOpenConns, "db-max-open-conns", 0, "Database max open connections")
 	flag.BoolVar(&opts.dbAutoMigrate, "db-auto-migrate", false, "Database auto migration")
@@ -98,7 +96,7 @@ func main() {
 		opts.requestTimeout = defaultRequestTimeout
 	}
 
-	app := engine.New(db, opts.requestTimeout, opts.flareSolverrURL)
+	app := engine.New(db, opts.requestTimeout)
 	if err = app.AutoMigrate(opts.dbAutoMigrate); err != nil {
 		log.Fatal(err)
 	}

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-	"golang.org/x/text/language"
 	"gorm.io/gorm"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
@@ -29,15 +28,15 @@ type Engine struct {
 	movieHostProviders map[string][]mt.MovieProvider
 }
 
-func New(db *gorm.DB, timeout time.Duration, flareSolverrURL string) *Engine {
+func New(db *gorm.DB, timeout time.Duration) *Engine {
 	engine := &Engine{
 		db:      db,
 		fetcher: fetch.Default(nil),
 	}
 	logger, _ := zap.NewProduction()
 	engine.logger = logger.Sugar()
-	engine.initActorProviders(timeout, flareSolverrURL)
-	engine.initMovieProviders(timeout, flareSolverrURL)
+	engine.initActorProviders(timeout)
+	engine.initMovieProviders(timeout)
 	return engine
 }
 
@@ -46,13 +45,13 @@ func Default() *Engine {
 		DSN:                  "",
 		DisableAutomaticPing: true,
 	})
-	engine := New(db, time.Minute, "")
+	engine := New(db, time.Minute)
 	defer engine.AutoMigrate(true)
 	return engine
 }
 
 // initActorProviders initializes actor providers.
-func (e *Engine) initActorProviders(timeout time.Duration, flareSolverrURL string) {
+func (e *Engine) initActorProviders(timeout time.Duration) {
 	{ // init
 		e.actorProviders = make(map[string]mt.ActorProvider)
 		e.actorHostProviders = make(map[string][]mt.ActorProvider)
@@ -61,9 +60,6 @@ func (e *Engine) initActorProviders(timeout time.Duration, flareSolverrURL strin
 		provider := factory()
 		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(timeout)
-		}
-		if s, ok := provider.(mt.FlareSolverrSetter); ok {
-			s.SetFlareSolverr(flareSolverrURL)
 		}
 		// Add actor provider by name.
 		e.actorProviders[strings.ToUpper(name)] = provider
@@ -74,7 +70,7 @@ func (e *Engine) initActorProviders(timeout time.Duration, flareSolverrURL strin
 }
 
 // initMovieProviders initializes movie providers.
-func (e *Engine) initMovieProviders(timeout time.Duration, flareSolverrURL string) {
+func (e *Engine) initMovieProviders(timeout time.Duration) {
 	{ // init
 		e.movieProviders = make(map[string]mt.MovieProvider)
 		e.movieHostProviders = make(map[string][]mt.MovieProvider)
@@ -83,9 +79,6 @@ func (e *Engine) initMovieProviders(timeout time.Duration, flareSolverrURL strin
 		provider := factory()
 		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(timeout)
-		}
-		if s, ok := provider.(mt.FlareSolverrSetter); ok {
-			s.SetFlareSolverr(flareSolverrURL)
 		}
 		// Add movie provider by name.
 		e.movieProviders[strings.ToUpper(name)] = provider
@@ -102,23 +95,6 @@ func (e *Engine) IsActorProvider(name string) (ok bool) {
 
 func (e *Engine) GetActorProviders() map[string]mt.ActorProvider {
 	return e.actorProviders
-}
-
-func (e *Engine) GetActorProvidersByLanguage(lang string) (map[string]mt.ActorProvider, error) {
-	tag, err := language.Parse(lang)
-	if err != nil {
-		return nil, err
-	}
-
-	providers := make(map[string]mt.ActorProvider)
-	matcher := language.NewMatcher([]language.Tag{tag})
-
-	for _, provider := range e.actorProviders {
-		if _, _, c := matcher.Match(provider.Language()); c >= language.Low {
-			providers[strings.ToUpper(provider.Name())] = provider
-		}
-	}
-	return providers, nil
 }
 
 func (e *Engine) GetActorProviderByURL(rawURL string) (mt.ActorProvider, error) {
@@ -157,23 +133,6 @@ func (e *Engine) IsMovieProvider(name string) (ok bool) {
 
 func (e *Engine) GetMovieProviders() map[string]mt.MovieProvider {
 	return e.movieProviders
-}
-
-func (e *Engine) GetMovieProvidersByLanguage(lang string) (map[string]mt.MovieProvider, error) {
-	tag, err := language.Parse(lang)
-	if err != nil {
-		return nil, err
-	}
-
-	providers := make(map[string]mt.MovieProvider)
-	matcher := language.NewMatcher([]language.Tag{tag})
-
-	for _, provider := range e.movieProviders {
-		if _, _, c := matcher.Match(provider.Language()); c >= language.Low {
-			providers[strings.ToUpper(provider.Name())] = provider
-		}
-	}
-	return providers, nil
 }
 
 func (e *Engine) GetMovieProviderByURL(rawURL string) (mt.MovieProvider, error) {
