@@ -99,20 +99,16 @@ func (e *Engine) GetActorProviders() map[string]mt.ActorProvider {
 }
 
 func (e *Engine) GetActorProvidersByLanguage(lang string) (map[string]mt.ActorProvider, error) {
-	if lang == "" {
-		return e.actorProviders, nil
-	}
-
-	providers := make(map[string]mt.ActorProvider)
-
 	tag, err := language.Parse(lang)
 	if err != nil {
 		return nil, err
 	}
 
-	m := language.NewMatcher([]language.Tag{tag})
+	providers := make(map[string]mt.ActorProvider)
+	matcher := language.NewMatcher([]language.Tag{tag})
+
 	for _, provider := range e.actorProviders {
-		if _, _, c := m.Match(provider.Language()); c >= language.Low {
+		if _, _, c := matcher.Match(provider.Language()); c >= language.Low {
 			providers[strings.ToUpper(provider.Name())] = provider
 		}
 	}
@@ -158,20 +154,16 @@ func (e *Engine) GetMovieProviders() map[string]mt.MovieProvider {
 }
 
 func (e *Engine) GetMovieProvidersByLanguage(lang string) (map[string]mt.MovieProvider, error) {
-	if lang == "" {
-		return e.movieProviders, nil
-	}
-
-	providers := make(map[string]mt.MovieProvider)
-
 	tag, err := language.Parse(lang)
 	if err != nil {
 		return nil, err
 	}
 
-	m := language.NewMatcher([]language.Tag{tag})
+	providers := make(map[string]mt.MovieProvider)
+	matcher := language.NewMatcher([]language.Tag{tag})
+
 	for _, provider := range e.movieProviders {
-		if _, _, c := m.Match(provider.Language()); c >= language.Low {
+		if _, _, c := matcher.Match(provider.Language()); c >= language.Low {
 			providers[strings.ToUpper(provider.Name())] = provider
 		}
 	}

@@ -144,11 +144,13 @@ func (e *Engine) SearchMovieAll(keyword, lang string, fallback bool) (results []
 		return nil, mt.ErrInvalidKeyword
 	}
 
-	availableProviders, err := e.GetMovieProvidersByLanguage(lang)
-	if err != nil {
-		return
+	availableProviders := e.movieProviders
+	if lang != "" {
+		if availableProviders, err = e.GetMovieProvidersByLanguage(lang); err != nil {
+			return
+		}
+		e.logger.Infof("Movie Keyword: %s, Language: %s, Providers: %v", keyword, lang, availableProviders)
 	}
-	e.logger.Infof("Movie Keyword: %s, Language: %s, Providers: %v", keyword, lang, availableProviders)
 
 	defer func() {
 		if err != nil {

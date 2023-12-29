@@ -116,11 +116,13 @@ func (e *Engine) SearchActorAll(keyword, lang string, fallback bool) (results []
 		wg sync.WaitGroup
 	)
 
-	availableProviders, err := e.GetActorProvidersByLanguage(lang)
-	if err != nil {
-		return
+	availableProviders := e.actorProviders
+	if lang != "" {
+		if availableProviders, err = e.GetActorProvidersByLanguage(lang); err != nil {
+			return
+		}
+		e.logger.Infof("Actor Keyword: %s, Language: %s, Providers: %v", keyword, lang, availableProviders)
 	}
-	e.logger.Infof("Actor Keyword: %s, Language: %s, Providers: %v", keyword, lang, availableProviders)
 
 	for _, provider := range availableProviders {
 		wg.Add(1)
