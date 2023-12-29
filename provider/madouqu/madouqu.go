@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -38,7 +39,7 @@ type MadouQu struct {
 }
 
 func New() *MadouQu {
-	return &MadouQu{scraper.NewDefaultScraper(Name, baseURL, Priority)}
+	return &MadouQu{scraper.NewDefaultScraper(Name, baseURL, Priority, language.Chinese)}
 }
 
 func (mdq *MadouQu) SetRequestTimeout(_ time.Duration) {

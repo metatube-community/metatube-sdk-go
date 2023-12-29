@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"golang.org/x/text/language"
 	"gorm.io/gorm"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
@@ -97,6 +98,27 @@ func (e *Engine) GetActorProviders() map[string]mt.ActorProvider {
 	return e.actorProviders
 }
 
+func (e *Engine) GetActorProvidersByLanguage(lang string) (map[string]mt.ActorProvider, error) {
+	if lang == "" {
+		return e.actorProviders, nil
+	}
+
+	providers := make(map[string]mt.ActorProvider)
+
+	tag, err := language.Parse(lang)
+	if err != nil {
+		return nil, err
+	}
+
+	m := language.NewMatcher([]language.Tag{tag})
+	for _, provider := range e.actorProviders {
+		if _, _, c := m.Match(provider.Language()); c >= language.Low {
+			providers[strings.ToUpper(provider.Name())] = provider
+		}
+	}
+	return providers, nil
+}
+
 func (e *Engine) GetActorProviderByURL(rawURL string) (mt.ActorProvider, error) {
 	u, err := url.Parse(rawURL)
 	if err != nil {
@@ -133,6 +155,27 @@ func (e *Engine) IsMovieProvider(name string) (ok bool) {
 
 func (e *Engine) GetMovieProviders() map[string]mt.MovieProvider {
 	return e.movieProviders
+}
+
+func (e *Engine) GetMovieProvidersByLanguage(lang string) (map[string]mt.MovieProvider, error) {
+	if lang == "" {
+		return e.movieProviders, nil
+	}
+
+	providers := make(map[string]mt.MovieProvider)
+
+	tag, err := language.Parse(lang)
+	if err != nil {
+		return nil, err
+	}
+
+	m := language.NewMatcher([]language.Tag{tag})
+	for _, provider := range e.movieProviders {
+		if _, _, c := m.Match(provider.Language()); c >= language.Low {
+			providers[strings.ToUpper(provider.Name())] = provider
+		}
+	}
+	return providers, nil
 }
 
 func (e *Engine) GetMovieProviderByURL(rawURL string) (mt.MovieProvider, error) {

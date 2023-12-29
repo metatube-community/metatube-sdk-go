@@ -1,6 +1,7 @@
 package engine
 
 import (
+	goerrors "errors"
 	"fmt"
 	"sort"
 	"sync"
@@ -85,7 +86,7 @@ func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool
 		innerResults, innerErr := innerSearch(name)
 		if innerErr != nil &&
 			// ignore InfoNotFound error.
-			innerErr != mt.ErrInfoNotFound {
+			!goerrors.Is(innerErr, mt.ErrInfoNotFound) {
 			// add error to chain and handle it later.
 			errors = append(errors, innerErr)
 			continue
@@ -109,12 +110,19 @@ func (e *Engine) SearchActor(keyword, name string, fallback bool) ([]*model.Acto
 	return e.searchActor(keyword, provider, fallback)
 }
 
-func (e *Engine) SearchActorAll(keyword string, fallback bool) (results []*model.ActorSearchResult, err error) {
+func (e *Engine) SearchActorAll(keyword, lang string, fallback bool) (results []*model.ActorSearchResult, err error) {
 	var (
 		mu sync.Mutex
 		wg sync.WaitGroup
 	)
-	for _, provider := range e.actorProviders {
+
+	availableProviders, err := e.GetActorProvidersByLanguage(lang)
+	if err != nil {
+		return
+	}
+	e.logger.Infof("Actor Keyword: %s, Language: %s, Providers: %v", keyword, lang, availableProviders)
+
+	for _, provider := range availableProviders {
 		wg.Add(1)
 		go func(provider mt.ActorProvider) {
 			defer wg.Done()
