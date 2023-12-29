@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/text/language"
 	"gorm.io/gorm/clause"
 
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
@@ -145,22 +144,9 @@ func (e *Engine) SearchMovieAll(keyword, lang string, fallback bool) (results []
 		return nil, mt.ErrInvalidKeyword
 	}
 
-	availableProviders := make(map[string]mt.MovieProvider)
-	if lang != "" {
-		tag, err := language.Parse(lang)
-		if err != nil {
-			return nil, err
-		}
-		m := language.NewMatcher([]language.Tag{tag})
-		for _, provider := range e.movieProviders {
-			if _, _, c := m.Match(provider.Language()); c >= language.Low {
-				availableProviders[strings.ToUpper(provider.Name())] = provider
-			}
-		}
-	} else {
-		for _, provider := range e.movieProviders {
-			availableProviders[strings.ToUpper(provider.Name())] = provider
-		}
+	availableProviders, err := e.GetMovieProvidersByLanguage(lang)
+	if err != nil {
+		return
 	}
 
 	defer func() {

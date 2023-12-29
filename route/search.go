@@ -54,7 +54,7 @@ func getSearch(app *engine.Engine, typ searchType) gin.HandlerFunc {
 			if isValidURL {
 				results, err = app.GetActorInfoByURL(query.Q, true /* always lazy */)
 			} else if searchAll {
-				results, err = app.SearchActorAll(query.Q, query.Fallback)
+				results, err = app.SearchActorAll(query.Q, query.Language, query.Fallback)
 			} else {
 				results, err = app.SearchActor(query.Q, query.Provider, query.Fallback)
 			}
