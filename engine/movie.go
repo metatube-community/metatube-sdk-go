@@ -148,6 +148,7 @@ func (e *Engine) SearchMovieAll(keyword, lang string, fallback bool) (results []
 	if err != nil {
 		return
 	}
+	e.logger.Infof("Movie Keyword: %s, Language: %s, Providers: %v", keyword, lang, availableProviders)
 
 	defer func() {
 		if err != nil {

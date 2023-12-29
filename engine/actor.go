@@ -120,6 +120,7 @@ func (e *Engine) SearchActorAll(keyword, lang string, fallback bool) (results []
 	if err != nil {
 		return
 	}
+	e.logger.Infof("Actor Keyword: %s, Language: %s, Providers: %v", keyword, lang, availableProviders)
 
 	for _, provider := range availableProviders {
 		wg.Add(1)
