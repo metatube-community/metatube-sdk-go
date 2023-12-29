@@ -153,7 +153,7 @@ func (e *Engine) SearchMovieAll(keyword, lang string, fallback bool) (results []
 		}
 		m := language.NewMatcher([]language.Tag{tag})
 		for _, provider := range e.movieProviders {
-			if _, _, c := m.Match(provider.Language()); c >= language.High {
+			if _, _, c := m.Match(provider.Language()); c >= language.Low {
 				availableProviders[strings.ToUpper(provider.Name())] = provider
 			}
 		}
