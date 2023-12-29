@@ -5,17 +5,12 @@ import (
 	"net/url"
 	"time"
 
-	"golang.org/x/text/language"
-
 	"github.com/metatube-community/metatube-sdk-go/model"
 )
 
 type Provider interface {
 	// Name returns the name of the provider.
 	Name() string
-
-	// Language returns the default language of the provider.
-	Language() language.Tag
 
 	// Priority returns the matching priority of the provider.
 	Priority() int

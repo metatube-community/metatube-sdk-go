@@ -11,7 +11,6 @@ import (
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
-	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -42,7 +41,7 @@ type PRESTIGE struct {
 
 func New() *PRESTIGE {
 	return &PRESTIGE{
-		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese,
+		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
 			scraper.WithCookies(baseURL, []*http.Cookie{
 				{Name: "coc", Value: "1"},
 				{Name: "age_auth", Value: "1"},

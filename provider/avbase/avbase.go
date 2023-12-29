@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
-	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -51,7 +50,7 @@ type AVBase struct {
 
 func New() *AVBase {
 	return &AVBase{
-		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese,
+		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
 			scraper.WithHeaders(map[string]string{
 				"Referer": baseURL,
 			})),

@@ -12,7 +12,6 @@ import (
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
-	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -41,7 +40,7 @@ type TokyoHot struct {
 }
 
 func New() *TokyoHot {
-	return &TokyoHot{scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese,
+	return &TokyoHot{scraper.NewDefaultScraper(Name, baseURL, Priority,
 		// Temporary workaround for unknown CA issue.
 		scraper.WithTransport(&http.Transport{
 			Proxy:                 http.DefaultTransport.(*http.Transport).Proxy,

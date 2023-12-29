@@ -10,7 +10,6 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
-	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -40,7 +39,7 @@ type FC2HUB struct {
 }
 
 func New() *FC2HUB {
-	return &FC2HUB{scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese)}
+	return &FC2HUB{scraper.NewDefaultScraper(Name, baseURL, Priority)}
 }
 
 func (fc2hub *FC2HUB) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
