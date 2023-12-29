@@ -1,4 +1,4 @@
-package solverr
+package flaresolverr
 
 import (
 	"fmt"
@@ -6,26 +6,26 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/SkYNewZ/go-flaresolverr"
+	gofs "github.com/SkYNewZ/go-flaresolverr"
 	"github.com/google/uuid"
 	"golang.org/x/net/context"
 )
 
 type Client struct {
-	client  flaresolverr.Client
+	client  gofs.Client
 	session uuid.UUID
 }
 
 func New(url string, timeout time.Duration, session uuid.UUID) *Client {
 	return &Client{
-		client:  flaresolverr.New(url, timeout, nil),
+		client:  gofs.New(url, timeout, nil),
 		session: session,
 	}
 }
 
 func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	var (
-		resp *flaresolverr.Response
+		resp *gofs.Response
 		err  error
 	)
 	switch req.Method {
@@ -40,12 +40,15 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 
+	header := http.Header{}
+	header.Set("Content-Type", http.DetectContentType([]byte(resp.Solution.Response)))
+
 	return &http.Response{
-		Status:       http.StatusText(http.StatusOK),
-		StatusCode:   http.StatusOK,
-		Uncompressed: true,
-		Request:      req,
-		Body:         newReadCloserString(resp.Solution.Response),
+		Status:     http.StatusText(http.StatusOK),
+		StatusCode: http.StatusOK,
+		Request:    req,
+		Header:     header,
+		Body:       newReadCloserString(resp.Solution.Response),
 	}, nil
 }
 

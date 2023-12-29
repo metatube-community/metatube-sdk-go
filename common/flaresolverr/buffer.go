@@ -1,4 +1,4 @@
-package solverr
+package flaresolverr
 
 import (
 	"bytes"

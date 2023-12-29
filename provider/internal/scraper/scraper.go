@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/text/language"
 
+	"github.com/metatube-community/metatube-sdk-go/common/flaresolverr"
 	"github.com/metatube-community/metatube-sdk-go/provider"
-	"github.com/metatube-community/metatube-sdk-go/solverr"
 )
 
 var (
@@ -98,8 +98,8 @@ func (s *Scraper) SetFlareSolverr(baseURL string) {
 		if err != nil {
 			panic(err)
 		}
-		s.c.WithTransport(&solverr.RoundTripper{
-			Client: solverr.New(u.String(), s.timeout, uuid.Nil),
+		s.c.WithTransport(&flaresolverr.RoundTripper{
+			Client: flaresolverr.New(u.String(), s.timeout, uuid.NameSpaceURL /* as Session Key */),
 		})
 	}
 }
