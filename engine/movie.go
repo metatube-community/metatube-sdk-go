@@ -85,7 +85,7 @@ func (e *Engine) SearchMovie(keyword, name string, fallback bool) ([]*model.Movi
 	return e.searchMovie(keyword, provider, fallback)
 }
 
-func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchResult, err error) {
+func (e *Engine) searchMovieAll(keyword string, providers map[string]mt.MovieProvider) (results []*model.MovieSearchResult, err error) {
 	type response struct {
 		Results   []*model.MovieSearchResult
 		Error     error
@@ -96,7 +96,7 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 	respCh := make(chan response)
 
 	var wg sync.WaitGroup
-	for _, provider := range e.movieProviders {
+	for _, provider := range providers {
 		wg.Add(1)
 		// Goroutine started time.
 		startTime := time.Now()
@@ -139,9 +139,17 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 }
 
 // SearchMovieAll searches the keyword from all providers.
-func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model.MovieSearchResult, err error) {
+func (e *Engine) SearchMovieAll(keyword, lang string, fallback bool) (results []*model.MovieSearchResult, err error) {
 	if keyword = number.Trim(keyword); keyword == "" {
 		return nil, mt.ErrInvalidKeyword
+	}
+
+	availableProviders := e.movieProviders
+	if lang != "" {
+		if availableProviders, err = e.GetMovieProvidersByLanguage(lang); err != nil {
+			return
+		}
+		e.logger.Infof("Movie Keyword: %s, Language: %s, Providers: %v", keyword, lang, availableProviders)
 	}
 
 	defer func() {
@@ -180,12 +188,16 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 				// overwrite error.
 				err = nil
 				// append results.
-				results = append(results, innerResults...)
+				for _, result := range innerResults {
+					if _, ok := availableProviders[strings.ToUpper(result.Provider)]; ok {
+						results = append(results, result)
+					}
+				}
 			}
 		}()
 	}
 
-	results, err = e.searchMovieAll(keyword)
+	results, err = e.searchMovieAll(keyword, availableProviders)
 	return
 }
 

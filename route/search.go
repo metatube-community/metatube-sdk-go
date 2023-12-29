@@ -21,6 +21,7 @@ const (
 type searchQuery struct {
 	Q        string `form:"q" binding:"required"`
 	Provider string `form:"provider"`
+	Language string `form:"lang"`
 	Fallback bool   `form:"fallback"`
 }
 
@@ -53,7 +54,7 @@ func getSearch(app *engine.Engine, typ searchType) gin.HandlerFunc {
 			if isValidURL {
 				results, err = app.GetActorInfoByURL(query.Q, true /* always lazy */)
 			} else if searchAll {
-				results, err = app.SearchActorAll(query.Q, query.Fallback)
+				results, err = app.SearchActorAll(query.Q, query.Language, query.Fallback)
 			} else {
 				results, err = app.SearchActor(query.Q, query.Provider, query.Fallback)
 			}
@@ -61,7 +62,7 @@ func getSearch(app *engine.Engine, typ searchType) gin.HandlerFunc {
 			if isValidURL {
 				results, err = app.GetMovieInfoByURL(query.Q, true /* always lazy */)
 			} else if searchAll {
-				results, err = app.SearchMovieAll(query.Q, query.Fallback)
+				results, err = app.SearchMovieAll(query.Q, query.Language, query.Fallback)
 			} else {
 				results, err = app.SearchMovie(query.Q, query.Provider, query.Fallback)
 			}
