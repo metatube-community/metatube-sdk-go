@@ -3,6 +3,7 @@ module github.com/metatube-community/metatube-sdk-go
 go 1.21
 
 require (
+	github.com/SkYNewZ/go-flaresolverr v0.0.0-20230503120808-3826fdd382dd
 	github.com/adrg/strutil v0.3.1
 	github.com/antchfx/htmlquery v1.3.0
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
@@ -11,6 +12,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/glebarez/sqlite v1.10.0
 	github.com/gocolly/colly/v2 v2.1.1-0.20230620150846-a6e3d81fe6b7
+	github.com/google/uuid v1.5.0
 	github.com/grafov/m3u8 v0.12.0
 	github.com/hashicorp/go-retryablehttp v0.7.5
 	github.com/iancoleman/orderedmap v0.3.0
@@ -54,7 +56,6 @@ require (
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/google/uuid v1.5.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
