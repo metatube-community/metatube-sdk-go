@@ -5,9 +5,11 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/google/uuid"
 	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/provider"
+	"github.com/metatube-community/metatube-sdk-go/solverr"
 )
 
 var _ provider.Provider = (*Scraper)(nil)
@@ -19,6 +21,12 @@ type Scraper struct {
 	lang     language.Tag
 	baseURL  *url.URL
 	c        *colly.Collector
+
+	// Timeout
+	timeout time.Duration
+
+	// FlareSolverr
+	flareSolverrEnabled bool
 }
 
 // NewScraper returns Provider implemented *Scraper.
@@ -72,4 +80,22 @@ func (s *Scraper) ParseActorIDFromURL(string) (string, error) { panic("unimpleme
 func (s *Scraper) ClonedCollector() *colly.Collector { return s.c.Clone() }
 
 // SetRequestTimeout sets timeout for HTTP requests.
-func (s *Scraper) SetRequestTimeout(timeout time.Duration) { s.c.SetRequestTimeout(timeout) }
+func (s *Scraper) SetRequestTimeout(timeout time.Duration) {
+	if s.timeout == 0 {
+		s.timeout = timeout
+	}
+	s.c.SetRequestTimeout(s.timeout)
+}
+
+// SetFlareSolverrURL sets the flaresolverr url for HTTP requests.
+func (s *Scraper) SetFlareSolverrURL(baseURL string) {
+	if s.flareSolverrEnabled && baseURL != "" {
+		u, err := url.Parse(baseURL)
+		if err != nil {
+			panic(err)
+		}
+		s.c.WithTransport(&solverr.RoundTripper{
+			Client: solverr.New(u.String(), s.timeout, uuid.Nil),
+		})
+	}
+}

@@ -41,11 +41,10 @@ type JAV321 struct {
 }
 
 func New() *JAV321 {
-	return &JAV321{scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese)}
-}
-
-func (jav *JAV321) SetRequestTimeout(_ time.Duration) {
-	jav.Scraper.SetRequestTimeout(10 * time.Second)
+	return &JAV321{scraper.NewDefaultScraper(
+		Name, baseURL, Priority, language.Japanese,
+		scraper.WithForcedRequestTimeout(10*time.Second),
+	)}
 }
 
 func (jav *JAV321) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {

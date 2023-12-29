@@ -29,15 +29,15 @@ type Engine struct {
 	movieHostProviders map[string][]mt.MovieProvider
 }
 
-func New(db *gorm.DB, timeout time.Duration) *Engine {
+func New(db *gorm.DB, timeout time.Duration, flareSolverrURL string) *Engine {
 	engine := &Engine{
 		db:      db,
 		fetcher: fetch.Default(nil),
 	}
 	logger, _ := zap.NewProduction()
 	engine.logger = logger.Sugar()
-	engine.initActorProviders(timeout)
-	engine.initMovieProviders(timeout)
+	engine.initActorProviders(timeout, flareSolverrURL)
+	engine.initMovieProviders(timeout, flareSolverrURL)
 	return engine
 }
 
@@ -46,13 +46,13 @@ func Default() *Engine {
 		DSN:                  "",
 		DisableAutomaticPing: true,
 	})
-	engine := New(db, time.Minute)
+	engine := New(db, time.Minute, "")
 	defer engine.AutoMigrate(true)
 	return engine
 }
 
 // initActorProviders initializes actor providers.
-func (e *Engine) initActorProviders(timeout time.Duration) {
+func (e *Engine) initActorProviders(timeout time.Duration, flareSolverrURL string) {
 	{ // init
 		e.actorProviders = make(map[string]mt.ActorProvider)
 		e.actorHostProviders = make(map[string][]mt.ActorProvider)
@@ -61,6 +61,9 @@ func (e *Engine) initActorProviders(timeout time.Duration) {
 		provider := factory()
 		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(timeout)
+		}
+		if s, ok := provider.(mt.FlareSolverrURLSetter); ok {
+			s.SetFlareSolverrURL(flareSolverrURL)
 		}
 		// Add actor provider by name.
 		e.actorProviders[strings.ToUpper(name)] = provider
@@ -71,7 +74,7 @@ func (e *Engine) initActorProviders(timeout time.Duration) {
 }
 
 // initMovieProviders initializes movie providers.
-func (e *Engine) initMovieProviders(timeout time.Duration) {
+func (e *Engine) initMovieProviders(timeout time.Duration, flareSolverrURL string) {
 	{ // init
 		e.movieProviders = make(map[string]mt.MovieProvider)
 		e.movieHostProviders = make(map[string][]mt.MovieProvider)
@@ -80,6 +83,9 @@ func (e *Engine) initMovieProviders(timeout time.Duration) {
 		provider := factory()
 		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(timeout)
+		}
+		if s, ok := provider.(mt.FlareSolverrURLSetter); ok {
+			s.SetFlareSolverrURL(flareSolverrURL)
 		}
 		// Add movie provider by name.
 		e.movieProviders[strings.ToUpper(name)] = provider

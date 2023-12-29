@@ -40,8 +40,10 @@ type XsList struct {
 }
 
 func New() *XsList {
-	return &XsList{scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese,
+	return &XsList{scraper.NewDefaultScraper(
+		Name, baseURL, Priority, language.Japanese,
 		scraper.WithDisableCookies(),
+		scraper.WithEnableFlareSolverr(),
 	)}
 }
 

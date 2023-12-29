@@ -6,7 +6,6 @@ import (
 	"path"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/text/language"
@@ -39,11 +38,10 @@ type MadouQu struct {
 }
 
 func New() *MadouQu {
-	return &MadouQu{scraper.NewDefaultScraper(Name, baseURL, Priority, language.Chinese)}
-}
-
-func (mdq *MadouQu) SetRequestTimeout(_ time.Duration) {
-	mdq.Scraper.SetRequestTimeout(10 * time.Second) // force timeout setting.
+	return &MadouQu{scraper.NewDefaultScraper(
+		Name, baseURL, Priority, language.Chinese,
+		scraper.WithEnableFlareSolverr(),
+	)}
 }
 
 func (mdq *MadouQu) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
