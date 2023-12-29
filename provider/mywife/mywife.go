@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gocolly/colly/v2"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
@@ -31,7 +32,7 @@ type MyWife struct {
 }
 
 func New() *MyWife {
-	return &MyWife{scraper.NewDefaultScraper(Name, baseURL, Priority)}
+	return &MyWife{scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese)}
 }
 
 func (mw *MyWife) NormalizeMovieID(id string) string {

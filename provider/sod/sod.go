@@ -8,6 +8,7 @@ import (
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
@@ -44,7 +45,7 @@ type SOD struct {
 func New() *SOD {
 	return &SOD{
 		Fetcher: fetch.Default(&fetch.Config{Referer: baseURL}),
-		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority),
+		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese),
 	}
 }
 

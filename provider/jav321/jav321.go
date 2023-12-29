@@ -11,6 +11,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -40,11 +41,10 @@ type JAV321 struct {
 }
 
 func New() *JAV321 {
-	return &JAV321{scraper.NewDefaultScraper(Name, baseURL, Priority)}
-}
-
-func (jav *JAV321) SetRequestTimeout(_ time.Duration) {
-	jav.Scraper.SetRequestTimeout(10 * time.Second)
+	return &JAV321{scraper.NewDefaultScraper(
+		Name, baseURL, Priority, language.Japanese,
+		scraper.WithForcedRequestTimeout(10*time.Second),
+	)}
 }
 
 func (jav *JAV321) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
