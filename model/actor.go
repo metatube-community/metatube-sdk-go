@@ -13,6 +13,7 @@ type ActorSearchResult struct {
 	Name     string         `json:"name"`
 	Provider string         `json:"provider"`
 	Homepage string         `json:"homepage"`
+	Aliases  pq.StringArray `json:"aliases,omitempty"`
 	Images   pq.StringArray `json:"images"`
 }
 
@@ -55,6 +56,7 @@ func (a *ActorInfo) ToSearchResult() *ActorSearchResult {
 		Name:     a.Name,
 		Provider: a.Provider,
 		Homepage: a.Homepage,
+		Aliases:  a.Aliases,
 		Images:   a.Images,
 	}
 }
