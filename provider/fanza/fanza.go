@@ -3,6 +3,7 @@ package fanza
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -49,6 +50,12 @@ const (
 	movieDigitalNikkatsuURL = "https://www.dmm.co.jp/digital/nikkatsu/-/detail/=/cid=%s/"
 	movieMonoDVDURL         = "https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=%s/"
 	movieMonoAnimeURL       = "https://www.dmm.co.jp/mono/anime/-/detail/=/cid=%s/"
+)
+
+const regionNotAvailable = "not-available-in-your-region"
+
+var (
+	ErrRegionNotAvailable = errors.New(regionNotAvailable)
 )
 
 type FANZA struct {
@@ -477,7 +484,15 @@ func (fz *FANZA) searchMovie(keyword string) (results []*model.MovieSearchResult
 		})
 	})
 
-	err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword)))
+	c.OnScraped(func(r *colly.Response) {
+		if strings.Contains(r.Request.URL.Path, regionNotAvailable) {
+			err = ErrRegionNotAvailable
+		}
+	})
+
+	if vErr := c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword))); vErr != nil {
+		err = vErr
+	}
 	return
 }
 
