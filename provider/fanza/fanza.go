@@ -296,15 +296,12 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 				if resp := regexp.MustCompile(`const args = (\{.+});`).FindSubmatch(r.Body); len(resp) == 2 {
 					data := struct {
 						Bitrates []struct {
-							Bitrate int    `json:"bitrate"`
-							Src     string `json:"src"`
+							//Bitrate int    `json:"bitrate"`
+							Src string `json:"src"`
 						} `json:"bitrates"`
 					}{}
 					if json.Unmarshal(resp[1], &data) == nil && len(data.Bitrates) > 0 {
-						sort.SliceStable(data.Bitrates, func(i, j int) bool {
-							return data.Bitrates[i].Bitrate < data.Bitrates[j].Bitrate
-						})
-						info.PreviewVideoURL = e.Request.AbsoluteURL(data.Bitrates[len(data.Bitrates)-1].Src)
+						info.PreviewVideoURL = e.Request.AbsoluteURL(data.Bitrates[0].Src)
 					}
 				}
 			})
