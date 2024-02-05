@@ -54,9 +54,7 @@ const (
 
 const regionNotAvailable = "not-available-in-your-region"
 
-var (
-	ErrRegionNotAvailable = errors.New(regionNotAvailable)
-)
+var ErrRegionNotAvailable = errors.New(regionNotAvailable)
 
 type FANZA struct {
 	*scraper.Scraper
@@ -296,7 +294,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 				if resp := regexp.MustCompile(`const args = (\{.+});`).FindSubmatch(r.Body); len(resp) == 2 {
 					data := struct {
 						Bitrates []struct {
-							//Bitrate int    `json:"bitrate"`
+							// Bitrate int    `json:"bitrate"`
 							Src string `json:"src"`
 						} `json:"bitrates"`
 					}{}
