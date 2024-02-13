@@ -54,9 +54,9 @@ func (core *Core) Init() *Core {
 		}),
 		scraper.WithLimit(&colly.LimitRule{
 			DomainGlob:  "*",
-			Parallelism: 1,
-			Delay:       500 * time.Millisecond,
-			RandomDelay: 200 * time.Millisecond,
+			Parallelism: 100,
+			Delay:       200 * time.Millisecond,
+			RandomDelay: 100 * time.Millisecond,
 		}),
 	)
 	return core
