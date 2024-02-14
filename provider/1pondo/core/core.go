@@ -13,6 +13,7 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/nlnwa/whatwg-url/url"
 
+	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
@@ -27,6 +28,7 @@ const (
 )
 
 type Core struct {
+	*fetch.Fetcher
 	*scraper.Scraper
 
 	// URLs
@@ -46,16 +48,17 @@ type Core struct {
 
 func (core *Core) Init() *Core {
 	t := http.DefaultTransport.(*http.Transport).Clone()
-	t.DisableKeepAlives = true
+	t.MaxIdleConnsPerHost = 1000
+	t.IdleConnTimeout = 90 * time.Minute
 
+	core.Fetcher = fetch.Default(&fetch.Config{Transport: t})
 	core.Scraper = scraper.NewDefaultScraper(core.DefaultName, core.BaseURL, core.DefaultPriority,
 		scraper.WithHeaders(map[string]string{
 			"Content-Type": "application/json",
+			"Connection":   "keep-alive",
 		}),
-		scraper.WithCookies(core.BaseURL, []*http.Cookie{
-			{Name: "ageCheck", Value: "1"},
-		}),
-		scraper.WithTransport(t), // Disable HTTP Keepalive.
+		scraper.WithDisableCookies(),
+		scraper.WithTransport(t), // Set custom HTTP transport.
 	)
 	return core
 }

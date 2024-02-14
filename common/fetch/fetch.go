@@ -6,6 +6,7 @@ import (
 	"net/http/cookiejar"
 	"time"
 
+	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/go-retryablehttp"
 
 	"github.com/metatube-community/metatube-sdk-go/common/random"
@@ -29,6 +30,9 @@ type Config struct {
 
 	// Return error when status is not OK.
 	RaiseForStatus bool
+
+	// Custom HTTP Transport.
+	Transport http.RoundTripper
 }
 
 type Fetcher struct {
@@ -61,13 +65,18 @@ func Default(cfg *Config) *Fetcher {
 	if cfg.UserAgent == "" {
 		cfg.RandomUserAgent = true
 	}
-	return New((&retryablehttp.Client{
+	c := &retryablehttp.Client{
+		HTTPClient:   cleanhttp.DefaultPooledClient(),
 		RetryWaitMin: 1 * time.Second,
 		RetryWaitMax: 3 * time.Second,
 		RetryMax:     3,
 		CheckRetry:   retryablehttp.DefaultRetryPolicy,
 		Backoff:      retryablehttp.DefaultBackoff,
-	}).StandardClient(), cfg)
+	}
+	if cfg.Transport != nil {
+		c.HTTPClient.Transport = cfg.Transport
+	}
+	return New(c.StandardClient(), cfg)
 }
 
 func (f *Fetcher) Fetch(url string) (resp *http.Response, err error) {
