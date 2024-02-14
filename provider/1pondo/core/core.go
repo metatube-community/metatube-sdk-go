@@ -45,6 +45,9 @@ type Core struct {
 }
 
 func (core *Core) Init() *Core {
+	t := http.DefaultTransport.(*http.Transport).Clone()
+	t.DisableKeepAlives = true
+
 	core.Scraper = scraper.NewDefaultScraper(core.DefaultName, core.BaseURL, core.DefaultPriority,
 		scraper.WithHeaders(map[string]string{
 			"Content-Type": "application/json",
@@ -52,12 +55,7 @@ func (core *Core) Init() *Core {
 		scraper.WithCookies(core.BaseURL, []*http.Cookie{
 			{Name: "ageCheck", Value: "1"},
 		}),
-		scraper.WithLimit(&colly.LimitRule{
-			DomainGlob:  "*",
-			Parallelism: 100,
-			Delay:       200 * time.Millisecond,
-			RandomDelay: 100 * time.Millisecond,
-		}),
+		scraper.WithTransport(t), // Disable HTTP Keepalive.
 	)
 	return core
 }
