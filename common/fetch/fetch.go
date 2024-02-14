@@ -31,6 +31,9 @@ type Config struct {
 	// Return error when status is not OK.
 	RaiseForStatus bool
 
+	// HTTP Request timeout.
+	Timeout time.Duration
+
 	// Custom HTTP Transport.
 	Transport http.RoundTripper
 }
@@ -72,6 +75,9 @@ func Default(cfg *Config) *Fetcher {
 		RetryMax:     3,
 		CheckRetry:   retryablehttp.DefaultRetryPolicy,
 		Backoff:      retryablehttp.DefaultBackoff,
+	}
+	if cfg.Timeout > time.Second {
+		c.HTTPClient.Timeout = cfg.Timeout
 	}
 	if cfg.Transport != nil {
 		c.HTTPClient.Transport = cfg.Transport

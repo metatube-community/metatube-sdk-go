@@ -48,10 +48,14 @@ type Core struct {
 
 func (core *Core) Init() *Core {
 	t := http.DefaultTransport.(*http.Transport).Clone()
-	t.MaxIdleConnsPerHost = 1000
-	t.IdleConnTimeout = 90 * time.Minute
+	t.MaxConnsPerHost = 5
+	t.MaxIdleConnsPerHost = 5
+	t.IdleConnTimeout = 5 * time.Minute
 
-	core.Fetcher = fetch.Default(&fetch.Config{Transport: t})
+	core.Fetcher = fetch.Default(&fetch.Config{
+		Transport: t,
+		Timeout:   15 * time.Second,
+	})
 	core.Scraper = scraper.NewDefaultScraper(core.DefaultName, core.BaseURL, core.DefaultPriority,
 		scraper.WithHeaders(map[string]string{
 			"Content-Type": "application/json",
