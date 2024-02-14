@@ -31,7 +31,7 @@ type Engine struct {
 func New(db *gorm.DB, timeout time.Duration) *Engine {
 	engine := &Engine{
 		db:      db,
-		fetcher: fetch.Default(nil),
+		fetcher: fetch.Default(&fetch.Config{Timeout: timeout}),
 	}
 	logger, _ := zap.NewProduction()
 	engine.logger = logger.Sugar()
