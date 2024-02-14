@@ -13,6 +13,7 @@ import (
 	_ "github.com/metatube-community/metatube-sdk-go/provider/caribbeancom"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/caribbeancompr"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/duga"
+	_ "github.com/metatube-community/metatube-sdk-go/provider/faleno"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/fanza"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/fc2"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/fc2hub"
