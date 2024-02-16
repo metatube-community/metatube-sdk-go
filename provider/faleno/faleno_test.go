@@ -26,6 +26,7 @@ func TestFALENO_SearchMovie(t *testing.T) {
 		"FSDSS-723",
 		"FSDSS746",
 		"fsdss728",
+		"fsdss-721",
 	} {
 		results, err := provider.SearchMovie(provider.NormalizeMovieKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
