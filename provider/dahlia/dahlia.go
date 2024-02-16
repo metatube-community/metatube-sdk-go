@@ -17,13 +17,13 @@ import (
 )
 
 var (
-	_ provider.MovieProvider = (*dahlia)(nil)
-	_ provider.MovieSearcher = (*dahlia)(nil)
+	_ provider.MovieProvider = (*DAHLIA)(nil)
+	_ provider.MovieSearcher = (*DAHLIA)(nil)
 )
 
 const (
 	Name     = "DAHLIA"
-	Priority = 1000 - 7
+	Priority = 1000 - 1
 )
 
 const (
@@ -32,32 +32,32 @@ const (
 	searchURL = "https://dahlia-av.jp/?s=%s"
 )
 
-type dahlia struct {
+type DAHLIA struct {
 	*scraper.Scraper
 }
 
-func New() *dahlia {
-	return &dahlia{scraper.NewDefaultScraper(Name, baseURL, Priority)}
+func New() *DAHLIA {
+	return &DAHLIA{scraper.NewDefaultScraper(Name, baseURL, Priority)}
 }
 
-func (faleno *dahlia) NormalizeMovieID(id string) string {
+func (dha *DAHLIA) NormalizeMovieID(id string) string {
 	return strings.ToLower(id)
 }
 
-func (faleno *dahlia) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return faleno.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
+func (dha *DAHLIA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	return dha.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (faleno *dahlia) ParseMovieIDFromURL(rawURL string) (string, error) {
+func (dha *DAHLIA) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
 	}
-	return faleno.NormalizeMovieID(path.Base(homepage.Path)), nil
+	return dha.NormalizeMovieID(path.Base(homepage.Path)), nil
 }
 
-func (faleno *dahlia) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := faleno.ParseMovieIDFromURL(rawURL)
+func (dha *DAHLIA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := dha.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}
@@ -65,13 +65,13 @@ func (faleno *dahlia) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, e
 	info = &model.MovieInfo{
 		ID:            id,
 		Number:        id,
-		Provider:      faleno.Name(),
+		Provider:      dha.Name(),
 		Homepage:      rawURL,
 		Actors:        []string{},
 		PreviewImages: []string{},
 	}
 
-	c := faleno.ClonedCollector()
+	c := dha.ClonedCollector()
 
 	// Title
 	c.OnXML(`//div[@class="bar02_works"]/h1/text()`, func(e *colly.XMLElement) {
@@ -119,15 +119,15 @@ func (faleno *dahlia) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, e
 	return
 }
 
-func (faleno *dahlia) NormalizeMovieKeyword(keyword string) string {
+func (dha *DAHLIA) NormalizeMovieKeyword(keyword string) string {
 	if !regexp.MustCompile(`^(?i)dldss-?\d{3}$`).MatchString(keyword) {
 		return ""
 	}
 	return strings.ToLower(strings.ReplaceAll(keyword, "-", ""))
 }
 
-func (faleno *dahlia) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	c := faleno.ClonedCollector()
+func (dha *DAHLIA) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
+	c := dha.ClonedCollector()
 	c.ParseHTTPErrorResponse = true
 	c.SetRedirectHandler(func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
@@ -137,12 +137,12 @@ func (faleno *dahlia) SearchMovie(keyword string) (results []*model.MovieSearchR
 		cover := e.Request.AbsoluteURL(e.ChildAttr(`.//img`, "src"))
 
 		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//a`, "href"))
-		id, _ := faleno.ParseMovieIDFromURL(homepage)
+		id, _ := dha.ParseMovieIDFromURL(homepage)
 		results = append(results, &model.MovieSearchResult{
 			ID:          id,
 			Number:      id,
 			Title:       strings.SplitN(e.ChildText(`.//div[@class="text_name"]/a`), "\n", 2)[0],
-			Provider:    faleno.Name(),
+			Provider:    dha.Name(),
 			Homepage:    homepage,
 			CoverURL:    cover,
 			ReleaseDate: parser.ParseDate(strings.Fields(e.ChildText(`.//div[contains(text(), "発売開始")]`))[0]),
