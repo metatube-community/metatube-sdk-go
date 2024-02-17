@@ -113,7 +113,7 @@ func (mdq *MadouQu) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err
 	c.OnScraped(func(_ *colly.Response) {
 		// Number = Upper ID
 		if info.Number == "" {
-			info.Number = ParseNumber(info.ID)
+			info.Number = parser.ParseIDToNumber(info.ID)
 		}
 
 		// Thumb Image
@@ -152,7 +152,7 @@ func (mdq *MadouQu) SearchMovie(keyword string) (results []*model.MovieSearchRes
 		nb, title, _ := strings.Cut(origTitle, " ")
 
 		if !regexp.MustCompile(`^(?i)[A-Z0-9_-]+$`).MatchString(nb) {
-			nb = ParseNumber(id)
+			nb = parser.ParseIDToNumber(id)
 			title = origTitle
 		}
 
@@ -185,14 +185,6 @@ func ExtractImgSrc(src string) string {
 		return ss[1]
 	}
 	return src
-}
-
-func ParseNumber(s string) string {
-	s = strings.ToUpper(s)
-	if ss := regexp.MustCompile(`(\d*[A-Z]+)(\d+)`).FindStringSubmatch(s); len(ss) >= 3 {
-		return fmt.Sprintf("%s-%s", ss[1], ss[2])
-	}
-	return s
 }
 
 func init() {
