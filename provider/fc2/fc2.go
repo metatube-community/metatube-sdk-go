@@ -72,7 +72,7 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 
 	// Headers
 	c.OnXML(`//div[@class="items_article_headerInfo"]`, func(e *colly.XMLElement) {
-		info.Title = e.ChildText(`.//h3/text()`)
+		info.Title = strings.Join(e.ChildTexts(`./h3/text()`), " ")
 		info.Genres = e.ChildTexts(`.//section[@class="items_article_TagArea"]/div/a`)
 		info.Maker = e.ChildText(`.//ul/li[last()]/a`)
 		{ /* score */
