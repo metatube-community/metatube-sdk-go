@@ -7,6 +7,7 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/gocolly/colly/v2"
 
@@ -23,7 +24,7 @@ var (
 
 const (
 	Name     = "DAHLIA"
-	Priority = 1000 - 1
+	Priority = 1000 - 4
 )
 
 const (
@@ -37,7 +38,9 @@ type DAHLIA struct {
 }
 
 func New() *DAHLIA {
-	return &DAHLIA{scraper.NewDefaultScraper(Name, baseURL, Priority)}
+	return &DAHLIA{scraper.NewDefaultScraper(Name, baseURL, Priority, scraper.WithCookies(baseURL, []*http.Cookie{
+		{Name: "modal", Value: "off"},
+	}))}
 }
 
 func (dha *DAHLIA) NormalizeMovieID(id string) string {
@@ -104,7 +107,7 @@ func (dha *DAHLIA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 	})
 
 	// Fields
-	c.OnXML(`//div[contains(@class, "box_works01_list")]/ul//li`, func(e *colly.XMLElement) {
+	c.OnXML(`//div[contains(@class, "box_works01_list")]/ul/*[child::span or (@class="view_timer" and not(contains(@style,'display: none')))]//span/parent::*`, func(e *colly.XMLElement) {
 		switch e.ChildText(`.//span`) {
 		case "出演女優":
 			info.Actors = append(info.Actors, e.ChildText(`.//p`))
@@ -112,6 +115,13 @@ func (dha *DAHLIA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 			info.Runtime = parser.ParseRuntime(e.ChildText(`.//p`))
 		case "発売日":
 			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//p`))
+		}
+	})
+
+	// ReleaseDate (fallback)
+	c.OnXML(`//div[contains(@class, "box_works01_list")]/ul/div[@class="view_timer" and not(contains(@style,'display: none'))]/li/span[text()="配信開始日"]/following-sibling::p`, func(e *colly.XMLElement) {
+		if time.Time(info.ReleaseDate).IsZero() {
+			info.ReleaseDate = parser.ParseDate(e.Text)
 		}
 	})
 
