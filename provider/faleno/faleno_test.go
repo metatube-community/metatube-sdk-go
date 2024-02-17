@@ -12,6 +12,8 @@ func TestFALENO_GetMovieInfoByID(t *testing.T) {
 	for _, item := range []string{
 		"fsdss754",
 		"FSDSS749",
+		"fcdss072",
+		"FCDSS060",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
@@ -27,6 +29,8 @@ func TestFALENO_SearchMovie(t *testing.T) {
 		"FSDSS746",
 		"fsdss728",
 		"fsdss-721",
+		"FCDSS-069",
+		"FCDSS066",
 	} {
 		results, err := provider.SearchMovie(provider.NormalizeMovieKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
