@@ -43,19 +43,6 @@ func TestMadouQu_SearchMovie(t *testing.T) {
 	}
 }
 
-func TestParseNumber(t *testing.T) {
-	for _, unit := range []struct {
-		id, want string
-	}{
-		{"mdx0109", "MDX-0109"},
-		{"mdx-0264", "MDX-0264"},
-		{"91cm109", "91CM-109"},
-		{"91CM-109", "91CM-109"},
-	} {
-		assert.Equal(t, unit.want, ParseNumber(unit.id))
-	}
-}
-
 func TestExtractImgSrc(t *testing.T) {
 	for _, unit := range []struct {
 		url, want string

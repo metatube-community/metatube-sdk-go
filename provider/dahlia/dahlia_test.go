@@ -12,6 +12,7 @@ func TestDAHLIA_GetMovieInfoByID(t *testing.T) {
 	for _, item := range []string{
 		"dldss265",
 		"DLDSS264",
+		"dldss087",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
@@ -27,6 +28,7 @@ func TestDAHLIA_SearchMovie(t *testing.T) {
 		"DLDSS-259",
 		"dldss271",
 		"DLDSS274",
+		"dldss087",
 	} {
 		results, err := provider.SearchMovie(provider.NormalizeMovieKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
