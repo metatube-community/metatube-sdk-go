@@ -50,12 +50,16 @@ func IsFC2(s string) bool {
 
 // IsSpecial returns true if the number is special compare to other regular numbers.
 func IsSpecial(s string) bool {
-	if IsUncensored(s) || IsFC2(s) {
+	if IsUncensored(s) || IsFC2(s) || IsJavDBEUNumber(s) {
 		return true
 	}
 	return regexp.
 		MustCompile(`^(?i)(gcolle|getchu|gyutto|pcolle|mywife)[-_]?.+$`).
 		MatchString(s)
+}
+
+func IsJavDBEUNumber(s string) bool {
+	return regexp.MustCompile(`^[a-zA-Z0-9]+\.\d{2}\.\d{2}\.\d{2}`).MatchString(s)
 }
 
 // RequireFaceDetection returns true if the movie cover
