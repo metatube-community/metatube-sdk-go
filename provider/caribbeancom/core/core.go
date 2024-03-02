@@ -7,11 +7,13 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
+	dt "gorm.io/datatypes"
 
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -205,6 +207,17 @@ func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 	c.OnXML(`//div[@class="gallery-ratio"]/a`, func(e *colly.XMLElement) {
 		if href := e.Attr("href"); !strings.Contains(href, "member") {
 			info.PreviewImages = append(info.PreviewImages, e.Request.AbsoluteURL(href))
+		}
+	})
+
+	c.OnScraped(func(_ *colly.Response) {
+		// Fallback to parse ID datetime.
+		if time.Time(info.ReleaseDate).IsZero() {
+			if ss := regexp.MustCompile(`(\d{6})[-_]\d+`).
+				FindStringSubmatch(info.ID); len(ss) > 1 {
+				date, _ := time.Parse(`010206`, ss[1])
+				info.ReleaseDate = dt.Date(date)
+			}
 		}
 	})
 
