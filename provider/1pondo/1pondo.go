@@ -10,6 +10,7 @@ import (
 var (
 	_ provider.MovieProvider = (*OnePondo)(nil)
 	_ provider.MovieReviewer = (*OnePondo)(nil)
+	_ provider.Fetcher       = (*OnePondo)(nil)
 )
 
 const (

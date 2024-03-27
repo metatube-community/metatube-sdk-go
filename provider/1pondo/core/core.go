@@ -13,7 +13,6 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/nlnwa/whatwg-url/url"
 
-	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
@@ -28,7 +27,6 @@ const (
 )
 
 type Core struct {
-	*fetch.Fetcher
 	*scraper.Scraper
 
 	// URLs
@@ -48,14 +46,10 @@ type Core struct {
 
 func (core *Core) Init() *Core {
 	t := http.DefaultTransport.(*http.Transport).Clone()
-	t.MaxConnsPerHost = 5
-	t.MaxIdleConnsPerHost = 5
+	t.MaxConnsPerHost = 2
+	t.MaxIdleConnsPerHost = 2
 	t.IdleConnTimeout = 5 * time.Minute
 
-	core.Fetcher = fetch.Default(&fetch.Config{
-		Transport: t,
-		Timeout:   15 * time.Second,
-	})
 	core.Scraper = scraper.NewDefaultScraper(core.DefaultName, core.BaseURL, core.DefaultPriority,
 		scraper.WithHeaders(map[string]string{
 			"Content-Type": "application/json",
@@ -65,6 +59,13 @@ func (core *Core) Init() *Core {
 		scraper.WithTransport(t), // Set custom HTTP transport.
 	)
 	return core
+}
+
+func (core *Core) Fetch(url string) (resp *http.Response, err error) {
+	return (&http.Client{
+		Transport: http.DefaultTransport.(*http.Transport).Clone(),
+		Timeout:   15 * time.Second,
+	}).Get(url)
 }
 
 func (core *Core) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {
