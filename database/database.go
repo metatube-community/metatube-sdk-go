@@ -33,6 +33,12 @@ type Config struct {
 
 	// Max DB idle connections.
 	MaxIdleConns int
+
+	// LogLevel  int
+	LogLevel logger.LogLevel
+	
+	// Logger instance
+	Logger logger.Interface
 }
 
 func Open(cfg *Config) (db *gorm.DB, err error) {
@@ -60,13 +66,24 @@ func Open(cfg *Config) (db *gorm.DB, err error) {
 		dialector = sqlite.Open(cfg.DSN)
 	}
 
-	db, err = gorm.Open(dialector, &gorm.Config{
-		Logger: logger.New(log.New(os.Stdout, "[GORM]\u0020", log.LstdFlags), logger.Config{
+	// init gorm logger
+	gormLogger := cfg.Logger
+	if gormLogger == nil {
+		
+		logLevel := logger.Info
+		if cfg.LogLevel != 0 {
+			logLevel = cfg.LogLevel
+		}
+		gormLogger = logger.New(log.New(os.Stdout, "[GORM]\u0020", log.LstdFlags), logger.Config{
 			SlowThreshold:             100 * time.Millisecond,
-			LogLevel:                  logger.Info,
+			LogLevel:                  logLevel,
 			IgnoreRecordNotFoundError: false,
 			Colorful:                  false,
-		}),
+		})
+	}
+	
+	db, err = gorm.Open(dialector, &gorm.Config{
+		Logger: gormLogger,
 		NowFunc: func() time.Time {
 			return time.Now().UTC()
 		},
