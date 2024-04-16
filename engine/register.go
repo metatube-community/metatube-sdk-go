@@ -37,4 +37,5 @@ import (
 	_ "github.com/metatube-community/metatube-sdk-go/provider/tokyo-hot"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/xslist"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/xxx-av"
+	_ "github.com/metatube-community/metatube-sdk-go/provider/madouqu"
 )
