@@ -32,4 +32,5 @@ jobs:
           file: ./Dockerfile # Dockerfile 位置
           platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64
           push: true
-          tags: sssnto/metatube-backend # 改成你自己的， dockerhub用户名/镜像名
+          tags: |
+            sssnto/metatube-backend # 改成你自己的， dockerhub用户名/镜像名
