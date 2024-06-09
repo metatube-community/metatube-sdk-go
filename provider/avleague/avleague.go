@@ -189,7 +189,7 @@ func parseDate(s string) (date dt.Date) {
 		if ss := regexp.MustCompile(`([\s\d]+)年`).
 			FindStringSubmatch(s); len(ss) == 2 {
 			date = dt.Date(time.Date(parser.ParseInt(ss[1]),
-				1, 1, 0, 0, 0, 0, time.UTC))
+				2, 2, 2, 2, 2, 2, time.UTC))
 		}
 	}()
 	return parser.ParseDate(s)
