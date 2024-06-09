@@ -1,6 +1,7 @@
 package engine
 
 import (
+	goerr "errors"
 	"fmt"
 	"sort"
 	"sync"
@@ -85,7 +86,7 @@ func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool
 		innerResults, innerErr := innerSearch(name)
 		if innerErr != nil &&
 			// ignore InfoNotFound error.
-			innerErr != mt.ErrInfoNotFound {
+			!goerr.Is(innerErr, mt.ErrInfoNotFound) {
 			// add error to chain and handle it later.
 			errors = append(errors, innerErr)
 			continue
