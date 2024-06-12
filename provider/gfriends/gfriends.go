@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/iancoleman/orderedmap"
+	"go.uber.org/atomic"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/reverse"
@@ -39,13 +40,17 @@ var (
 	_fetcher = fetch.Default(nil)
 )
 
-type GFriends struct{}
+type GFriends struct {
+	priority *atomic.Int64
+}
 
-func New() *GFriends { return &GFriends{} }
+func New() *GFriends { return &GFriends{atomic.NewInt64(Priority)} }
 
 func (gf *GFriends) Name() string { return Name }
 
-func (gf *GFriends) Priority() int { return Priority }
+func (gf *GFriends) Priority() int64 { return gf.priority.Load() }
+
+func (gf *GFriends) SetPriority(v int64) { gf.priority.Store(v) }
 
 func (gf *GFriends) URL() *url.URL { return _baseURL }
 
