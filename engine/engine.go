@@ -61,22 +61,27 @@ func Default() *Engine {
 func (e *Engine) initAllProviderPriorities() {
 	for _, env := range os.Environ() {
 		key, value, _ := strings.Cut(strings.ToUpper(env), "=")
-		pri, _ := strconv.ParseInt(value, 0, 64)
 		switch {
 		case strings.HasPrefix(key, ActorProviderPriorityEnvPrefix):
 			name := key[len(ActorProviderPriorityEnvPrefix):]
-			if pri == 0 {
+			prio, _ := strconv.ParseInt(value, 0, 64)
+			if prio == 0 {
 				delete(e.actorProviders, name)
 				continue
 			}
-			e.actorProviders[name].SetPriority(pri)
+			if provider, ok := e.actorProviders[name]; ok {
+				provider.SetPriority(prio)
+			}
 		case strings.HasPrefix(key, MovieProviderPriorityEnvPrefix):
 			name := key[len(MovieProviderPriorityEnvPrefix):]
-			if pri == 0 {
+			prio, _ := strconv.ParseInt(value, 0, 64)
+			if prio == 0 {
 				delete(e.movieProviders, name)
 				continue
 			}
-			e.movieProviders[name].SetPriority(pri)
+			if provider, ok := e.movieProviders[name]; ok {
+				provider.SetPriority(prio)
+			}
 		}
 	}
 }
