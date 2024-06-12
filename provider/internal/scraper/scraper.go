@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"go.uber.org/atomic"
 
 	"github.com/metatube-community/metatube-sdk-go/provider"
 )
@@ -14,7 +15,7 @@ var _ provider.Provider = (*Scraper)(nil)
 // Scraper implements basic Provider interface.
 type Scraper struct {
 	name     string
-	priority int
+	priority *atomic.Int64
 	baseURL  *url.URL
 	c        *colly.Collector
 }
@@ -27,7 +28,7 @@ func NewScraper(name, baseURL string, priority int, opts ...Option) *Scraper {
 	}
 	s := &Scraper{
 		name:     name,
-		priority: priority,
+		priority: atomic.NewInt64(int64(priority)),
 		baseURL:  u,
 		c:        colly.NewCollector(),
 	}
@@ -53,7 +54,9 @@ func (s *Scraper) Name() string { return s.name }
 
 func (s *Scraper) URL() *url.URL { return s.baseURL }
 
-func (s *Scraper) Priority() int { return s.priority }
+func (s *Scraper) Priority() int64 { return s.priority.Load() }
+
+func (s *Scraper) SetPriority(v int64) { s.priority.Store(v) }
 
 func (s *Scraper) NormalizeMovieID(id string) string { return id /* AS IS */ }
 

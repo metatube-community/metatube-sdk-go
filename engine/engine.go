@@ -3,6 +3,8 @@ package engine
 import (
 	"net/http"
 	"net/url"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -13,6 +15,11 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/database"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
+)
+
+const (
+	ActorProviderPriorityEnvPrefix = "MT_ACTOR_PROVIDER_PRIORITY_"
+	MovieProviderPriorityEnvPrefix = "MT_MOVIE_PROVIDER_PRIORITY_"
 )
 
 type Engine struct {
@@ -37,6 +44,7 @@ func New(db *gorm.DB, timeout time.Duration) *Engine {
 	engine.logger = logger.Sugar()
 	engine.initActorProviders(timeout)
 	engine.initMovieProviders(timeout)
+	engine.initAllProviderPriorities()
 	return engine
 }
 
@@ -48,6 +56,29 @@ func Default() *Engine {
 	engine := New(db, time.Minute)
 	defer engine.AutoMigrate(true)
 	return engine
+}
+
+func (e *Engine) initAllProviderPriorities() {
+	for _, env := range os.Environ() {
+		key, value, _ := strings.Cut(strings.ToUpper(env), "=")
+		pri, _ := strconv.ParseInt(value, 0, 64)
+		switch {
+		case strings.HasPrefix(key, ActorProviderPriorityEnvPrefix):
+			name := key[len(ActorProviderPriorityEnvPrefix):]
+			if pri == 0 {
+				delete(e.actorProviders, name)
+				continue
+			}
+			e.actorProviders[name].SetPriority(pri)
+		case strings.HasPrefix(key, MovieProviderPriorityEnvPrefix):
+			name := key[len(MovieProviderPriorityEnvPrefix):]
+			if pri == 0 {
+				delete(e.movieProviders, name)
+				continue
+			}
+			e.movieProviders[name].SetPriority(pri)
+		}
+	}
 }
 
 // initActorProviders initializes actor providers.
