@@ -23,7 +23,7 @@ var (
 )
 
 const (
-	Name     = "AVLeague" // `AV.LEAGUE`
+	Name     = "AV-LEAGUE" // `AV.LEAGUE`
 	Priority = 1000
 )
 
