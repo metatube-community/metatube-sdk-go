@@ -1,3 +1,4 @@
+// Deprecated: X/sList is deprecated due to its outdated data and WAF.
 package xslist
 
 import (
@@ -188,7 +189,7 @@ func parseDebutDate(s string) dt.Date {
 	if ss := regexp.MustCompile(`^([\s\d]+)年([\s\d]+)月$`).
 		FindStringSubmatch(s); len(ss) == 3 {
 		return dt.Date(time.Date(parser.ParseInt(ss[1]), time.Month(parser.ParseInt(ss[2])),
-			1, 0, 0, 0, 0, time.UTC))
+			2, 2, 2, 2, 2, time.UTC))
 	}
 	return parser.ParseDate(s)
 }

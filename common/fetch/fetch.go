@@ -1,6 +1,7 @@
 package fetch
 
 import (
+	"crypto/tls"
 	"io"
 	"net/http"
 	"net/http/cookiejar"
@@ -36,6 +37,10 @@ type Config struct {
 
 	// Custom HTTP Transport.
 	Transport http.RoundTripper
+
+	// Skip TLS verification. Applies only
+	// to *http.Transport based transport.
+	SkipVerify bool
 }
 
 type Fetcher struct {
@@ -81,6 +86,15 @@ func Default(cfg *Config) *Fetcher {
 	}
 	if cfg.Transport != nil {
 		c.HTTPClient.Transport = cfg.Transport
+	}
+	if cfg.SkipVerify {
+		if transport, ok := c.HTTPClient.Transport.(*http.Transport); ok {
+			if transport.TLSClientConfig == nil {
+				// init TLS config if is nil.
+				transport.TLSClientConfig = &tls.Config{}
+			}
+			transport.TLSClientConfig.InsecureSkipVerify = true
+		}
 	}
 	return New(c.StandardClient(), cfg)
 }
