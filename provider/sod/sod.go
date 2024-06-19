@@ -1,8 +1,10 @@
 package sod
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/antchfx/htmlquery"
@@ -34,6 +36,8 @@ const (
 	searchURL = "https://ec.sod.co.jp/prime/videos/genre/?search_type=1&sodsearch=%s"
 	onTimeURL = "https://ec.sod.co.jp/prime/_ontime.php"
 )
+
+var ErrImageNotAvailable = errors.New("image not available")
 
 // SOD needs `Referer` header when request to view images and videos.
 type SOD struct {
@@ -156,6 +160,13 @@ func (sod *SOD) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		info.Score = parser.ParseScore(e.Text)
 	})
 
+	defer func() {
+		// Validate cover image
+		if err == nil && isInvalidImageURL(info.CoverURL) {
+			err = ErrImageNotAvailable
+		}
+	}()
+
 	err = c.Visit(composedMovieURL)
 	return
 }
@@ -185,6 +196,9 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 
 	c.OnXML(`//*[@id="videos_s_mainbox"]`, func(e *colly.XMLElement) {
 		thumb := e.Request.AbsoluteURL(e.ChildAttr(`.//div[@class="videis_s_img"]/a/img`, "src"))
+		if isInvalidImageURL(thumb) {
+			return
+		}
 		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//div[@class="videis_s_img"]/a`, "href"))
 		id, _ := sod.ParseMovieIDFromURL(homepage)
 		results = append(results, &model.MovieSearchResult{
@@ -201,6 +215,10 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 
 	err = c.Visit(composedSearchURL)
 	return
+}
+
+func isInvalidImageURL(s string) bool {
+	return regexp.MustCompile(`/prime/videos/thumbnail/now_\w+\.jpg`).MatchString(s)
 }
 
 func init() {
