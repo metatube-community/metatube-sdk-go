@@ -12,7 +12,8 @@ func TestSOD_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"3DSVR-0416",
-		//"DLDSS-077",
+		"DLDSS-077",
+		"STAR-981",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
@@ -27,6 +28,7 @@ func TestSOD_SearchMovie(t *testing.T) {
 		"STAR-399",
 		"IENF-209",
 		"DLDSS-02",
+		"STAR-981",
 	} {
 		results, err := provider.SearchMovie(provider.NormalizeMovieKeyword(item))
 		data, _ := json.MarshalIndent(results, "", "\t")
