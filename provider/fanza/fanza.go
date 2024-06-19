@@ -288,6 +288,12 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 
 	// Preview Video
 	c.OnXML(`//*[@id="detail-sample-movie"]/div/a`, func(e *colly.XMLElement) {
+		var videoPath string
+		if v := e.Attr("onclick"); v != "" { // digital
+			videoPath = regexp.MustCompile(`/(.+)/`).FindString(v)
+		} else { // mono
+			videoPath = e.Attr("data-video-url")
+		}
 		d := c.Clone()
 		d.OnXML(`//iframe`, func(e *colly.XMLElement) {
 			d.OnResponse(func(r *colly.Response) {
@@ -305,8 +311,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 			})
 			d.Visit(e.Request.AbsoluteURL(e.Attr("src")))
 		})
-		d.Visit(e.Request.AbsoluteURL(regexp.MustCompile(`/(.+)/`).
-			FindString(e.Attr("onclick"))))
+		d.Visit(e.Request.AbsoluteURL(videoPath))
 	})
 
 	// Preview Video (VR)
