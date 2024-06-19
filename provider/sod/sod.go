@@ -162,7 +162,7 @@ func (sod *SOD) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 
 	defer func() {
 		// Validate cover image
-		if err == nil && isInvalidImageURL(info.CoverURL) {
+		if err == nil && !isValidImageURL(info.CoverURL) {
 			err = ErrImageNotAvailable
 		}
 	}()
@@ -196,7 +196,7 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 
 	c.OnXML(`//*[@id="videos_s_mainbox"]`, func(e *colly.XMLElement) {
 		thumb := e.Request.AbsoluteURL(e.ChildAttr(`.//div[@class="videis_s_img"]/a/img`, "src"))
-		if isInvalidImageURL(thumb) {
+		if !isValidImageURL(thumb) {
 			return
 		}
 		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//div[@class="videis_s_img"]/a`, "href"))
@@ -217,8 +217,8 @@ func (sod *SOD) SearchMovie(keyword string) (results []*model.MovieSearchResult,
 	return
 }
 
-func isInvalidImageURL(s string) bool {
-	return regexp.MustCompile(`/prime/videos/thumbnail/now_\w+\.jpg`).MatchString(s)
+func isValidImageURL(s string) bool {
+	return !regexp.MustCompile(`/thumbnail/now_\w+\.jpg`).MatchString(s)
 }
 
 func init() {
