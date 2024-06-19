@@ -25,9 +25,9 @@ func TestSOD_GetMovieInfoByID(t *testing.T) {
 func TestSOD_SearchMovie(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
-		//"STAR-399",
-		//"IENF-209",
-		//"DLDSS-02",
+		"STAR-399",
+		"IENF-209",
+		"DLDSS-02",
 		"STAR-981",
 	} {
 		results, err := provider.SearchMovie(provider.NormalizeMovieKeyword(item))
