@@ -29,6 +29,7 @@ import (
 var (
 	_ provider.MovieProvider = (*AVBase)(nil)
 	_ provider.MovieSearcher = (*AVBase)(nil)
+	_ provider.Fetcher       = (*AVBase)(nil)
 )
 
 const (

@@ -11,6 +11,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 
+	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -21,6 +22,7 @@ import (
 var (
 	_ provider.MovieProvider = (*JavBus)(nil)
 	_ provider.MovieSearcher = (*JavBus)(nil)
+	_ provider.Fetcher       = (*JavBus)(nil)
 )
 
 const (
@@ -36,11 +38,13 @@ const (
 )
 
 type JavBus struct {
+	*fetch.Fetcher
 	*scraper.Scraper
 }
 
 func New() *JavBus {
 	return &JavBus{
+		Fetcher: fetch.Default(&fetch.Config{Referer: baseURL}),
 		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
 			scraper.WithDisableRedirects(),
 			scraper.WithCookies(baseURL, []*http.Cookie{
