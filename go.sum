@@ -218,8 +218,8 @@ github.com/ugorji/go/codec v1.2.12/go.mod h1:UNopzCgEMSXjBc6AOMqYvWC1ktqTAfzJZUZ
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/zijiren233/google-translator v1.0.1 h1:pQESPiTteOrk3gKxs/wXYHgqZR4sB0Q7QcwOAkF+IyI=
 github.com/zijiren233/google-translator v1.0.1/go.mod h1:Cto5Y9lA6Gn3i0IA1s5MsZJgDpb/71kBhao2yOv1zK4=
-github.com/zijiren233/openai-translator v0.2.1 h1:vdqAoIdli+R8hS4xrxEAWJe+5p6BRaxODjS4Y0NGhgY=
-github.com/zijiren233/openai-translator v0.2.1/go.mod h1:8PGK1Cd1/+O4Zcyw2hwDbJWsyWBEnqkUBARx48FWJ0w=
+github.com/zijiren233/openai-translator v0.2.2-0.20231006085303-3088cf9f41a8 h1:IkneCw/j7O8d7e2tlKHVO49+K+ZFjhXNwmWhHbteJ5w=
+github.com/zijiren233/openai-translator v0.2.2-0.20231006085303-3088cf9f41a8/go.mod h1:8PGK1Cd1/+O4Zcyw2hwDbJWsyWBEnqkUBARx48FWJ0w=
 go.uber.org/atomic v1.11.0 h1:ZvwS0R+56ePWxUNi+Atn9dWONBPp/AUETXlHW0DxSjE=
 go.uber.org/atomic v1.11.0/go.mod h1:LUxbIzbOniOlMKjJjyPfpl4v+PKK2cNJn91OQbhoJI0=
 go.uber.org/goleak v1.3.0 h1:2K3zAYmnTNqV73imy9J1T3WC+gmCePx2hEGkimedGto=
