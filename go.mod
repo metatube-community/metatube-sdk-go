@@ -1,6 +1,6 @@
 module github.com/metatube-community/metatube-sdk-go
 
-go 1.21
+go 1.20
 
 require (
 	github.com/adrg/strutil v0.3.1
@@ -10,7 +10,7 @@ require (
 	github.com/esimov/pigo v1.4.6
 	github.com/gin-gonic/gin v1.10.0
 	github.com/glebarez/sqlite v1.11.0
-	github.com/gocolly/colly/v2 v2.1.1-0.20230620150846-a6e3d81fe6b7
+	github.com/gocolly/colly/v2 v2.1.1-0.20240605174350-99b7fb1b87d1
 	github.com/grafov/m3u8 v0.12.0
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-retryablehttp v0.7.7
@@ -40,13 +40,13 @@ require (
 	github.com/antchfx/xmlquery v1.4.1 // indirect
 	github.com/antchfx/xpath v1.3.1 // indirect
 	github.com/bits-and-blooms/bitset v1.13.0 // indirect
-	github.com/bytedance/sonic v1.11.9 // indirect
-	github.com/bytedance/sonic/loader v0.1.1 // indirect
+	github.com/bytedance/sonic v1.12.0 // indirect
+	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/gabriel-vasile/mimetype v1.4.4 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.5 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
@@ -78,22 +78,22 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
-	github.com/sashabaranov/go-openai v1.26.3 // indirect
+	github.com/sashabaranov/go-openai v1.27.1 // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/arch v0.8.0 // indirect
+	golang.org/x/arch v0.9.0 // indirect
 	golang.org/x/crypto v0.25.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/sys v0.23.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.7 // indirect
-	modernc.org/libc v1.55.2 // indirect
+	modernc.org/libc v1.56.0 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.8.0 // indirect
-	modernc.org/sqlite v1.30.2 // indirect
+	modernc.org/sqlite v1.31.1 // indirect
 )
