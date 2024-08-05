@@ -9,7 +9,7 @@ var (
 	GitCommit = "unknown"
 )
 
-// VersionString returns hyphen joined version and commit string.
-func VersionString() string {
+// BuildString returns hyphen joined version and commit string.
+func BuildString() string {
 	return fmt.Sprintf("v%s-%s", Version, GitCommit)
 }
