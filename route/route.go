@@ -91,13 +91,16 @@ func notAllowed() gin.HandlerFunc {
 }
 
 func getIndex() gin.HandlerFunc {
+	data := gin.H{
+		"app":     "metatube",
+		"version": V.Version,
+	}
+	if V.GitCommit != "unknown" {
+		data["commit"] = V.GitCommit
+	}
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, &responseMessage{
-			Data: gin.H{
-				"app":     "metatube",
-				"commit":  V.GitCommit,
-				"version": V.Version,
-			},
+			Data: data,
 		})
 	}
 }
