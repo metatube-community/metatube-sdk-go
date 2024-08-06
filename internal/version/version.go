@@ -5,11 +5,17 @@ import (
 	"runtime/debug"
 )
 
+// Unknown is the default value for Version or GitCommit
+// when its value is unknown.
+const Unknown = "unknown"
+
 var (
-	Version   = "unknown"
-	GitCommit = "unknown"
+	Version   = Unknown
+	GitCommit = Unknown
 )
 
+// version is helpful to get the version info from the
+// go.mod when using this pkg as a third-party module.
 func version() string {
 	const (
 		module = "github.com/metatube-community/metatube-sdk-go"
@@ -20,11 +26,11 @@ func version() string {
 			return mod.Version
 		}
 	}
-	return "unknown"
+	return Unknown
 }
 
 func init() {
-	if Version == "unknown" {
+	if Version == Unknown {
 		Version = version()
 	}
 }
