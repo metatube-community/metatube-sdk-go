@@ -95,7 +95,7 @@ func getIndex() gin.HandlerFunc {
 		"app":     "metatube",
 		"version": V.Version,
 	}
-	if V.GitCommit != "unknown" {
+	if V.GitCommit != V.Unknown {
 		data["commit"] = V.GitCommit
 	}
 	return func(c *gin.Context) {
