@@ -7,9 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	V "github.com/metatube-community/metatube-sdk-go/constant/version"
 	"github.com/metatube-community/metatube-sdk-go/engine"
 	"github.com/metatube-community/metatube-sdk-go/errors"
-	V "github.com/metatube-community/metatube-sdk-go/internal/version"
 	"github.com/metatube-community/metatube-sdk-go/route/auth"
 )
 
