@@ -19,12 +19,7 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/route/auth"
 )
 
-var (
-	cfg  = new(config)
-	flag = goflag.NewFlagSet("", goflag.ExitOnError)
-)
-
-type config struct {
+var config = &struct {
 	// main config
 	bind  string
 	port  string
@@ -43,24 +38,27 @@ type config struct {
 
 	// version flag
 	versionFlag bool
-}
+}{}
 
 func init() {
 	// gin init
 	gin.DisableConsoleColor()
 
+	// flag init
+	flag := goflag.NewFlagSet("", goflag.ExitOnError)
+
 	// flag parsing
-	flag.StringVar(&cfg.bind, "bind", "", "Bind address of server")
-	flag.StringVar(&cfg.port, "port", "8080", "Port number of server")
-	flag.StringVar(&cfg.token, "token", "", "Token to access server")
-	flag.StringVar(&cfg.dsn, "dsn", "", "Database Service Name")
-	flag.StringVar(&cfg.name, "name", engine.DefaultEngineName, "Application name of server")
-	flag.DurationVar(&cfg.requestTimeout, "request-timeout", engine.DefaultRequestTimeout, "Timeout per request")
-	flag.IntVar(&cfg.dbMaxIdleConns, "db-max-idle-conns", 0, "Database max idle connections")
-	flag.IntVar(&cfg.dbMaxOpenConns, "db-max-open-conns", 0, "Database max open connections")
-	flag.BoolVar(&cfg.dbAutoMigrate, "db-auto-migrate", false, "Database auto migration")
-	flag.BoolVar(&cfg.dbPreparedStmt, "db-prepared-stmt", false, "Database prepared statement")
-	flag.BoolVar(&cfg.versionFlag, "version", false, "Show version")
+	flag.StringVar(&config.bind, "bind", "", "Bind address of server")
+	flag.StringVar(&config.port, "port", "8080", "Port number of server")
+	flag.StringVar(&config.token, "token", "", "Token to access server")
+	flag.StringVar(&config.dsn, "dsn", "", "Database Service Name")
+	flag.StringVar(&config.name, "name", engine.DefaultEngineName, "Application name of server")
+	flag.DurationVar(&config.requestTimeout, "request-timeout", engine.DefaultRequestTimeout, "Timeout per request")
+	flag.IntVar(&config.dbMaxIdleConns, "db-max-idle-conns", 0, "Database max idle connections")
+	flag.IntVar(&config.dbMaxOpenConns, "db-max-open-conns", 0, "Database max open connections")
+	flag.BoolVar(&config.dbAutoMigrate, "db-auto-migrate", false, "Database auto migration")
+	flag.BoolVar(&config.dbPreparedStmt, "db-prepared-stmt", false, "Database prepared statement")
+	flag.BoolVar(&config.versionFlag, "version", false, "Show version")
 	ff.Parse(flag, os.Args[1:], ff.WithEnvVars())
 }
 
@@ -71,10 +69,10 @@ func showVersionAndExit() {
 
 func Router() *gin.Engine {
 	db, err := database.Open(&database.Config{
-		DSN:                  cfg.dsn,
-		PreparedStmt:         cfg.dbPreparedStmt,
-		MaxIdleConns:         cfg.dbMaxIdleConns,
-		MaxOpenConns:         cfg.dbMaxOpenConns,
+		DSN:                  config.dsn,
+		PreparedStmt:         config.dbPreparedStmt,
+		MaxIdleConns:         config.dbMaxIdleConns,
+		MaxOpenConns:         config.dbMaxOpenConns,
 		DisableAutomaticPing: true,
 	})
 	if err != nil {
@@ -85,41 +83,41 @@ func Router() *gin.Engine {
 	var opts []engine.Option
 
 	// timeout must >= 1 second
-	if cfg.requestTimeout >= time.Second {
-		opts = append(opts, engine.WithRequestTimeout(cfg.requestTimeout))
+	if config.requestTimeout >= time.Second {
+		opts = append(opts, engine.WithRequestTimeout(config.requestTimeout))
 	}
 
 	// specify engine name
-	if cfg.name != "" {
-		opts = append(opts, engine.WithEngineName(cfg.name))
+	if config.name != "" {
+		opts = append(opts, engine.WithEngineName(config.name))
 	}
 
 	app := engine.New(db, opts...)
 
 	// always enable auto migrate for sqlite DB
 	if app.DBType() == database.Sqlite {
-		cfg.dbAutoMigrate = true
+		config.dbAutoMigrate = true
 	}
-	if err = app.DBAutoMigrate(cfg.dbAutoMigrate); err != nil {
+	if err = app.DBAutoMigrate(config.dbAutoMigrate); err != nil {
 		log.Fatal(err)
 	}
 
 	var token auth.Validator
-	if cfg.token != "" {
-		token = auth.Token(cfg.token)
+	if config.token != "" {
+		token = auth.Token(config.token)
 	}
 
 	return route.New(app, token)
 }
 
 func Main() {
-	if _, isSet := os.LookupEnv("VERSION"); cfg.versionFlag &&
+	if _, isSet := os.LookupEnv("VERSION"); config.versionFlag &&
 		!isSet /* NOTE: ignore this flag if ENV contains VERSION variable. */ {
 		showVersionAndExit()
 	}
 
 	var (
-		addr   = net.JoinHostPort(cfg.bind, cfg.port)
+		addr   = net.JoinHostPort(config.bind, config.port)
 		router = Router()
 	)
 	if err := http.ListenAndServe(addr, router); err != nil {
