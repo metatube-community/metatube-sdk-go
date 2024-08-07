@@ -114,7 +114,7 @@ func main() {
 	})
 
 	// Allocate app engine with request timeout set to one minute.
-	app := engine.New(db, time.Minute)
+	app := engine.New(db, engine.WithRequestTimeout(time.Minute))
 
 	// Initiate DB tables, only required at the first time.
 	if err := app.AutoMigrate(true); err != nil {
