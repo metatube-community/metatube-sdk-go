@@ -13,7 +13,6 @@ import (
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/database"
-	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
 
@@ -62,7 +61,7 @@ func Default() *Engine {
 		DisableAutomaticPing: true,
 	})
 	engine := New(db)
-	defer engine.AutoMigrate(true)
+	defer engine.DBAutoMigrate(true)
 	return engine
 }
 
@@ -218,24 +217,6 @@ func (e *Engine) MustGetMovieProviderByName(name string) mt.MovieProvider {
 		panic(err)
 	}
 	return provider
-}
-
-func (e *Engine) AutoMigrate(v bool) error {
-	if !v {
-		return nil
-	}
-	// Create Case-Insensitive Collation for Postgres.
-	if e.db.Config.Dialector.Name() == database.Postgres {
-		e.db.Exec(`CREATE COLLATION IF NOT EXISTS NOCASE (
-		provider = icu,
-		locale = 'und-u-ks-level2',
-		deterministic = FALSE)`)
-	}
-	return e.db.AutoMigrate(
-		&model.MovieInfo{},
-		&model.ActorInfo{},
-		&model.MovieReviewInfo{},
-	)
 }
 
 // Fetch fetches content from url. If provider is nil, the

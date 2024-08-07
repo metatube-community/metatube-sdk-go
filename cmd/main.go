@@ -81,11 +81,6 @@ func Router() *gin.Engine {
 		log.Fatal(err)
 	}
 
-	// always enable auto migrate for sqlite DB
-	if db.Config.Dialector.Name() == database.Sqlite {
-		cfg.dbAutoMigrate = true
-	}
-
 	// engine options
 	var opts []engine.Option
 
@@ -100,7 +95,12 @@ func Router() *gin.Engine {
 	}
 
 	app := engine.New(db, opts...)
-	if err = app.AutoMigrate(cfg.dbAutoMigrate); err != nil {
+
+	// always enable auto migrate for sqlite DB
+	if app.DBType() == database.Sqlite {
+		cfg.dbAutoMigrate = true
+	}
+	if err = app.DBAutoMigrate(cfg.dbAutoMigrate); err != nil {
 		log.Fatal(err)
 	}
 
