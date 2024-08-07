@@ -18,10 +18,11 @@ import (
 )
 
 const (
-	defaultEngineName     = "metatube"
-	defaultRequestTimeout = time.Minute
+	DefaultEngineName     = "metatube"
+	DefaultRequestTimeout = time.Minute
 )
 
+// Special environment prefixes for setting provider priorities.
 const (
 	ActorProviderPriorityEnvPrefix = "MT_ACTOR_PROVIDER_PRIORITY_"
 	MovieProviderPriorityEnvPrefix = "MT_MOVIE_PROVIDER_PRIORITY_"
@@ -45,8 +46,8 @@ type Engine struct {
 func New(db *gorm.DB, opts ...Option) *Engine {
 	engine := &Engine{
 		db:      db,
-		name:    defaultEngineName,
-		timeout: defaultRequestTimeout,
+		name:    DefaultEngineName,
+		timeout: DefaultRequestTimeout,
 	}
 	// apply options
 	for _, opt := range opts {
@@ -60,7 +61,7 @@ func Default() *Engine {
 		DSN:                  "",
 		DisableAutomaticPing: true,
 	})
-	engine := New(db, WithRequestTimeout(time.Minute))
+	engine := New(db)
 	defer engine.AutoMigrate(true)
 	return engine
 }

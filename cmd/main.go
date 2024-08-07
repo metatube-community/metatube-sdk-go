@@ -46,16 +46,16 @@ type config struct {
 }
 
 func init() {
-	// gin initiate
+	// gin init
 	gin.DisableConsoleColor()
 
 	// flag parsing
 	flag.StringVar(&cfg.bind, "bind", "", "Bind address of server")
 	flag.StringVar(&cfg.port, "port", "8080", "Port number of server")
-	flag.StringVar(&cfg.name, "name", "", "Application name of server")
 	flag.StringVar(&cfg.token, "token", "", "Token to access server")
 	flag.StringVar(&cfg.dsn, "dsn", "", "Database Service Name")
-	flag.DurationVar(&cfg.requestTimeout, "request-timeout", time.Minute, "Timeout per request")
+	flag.StringVar(&cfg.name, "name", engine.DefaultEngineName, "Application name of server")
+	flag.DurationVar(&cfg.requestTimeout, "request-timeout", engine.DefaultRequestTimeout, "Timeout per request")
 	flag.IntVar(&cfg.dbMaxIdleConns, "db-max-idle-conns", 0, "Database max idle connections")
 	flag.IntVar(&cfg.dbMaxOpenConns, "db-max-open-conns", 0, "Database max open connections")
 	flag.BoolVar(&cfg.dbAutoMigrate, "db-auto-migrate", false, "Database auto migration")
@@ -81,18 +81,20 @@ func Router() *gin.Engine {
 		log.Fatal(err)
 	}
 
-	// always enable auto migrate for sqlite DB.
+	// always enable auto migrate for sqlite DB
 	if db.Config.Dialector.Name() == database.Sqlite {
 		cfg.dbAutoMigrate = true
 	}
 
+	// engine options
 	var opts []engine.Option
 
-	// timeout must >= 1 second.
+	// timeout must >= 1 second
 	if cfg.requestTimeout >= time.Second {
 		opts = append(opts, engine.WithRequestTimeout(cfg.requestTimeout))
 	}
 
+	// specify engine name
 	if cfg.name != "" {
 		opts = append(opts, engine.WithEngineName(cfg.name))
 	}
