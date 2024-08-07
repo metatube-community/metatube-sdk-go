@@ -89,7 +89,7 @@ func Router() *gin.Engine {
 	app := engine.New(db, opts.requestTimeout)
 
 	// always enable auto migrate for sqlite DB.
-	if app.DBName() == database.Sqlite {
+	if app.DBType() == database.Sqlite {
 		opts.dbAutoMigrate = true
 	}
 	if err = app.DBAutoMigrate(opts.dbAutoMigrate); err != nil {
