@@ -17,12 +17,20 @@ import (
 )
 
 const (
+	DefaultEngineName     = "metatube"
+	DefaultRequestTimeout = time.Minute
+)
+
+// Special environment prefixes for setting provider priorities.
+const (
 	ActorProviderPriorityEnvPrefix = "MT_ACTOR_PROVIDER_PRIORITY_"
 	MovieProviderPriorityEnvPrefix = "MT_MOVIE_PROVIDER_PRIORITY_"
 )
 
 type Engine struct {
 	db      *gorm.DB
+	name    string
+	timeout time.Duration
 	fetcher *fetch.Fetcher
 	// Engine Logger
 	logger *zap.SugaredLogger
@@ -34,17 +42,17 @@ type Engine struct {
 	movieHostProviders map[string][]mt.MovieProvider
 }
 
-func New(db *gorm.DB, timeout time.Duration) *Engine {
+func New(db *gorm.DB, opts ...Option) *Engine {
 	engine := &Engine{
 		db:      db,
-		fetcher: fetch.Default(&fetch.Config{Timeout: timeout}),
+		name:    DefaultEngineName,
+		timeout: DefaultRequestTimeout,
 	}
-	logger, _ := zap.NewProduction()
-	engine.logger = logger.Sugar()
-	engine.initActorProviders(timeout)
-	engine.initMovieProviders(timeout)
-	engine.initAllProviderPriorities()
-	return engine
+	// apply options
+	for _, opt := range opts {
+		opt(engine)
+	}
+	return engine.init()
 }
 
 func Default() *Engine {
@@ -52,9 +60,21 @@ func Default() *Engine {
 		DSN:                  "",
 		DisableAutomaticPing: true,
 	})
-	engine := New(db, time.Minute)
+	engine := New(db)
 	defer engine.DBAutoMigrate(true)
 	return engine
+}
+
+func (e *Engine) init() *Engine {
+	logger, _ := zap.NewProduction()
+	e.logger = logger.Sugar()
+	e.fetcher = fetch.Default(&fetch.Config{
+		Timeout: e.timeout,
+	})
+	e.initActorProviders(e.timeout)
+	e.initMovieProviders(e.timeout)
+	e.initAllProviderPriorities()
+	return e
 }
 
 func (e *Engine) initAllProviderPriorities() {
@@ -208,4 +228,9 @@ func (e *Engine) Fetch(url string, provider mt.Provider) (*http.Response, error)
 		return fetcher.Fetch(url)
 	}
 	return e.fetcher.Fetch(url)
+}
+
+// String returns the name of the Engine instance.
+func (e *Engine) String() string {
+	return e.name
 }

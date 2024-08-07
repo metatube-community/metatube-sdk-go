@@ -27,7 +27,7 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 	r.Use(redirect(app))
 
 	// index page
-	r.GET("/", getIndex())
+	r.GET("/", getIndex(app))
 
 	public := r.Group("/v1")
 	{
@@ -92,17 +92,13 @@ func notAllowed() gin.HandlerFunc {
 	}
 }
 
-func getIndex() gin.HandlerFunc {
-	data := gin.H{
-		"app":     "metatube",
-		"version": V.Version,
-	}
-	if V.GitCommit != V.Unknown {
-		data["commit"] = V.GitCommit
-	}
+func getIndex(app *engine.Engine) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, &responseMessage{
-			Data: data,
+			Data: gin.H{
+				"app":     app.String(),
+				"version": V.BuildString(),
+			},
 		})
 	}
 }
