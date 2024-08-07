@@ -37,5 +37,8 @@ func init() {
 
 // BuildString returns hyphen joined version and commit string.
 func BuildString() string {
+	if GitCommit == Unknown {
+		return Version
+	}
 	return fmt.Sprintf("v%s-%s", Version, GitCommit)
 }
