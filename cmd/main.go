@@ -23,7 +23,6 @@ var config = &struct {
 	// main config
 	bind  string
 	port  string
-	name  string
 	token string
 	dsn   string
 
@@ -52,7 +51,6 @@ func init() {
 	flag.StringVar(&config.port, "port", "8080", "Port number of server")
 	flag.StringVar(&config.token, "token", "", "Token to access server")
 	flag.StringVar(&config.dsn, "dsn", "", "Database Service Name")
-	flag.StringVar(&config.name, "name", engine.DefaultEngineName, "Application name of server")
 	flag.DurationVar(&config.requestTimeout, "request-timeout", engine.DefaultRequestTimeout, "Timeout per request")
 	flag.IntVar(&config.dbMaxIdleConns, "db-max-idle-conns", 0, "Database max idle connections")
 	flag.IntVar(&config.dbMaxOpenConns, "db-max-open-conns", 0, "Database max open connections")
@@ -67,7 +65,7 @@ func showVersionAndExit() {
 	os.Exit(0)
 }
 
-func Router() *gin.Engine {
+func Engine(name string) *gin.Engine {
 	db, err := database.Open(&database.Config{
 		DSN:                  config.dsn,
 		PreparedStmt:         config.dbPreparedStmt,
@@ -88,8 +86,8 @@ func Router() *gin.Engine {
 	}
 
 	// specify engine name
-	if config.name != "" {
-		opts = append(opts, engine.WithEngineName(config.name))
+	if name != "" {
+		opts = append(opts, engine.WithEngineName(name))
 	}
 
 	app := engine.New(db, opts...)
@@ -117,10 +115,10 @@ func Main() {
 	}
 
 	var (
-		addr   = net.JoinHostPort(config.bind, config.port)
-		router = Router()
+		addr    = net.JoinHostPort(config.bind, config.port)
+		handler = Engine(engine.DefaultEngineName)
 	)
-	if err := http.ListenAndServe(addr, router); err != nil {
+	if err := http.ListenAndServe(addr, handler); err != nil {
 		log.Fatal(err)
 	}
 }
