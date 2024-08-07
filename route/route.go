@@ -35,6 +35,8 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 
 		public.GET("/providers", getProviders(app))
 
+		public.GET("/db/version", getDBVersion(app))
+
 		images := public.Group("/images")
 		{
 			images.GET("/primary/:provider/:id", getImage(app, primaryImageType))
