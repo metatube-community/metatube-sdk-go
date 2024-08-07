@@ -35,8 +35,6 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 
 		public.GET("/providers", getProviders(app))
 
-		public.GET("/db/version", getDBVersion(app))
-
 		images := public.Group("/images")
 		{
 			images.GET("/primary/:provider/:id", getImage(app, primaryImageType))
@@ -47,6 +45,11 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 
 	private := r.Group("/v1", authentication(v))
 	{
+		db := private.Group("/db")
+		{
+			db.GET("/version", getDBVersion(app))
+		}
+
 		actors := private.Group("/actors")
 		{
 			actors.GET("/:provider/:id", getInfo(app, actorInfoType))
