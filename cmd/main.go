@@ -65,7 +65,7 @@ func showVersionAndExit() {
 	os.Exit(0)
 }
 
-func Engine(name string) *gin.Engine {
+func Router(names ...string) *gin.Engine {
 	db, err := database.Open(&database.Config{
 		DSN:                  config.dsn,
 		PreparedStmt:         config.dbPreparedStmt,
@@ -86,7 +86,7 @@ func Engine(name string) *gin.Engine {
 	}
 
 	// specify engine name
-	if name != "" {
+	for _, name := range names {
 		opts = append(opts, engine.WithEngineName(name))
 	}
 
@@ -115,10 +115,10 @@ func Main() {
 	}
 
 	var (
-		addr    = net.JoinHostPort(config.bind, config.port)
-		handler = Engine(engine.DefaultEngineName)
+		addr   = net.JoinHostPort(config.bind, config.port)
+		router = Router(engine.DefaultEngineName)
 	)
-	if err := http.ListenAndServe(addr, handler); err != nil {
+	if err := http.ListenAndServe(addr, router); err != nil {
 		log.Fatal(err)
 	}
 }
