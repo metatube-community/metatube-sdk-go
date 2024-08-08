@@ -139,7 +139,7 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 		results = append(results, resp.Results...)
 	}
 
-	e.logger.Infof("Search keyword %s: | %s |", keyword, strings.Join(ds, " | "))
+	e.logger.Infof("Search keyword %s: %s", keyword, strings.Join(ds, " | "))
 	return
 }
 

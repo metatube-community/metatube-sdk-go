@@ -66,15 +66,19 @@ func Default() *Engine {
 }
 
 func (e *Engine) init() *Engine {
-	logger, _ := zap.NewProduction()
-	e.logger = logger.Sugar()
-	e.fetcher = fetch.Default(&fetch.Config{
-		Timeout: e.timeout,
-	})
+	e.fetcher = fetch.Default(&fetch.Config{Timeout: e.timeout})
+	e.initLogger()
 	e.initActorProviders(e.timeout)
 	e.initMovieProviders(e.timeout)
 	e.initAllProviderPriorities()
 	return e
+}
+
+func (e *Engine) initLogger() {
+	logConf := zap.NewProductionConfig()
+	logConf.Encoding = "console"
+	logger, _ := logConf.Build()
+	e.logger = logger.Sugar()
 }
 
 func (e *Engine) initAllProviderPriorities() {
