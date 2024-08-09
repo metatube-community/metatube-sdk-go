@@ -6,6 +6,7 @@ import (
 	"image/jpeg"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
@@ -49,6 +50,8 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 	default:
 		panic("invalid image type")
 	}
+
+	setCacheControl := cacheControl(24 * time.Hour)
 
 	return func(c *gin.Context) {
 		uri := &imageUri{}
@@ -131,14 +134,11 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 			panic(err)
 		}
 
+		setCacheControl(c)
 		c.Render(http.StatusOK, render.Reader{
 			ContentType:   jpegImageMIMEType,
 			ContentLength: int64(buf.Len()),
 			Reader:        buf,
-			Headers: map[string]string{
-				// should be cached for a week.
-				"Cache-Control": "max-age=604800, public",
-			},
 		})
 	}
 }

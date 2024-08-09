@@ -4,10 +4,8 @@ import (
 	goerr "errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	cachecontrol "go.eigsys.de/gin-cachecontrol/v2"
 
 	"github.com/metatube-community/metatube-sdk-go/engine"
 	"github.com/metatube-community/metatube-sdk-go/errors"
@@ -37,11 +35,7 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 
 		public.GET("/providers", getProviders(app))
 
-		images := public.Group("/images",
-			cachecontrol.New(cachecontrol.Config{
-				Public: true,
-				MaxAge: cachecontrol.Duration(30 * time.Minute),
-			}))
+		images := public.Group("/images")
 		{
 			images.GET("/primary/:provider/:id", getImage(app, primaryImageType))
 			images.GET("/thumb/:provider/:id", getImage(app, thumbImageType))
