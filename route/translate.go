@@ -3,8 +3,10 @@ package route
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	cachecontrol "go.eigsys.de/gin-cachecontrol/v2"
 
 	"github.com/metatube-community/metatube-sdk-go/translate"
 )
@@ -40,6 +42,14 @@ type translateQuery struct {
 }
 
 func getTranslate() gin.HandlerFunc {
+
+	setCacheControl := cachecontrol.New(cachecontrol.Config{
+		Public: true,
+		// It's planned to cache translation data for a long
+		// time, especially behind a CDN.
+		SMaxAge: cachecontrol.Duration(30 * 24 * time.Hour),
+	})
+
 	return func(c *gin.Context) {
 		query := &translateQuery{
 			From: "auto",
@@ -77,6 +87,7 @@ func getTranslate() gin.HandlerFunc {
 			return
 		}
 
+		setCacheControl(c)
 		c.JSON(http.StatusOK, &responseMessage{
 			Data: gin.H{
 				"from":            query.From,
