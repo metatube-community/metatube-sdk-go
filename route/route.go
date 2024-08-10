@@ -33,7 +33,7 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 	public := r.Group("/v1",
 		// It's planned to cache public data for
 		// a long time, especially behind a CDN.
-		cachePublicSMaxAge(30*24*time.Hour))
+		cachePublicSMaxAge(180*24*time.Hour))
 	{
 		public.GET("/providers",
 			cacheNoStore(),
