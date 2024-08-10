@@ -35,11 +35,11 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 		// a long time, especially behind a CDN.
 		cachePublicSMaxAge(30*24*time.Hour))
 	{
-		public.GET("/translate", getTranslate())
-
 		public.GET("/providers",
 			cacheNoStore(),
 			getProviders(app))
+
+		public.GET("/translate", getTranslate())
 
 		images := public.Group("/images")
 		{
@@ -49,7 +49,7 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 		}
 	}
 
-	private := r.Group("/v1", authentication(v), cachePublicSMaxAge(5*time.Minute))
+	private := r.Group("/v1", authentication(v))
 	{
 		db := private.Group("/db", cacheNoStore())
 		{
