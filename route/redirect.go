@@ -23,12 +23,12 @@ func redirect(app *engine.Engine) gin.HandlerFunc {
 			m, _ := parseQuery(c.Request.URL.RawQuery)
 			return m.Get(key)
 		}
-		if red := getQuery(queryKey); red != "" {
+		if redir := getQuery(queryKey); redir != "" {
 			var (
 				provider string
 				id       string
 			)
-			if ss := strings.Split(red, separator); len(ss) > 1 {
+			if ss := strings.Split(redir, separator); len(ss) > 1 {
 				provider, id = ss[0], ss[1]
 			}
 
