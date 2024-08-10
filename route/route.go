@@ -4,6 +4,7 @@ import (
 	goerr "errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -29,11 +30,16 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 	// index page
 	r.GET("/", getIndex(app))
 
-	public := r.Group("/v1")
+	public := r.Group("/v1",
+		// It's planned to cache public data for
+		// a long time, especially behind a CDN.
+		cachePublicSMaxAge(180*24*time.Hour))
 	{
-		public.GET("/translate", getTranslate())
+		public.GET("/providers",
+			cacheNoStore(),
+			getProviders(app))
 
-		public.GET("/providers", getProviders(app))
+		public.GET("/translate", getTranslate())
 
 		images := public.Group("/images")
 		{

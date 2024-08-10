@@ -135,10 +135,6 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 			ContentType:   jpegImageMIMEType,
 			ContentLength: int64(buf.Len()),
 			Reader:        buf,
-			Headers: map[string]string{
-				// should be cached for a week.
-				"Cache-Control": "max-age=604800, public",
-			},
 		})
 	}
 }
