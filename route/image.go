@@ -6,11 +6,9 @@ import (
 	"image/jpeg"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
-	cachecontrol "go.eigsys.de/gin-cachecontrol/v2"
 
 	R "github.com/metatube-community/metatube-sdk-go/constant"
 	"github.com/metatube-community/metatube-sdk-go/engine"
@@ -51,11 +49,6 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 	default:
 		panic("invalid image type")
 	}
-
-	setCacheControl := cachecontrol.New(cachecontrol.Config{
-		Public:  true,
-		SMaxAge: cachecontrol.Duration(7 * 24 * time.Hour),
-	})
 
 	return func(c *gin.Context) {
 		uri := &imageUri{}
@@ -138,7 +131,6 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 			panic(err)
 		}
 
-		setCacheControl(c)
 		c.Render(http.StatusOK, render.Reader{
 			ContentType:   jpegImageMIMEType,
 			ContentLength: int64(buf.Len()),
