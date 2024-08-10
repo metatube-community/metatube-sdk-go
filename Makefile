@@ -134,7 +134,7 @@ all-arch: $(UNIX_ARCH_LIST) $(WINDOWS_ARCH_LIST)
 releases: $(unix_releases) $(windows_releases)
 
 lint:
-	golangci-lint run --disable-all -E govet -E gofumpt -E megacheck ./...
+	golangci-lint run ./...
 
 clean:
 	rm -rf $(BUILD_DIR)
