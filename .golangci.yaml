@@ -22,5 +22,3 @@ linters-settings:
       - standard
       - default
       - prefix(github.com/metatube-community/metatube-sdk-go)
-  staticcheck:
-    go: '1.21'
