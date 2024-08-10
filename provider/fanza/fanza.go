@@ -580,9 +580,9 @@ func parseActors(n *html.Node, texts *[]string) {
 }
 
 func isRegionError(r *colly.Response) bool {
-	const accountDomain = "accounts.dmm.co.jp"
+	const accountsDomain = "accounts.dmm.co.jp"
 	if strings.Contains(r.Request.URL.Path, regionNotAvailable) ||
-		strings.Contains(r.Request.URL.Host, accountDomain) {
+		strings.Contains(r.Request.URL.Host, accountsDomain) {
 		return true
 	}
 	return false
