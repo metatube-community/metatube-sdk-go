@@ -91,7 +91,7 @@ func (fz *FANZA) getHomepagesByID(id string) []string {
 
 func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	for _, homepage := range fz.getHomepagesByID(id) {
-		if info, err = fz.GetMovieInfoByURL(homepage); err == nil && info.Valid() {
+		if info, err = fz.GetMovieInfoByURL(homepage); errors.Is(err, ErrRegionNotAvailable) || err == nil && info.Valid() {
 			return
 		}
 	}
@@ -408,7 +408,15 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		}
 	})
 
-	err = c.Visit(info.Homepage)
+	c.OnScraped(func(r *colly.Response) {
+		if !info.Valid() && isRegionError(r) {
+			err = ErrRegionNotAvailable
+		}
+	})
+
+	if vErr := c.Visit(info.Homepage); vErr != nil {
+		err = vErr
+	}
 	return
 }
 
@@ -485,7 +493,7 @@ func (fz *FANZA) searchMovie(keyword string) (results []*model.MovieSearchResult
 	})
 
 	c.OnScraped(func(r *colly.Response) {
-		if strings.Contains(r.Request.URL.Path, regionNotAvailable) {
+		if isRegionError(r) {
 			err = ErrRegionNotAvailable
 		}
 	})
@@ -569,6 +577,15 @@ func parseActors(n *html.Node, texts *[]string) {
 	next:
 		continue
 	}
+}
+
+func isRegionError(r *colly.Response) bool {
+	const accountDomain = "accounts.dmm.co.jp"
+	if strings.Contains(r.Request.URL.Path, regionNotAvailable) ||
+		strings.Contains(r.Request.URL.Host, accountDomain) {
+		return true
+	}
+	return false
 }
 
 func (fz *FANZA) parseScoreFromURL(s string) float64 {
