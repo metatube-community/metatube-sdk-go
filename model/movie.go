@@ -74,9 +74,6 @@ type MovieInfo struct {
 	Director string         `json:"director"`
 	Actors   pq.StringArray `json:"actors" gorm:"type:text[]"`
 
-	// This field is optional and shouldn't be used by GORM.
-	ActorDetails []*ActorInfo `json:"actor_details,omitempty" gorm:"-:all"`
-
 	ThumbURL           string         `json:"thumb_url"`
 	BigThumbURL        string         `json:"big_thumb_url"`
 	CoverURL           string         `json:"cover_url"`
