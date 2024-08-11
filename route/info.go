@@ -1,11 +1,18 @@
 package route
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/metatube-community/metatube-sdk-go/engine"
+	"github.com/metatube-community/metatube-sdk-go/model"
+	"github.com/metatube-community/metatube-sdk-go/plugin"
+	// register plugins
+	_ "github.com/metatube-community/metatube-sdk-go/plugin/actorinfo"
+	_ "github.com/metatube-community/metatube-sdk-go/plugin/movieinfo"
 )
 
 type infoType uint8
@@ -21,7 +28,8 @@ type infoUri struct {
 }
 
 type infoQuery struct {
-	Lazy bool `form:"lazy"`
+	Lazy    bool   `form:"lazy"`
+	Plugins string `form:"plugins"`
 }
 
 func getInfo(app *engine.Engine, typ infoType) gin.HandlerFunc {
@@ -39,10 +47,14 @@ func getInfo(app *engine.Engine, typ infoType) gin.HandlerFunc {
 			return
 		}
 
-		var (
-			info any
-			err  error
-		)
+		// parse plugins.
+		plugins, err := parsePlugins(typ, query.Plugins)
+		if err != nil {
+			abortWithStatusMessage(c, http.StatusBadRequest, err)
+			return
+		}
+
+		var info any
 		switch typ {
 		case actorInfoType:
 			info, err = app.GetActorInfoByProviderID(uri.Provider, uri.ID, query.Lazy)
@@ -56,6 +68,39 @@ func getInfo(app *engine.Engine, typ infoType) gin.HandlerFunc {
 			return
 		}
 
+		// apply plugins.
+		for _, apply := range plugins {
+			switch typ {
+			case actorInfoType:
+				apply.(plugin.ActorInfoPlugin)(app, info.(*model.ActorInfo))
+			case movieInfoType:
+				apply.(plugin.MovieInfoPlugin)(app, info.(*model.MovieInfo))
+			}
+		}
+
 		c.JSON(http.StatusOK, &responseMessage{Data: info})
 	}
+}
+
+func parsePlugins(typ infoType, raw string) (plugins []any, err error) {
+	for _, name := range strings.Split(raw, ",") {
+		if name = strings.TrimSpace(name); name != "" {
+			var (
+				pl any
+				ok bool
+			)
+			switch typ {
+			case actorInfoType:
+				pl, ok = plugin.LookupActorInfoPlugin(name)
+			case movieInfoType:
+				pl, ok = plugin.LookupMovieInfoPlugin(name)
+			}
+			if !ok {
+				err = fmt.Errorf("unsupported plugin: %s", name)
+				return
+			}
+			plugins = append(plugins, pl)
+		}
+	}
+	return
 }

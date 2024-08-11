@@ -33,6 +33,14 @@ func (e *Engine) searchActorFromDB(keyword string, provider mt.Provider) (result
 	return
 }
 
+func (e *Engine) SearchActorFromDB(keyword, name string) (results []*model.ActorSearchResult, err error) {
+	provider, err := e.GetMovieProviderByName(name)
+	if err != nil {
+		return nil, err
+	}
+	return e.searchActorFromDB(keyword, provider)
+}
+
 func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool) ([]*model.ActorSearchResult, error) {
 	innerSearch := func(keyword string) (results []*model.ActorSearchResult, err error) {
 		if provider.Name() == gfriends.Name {

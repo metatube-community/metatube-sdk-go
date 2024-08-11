@@ -30,9 +30,10 @@ func (m *MovieSearchResult) Valid() bool {
 }
 
 type MovieReviewInfo struct {
-	ID       string                                   `json:"id" gorm:"primaryKey"`
-	Provider string                                   `json:"provider" gorm:"primaryKey"`
-	Reviews  datatypes.JSONType[[]*MovieReviewDetail] `json:"reviews"`
+	ID          string                                   `json:"id" gorm:"primaryKey"`
+	Provider    string                                   `json:"provider" gorm:"primaryKey"`
+	Reviews     datatypes.JSONType[[]*MovieReviewDetail] `json:"reviews"`
+	TimeTracker `json:"-"`
 }
 
 func (*MovieReviewInfo) TableName() string {
@@ -73,6 +74,10 @@ type MovieInfo struct {
 
 	Director string         `json:"director"`
 	Actors   pq.StringArray `json:"actors" gorm:"type:text[]"`
+
+	// These fields are optional and shouldn't be used by GORM.
+	ActorDetails []*ActorInfo         `json:"actor_details,omitempty" gorm:"-:all"`
+	Reviews      []*MovieReviewDetail `json:"reviews,omitempty" gorm:"-:all"`
 
 	ThumbURL           string         `json:"thumb_url"`
 	BigThumbURL        string         `json:"big_thumb_url"`

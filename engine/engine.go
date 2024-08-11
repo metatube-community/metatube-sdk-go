@@ -144,6 +144,11 @@ func (e *Engine) Fetch(url string, provider mt.Provider) (*http.Response, error)
 	return e.fetcher.Fetch(url)
 }
 
+// Logger returns the logger of the Engine instance.
+func (e *Engine) Logger() *zap.SugaredLogger {
+	return e.logger
+}
+
 // String returns the name of the Engine instance.
 func (e *Engine) String() string {
 	return e.name
