@@ -10,9 +10,8 @@ import (
 func TestDAHLIA_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
-		"dldss265",
-		"DLDSS264",
-		"dldss087",
+		"dldss339",
+		"DLDSS327",
 	} {
 		info, err := provider.GetMovieInfoByID(item)
 		data, _ := json.MarshalIndent(info, "", "\t")
