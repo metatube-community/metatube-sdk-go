@@ -65,11 +65,9 @@ func Open(cfg *Config) (db *gorm.DB, err error) {
 			SlowThreshold:             100 * time.Millisecond,
 			LogLevel:                  logger.Info,
 			IgnoreRecordNotFoundError: false,
+			ParameterizedQueries:      false,
 			Colorful:                  false,
 		}),
-		NowFunc: func() time.Time {
-			return time.Now().UTC()
-		},
 		PrepareStmt:          cfg.PreparedStmt,
 		DisableAutomaticPing: cfg.DisableAutomaticPing,
 	})
