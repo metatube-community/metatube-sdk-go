@@ -20,7 +20,7 @@ func (e *Engine) searchMovieFromDB(keyword string, provider mt.MovieProvider, al
 	var infos []*model.MovieInfo
 	tx := e.db.
 		// Note: keyword might be an ID or just a regular number, so we should
-		// query both of them for best match. Also, case should not mater.
+		// query both of them for best match. Also, case should not matter.
 		Where("number = ? COLLATE NOCASE", keyword).
 		Or("id = ? COLLATE NOCASE", keyword)
 	if all {
