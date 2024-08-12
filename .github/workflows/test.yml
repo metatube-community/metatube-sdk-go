@@ -25,4 +25,5 @@ jobs:
 
       - name: Run test
         run: |
+          go version
           go test $(go list ./... | grep -Ev "github.com/metatube-community/metatube-sdk-go/(provider|translate)")
