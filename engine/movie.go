@@ -57,7 +57,7 @@ func (e *Engine) searchMovie(keyword string, provider mt.MovieProvider, fallback
 					// overwrite error.
 					err = nil
 					// update results.
-					msr := utils.NewMovieSearchResultSet()
+					msr := utils.NewSearchResultSet[*model.MovieSearchResult]()
 					msr.Add(results...)
 					msr.Add(innerResults...)
 					results = msr.Results()
@@ -158,7 +158,7 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			return
 		}
 		// remove duplicate results, if any.
-		msr := utils.NewMovieSearchResultSet()
+		msr := utils.NewSearchResultSet[*model.MovieSearchResult]()
 		msr.Add(results...)
 		results = msr.Results()
 		// post-processing
