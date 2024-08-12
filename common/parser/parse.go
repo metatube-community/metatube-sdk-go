@@ -134,3 +134,7 @@ func ParseIDToNumber(s string) string {
 	}
 	return s
 }
+
+func ParseProviderID(s string) string {
+	return regexp.MustCompile(`:[0|1](\.\d+)?$`).ReplaceAllString(s, "")
+}
