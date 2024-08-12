@@ -11,30 +11,17 @@ on:
   pull_request:
 
 jobs:
-  build-test:
-    name: Build Test
+  go-test:
+    name: Go Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          check-latest: true
           go-version-file: 'go.mod'
-
-      - name: Cache go module
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
 
       - name: Run test
         run: |
