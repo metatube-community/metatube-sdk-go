@@ -1,7 +1,6 @@
 package route
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -19,17 +18,15 @@ func redirect(app *engine.Engine) gin.HandlerFunc {
 		queryKey  = "redirect"
 	)
 	return func(c *gin.Context) {
-		getQuery := func(key string) (value string) {
-			m, _ := parseQuery(c.Request.URL.RawQuery)
-			return m.Get(key)
-		}
-		if redir := getQuery(queryKey); redir != "" {
+		if redir := c.Query(queryKey); redir != "" {
 			var (
 				provider string
 				id       string
 			)
-			if ss := strings.Split(redir, separator); len(ss) > 1 {
-				provider, id = ss[0], ss[1]
+			provider, id, found := strings.Cut(redir, separator)
+			if !found {
+				abortWithStatusMessage(c, http.StatusBadRequest, "invalid provider id")
+				return
 			}
 
 			var (
@@ -69,29 +66,4 @@ func redirect(app *engine.Engine) gin.HandlerFunc {
 		}
 		c.Next()
 	}
-}
-
-func parseQuery(query string) (m url.Values, err error) {
-	m = make(url.Values)
-	for query != "" {
-		var key string
-		key, query, _ = strings.Cut(query, "&")
-		if strings.Contains(key, ";") {
-			err = fmt.Errorf("invalid semicolon separator in query")
-			continue
-		}
-		if key == "" {
-			continue
-		}
-		key, value, _ := strings.Cut(key, "=")
-		key, err1 := url.QueryUnescape(key)
-		if err1 != nil {
-			if err == nil {
-				err = err1
-			}
-			continue
-		}
-		m[key] = append(m[key], value)
-	}
-	return m, err
 }
