@@ -18,12 +18,12 @@ import (
 )
 
 var (
-	_ provider.ActorProvider = (*GFriends)(nil)
-	_ provider.ActorSearcher = (*GFriends)(nil)
+	_ provider.ActorProvider = (*Gfriends)(nil)
+	_ provider.ActorSearcher = (*Gfriends)(nil)
 )
 
 const (
-	Name     = "GFriends"
+	Name     = "Gfriends"
 	Priority = 1000 - 1
 )
 
@@ -40,23 +40,23 @@ var (
 	_fetcher = fetch.Default(nil)
 )
 
-type GFriends struct {
+type Gfriends struct {
 	priority *atomic.Int64
 }
 
-func New() *GFriends { return &GFriends{atomic.NewInt64(Priority)} }
+func New() *Gfriends { return &Gfriends{atomic.NewInt64(Priority)} }
 
-func (gf *GFriends) Name() string { return Name }
+func (gf *Gfriends) Name() string { return Name }
 
-func (gf *GFriends) Priority() int64 { return gf.priority.Load() }
+func (gf *Gfriends) Priority() int64 { return gf.priority.Load() }
 
-func (gf *GFriends) SetPriority(v int64) { gf.priority.Store(v) }
+func (gf *Gfriends) SetPriority(v int64) { gf.priority.Store(v) }
 
-func (gf *GFriends) URL() *url.URL { return _baseURL }
+func (gf *Gfriends) URL() *url.URL { return _baseURL }
 
-func (gf *GFriends) NormalizeActorID(id string) string { return id /* AS IS */ }
+func (gf *Gfriends) NormalizeActorID(id string) string { return id /* AS IS */ }
 
-func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
+func (gf *Gfriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
 	images, err := defaultFileTree.query(id)
 	if len(images) == 0 {
 		if err != nil {
@@ -74,7 +74,7 @@ func (gf *GFriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
 	}, nil
 }
 
-func (gf *GFriends) formatURL(id string) string {
+func (gf *Gfriends) formatURL(id string) string {
 	u, _ := url.Parse(baseURL)
 	q := u.Query()
 	q.Set(gFriendsID, id)
@@ -82,7 +82,7 @@ func (gf *GFriends) formatURL(id string) string {
 	return u.String()
 }
 
-func (gf *GFriends) ParseActorIDFromURL(rawURL string) (string, error) {
+func (gf *Gfriends) ParseActorIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
@@ -90,7 +90,7 @@ func (gf *GFriends) ParseActorIDFromURL(rawURL string) (string, error) {
 	return homepage.Query().Get(gFriendsID), nil
 }
 
-func (gf *GFriends) GetActorInfoByURL(u string) (*model.ActorInfo, error) {
+func (gf *Gfriends) GetActorInfoByURL(u string) (*model.ActorInfo, error) {
 	id, err := gf.ParseActorIDFromURL(u)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func (gf *GFriends) GetActorInfoByURL(u string) (*model.ActorInfo, error) {
 	return gf.GetActorInfoByID(id)
 }
 
-func (gf *GFriends) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
+func (gf *Gfriends) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
 	var info *model.ActorInfo
 	if info, err = gf.GetActorInfoByID(keyword); err == nil && info.Valid() {
 		results = []*model.ActorSearchResult{info.ToSearchResult()}
