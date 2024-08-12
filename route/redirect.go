@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/engine"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
@@ -19,12 +20,10 @@ func redirect(app *engine.Engine) gin.HandlerFunc {
 	)
 	return func(c *gin.Context) {
 		if redir := c.Query(queryKey); redir != "" {
-			var (
-				provider string
-				id       string
-			)
-			provider, id, found := strings.Cut(redir, separator)
-			if !found {
+			provider, id, found := strings.Cut(
+				parser.ParseProviderID(redir),
+				separator)
+			if !found || id == "" {
 				abortWithStatusMessage(c, http.StatusBadRequest, "invalid provider id")
 				return
 			}
