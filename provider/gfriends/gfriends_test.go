@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGFriends_GetActorInfoByID(t *testing.T) {
+func TestGfriends_GetActorInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"小澤マリア",
@@ -22,7 +22,7 @@ func TestGFriends_GetActorInfoByID(t *testing.T) {
 	}
 }
 
-func TestGFriends_GetActorInfoByURL(t *testing.T) {
+func TestGfriends_GetActorInfoByURL(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"https://github.com/gfriends/gfriends?gfriends-id=%E5%B0%8F%E6%9D%BE%E5%87%9B%E8%8A%B1",
@@ -35,7 +35,7 @@ func TestGFriends_GetActorInfoByURL(t *testing.T) {
 	}
 }
 
-func TestGFriends_SearchActor(t *testing.T) {
+func TestGfriends_SearchActor(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"美竹すず",
