@@ -139,7 +139,7 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 		results = append(results, resp.Results...)
 	}
 
-	e.logger.Infof("Search keyword %s: %s", keyword, strings.Join(ds, " | "))
+	e.logger.Printf("Search keyword %s: %s", keyword, strings.Join(ds, " | "))
 	return
 }
 
@@ -168,7 +168,7 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 				continue
 			}
 			if _, err := e.GetMovieProviderByName(result.Provider); err != nil {
-				e.logger.Warnf("ignore provider %s as not found", result.Provider)
+				e.logger.Printf("ignore provider %s as not found", result.Provider)
 				continue
 			}
 			ps.Append(comparer.Compare(keyword, result.Number)*float64(e.MustGetMovieProviderByName(result.Provider).Priority()), result)
