@@ -1,7 +1,6 @@
 package imageutil
 
 // Register Formats
-
 import (
 	_ "image/gif"
 	_ "image/jpeg"

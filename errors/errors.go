@@ -12,6 +12,7 @@ type HTTPError struct {
 	Message string `json:"message"`
 }
 
+// Error implements the error interface and returns a string.
 func (e *HTTPError) Error() string {
 	if e.Message != "" {
 		return e.Message
