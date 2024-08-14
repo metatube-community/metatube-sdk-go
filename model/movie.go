@@ -30,9 +30,10 @@ func (m *MovieSearchResult) Valid() bool {
 }
 
 type MovieReviewInfo struct {
-	ID       string                                   `json:"id" gorm:"primaryKey"`
-	Provider string                                   `json:"provider" gorm:"primaryKey"`
-	Reviews  datatypes.JSONType[[]*MovieReviewDetail] `json:"reviews"`
+	ID          string                                   `json:"id" gorm:"primaryKey"`
+	Provider    string                                   `json:"provider" gorm:"primaryKey"`
+	Reviews     datatypes.JSONType[[]*MovieReviewDetail] `json:"reviews"`
+	TimeTracker `json:"-"`
 }
 
 func (*MovieReviewInfo) TableName() string {
