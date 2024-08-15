@@ -30,15 +30,17 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 	// index page
 	r.GET("/", getIndex(app))
 
+	system := r.Group("/v1", cacheNoStore())
+	{
+		system.GET("/modules", getModules())
+		system.GET("/providers", getProviders(app))
+	}
+
 	public := r.Group("/v1",
 		// It's planned to cache public data for
 		// a long time, especially behind a CDN.
 		cachePublicSMaxAge(180*24*time.Hour))
 	{
-		public.GET("/providers",
-			cacheNoStore(),
-			getProviders(app))
-
 		public.GET("/translate", getTranslate())
 
 		images := public.Group("/images")
@@ -108,6 +110,14 @@ func getIndex(app *engine.Engine) gin.HandlerFunc {
 				"app":     app.String(),
 				"version": V.BuildString(),
 			},
+		})
+	}
+}
+
+func getModules() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"modules": V.Modules(),
 		})
 	}
 }

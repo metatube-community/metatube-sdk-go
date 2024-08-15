@@ -2,7 +2,6 @@ package version
 
 import (
 	"fmt"
-	"runtime/debug"
 )
 
 // Unknown is the default value for Version or GitCommit
@@ -20,8 +19,7 @@ func version() string {
 	const (
 		module = "github.com/metatube-community/metatube-sdk-go"
 	)
-	bi, _ := debug.ReadBuildInfo()
-	for _, mod := range bi.Deps {
+	for _, mod := range Modules() {
 		if mod.Path == module {
 			return mod.Version
 		}
