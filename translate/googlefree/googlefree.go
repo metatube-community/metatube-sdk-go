@@ -33,9 +33,12 @@ func Translate(q, source, target string) (string, error) {
 }
 
 func init() {
-	translate.Register("googlefree", func(text, from, to string, _ any) (string, error) {
-		return Translate(text, from, to)
-	}, func() any {
-		return struct{}{}
-	})
+	translate.Register("googlefree",
+		func(text, from, to string, _ struct{}) (string, error) {
+			return Translate(text, from, to)
+		},
+		func() struct{} {
+			return struct{}{}
+		},
+	)
 }

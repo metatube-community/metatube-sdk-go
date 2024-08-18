@@ -19,6 +19,7 @@ type (
 	buildConfig[T any]   func(decode decoderFunc) (T, error)
 )
 
+// A translator holds a translator's name, translate func and how to build the config.
 type translator struct {
 	name        string
 	translate   translate[any]
@@ -31,6 +32,8 @@ var (
 	atomicTranslators atomic.Value
 )
 
+// Register registers a translator for use by [Translate].
+// Name is the name of the translator, like "baidu" or "google".
 func Register[T any](name string, tf translate[T], cf configFactory[T]) {
 	translatorsMu.Lock()
 	translators, _ := atomicTranslators.Load().([]translator)
