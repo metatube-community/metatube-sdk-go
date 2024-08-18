@@ -1,4 +1,4 @@
-package translate
+package baidu
 
 import (
 	"os"
@@ -15,7 +15,10 @@ func TestBaiduTranslate(t *testing.T) {
 		{`Oh yeah! I'm a translator!`, "auto", "de"},
 		{`Oh yeah! I'm a translator!`, "auto", "fr"},
 	} {
-		result, err := BaiduTranslate(unit.text, unit.from, unit.to, os.Getenv("BAIDU_APP_ID"), os.Getenv("BAIDU_APP_KEY"))
+		result, err := Translate(unit.text, unit.from, unit.to, Config{
+			AppID:  os.Getenv("BAIDU_APP_ID"),
+			AppKey: os.Getenv("BAIDU_APP_KEY"),
+		})
 		if err != nil {
 			t.Fatal(err)
 		}

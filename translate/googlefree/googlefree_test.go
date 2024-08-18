@@ -1,4 +1,4 @@
-package translate
+package googlefree
 
 import (
 	"testing"
@@ -14,7 +14,7 @@ func TestGoogleFreeTranslate(t *testing.T) {
 		{"Oh yeah!\nI'm a translator!", "", "de"},
 		{"Oh yeah!\nI'm a translator!", "", "fr"},
 	} {
-		result, err := GoogleFreeTranslate(unit.text, unit.from, unit.to)
+		result, err := Translate(unit.text, unit.from, unit.to)
 		if err != nil {
 			t.Fatal(err)
 		}

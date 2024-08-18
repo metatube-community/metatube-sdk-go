@@ -1,4 +1,4 @@
-package translate
+package google
 
 import (
 	"encoding/json"
@@ -9,11 +9,16 @@ import (
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/errors"
+	"github.com/metatube-community/metatube-sdk-go/translate"
 )
 
 const googleTranslateAPI = "https://translation.googleapis.com/language/translate/v2"
 
-func GoogleTranslate(q, source, target, key string) (result string, err error) {
+type Config struct {
+	APIKey string `json:"google-api-key"`
+}
+
+func Translate(q, source, target string, config Config) (result string, err error) {
 	var resp *http.Response
 	if resp, err = fetch.Post(
 		googleTranslateAPI,
@@ -24,7 +29,7 @@ func GoogleTranslate(q, source, target, key string) (result string, err error) {
 			"format": "text",
 		}),
 		fetch.WithRaiseForStatus(false),
-		fetch.WithQuery("key", key),
+		fetch.WithQuery("key", config.APIKey),
 		fetch.WithHeader("Content-Type", "application/json"),
 	); err != nil {
 		return
@@ -59,4 +64,10 @@ func parseToGoogleSupportedLanguage(lang string) string {
 		return lang /* fallback to original */
 	}
 	return tag.String()
+}
+
+func init() {
+	translate.Register("google", Translate, func() Config {
+		return Config{}
+	})
 }
