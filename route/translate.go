@@ -5,31 +5,14 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/schema"
 
 	"github.com/metatube-community/metatube-sdk-go/translate"
-)
-
-const (
-	googleTranslateEngine     = "google"
-	googleFreeTranslateEngine = "googlefree"
-	baiduTranslateEngine      = "baidu"
-	deeplTranslateEngine      = "deepl"
-	openaiTranslateEngine     = "openai"
-)
-
-const (
-	// Google
-	googleAPIKey = "google-api-key"
-
-	// DeepL
-	deeplAPIKey = "deepl-api-key"
-
-	// Openai
-	openaiAPIKey = "openai-api-key"
-
-	// Baidu
-	baiduAPPID  = "baidu-app-id"
-	baiduAPPKey = "baidu-app-key"
+	_ "github.com/metatube-community/metatube-sdk-go/translate/baidu"
+	_ "github.com/metatube-community/metatube-sdk-go/translate/deepl"
+	_ "github.com/metatube-community/metatube-sdk-go/translate/google"
+	_ "github.com/metatube-community/metatube-sdk-go/translate/googlefree"
+	_ "github.com/metatube-community/metatube-sdk-go/translate/openai"
 )
 
 type translateQuery struct {
@@ -40,6 +23,10 @@ type translateQuery struct {
 }
 
 func getTranslate() gin.HandlerFunc {
+	decoder := schema.NewDecoder()
+	decoder.SetAliasTag("json")
+	decoder.IgnoreUnknownKeys(true)
+
 	return func(c *gin.Context) {
 		query := &translateQuery{
 			From: "auto",
@@ -48,30 +35,17 @@ func getTranslate() gin.HandlerFunc {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
 			return
 		}
+		engine := strings.ToLower(query.Engine)
 
-		var (
-			result string
-			err    error
-		)
-		switch strings.ToLower(query.Engine) {
-		case googleTranslateEngine:
-			result, err = translate.GoogleTranslate(query.Q, query.From, query.To,
-				c.Query(googleAPIKey))
-		case googleFreeTranslateEngine:
-			result, err = translate.GoogleFreeTranslate(query.Q, query.From, query.To)
-		case baiduTranslateEngine:
-			result, err = translate.BaiduTranslate(query.Q, query.From, query.To,
-				c.Query(baiduAPPID), c.Query(baiduAPPKey))
-		case deeplTranslateEngine:
-			result, err = translate.DeepLTranslate(query.Q, query.From, query.To,
-				c.Query(deeplAPIKey))
-		case openaiTranslateEngine:
-			result, err = translate.OpenaiTranslate(query.Q, query.From, query.To,
-				c.Query(openaiAPIKey))
-		default:
-			abortWithStatusMessage(c, http.StatusBadRequest, "invalid translate engine")
+		config, err := translate.BuildConfig(engine, func(config any) error {
+			return decoder.Decode(config, c.Request.URL.Query())
+		})
+		if err != nil {
+			abortWithStatusMessage(c, http.StatusBadRequest, err)
 			return
 		}
+
+		result, err := translate.Translate(engine, query.Q, query.From, query.To, config)
 		if err != nil {
 			abortWithError(c, err)
 			return

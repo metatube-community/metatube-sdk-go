@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/metatube-community/metatube-sdk-go/translate"
+	"github.com/metatube-community/metatube-sdk-go/translate/baidu"
+	"github.com/metatube-community/metatube-sdk-go/translate/google"
 )
 
 func main() {
@@ -10,9 +11,9 @@ func main() {
 		appKey = "XXX"
 	)
 	// Translate `Hello` from auto to Japanese by Baidu.
-	translate.BaiduTranslate("Hello", "auto", "ja", appId, appKey)
+	baidu.Translate("Hello", "auto", "ja", appId, appKey)
 
 	apiKey := "XXX"
 	// Translate `Hello` from auto to simplified Chinese by Google.
-	translate.GoogleTranslate("Hello", "auto", "zh-cn", apiKey)
+	google.Translate("Hello", "auto", "zh-cn", apiKey)
 }

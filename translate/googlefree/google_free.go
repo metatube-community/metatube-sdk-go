@@ -1,4 +1,4 @@
-package translate
+package googlefree
 
 import (
 	"errors"
@@ -6,9 +6,11 @@ import (
 	"time"
 
 	translator "github.com/zijiren233/google-translator"
+
+	"github.com/metatube-community/metatube-sdk-go/translate"
 )
 
-func GoogleFreeTranslate(q, source, target string) (string, error) {
+func Translate(q, source, target string) (string, error) {
 	data, err := translator.Translate(q, target, translator.TranslationParams{
 		From:       source,
 		Retry:      2,
@@ -28,4 +30,12 @@ func GoogleFreeTranslate(q, source, target string) (string, error) {
 		return "", errors.New("data is nil")
 	}
 	return data.Text, nil
+}
+
+func init() {
+	translate.Register("googlefree", func(text, from, to string, _ any) (string, error) {
+		return Translate(text, from, to)
+	}, func() any {
+		return struct{}{}
+	})
 }

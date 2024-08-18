@@ -1,4 +1,4 @@
-package translate
+package baidu
 
 import (
 	"crypto/md5"
@@ -11,24 +11,30 @@ import (
 	"strings"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
+	"github.com/metatube-community/metatube-sdk-go/translate"
 )
 
 const baiduTranslateAPI = "https://api.fanyi.baidu.com/api/trans/vip/translate"
 
-func BaiduTranslate(q, from, to, appID, appKey string) (result string, err error) {
+type Config struct {
+	AppID  string `json:"baidu-app-id"`
+	AppKey string `json:"baidu-app-key"`
+}
+
+func Translate(text, from, to string, config Config) (result string, err error) {
 	var (
 		resp *http.Response
 		// salt & sign
 		salt = strconv.Itoa(rand.Intn(0x7FFFFFFF))
-		sign = md5sum(appID + q + salt + appKey)
+		sign = md5sum(config.AppID + text + salt + config.AppKey)
 	)
 	if resp, err = fetch.Post(
 		baiduTranslateAPI,
 		fetch.WithURLEncodedBody(map[string]string{
-			"q":     q,
+			"q":     text,
 			"from":  parseToBaiduSupportedLanguage(from),
 			"to":    parseToBaiduSupportedLanguage(to),
-			"appid": appID,
+			"appid": config.AppID,
 			"salt":  salt,
 			"sign":  sign,
 		}),
@@ -124,3 +130,9 @@ func parseToBaiduSupportedLanguage(lang string) string {
 //	58002: "服务当前已关闭",
 //	90107: "认证未通过或未生效",
 //}
+
+func init() {
+	translate.Register("baidu", Translate, func() Config {
+		return Config{}
+	})
+}

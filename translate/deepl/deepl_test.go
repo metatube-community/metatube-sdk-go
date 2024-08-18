@@ -1,11 +1,11 @@
-package translate
+package deepl
 
 import (
 	"os"
 	"testing"
 )
 
-func TestOpenaiTranslate(t *testing.T) {
+func TestDeeplTranslate(t *testing.T) {
 	for _, unit := range []struct {
 		text, from, to string
 	}{
@@ -15,7 +15,9 @@ func TestOpenaiTranslate(t *testing.T) {
 		{`Oh yeah! I'm a translator!`, "", "de"},
 		{`Oh yeah! I'm a translator!`, "", "fr"},
 	} {
-		result, err := OpenaiTranslate(unit.text, unit.from, unit.to, os.Getenv("OPENAI_API_KEY"))
+		result, err := Translate(unit.text, unit.from, unit.to, Config{
+			APIKey: os.Getenv("DEEPL_API_KEY"),
+		})
 		if err != nil {
 			t.Fatal(err)
 		}
