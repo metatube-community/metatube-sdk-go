@@ -14,17 +14,11 @@ Metadata Tube SDK in Golang.
 
 - [MetaTube SDK Go](#metatube-sdk-go)
 	- [Contents](#contents)
-    - [Features](#features)
+	- [Features](#features)
 	- [Installation](#installation)
-	- [Quickstart](#quickstart)
 	- [API Examples](#api-examples)
-		- [Initiate SDK engine manually](#initiate-sdk-engine-manually)
-		- [Search and get actor info](#search-and-get-actor-info)
-		- [Search and get movie info](#search-and-get-movie-info)
-		- [Get actor and movie images](#get-actor-and-movie-images)
-		- [Text translate engine](#text-translate-engine)
-	- [License](#license)
 	- [Credits](#credits)
+	- [License](#license)
 
 ## Features
 
@@ -47,7 +41,7 @@ Metadata Tube SDK in Golang.
 
 ## Installation
 
-To install this package, you first need [Go](https://golang.org/) installed (**version 1.21+ is required**), then you can use the below Go command to install SDK.
+To install this package, you first need [Go](https://golang.org/) installed (**version 1.20+ is required**), then you can use the below Go command to install SDK.
 
 ```sh
 go get -u github.com/metatube-community/metatube-sdk-go
