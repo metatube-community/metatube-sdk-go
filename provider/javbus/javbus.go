@@ -47,6 +47,9 @@ func New() *JavBus {
 		Fetcher: fetch.Default(&fetch.Config{Referer: baseURL}),
 		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
 			scraper.WithDisableRedirects(),
+			scraper.WithHeaders(map[string]string{
+				"Referer": baseURL,
+			}),
 			scraper.WithCookies(baseURL, []*http.Cookie{
 				// existmag=all
 				{Name: "existmag", Value: "all"},
@@ -142,6 +145,7 @@ func (bus *JavBus) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 			var mu sync.Mutex
 			d := c.Clone()
 			d.Async = true
+			d.ParseHTTPErrorResponse = false
 			d.OnScraped(func(r *colly.Response) {
 				mu.Lock()
 				defer mu.Unlock()
