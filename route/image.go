@@ -3,7 +3,6 @@ package route
 import (
 	"bytes"
 	"image"
-	"image/jpeg"
 	"net/http"
 	"strconv"
 
@@ -12,6 +11,7 @@ import (
 
 	R "github.com/metatube-community/metatube-sdk-go/constant"
 	"github.com/metatube-community/metatube-sdk-go/engine"
+	"github.com/metatube-community/metatube-sdk-go/imageutil"
 	"github.com/metatube-community/metatube-sdk-go/imageutil/badge"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
@@ -127,7 +127,7 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 		c.Header("X-MetaTube-Image-Height", strconv.Itoa(img.Bounds().Dy()))
 
 		buf := &bytes.Buffer{}
-		if err = jpeg.Encode(buf, img, &jpeg.Options{Quality: query.Quality}); err != nil {
+		if err = imageutil.EncodeToJPEG(buf, img, query.Quality); err != nil {
 			panic(err)
 		}
 
