@@ -15,7 +15,6 @@ require (
 	github.com/gocolly/colly/v2 v2.1.1-0.20240605174350-99b7fb1b87d1
 	github.com/gorilla/schema v1.4.1
 	github.com/grafov/m3u8 v0.12.0
-	github.com/h2non/bimg v1.1.9
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/iancoleman/orderedmap v0.3.0
