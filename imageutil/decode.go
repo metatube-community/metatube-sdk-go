@@ -1,5 +1,3 @@
-//go:build !vips
-
 package imageutil
 
 import (
