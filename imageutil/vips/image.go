@@ -1,3 +1,5 @@
+//go:build vips
+
 package vips
 
 import (
