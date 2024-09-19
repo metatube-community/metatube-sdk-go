@@ -23,7 +23,7 @@ func getImageByURL(url string, fetcher provider.Fetcher) (image.Image, error) {
 	}
 	defer resp.Body.Close()
 
-	img, _, err := image.Decode(resp.Body)
+	img, _, err := imageutil.Decode(resp.Body)
 	if err != nil {
 		return nil, err
 	}
