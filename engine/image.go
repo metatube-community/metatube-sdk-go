@@ -78,7 +78,7 @@ func (e *Engine) getImageByURL(provider mt.Provider, url string) (img image.Imag
 		return
 	}
 	defer resp.Body.Close()
-	img, _, err = image.Decode(resp.Body)
+	img, _, err = imageutil.Decode(resp.Body)
 	return
 }
 
