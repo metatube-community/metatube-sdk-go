@@ -1,4 +1,4 @@
-package libvips
+package vips
 
 import (
 	"bytes"
@@ -8,15 +8,6 @@ import (
 
 	"github.com/h2non/bimg"
 )
-
-type Image struct {
-	vips *bimg.Image
-	image.Image
-}
-
-func Encode(m image.Image) {
-	//jpeg.Encode()
-}
 
 func decode(r io.Reader) (m image.Image, c image.Config, err error) {
 	data, err := io.ReadAll(r)

@@ -1,4 +1,4 @@
-package libvips
+package vips
 
 import (
 	"bytes"
