@@ -10,7 +10,6 @@ import (
 	"io"
 
 	"github.com/metatube-community/metatube-sdk-go/imageutil/vips"
-	_ "github.com/metatube-community/metatube-sdk-go/imageutil/vips"
 )
 
 func Decode(r io.Reader) (m image.Image, _ string, err error) {
@@ -21,7 +20,7 @@ func Decode(r io.Reader) (m image.Image, _ string, err error) {
 	var jpegErr jpeg.UnsupportedError
 	m, _, err = image.Decode(bytes.NewBuffer(buf))
 	if err != nil && (errors.Is(err, image.ErrFormat) || errors.As(err, &jpegErr)) {
-		// retry to decode with libvips.
+		// fallback to decode with libvips.
 		m, err = vips.Decode(bytes.NewBuffer(buf))
 	}
 	return m, "vips", err
