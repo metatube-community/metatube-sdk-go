@@ -8,7 +8,10 @@ import (
 	"image/jpeg"
 	"io"
 
+	"github.com/docker/go-units"
 	"github.com/gen2brain/jpegli"
+
+	"github.com/metatube-community/metatube-sdk-go/common/bufferpool"
 )
 
 const base64EncodedImage = `
@@ -31,15 +34,16 @@ func init() {
 	_, _ = jpegli.Decode(bytes.NewBuffer(data))
 }
 
+var _pool = bufferpool.New(256 * units.KiB)
+
 func Decode(r io.Reader) (image.Image, string, error) {
-	var (
-		buf     bytes.Buffer
-		jpegErr jpeg.UnsupportedError
-	)
-	m, f, err := image.Decode(io.TeeReader(r, &buf))
+	buf := _pool.Get()
+	defer _pool.Put(buf)
+	var jpegErr jpeg.UnsupportedError
+	m, f, err := image.Decode(io.TeeReader(r, buf))
 	if err != nil && errors.As(err, &jpegErr) {
 		// Fallback to decode with jpegli.
-		m, err = jpegli.Decode(io.MultiReader(&buf, r))
+		m, err = jpegli.Decode(io.MultiReader(buf, r))
 	}
 	return m, f, err
 }
