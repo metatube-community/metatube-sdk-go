@@ -10,6 +10,7 @@ require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/corona10/goimagehash v1.1.0
 	github.com/esimov/pigo v1.4.7-0.20230220101645-e922e5442d38
+	github.com/gen2brain/jpegli v0.2.3
 	github.com/gin-gonic/gin v1.10.0
 	github.com/glebarez/sqlite v1.11.0
 	github.com/gocolly/colly/v2 v2.1.1-0.20240605174350-99b7fb1b87d1
@@ -20,7 +21,7 @@ require (
 	github.com/iancoleman/orderedmap v0.3.0
 	github.com/jellydator/ttlcache/v3 v3.3.0
 	github.com/lib/pq v1.10.9
-	github.com/nlnwa/whatwg-url v0.4.1
+	github.com/nlnwa/whatwg-url v0.5.0
 	github.com/peterbourgon/ff/v3 v3.4.0
 	github.com/robertkrimen/otto v0.4.0
 	github.com/stretchr/testify v1.9.0
@@ -81,12 +82,14 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
-	github.com/sashabaranov/go-openai v1.29.2 // indirect
+	github.com/sashabaranov/go-openai v1.30.0 // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
+	github.com/tetratelabs/wazero v1.8.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	golang.org/x/arch v0.10.0 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
+	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
@@ -94,7 +97,7 @@ require (
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.7 // indirect
-	modernc.org/libc v1.60.1 // indirect
+	modernc.org/libc v1.61.0 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.8.0 // indirect
 	modernc.org/sqlite v1.33.1 // indirect
