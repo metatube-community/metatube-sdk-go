@@ -13,35 +13,36 @@ Metadata Tube SDK in Golang.
 ## Contents
 
 - [MetaTube SDK Go](#metatube-sdk-go)
-	- [Contents](#contents)
-	- [Features](#features)
-	- [Installation](#installation)
-	- [API Examples](#api-examples)
-	- [Credits](#credits)
-	- [License](#license)
+    - [Contents](#contents)
+    - [Features](#features)
+    - [Installation](#installation)
+    - [API Examples](#api-examples)
+    - [Credits](#credits)
+    - [License](#license)
 
 ## Features
 
 - Supported platforms
-  - Linux
-  - Darwin
-  - Windows
-  - BSD(s)
+    - Linux
+    - Darwin
+    - Windows
+    - BSD(s)
 - Supported Databases
-  - [SQLite](https://gitlab.com/cznic/sqlite)
-  - [PostgreSQL](https://github.com/jackc/pgx)
+    - [SQLite](https://gitlab.com/cznic/sqlite)
+    - [PostgreSQL](https://github.com/jackc/pgx)
 - Image processing
-  - Auto cropping
-  - Badge support
-  - Face detection
-  - Image hashing
+    - Auto cropping
+    - Badge support
+    - Face detection
+    - Image hashing
 - RESTful API
 - 20+ providers
 - Text translation
 
 ## Installation
 
-To install this package, you first need [Go](https://golang.org/) installed (**version 1.20+ is required**), then you can use the below Go command to install SDK.
+To install this package, you first need [Go](https://golang.org/) installed (**go1.23+ is required**), then you can use
+the below Go command to install SDK.
 
 ```sh
 go get -u github.com/metatube-community/metatube-sdk-go
@@ -49,7 +50,9 @@ go get -u github.com/metatube-community/metatube-sdk-go
 
 ## API Examples
 
-You can find quickstart examples in the [examples folder](https://github.com/metatube-community/metatube-sdk-go/tree/main/_examples/) or specific implementations in the [cmd folder](https://github.com/metatube-community/metatube-sdk-go/tree/main/cmd/).
+You can find quickstart examples in
+the [examples folder](https://github.com/metatube-community/metatube-sdk-go/tree/main/_examples/) or specific
+implementations in the [cmd folder](https://github.com/metatube-community/metatube-sdk-go/tree/main/cmd/).
 
 ## Credits
 
@@ -63,6 +66,7 @@ You can find quickstart examples in the [examples folder](https://github.com/met
 | [modernc.org/sqlite](https://gitlab.com/cznic/sqlite)		         | Package sqlite is a CGo-free port of SQLite/SQLite3												                                      |
 | [corona10/goimagehash](https://github.com/corona10/goimagehash) | Go Perceptual image hashing package																                                                  |
 | [antchfx/xpath](https://github.com/antchfx/xpath)			            | XPath package for Golang, supports HTML, XML, JSON document query									                           |
+| [gen2brain/jpegli](https://github.com/gen2brain/jpegli)         | Go encoder/decoder for JPEG based on jpegli                                                          |
 
 ## License
 
