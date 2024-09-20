@@ -32,15 +32,14 @@ func init() {
 }
 
 func Decode(r io.Reader) (image.Image, string, error) {
-	buf, err := io.ReadAll(r)
-	if err != nil {
-		return nil, "", err
-	}
-	var jpegErr jpeg.UnsupportedError
-	m, f, err := image.Decode(bytes.NewBuffer(buf))
+	var (
+		buf     bytes.Buffer
+		jpegErr jpeg.UnsupportedError
+	)
+	m, f, err := image.Decode(io.TeeReader(r, &buf))
 	if err != nil && errors.As(err, &jpegErr) {
 		// Fallback to decode with jpegli.
-		m, err = jpegli.Decode(bytes.NewBuffer(buf))
+		m, err = jpegli.Decode(io.MultiReader(&buf, r))
 	}
 	return m, f, err
 }
