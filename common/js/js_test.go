@@ -39,7 +39,7 @@ func TestUnmarshalObject(t *testing.T) {
 
 	{
 		data := ""
-		jsCode := `var abc = 'hello'`
+		jsCode := []byte(`var abc = 'hello'`)
 		objName := "abc"
 		err := UnmarshalObject(jsCode, objName, &data)
 		assert.NoError(t, err)
