@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"slices"
 	"time"
 
 	"github.com/iancoleman/orderedmap"
 	"go.uber.org/atomic"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
-	"github.com/metatube-community/metatube-sdk-go/common/reverse"
 	"github.com/metatube-community/metatube-sdk-go/common/singledo"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
@@ -149,7 +149,7 @@ func (ft *fileTree) query(s string) (images []string, err error) {
 			}
 		}
 	}
-	reverse.Slice(images) // descending
+	slices.Reverse(images) // descending
 	return
 }
 
