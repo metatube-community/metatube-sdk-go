@@ -22,6 +22,12 @@ type translateQuery struct {
 	Engine string `form:"engine" binding:"required"`
 }
 
+type translateResponse struct {
+	From string `json:"from"`
+	To   string `json:"to"`
+	Text string `json:"translated_text"`
+}
+
 func getTranslate() gin.HandlerFunc {
 	decoder := schema.NewDecoder()
 	decoder.SetAliasTag("json")
@@ -52,10 +58,10 @@ func getTranslate() gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, &responseMessage{
-			Data: gin.H{
-				"from":            query.From,
-				"to":              query.To,
-				"translated_text": result,
+			Data: &translateResponse{
+				From: query.From,
+				To:   query.To,
+				Text: result,
 			},
 		})
 	}
