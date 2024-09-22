@@ -31,7 +31,7 @@ UgAv6SqjTWIUZM5ycd+BTBRh5scfJ4/dFFdlxCl1kPgAf//Z
 func init() {
 	defer func() { recover() }()
 	data, _ := base64.StdEncoding.DecodeString(base64EncodedImage)
-	_, _ = jpegli.Decode(bytes.NewBuffer(data))
+	_, _ = jpegli.Decode(bytes.NewReader(data))
 }
 
 var _pool = bufferpool.New(256 * units.KiB)
