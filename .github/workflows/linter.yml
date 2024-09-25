@@ -11,7 +11,7 @@ on:
   pull_request:
 
 jobs:
-  lint:
+  golangci-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,4 +26,3 @@ jobs:
         uses: golangci/golangci-lint-action@v6
         with:
           version: latest
-          args: "--out-${NO_FUTURE}format line-number"
