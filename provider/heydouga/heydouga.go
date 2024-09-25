@@ -102,7 +102,7 @@ func (hey *HeyDouga) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 
 	// Cover
 	c.OnXML(`//section[@class="movie-player"]//script`, func(e *colly.XMLElement) {
-		if ss := regexp.MustCompile(`(?i)player_poster\s*=\s*'(http.+?)';`).FindStringSubmatch(e.Text); len(ss) == 2 {
+		if ss := regexp.MustCompile(`(?i)player_poster\s*=\s*'(\/.+?)';`).FindStringSubmatch(e.Text); len(ss) == 2 {
 			info.CoverURL = e.Request.AbsoluteURL(ss[1])
 			info.ThumbURL = info.CoverURL
 		}
@@ -111,16 +111,16 @@ func (hey *HeyDouga) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 	// Fields
 	c.OnXML(`//*[@id="movie-info"]/ul/li`, func(e *colly.XMLElement) {
 		switch e.ChildText(`.//span[1]`) {
-		case "配信日：":
+		case "Release Date：":
 			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//span[2]`))
-		case "主演：":
+		case "Actor：":
 			// heydouga's actor info is sticky, but whatever...
 			info.Actors = strings.Fields(e.ChildText(`.//span[2]`))
-		case "提供元：":
+		case "Provider：":
 			if info.Maker = strings.TrimSpace(e.ChildText(`.//span[2]/a[1]`)); info.Maker == "" /* fallback */ {
 				info.Maker = strings.TrimSpace(e.ChildText(`.//span[2]`))
 			}
-		case "動画再生時間：":
+		case "Movie Duration：":
 			info.Runtime = parser.ParseRuntime(e.ChildText(`.//span[2]`))
 		case "ファイル容量：", "画面サイズ：":
 			// skip, do nothing
