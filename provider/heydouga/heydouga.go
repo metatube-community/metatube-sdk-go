@@ -44,7 +44,8 @@ func New() *HeyDouga {
 			{Name: "lang", Value: "ja"},
 			{Name: "over18_ppv", Value: "1"},
 			{Name: "feature_group", Value: "1"},
-		}))}
+		})),
+	}
 }
 
 func (hey *HeyDouga) NormalizeMovieID(id string) string {
