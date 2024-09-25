@@ -11,6 +11,7 @@ func TestHeyDouga_GetMovieInfoByID(t *testing.T) {
 	provider := New()
 	for _, item := range []string{
 		"4037-479",
+		"4030-1938",
 		"4229-771",
 		"4229-759",
 		"4030-2000",
