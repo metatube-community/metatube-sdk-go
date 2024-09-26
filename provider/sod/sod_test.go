@@ -1,57 +1,31 @@
 package sod
 
 import (
-	"encoding/json"
-	"io"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/metatube-community/metatube-sdk-go/provider/internal/testkit"
 )
 
 func TestSOD_GetMovieInfoByID(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"3DSVR-0416",
 		"DLDSS-077",
 		"3DSVR-1439",
 		"START-114-V",
-	} {
-		info, err := provider.GetMovieInfoByID(item)
-		data, _ := json.MarshalIndent(info, "", "\t")
-		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
-		t.Logf("%s", data)
-	}
+	})
 }
 
 func TestSOD_SearchMovie(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"STAR-399",
 		"IENF-209",
 		"DLDSS-02",
 		"START-114",
-	} {
-		results, err := provider.SearchMovie(provider.NormalizeMovieKeyword(item))
-		data, _ := json.MarshalIndent(results, "", "\t")
-		if assert.NoError(t, err) {
-			for _, result := range results {
-				assert.True(t, result.Valid())
-			}
-		}
-		t.Logf("%s", data)
-	}
+	})
 }
 
-func TestSOD_Download(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+func TestSOD_Fetch(t *testing.T) {
+	testkit.Test(t, New, []string{
 		"https://dy43ylo5q3vt8.cloudfront.net/_pics/202108/dldss_022/dldss_022_m.jpg",
-	} {
-		resp, err := provider.Fetch(item)
-		if assert.NoError(t, err) {
-			b, _ := io.ReadAll(resp.Body)
-			resp.Body.Close()
-			t.Log(b)
-		}
-	}
+	})
 }

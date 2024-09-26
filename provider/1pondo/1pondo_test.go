@@ -1,40 +1,24 @@
 package onepondo
 
 import (
-	"encoding/json"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/metatube-community/metatube-sdk-go/provider/internal/testkit"
 )
 
 func TestOnePondo_GetMovieInfoByID(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"071319_870",
 		"042922_001",
 		"080812_401",
 		"071912_387",
 		"050522_001",
-	} {
-		info, err := provider.GetMovieInfoByID(item)
-		data, _ := json.MarshalIndent(info, "", "\t")
-		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
-		t.Logf("%s", data)
-	}
+	})
 }
 
 func TestOnePondo_GetMovieReviewsByID(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"071319_870",
-	} {
-		reviews, err := provider.GetMovieReviewsByID(item)
-		data, _ := json.MarshalIndent(reviews, "", "\t")
-		if assert.NoError(t, err) {
-			for _, review := range reviews {
-				assert.True(t, review.Valid())
-			}
-		}
-		t.Logf("%s", data)
-	}
+		"071912_387",
+	})
 }
