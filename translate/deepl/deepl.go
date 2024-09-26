@@ -9,13 +9,15 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/translate"
 )
 
+var _ translate.Translator = (*DeepL)(nil)
+
 const deeplTranslateAPI = "https://api-free.deepl.com/v2/translate"
 
-type Config struct {
+type DeepL struct {
 	APIKey string `json:"deepl-api-key"`
 }
 
-func Translate(q, source, target string, config Config) (result string, err error) {
+func (dpl *DeepL) Translate(q, source, target string) (result string, err error) {
 	var resp *http.Response
 	if resp, err = fetch.Post(
 		deeplTranslateAPI,
@@ -26,7 +28,7 @@ func Translate(q, source, target string, config Config) (result string, err erro
 			"split_sentences": "0", // disable sentence split
 		}),
 		fetch.WithRaiseForStatus(true),
-		fetch.WithHeader("Authorization", "DeepL-Auth-Key "+config.APIKey),
+		fetch.WithHeader("Authorization", "DeepL-Auth-Key "+dpl.APIKey),
 		fetch.WithHeader("Content-Type", "application/x-www-form-urlencoded"),
 	); err != nil {
 		return
@@ -58,7 +60,5 @@ func parseToDeeplSupportedLanguage(lang string) string {
 }
 
 func init() {
-	translate.Register("deepl", Translate, func() Config {
-		return Config{}
-	})
+	translate.Register(&DeepL{})
 }

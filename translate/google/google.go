@@ -12,13 +12,15 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/translate"
 )
 
+var _ translate.Translator = (*Google)(nil)
+
 const googleTranslateAPI = "https://translation.googleapis.com/language/translate/v2"
 
-type Config struct {
+type Google struct {
 	APIKey string `json:"google-api-key"`
 }
 
-func Translate(q, source, target string, config Config) (result string, err error) {
+func (gl *Google) Translate(q, source, target string) (result string, err error) {
 	var resp *http.Response
 	if resp, err = fetch.Post(
 		googleTranslateAPI,
@@ -29,7 +31,7 @@ func Translate(q, source, target string, config Config) (result string, err erro
 			"format": "text",
 		}),
 		fetch.WithRaiseForStatus(false),
-		fetch.WithQuery("key", config.APIKey),
+		fetch.WithQuery("key", gl.APIKey),
 		fetch.WithHeader("Content-Type", "application/json"),
 	); err != nil {
 		return
@@ -67,7 +69,5 @@ func parseToGoogleSupportedLanguage(lang string) string {
 }
 
 func init() {
-	translate.Register("google", Translate, func() Config {
-		return Config{}
-	})
+	translate.Register(&Google{})
 }

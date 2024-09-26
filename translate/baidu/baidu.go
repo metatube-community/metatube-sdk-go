@@ -14,19 +14,21 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/translate"
 )
 
+var _ translate.Translator = (*Baidu)(nil)
+
 const baiduTranslateAPI = "https://api.fanyi.baidu.com/api/trans/vip/translate"
 
-type Config struct {
+type Baidu struct {
 	AppID  string `json:"baidu-app-id"`
 	AppKey string `json:"baidu-app-key"`
 }
 
-func Translate(text, from, to string, config Config) (result string, err error) {
+func (bd *Baidu) Translate(text, from, to string) (result string, err error) {
 	var (
 		resp *http.Response
 		// salt & sign
 		salt = strconv.Itoa(rand.Intn(0x7FFFFFFF))
-		sign = md5sum(config.AppID + text + salt + config.AppKey)
+		sign = md5sum(bd.AppID + text + salt + bd.AppKey)
 	)
 	if resp, err = fetch.Post(
 		baiduTranslateAPI,
@@ -34,7 +36,7 @@ func Translate(text, from, to string, config Config) (result string, err error) 
 			"q":     text,
 			"from":  parseToBaiduSupportedLanguage(from),
 			"to":    parseToBaiduSupportedLanguage(to),
-			"appid": config.AppID,
+			"appid": bd.AppID,
 			"salt":  salt,
 			"sign":  sign,
 		}),
@@ -132,7 +134,5 @@ func parseToBaiduSupportedLanguage(lang string) string {
 //}
 
 func init() {
-	translate.Register("baidu", Translate, func() Config {
-		return Config{}
-	})
+	translate.Register(&Baidu{})
 }

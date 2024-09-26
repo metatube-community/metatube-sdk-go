@@ -15,10 +15,10 @@ func TestBaiduTranslate(t *testing.T) {
 		{`Oh yeah! I'm a translator!`, "auto", "de"},
 		{`Oh yeah! I'm a translator!`, "auto", "fr"},
 	} {
-		result, err := Translate(unit.text, unit.from, unit.to, Config{
+		result, err := (&Baidu{
 			AppID:  os.Getenv("BAIDU_APP_ID"),
 			AppKey: os.Getenv("BAIDU_APP_KEY"),
-		})
+		}).Translate(unit.text, unit.from, unit.to)
 		if err != nil {
 			t.Fatal(err)
 		}

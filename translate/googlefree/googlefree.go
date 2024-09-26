@@ -10,7 +10,11 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/translate"
 )
 
-func Translate(q, source, target string) (string, error) {
+var _ translate.Translator = (*GoogleFree)(nil)
+
+type GoogleFree struct{}
+
+func (*GoogleFree) Translate(q, source, target string) (string, error) {
 	data, err := translator.Translate(q, target, translator.TranslationParams{
 		From:       source,
 		Retry:      2,
@@ -33,12 +37,5 @@ func Translate(q, source, target string) (string, error) {
 }
 
 func init() {
-	translate.Register("googlefree",
-		func(text, from, to string, _ struct{}) (string, error) {
-			return Translate(text, from, to)
-		},
-		func() struct{} {
-			return struct{}{}
-		},
-	)
+	translate.Register(&GoogleFree{})
 }

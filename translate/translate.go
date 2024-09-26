@@ -2,28 +2,33 @@ package translate
 
 import (
 	"errors"
+	"reflect"
+	"strings"
 	"sync"
 
 	"go.uber.org/atomic"
 )
 
+var ErrTranslator = &errorTranslator{errors.New("translate: unknown translator")}
+
+type Translator interface {
+	Translate(text, from, to string) (string, error)
+}
+
 var (
-	ErrTranslator = errors.New("translate: unknown translator")
-	ErrConfigType = errors.New("translate: invalid config type")
+	_ error      = (*errorTranslator)(nil)
+	_ Translator = (*errorTranslator)(nil)
 )
 
-type (
-	decoderFunc          func(config any) error
-	translate[T any]     func(text, from, to string, config T) (string, error)
-	configFactory[T any] func() T
-	buildConfig[T any]   func(decode decoderFunc) (T, error)
-)
+type errorTranslator struct{ error }
 
-// A translator holds a translator's name, translate func and how to build the config.
-type translator struct {
-	name        string
-	translate   translate[any]
-	buildConfig buildConfig[any]
+func (e errorTranslator) Translate(string, string, string) (string, error) {
+	return "", e.error
+}
+
+type factory struct {
+	name string
+	new  func() Translator
 }
 
 // Translators is the list of registered translators.
@@ -32,53 +37,39 @@ var (
 	atomicTranslators atomic.Value
 )
 
-// Register registers a translator for use by [Translate].
-// Name is the name of the translator, like "baidu" or "google".
-func Register[T any](name string, tf translate[T], cf configFactory[T]) {
+// Register registers a translator to package.
+func Register(translator Translator) {
 	translatorsMu.Lock()
-	translators, _ := atomicTranslators.Load().([]translator)
-	atomicTranslators.Store(append(translators, translator{
-		name: name,
-		translate: func(text, from, to string, config any) (string, error) {
-			c, ok := config.(T)
-			if !ok {
-				return "", ErrConfigType
-			}
-			return tf(text, from, to, c)
-		},
-		buildConfig: func(decode decoderFunc) (any, error) {
-			c := cf()
-			// must pass pointer of the config.
-			err := decode(&c)
-			return c, err
+	translators, _ := atomicTranslators.Load().([]factory)
+	atomicTranslators.Store(append(translators, factory{
+		name: strings.ToLower(
+			reflect.TypeOf(translator).Elem().Name()),
+		new: func() Translator {
+			return reflect.New(reflect.TypeOf(translator).
+				Elem()).Interface().(Translator)
 		},
 	}))
 	translatorsMu.Unlock()
 }
 
-func match(name string) translator {
-	translators := atomicTranslators.Load().([]translator)
+func match(name string) factory {
+	translators := atomicTranslators.Load().([]factory)
 	for _, t := range translators {
 		if t.name == name {
 			return t
 		}
 	}
-	return translator{}
+	return factory{}
 }
 
-func BuildConfig(name string, decode decoderFunc) (any, error) {
-	t := match(name)
-	if t.translate == nil {
-		return nil, ErrTranslator
+func New(name string, unmarshal func(any) error) Translator {
+	f := match(name)
+	if f.new == nil {
+		return ErrTranslator
 	}
-	c, err := t.buildConfig(decode)
-	return c, err
-}
-
-func Translate(name, text, from, to string, config any) (string, error) {
-	t := match(name)
-	if t.translate == nil {
-		return "", ErrTranslator
+	t := f.new()
+	if err := unmarshal(t); err != nil {
+		return &errorTranslator{err}
 	}
-	return t.translate(text, from, to, config)
+	return t
 }
