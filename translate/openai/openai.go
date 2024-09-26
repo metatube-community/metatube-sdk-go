@@ -6,16 +6,16 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/translate"
 )
 
-type Config struct {
+var _ translate.Translator = (*OpenAI)(nil)
+
+type OpenAI struct {
 	APIKey string `json:"openai-api-key"`
 }
 
-func Translate(q, source, target string, config Config) (result string, err error) {
-	return openai.Translate(q, target, config.APIKey, openai.WithFrom(source))
+func (oa *OpenAI) Translate(q, source, target string) (result string, err error) {
+	return openai.Translate(q, target, oa.APIKey, openai.WithFrom(source))
 }
 
 func init() {
-	translate.Register("openai", Translate, func() Config {
-		return Config{}
-	})
+	translate.Register(&OpenAI{})
 }

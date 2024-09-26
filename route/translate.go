@@ -43,15 +43,13 @@ func getTranslate() gin.HandlerFunc {
 		}
 		engine := strings.ToLower(query.Engine)
 
-		config, err := translate.BuildConfig(engine, func(config any) error {
-			return decoder.Decode(config, c.Request.URL.Query())
-		})
-		if err != nil {
-			abortWithStatusMessage(c, http.StatusBadRequest, err)
-			return
+		decode := func(v any) error {
+			return decoder.Decode(v, c.Request.URL.Query())
 		}
 
-		result, err := translate.Translate(engine, query.Q, query.From, query.To, config)
+		result, err := translate.
+			New(engine, decode).
+			Translate(query.Q, query.From, query.To)
 		if err != nil {
 			abortWithError(c, err)
 			return

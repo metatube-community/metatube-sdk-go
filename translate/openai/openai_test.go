@@ -15,9 +15,9 @@ func TestOpenaiTranslate(t *testing.T) {
 		{`Oh yeah! I'm a translator!`, "", "de"},
 		{`Oh yeah! I'm a translator!`, "", "fr"},
 	} {
-		result, err := Translate(unit.text, unit.from, unit.to, Config{
+		result, err := (&OpenAI{
 			APIKey: os.Getenv("OPENAI_API_KEY"),
-		})
+		}).Translate(unit.text, unit.from, unit.to)
 		if err != nil {
 			t.Fatal(err)
 		}
