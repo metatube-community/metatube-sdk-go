@@ -1,15 +1,13 @@
 package aventertainments
 
 import (
-	"encoding/json"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/metatube-community/metatube-sdk-go/provider/internal/testkit"
 )
 
 func TestAVE_GetMovieInfoByID(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"4319",
 		"7215",
 		"142802",
@@ -19,29 +17,14 @@ func TestAVE_GetMovieInfoByID(t *testing.T) {
 		"140930",
 		"115855",
 		"142800",
-	} {
-		info, err := provider.GetMovieInfoByID(item)
-		data, _ := json.MarshalIndent(info, "", "\t")
-		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
-		t.Logf("%s", data)
-	}
+	})
 }
 
 func TestAVE_SearchMovie(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"lldv-12",
 		"mcbd-25",
 		"MKBD-S03",
 		"FDD2002",
-	} {
-		results, err := provider.SearchMovie(provider.NormalizeMovieKeyword(item))
-		data, _ := json.MarshalIndent(results, "", "\t")
-		if assert.NoError(t, err) {
-			for _, result := range results {
-				assert.True(t, result.Valid())
-			}
-		}
-		t.Logf("%s", data)
-	}
+	})
 }

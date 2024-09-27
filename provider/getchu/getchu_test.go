@@ -1,24 +1,17 @@
 package getchu
 
 import (
-	"encoding/json"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/metatube-community/metatube-sdk-go/provider/internal/testkit"
 )
 
 func TestGetchu_GetMovieInfoByID(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"4018339",
 		"4042392",
 		"4041955",
 		"4042404",
 		"4042423",
-	} {
-		info, err := provider.GetMovieInfoByID(item)
-		data, _ := json.MarshalIndent(info, "", "\t")
-		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
-		t.Logf("%s", data)
-	}
+	})
 }

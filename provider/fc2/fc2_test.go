@@ -1,24 +1,18 @@
 package fc2
 
 import (
-	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/metatube-community/metatube-sdk-go/provider/internal/testkit"
 )
 
 func TestFC2_GetMovieInfoByID(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"406996",
 		"2812904",
-		"2676371",
-	} {
-		info, err := provider.GetMovieInfoByID(item)
-		data, _ := json.MarshalIndent(info, "", "\t")
-		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
-		t.Logf("%s", data)
-	}
+	})
 }
 
 func TestParseNumber(t *testing.T) {

@@ -1,15 +1,13 @@
 package kin8tengoku
 
 import (
-	"encoding/json"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/metatube-community/metatube-sdk-go/provider/internal/testkit"
 )
 
 func TestKIN8_GetMovieInfoByID(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"3604",
 		"3556",
 		"3580",
@@ -21,10 +19,5 @@ func TestKIN8_GetMovieInfoByID(t *testing.T) {
 		"3600",
 		"2508",
 		"1662",
-	} {
-		info, err := provider.GetMovieInfoByID(item)
-		data, _ := json.MarshalIndent(info, "", "\t")
-		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
-		t.Logf("%s", data)
-	}
+	})
 }

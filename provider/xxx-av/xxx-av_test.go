@@ -1,22 +1,15 @@
 package xxx_av
 
 import (
-	"encoding/json"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/metatube-community/metatube-sdk-go/provider/internal/testkit"
 )
 
-func TestXxxAV_GetMovieInfoByID(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+func TestXXXAV_GetMovieInfoByID(t *testing.T) {
+	testkit.Test(t, New, []string{
 		"24719",
 		"23395",
 		"19337",
-	} {
-		info, err := provider.GetMovieInfoByID(item)
-		data, _ := json.MarshalIndent(info, "", "\t")
-		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
-		t.Logf("%s", data)
-	}
+	})
 }
