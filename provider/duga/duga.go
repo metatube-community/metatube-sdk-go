@@ -254,5 +254,5 @@ func (duga *DUGA) SearchMovie(keyword string) (results []*model.MovieSearchResul
 }
 
 func init() {
-	provider.RegisterMovieFactory(Name, New)
+	provider.Register(Name, New)
 }

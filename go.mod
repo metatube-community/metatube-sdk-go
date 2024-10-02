@@ -24,8 +24,8 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/nlnwa/whatwg-url v0.5.0
 	github.com/peterbourgon/ff/v3 v3.4.0
-	github.com/projectdiscovery/useragent v0.0.71
-	github.com/projectdiscovery/utils v0.2.11
+	github.com/projectdiscovery/useragent v0.0.72
+	github.com/projectdiscovery/utils v0.2.12
 	github.com/robertkrimen/otto v0.4.0
 	github.com/stretchr/testify v1.9.0
 	github.com/zijiren233/google-translator v1.0.1
@@ -48,7 +48,7 @@ require (
 	github.com/antchfx/xpath v1.3.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/bits-and-blooms/bitset v1.14.3 // indirect
-	github.com/bytedance/sonic v1.12.2 // indirect
+	github.com/bytedance/sonic v1.12.3 // indirect
 	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
@@ -89,7 +89,7 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
-	github.com/sashabaranov/go-openai v1.30.1 // indirect
+	github.com/sashabaranov/go-openai v1.31.0 // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
 	github.com/tetratelabs/wazero v1.8.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect

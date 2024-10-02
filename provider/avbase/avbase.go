@@ -388,5 +388,5 @@ type Actor struct {
 
 func init() {
 	// The stability of this provider is still unknown.
-	provider.RegisterMovieFactory(Name, New)
+	provider.Register(Name, New)
 }
