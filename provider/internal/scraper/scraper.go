@@ -10,7 +10,10 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/provider"
 )
 
-var _ provider.Provider = (*Scraper)(nil)
+var (
+	_ provider.Provider             = (*Scraper)(nil)
+	_ provider.RequestTimeoutSetter = (*Scraper)(nil)
+)
 
 // Scraper implements basic Provider interface.
 type Scraper struct {

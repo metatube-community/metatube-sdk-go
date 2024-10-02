@@ -24,7 +24,7 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
-	"github.com/metatube-community/metatube-sdk-go/provider/internal/imhelper"
+	"github.com/metatube-community/metatube-sdk-go/provider/internal/imcmp"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
 
@@ -373,7 +373,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 			return
 		}
 
-		if imhelper.Similar(info.ThumbURL, info.PreviewImages[0], nil) {
+		if imcmp.Similar(info.ThumbURL, info.PreviewImages[0], nil) {
 			// the first preview image is a big thumb image.
 			info.BigThumbURL = info.PreviewImages[0]
 			info.PreviewImages = info.PreviewImages[1:]
