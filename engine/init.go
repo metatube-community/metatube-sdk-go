@@ -5,7 +5,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
@@ -20,8 +19,8 @@ const (
 func (e *Engine) init() *Engine {
 	e.initLogger()
 	e.initFetcher()
-	e.initActorProviders(e.timeout)
-	e.initMovieProviders(e.timeout)
+	e.initActorProviders()
+	e.initMovieProviders()
 	e.initAllProviderPriorities()
 	return e
 }
@@ -63,15 +62,13 @@ func (e *Engine) initAllProviderPriorities() {
 }
 
 // initActorProviders initializes actor providers.
-func (e *Engine) initActorProviders(timeout time.Duration) {
-	{ // init
-		e.actorProviders = make(map[string]mt.ActorProvider)
-		e.actorHostProviders = make(map[string][]mt.ActorProvider)
-	}
+func (e *Engine) initActorProviders() {
+	e.actorProviders = make(map[string]mt.ActorProvider)
+	e.actorHostProviders = make(map[string][]mt.ActorProvider)
 	mt.RangeActorFactory(func(name string, factory mt.ActorFactory) {
 		provider := factory()
 		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
-			s.SetRequestTimeout(timeout)
+			s.SetRequestTimeout(e.timeout)
 		}
 		// Add actor provider by name.
 		e.actorProviders[strings.ToUpper(name)] = provider
@@ -82,15 +79,13 @@ func (e *Engine) initActorProviders(timeout time.Duration) {
 }
 
 // initMovieProviders initializes movie providers.
-func (e *Engine) initMovieProviders(timeout time.Duration) {
-	{ // init
-		e.movieProviders = make(map[string]mt.MovieProvider)
-		e.movieHostProviders = make(map[string][]mt.MovieProvider)
-	}
+func (e *Engine) initMovieProviders() {
+	e.movieProviders = make(map[string]mt.MovieProvider)
+	e.movieHostProviders = make(map[string][]mt.MovieProvider)
 	mt.RangeMovieFactory(func(name string, factory mt.MovieFactory) {
 		provider := factory()
 		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
-			s.SetRequestTimeout(timeout)
+			s.SetRequestTimeout(e.timeout)
 		}
 		// Add movie provider by name.
 		e.movieProviders[strings.ToUpper(name)] = provider

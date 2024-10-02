@@ -18,21 +18,21 @@ var (
 // Scraper implements basic Provider interface.
 type Scraper struct {
 	name     string
-	priority *atomic.Int64
 	baseURL  *url.URL
+	priority *atomic.Int64
 	c        *colly.Collector
 }
 
-// NewScraper returns Provider implemented *Scraper.
-func NewScraper(name, baseURL string, priority int, opts ...Option) *Scraper {
-	u, err := url.Parse(baseURL)
+// NewScraper returns a *Scraper that implements provider.Provider .
+func NewScraper(name, base string, priority int, opts ...Option) *Scraper {
+	baseURL, err := url.Parse(base)
 	if err != nil {
 		panic(err)
 	}
 	s := &Scraper{
 		name:     name,
+		baseURL:  baseURL,
 		priority: atomic.NewInt64(int64(priority)),
-		baseURL:  u,
 		c:        colly.NewCollector(),
 	}
 	for _, opt := range opts {
