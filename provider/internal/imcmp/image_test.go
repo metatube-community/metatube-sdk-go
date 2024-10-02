@@ -1,4 +1,4 @@
-package imhelper
+package imcmp
 
 import (
 	"testing"
