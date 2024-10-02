@@ -46,5 +46,5 @@ func (carib *Caribbeancom) NormalizeMovieID(id string) string {
 }
 
 func init() {
-	provider.RegisterMovieFactory(Name, New)
+	provider.Register(Name, New)
 }

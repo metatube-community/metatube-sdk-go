@@ -222,5 +222,5 @@ func isValidImageURL(s string) bool {
 }
 
 func init() {
-	provider.RegisterMovieFactory(Name, New)
+	provider.Register(Name, New)
 }

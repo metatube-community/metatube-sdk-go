@@ -195,5 +195,5 @@ func parseDebutDate(s string) dt.Date {
 }
 
 func init() {
-	provider.RegisterActorFactory(Name, New)
+	provider.Register(Name, New)
 }

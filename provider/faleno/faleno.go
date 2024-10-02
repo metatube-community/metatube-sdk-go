@@ -36,5 +36,5 @@ func New() *FALENO {
 }
 
 func init() {
-	provider.RegisterMovieFactory(Name, New)
+	provider.Register(Name, New)
 }

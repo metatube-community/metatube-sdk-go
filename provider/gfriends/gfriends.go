@@ -171,5 +171,5 @@ func mustParse(rawURL string) *url.URL {
 }
 
 func init() {
-	provider.RegisterActorFactory(Name, New)
+	provider.Register(Name, New)
 }

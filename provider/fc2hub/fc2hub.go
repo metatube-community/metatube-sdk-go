@@ -251,5 +251,5 @@ func removeEmpty(in []string) (out []string) {
 }
 
 func init() {
-	provider.RegisterMovieFactory(Name, New)
+	provider.Register(Name, New)
 }
