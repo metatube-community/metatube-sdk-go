@@ -32,6 +32,7 @@ require (
 	github.com/zijiren233/openai-translator v0.2.1
 	go.eigsys.de/gin-cachecontrol/v2 v2.2.0
 	go.uber.org/atomic v1.11.0
+	go.uber.org/automaxprocs v1.6.0
 	golang.org/x/image v0.20.0
 	golang.org/x/net v0.29.0
 	golang.org/x/text v0.18.0
