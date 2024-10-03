@@ -16,12 +16,12 @@ import (
 
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
-	"github.com/iancoleman/orderedmap"
 	"golang.org/x/net/html"
 
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
+	"github.com/metatube-community/metatube-sdk-go/common/sets"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/imcmp"
@@ -331,24 +331,24 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	})
 
 	// In case of any duplication
-	previewImageSet := orderedmap.New()
+	previewImageSet := sets.NewOrderedSet(func(v string) string { return v })
 
 	// Preview Images Digital/DVD
 	c.OnXML(`//*[@id="sample-image-block"]//a[@name="sample-image"]`, func(e *colly.XMLElement) {
-		previewImageSet.Set(e.Request.AbsoluteURL(PreviewSrc(e.ChildAttr(`.//img`, "src"))), nil)
+		previewImageSet.Add(e.Request.AbsoluteURL(PreviewSrc(e.ChildAttr(`.//img`, "src"))))
 	})
 
 	// Preview Images Digital (Fallback)
 	c.OnXML(`//*[@id="sample-image-block"]/a`, func(e *colly.XMLElement) {
-		if len(previewImageSet.Keys()) == 0 {
+		if previewImageSet.Len() == 0 {
 			return
 		}
-		previewImageSet.Set(e.Request.AbsoluteURL(PreviewSrc(e.ChildAttr(`.//img`, "src"))), nil)
+		previewImageSet.Add(e.Request.AbsoluteURL(PreviewSrc(e.ChildAttr(`.//img`, "src"))))
 	})
 
 	// Final Preview Images
 	c.OnScraped(func(_ *colly.Response) {
-		info.PreviewImages = append(info.PreviewImages, previewImageSet.Keys()...)
+		info.PreviewImages = previewImageSet.Slice()
 	})
 
 	// Final (images)

@@ -25,6 +25,10 @@ func NewOrderedSet[K comparable, V any](hash func(V) K) *OrderedSet[K, V] {
 	}
 }
 
+func (set *OrderedSet[K, V]) Len() int {
+	return set.m.Len()
+}
+
 func (set *OrderedSet[K, V]) Add(items ...V) {
 	for _, result := range items {
 		set.m.Set(set.h(result), result)
