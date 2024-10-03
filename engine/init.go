@@ -65,7 +65,7 @@ func (e *Engine) initAllProviderPriorities() {
 func (e *Engine) initActorProviders() {
 	e.actorProviders = make(map[string]mt.ActorProvider)
 	e.actorHostProviders = make(map[string][]mt.ActorProvider)
-	mt.RangeActorFactory(func(name string, factory mt.ActorFactory) {
+	for name, factory := range mt.RangeActorFactory {
 		provider := factory()
 		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(e.timeout)
@@ -75,14 +75,14 @@ func (e *Engine) initActorProviders() {
 		// Add actor provider by host.
 		host := provider.URL().Hostname()
 		e.actorHostProviders[host] = append(e.actorHostProviders[host], provider)
-	})
+	}
 }
 
 // initMovieProviders initializes movie providers.
 func (e *Engine) initMovieProviders() {
 	e.movieProviders = make(map[string]mt.MovieProvider)
 	e.movieHostProviders = make(map[string][]mt.MovieProvider)
-	mt.RangeMovieFactory(func(name string, factory mt.MovieFactory) {
+	for name, factory := range mt.RangeMovieFactory {
 		provider := factory()
 		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(e.timeout)
@@ -92,5 +92,5 @@ func (e *Engine) initMovieProviders() {
 		// Add movie provider by host.
 		host := provider.URL().Hostname()
 		e.movieHostProviders[host] = append(e.movieHostProviders[host], provider)
-	})
+	}
 }
