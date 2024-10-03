@@ -2,7 +2,6 @@ package route
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/schema"
@@ -41,14 +40,13 @@ func getTranslate() gin.HandlerFunc {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
 			return
 		}
-		engine := strings.ToLower(query.Engine)
 
 		decode := func(v any) error {
 			return decoder.Decode(v, c.Request.URL.Query())
 		}
 
 		result, err := translate.
-			New(engine, decode).
+			New(query.Engine, decode).
 			Translate(query.Q, query.From, query.To)
 		if err != nil {
 			abortWithError(c, err)

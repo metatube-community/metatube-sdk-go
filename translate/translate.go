@@ -37,17 +37,19 @@ var (
 	atomicTranslators atomic.Value
 )
 
+// translator is a generic type of Translator.
+type translator[T any] interface {
+	*T
+	Translator
+}
+
 // Register registers a translator to package.
-func Register(translator Translator) {
+func Register[T any, P translator[T]](translator P) {
 	translatorsMu.Lock()
 	translators, _ := atomicTranslators.Load().([]factory)
 	atomicTranslators.Store(append(translators, factory{
-		name: strings.ToLower(
-			reflect.TypeOf(translator).Elem().Name()),
-		new: func() Translator {
-			return reflect.New(reflect.TypeOf(translator).
-				Elem()).Interface().(Translator)
-		},
+		name: reflect.TypeOf(translator).Elem().Name(),
+		new:  func() Translator { return any(new(T)).(Translator) },
 	}))
 	translatorsMu.Unlock()
 }
@@ -55,7 +57,7 @@ func Register(translator Translator) {
 func match(name string) factory {
 	translators := atomicTranslators.Load().([]factory)
 	for _, t := range translators {
-		if t.name == name {
+		if strings.EqualFold(t.name, name) {
 			return t
 		}
 	}
