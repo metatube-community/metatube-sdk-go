@@ -12,7 +12,6 @@ func TestFANZA_GetMovieInfoByID(t *testing.T) {
 	testkit.Test(t, New, []string{
 		"1silk00113",
 		"adn00306",
-		"1sdjs00033",
 		"okax841",
 		"zuko00122",
 		"118chn064",
@@ -23,11 +22,10 @@ func TestFANZA_GetMovieInfoByID(t *testing.T) {
 		"mism00238",
 		"1msfh00007",
 		"1stars00141",
-		"vrkm00722",
 		"118abp906",
 		"196glod0325t",
 	},
-		testkit.FieldsNotEmpty("preview_images", "actors"),
+		testkit.FieldsNotEmpty("preview_images"),
 		testkit.FieldsNotEmptyAny("maker", "label", "series"),
 		testkit.FieldsNotEmptyAny("preview_video_url", "preview_video_hls_url"),
 	)

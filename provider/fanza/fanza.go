@@ -332,10 +332,17 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 
 	// In case of any duplication
 	previewImageSet := sets.NewOrderedSet(func(v string) string { return v })
+	extractImageSrc := func(e *colly.XMLElement) string {
+		src := e.ChildAttr(`.//img`, "data-lazy")
+		if strings.TrimSpace(src) == "" {
+			src = e.ChildAttr(`.//img`, "src")
+		}
+		return src
+	}
 
 	// Preview Images Digital/DVD
 	c.OnXML(`//*[@id="sample-image-block"]//a[@name="sample-image"]`, func(e *colly.XMLElement) {
-		previewImageSet.Add(e.Request.AbsoluteURL(PreviewSrc(e.ChildAttr(`.//img`, "src"))))
+		previewImageSet.Add(e.Request.AbsoluteURL(PreviewSrc(extractImageSrc(e))))
 	})
 
 	// Preview Images Digital (Fallback)
@@ -343,7 +350,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		if previewImageSet.Len() == 0 {
 			return
 		}
-		previewImageSet.Add(e.Request.AbsoluteURL(PreviewSrc(e.ChildAttr(`.//img`, "src"))))
+		previewImageSet.Add(e.Request.AbsoluteURL(PreviewSrc(extractImageSrc(e))))
 	})
 
 	// Final Preview Images
