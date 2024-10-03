@@ -22,8 +22,8 @@ func Register[T Provider](name string, factory func() T) {
 	factoryMu.Lock()
 	defer factoryMu.Unlock()
 
-	registered := false
 	provider := *new(T)
+	registered := false
 
 	if _, ok := any(provider).(ActorProvider); ok {
 		actorFactories[name] = func() ActorProvider { return any(factory()).(ActorProvider) }

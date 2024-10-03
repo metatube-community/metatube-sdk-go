@@ -41,16 +41,16 @@ var (
 )
 
 type Gfriends struct {
-	priority *atomic.Int64
+	priority *atomic.Float64
 }
 
-func New() *Gfriends { return &Gfriends{atomic.NewInt64(Priority)} }
+func New() *Gfriends { return &Gfriends{atomic.NewFloat64(Priority)} }
 
 func (gf *Gfriends) Name() string { return Name }
 
-func (gf *Gfriends) Priority() int64 { return gf.priority.Load() }
+func (gf *Gfriends) Priority() float64 { return gf.priority.Load() }
 
-func (gf *Gfriends) SetPriority(v int64) { gf.priority.Store(v) }
+func (gf *Gfriends) SetPriority(v float64) { gf.priority.Store(v) }
 
 func (gf *Gfriends) URL() *url.URL { return _baseURL }
 

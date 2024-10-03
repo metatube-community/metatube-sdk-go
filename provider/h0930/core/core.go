@@ -24,7 +24,7 @@ type Core struct {
 	MovieURL string
 
 	// Values
-	DefaultPriority int
+	DefaultPriority float64
 	DefaultName     string
 	DefaultMaker    string
 }

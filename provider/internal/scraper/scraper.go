@@ -19,12 +19,12 @@ var (
 type Scraper struct {
 	name     string
 	baseURL  *url.URL
-	priority *atomic.Int64
+	priority *atomic.Float64
 	c        *colly.Collector
 }
 
 // NewScraper returns a *Scraper that implements provider.Provider .
-func NewScraper(name, base string, priority int, opts ...Option) *Scraper {
+func NewScraper(name, base string, priority float64, opts ...Option) *Scraper {
 	baseURL, err := url.Parse(base)
 	if err != nil {
 		panic(err)
@@ -32,7 +32,7 @@ func NewScraper(name, base string, priority int, opts ...Option) *Scraper {
 	s := &Scraper{
 		name:     name,
 		baseURL:  baseURL,
-		priority: atomic.NewInt64(int64(priority)),
+		priority: atomic.NewFloat64(priority),
 		c:        colly.NewCollector(),
 	}
 	for _, opt := range opts {
@@ -45,7 +45,7 @@ func NewScraper(name, base string, priority int, opts ...Option) *Scraper {
 }
 
 // NewDefaultScraper returns a *Scraper with default options enabled.
-func NewDefaultScraper(name, baseURL string, priority int, opts ...Option) *Scraper {
+func NewDefaultScraper(name, baseURL string, priority float64, opts ...Option) *Scraper {
 	return NewScraper(name, baseURL, priority, append([]Option{
 		WithAllowURLRevisit(),
 		WithIgnoreRobotsTxt(),
@@ -57,9 +57,9 @@ func (s *Scraper) Name() string { return s.name }
 
 func (s *Scraper) URL() *url.URL { return s.baseURL }
 
-func (s *Scraper) Priority() int64 { return s.priority.Load() }
+func (s *Scraper) Priority() float64 { return s.priority.Load() }
 
-func (s *Scraper) SetPriority(v int64) { s.priority.Store(v) }
+func (s *Scraper) SetPriority(v float64) { s.priority.Store(v) }
 
 func (s *Scraper) NormalizeMovieID(id string) string { return id /* AS IS */ }
 

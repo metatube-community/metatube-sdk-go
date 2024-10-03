@@ -24,7 +24,7 @@ type Core struct {
 	SearchURL string
 
 	// Values
-	DefaultPriority int
+	DefaultPriority float64
 	DefaultName     string
 }
 
