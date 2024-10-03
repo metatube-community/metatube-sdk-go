@@ -11,7 +11,7 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/common/priority"
-	"github.com/metatube-community/metatube-sdk-go/engine/internal/utils"
+	"github.com/metatube-community/metatube-sdk-go/common/sets"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/gfriends"
@@ -60,12 +60,12 @@ func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool
 						// overwrite error.
 						err = nil
 						// update results.
-						asr := utils.NewSearchResultSet[*model.ActorSearchResult]()
+						asr := sets.NewOrderedSet(func(v *model.ActorSearchResult) string { return v.Provider + v.ID })
 						// unlike movie searching, we want search results go first
 						// than DB data here, so we add results later than DB results.
 						asr.Add(innerResults...)
 						asr.Add(results...)
-						results = asr.Results()
+						results = asr.Slice()
 					}
 				}()
 			}
