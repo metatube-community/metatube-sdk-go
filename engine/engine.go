@@ -145,6 +145,4 @@ func (e *Engine) Fetch(url string, provider mt.Provider) (*http.Response, error)
 }
 
 // String returns the name of the Engine instance.
-func (e *Engine) String() string {
-	return e.name
-}
+func (e *Engine) String() string { return e.name }
