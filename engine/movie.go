@@ -171,7 +171,7 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 				e.logger.Printf("ignore provider %s as not found", result.Provider)
 				continue
 			}
-			ps.Append(comparer.Compare(keyword, result.Number)*float64(e.MustGetMovieProviderByName(result.Provider).Priority()), result)
+			ps.Append(comparer.Compare(keyword, result.Number)*e.MustGetMovieProviderByName(result.Provider).Priority(), result)
 		}
 		// sort according to priority.
 		results = ps.Stable().Underlying()
