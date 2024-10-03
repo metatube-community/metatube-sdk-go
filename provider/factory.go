@@ -1,7 +1,7 @@
 package provider
 
 import (
-	"reflect"
+	"fmt"
 	"sync"
 )
 
@@ -22,27 +22,21 @@ func Register[T Provider](name string, factory func() T) {
 	factoryMu.Lock()
 	defer factoryMu.Unlock()
 
-	// Get the return type of the factory function.
-	t := reflect.TypeOf(factory).Out(0)
-
-	// Track if the factory has been registered.
 	registered := false
+	provider := *new(T)
 
-	// Check if the return type implements ActorProvider.
-	if t.Implements(reflect.TypeOf((*ActorProvider)(nil)).Elem()) {
+	if _, ok := any(provider).(ActorProvider); ok {
 		actorFactories[name] = func() ActorProvider { return any(factory()).(ActorProvider) }
 		registered = true
 	}
 
-	// Check if the return type implements MovieProvider.
-	if t.Implements(reflect.TypeOf((*MovieProvider)(nil)).Elem()) {
+	if _, ok := any(provider).(MovieProvider); ok {
 		movieFactories[name] = func() MovieProvider { return any(factory()).(MovieProvider) }
 		registered = true
 	}
 
-	// Panic if the factory does not implement either interface.
 	if !registered {
-		panic("invalid provider factory: func() " + t.String())
+		panic(fmt.Sprintf("invalid provider factory: func() %T", provider))
 	}
 }
 
