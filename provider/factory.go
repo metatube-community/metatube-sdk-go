@@ -40,18 +40,22 @@ func Register[T Provider](name string, factory func() T) {
 	}
 }
 
-func RangeMovieFactory(f func(string, MovieFactory)) {
+func RangeMovieFactory(f func(string, MovieFactory) bool) {
 	factoryMu.RLock()
 	for name, factory := range movieFactories {
-		f(name, factory)
+		if !f(name, factory) {
+			return
+		}
 	}
 	factoryMu.RUnlock()
 }
 
-func RangeActorFactory(f func(string, ActorFactory)) {
+func RangeActorFactory(f func(string, ActorFactory) bool) {
 	factoryMu.RLock()
 	for name, factory := range actorFactories {
-		f(name, factory)
+		if !f(name, factory) {
+			return
+		}
 	}
 	factoryMu.RUnlock()
 }
