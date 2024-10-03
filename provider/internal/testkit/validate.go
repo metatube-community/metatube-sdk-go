@@ -42,7 +42,7 @@ func FieldsNotEmpty(fields ...string) ValidateFunc {
 		for _, field := range fields {
 			f, err := getStructFieldByName(a, field)
 			require.NoError(t, err)
-			assert.NotEmpty(t, f)
+			assert.NotEmptyf(t, f, "field is empty: %s", field)
 		}
 	}
 }
