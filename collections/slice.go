@@ -1,48 +1,44 @@
 package collections
 
-import "sort"
+import (
+	"sort"
 
-var _ sort.Interface = (*Slice[int, int])(nil)
+	. "golang.org/x/exp/constraints"
+)
 
-type Slice[T int | float64, U any] struct {
-	priorities []T
-	underlying []U
+var _ sort.Interface = (*WeightedSlice[int, int])(nil)
+
+type WeightedSlice[W Ordered, T any] struct {
+	weights []W
+	objects []T
 }
 
-func (s *Slice[T, U]) Append(priority T, item U) {
-	s.priorities = append(s.priorities, priority)
-	s.underlying = append(s.underlying, item)
+func (s *WeightedSlice[W, T]) Len() int {
+	return len(s.weights)
 }
 
-func (s *Slice[T, U]) Sort() *Slice[T, U] {
-	sort.Sort(s)
+func (s *WeightedSlice[W, T]) Less(i int, j int) bool {
+	// higher weighted item comes first.
+	return s.weights[i] > s.weights[j]
+}
+
+func (s *WeightedSlice[W, T]) Swap(i int, j int) {
+	s.weights[i], s.weights[j] = s.weights[j], s.weights[i]
+	s.objects[i], s.objects[j] = s.objects[j], s.objects[i]
+}
+
+func (s *WeightedSlice[W, T]) Append(weight W, object T) {
+	s.weights = append(s.weights, weight)
+	s.objects = append(s.objects, object)
+}
+
+func (s *WeightedSlice[W, T]) Underlying() []T {
+	return s.objects
+}
+
+func (s *WeightedSlice[W, T]) SortFunc(fs ...func(p sort.Interface)) *WeightedSlice[W, T] {
+	for _, f := range fs {
+		f(s)
+	}
 	return s
-}
-
-func (s *Slice[T, U]) Stable() *Slice[T, U] {
-	sort.Stable(s)
-	return s
-}
-
-func (s *Slice[T, U]) Reverse() *Slice[T, U] {
-	sort.Stable(sort.Reverse(s))
-	return s
-}
-
-func (s *Slice[_, U]) Underlying() []U {
-	return s.underlying
-}
-
-func (s *Slice[_, _]) Len() int {
-	return len(s.priorities)
-}
-
-func (s *Slice[_, _]) Swap(i int, j int) {
-	s.priorities[i], s.priorities[j] = s.priorities[j], s.priorities[i]
-	s.underlying[i], s.underlying[j] = s.underlying[j], s.underlying[i]
-}
-
-func (s *Slice[_, _]) Less(i int, j int) bool {
-	// higher priority comes first.
-	return s.priorities[i] > s.priorities[j]
 }
