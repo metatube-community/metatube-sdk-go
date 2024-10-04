@@ -75,4 +75,17 @@ func TestOrderedMap(t *testing.T) {
 		b, _ := json.Marshal(m)
 		require.Equal(t, `{"w":{"n":3,"m":5},"b":{"f":1,"j":0}}`, string(b))
 	}
+
+	{ // A lot of ordered sub maps unmarshal
+		jsonData := `{
+			"w":{"n":{"g":3,"5":5},"m":{"v":3,"2":5}},
+			"b":{"f":{"h":3,"3":5},"j":{"x":3,"c":5}}
+		}`
+		m := NewOrderedMap[string, *OrderedMap[string, *OrderedMap[string, any]]]()
+		err := m.UnmarshalJSON([]byte(jsonData))
+		require.NoError(t, err)
+
+		b, _ := json.Marshal(m)
+		require.Equal(t, `{"w":{"n":{"g":3,"5":5},"m":{"v":3,"2":5}},"b":{"f":{"h":3,"3":5},"j":{"x":3,"c":5}}}`, string(b))
+	}
 }
