@@ -43,13 +43,13 @@ func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool
 					return // ignore error or empty.
 				}
 				const minSimilarity = 0.3
-				ps := new(collections.Slice[float64, *model.ActorSearchResult])
+				ps := new(collections.WeightedSlice[float64, *model.ActorSearchResult])
 				for _, result := range results {
 					if similarity := comparer.Compare(result.Name, keyword); similarity >= minSimilarity {
 						ps.Append(similarity, result)
 					}
 				}
-				results = ps.Stable().Underlying() // replace results.
+				results = ps.SortFunc(sort.Stable).Underlying() // replace results.
 			}()
 			if fallback {
 				defer func() {

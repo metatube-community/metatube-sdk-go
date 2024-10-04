@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -161,7 +162,7 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 		msr.Add(results...)
 		results = msr.Slice()
 		// post-processing
-		ps := new(collections.Slice[float64, *model.MovieSearchResult])
+		ps := new(collections.WeightedSlice[float64, *model.MovieSearchResult])
 		for _, result := range results {
 			if !result.Valid() /* validation check */ {
 				continue
@@ -170,10 +171,12 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 				e.logger.Printf("ignore provider %s as not found", result.Provider)
 				continue
 			}
-			ps.Append(comparer.Compare(keyword, result.Number)*e.MustGetMovieProviderByName(result.Provider).Priority(), result)
+			priority := comparer.Compare(keyword, result.Number) *
+				e.MustGetMovieProviderByName(result.Provider).Priority()
+			ps.Append(priority, result)
 		}
 		// sort according to priority.
-		results = ps.Stable().Underlying()
+		results = ps.SortFunc(sort.Stable).Underlying()
 	}()
 
 	if fallback /* query database for missing results  */ {
