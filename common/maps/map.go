@@ -58,6 +58,7 @@ func (m *OrderedMap[K, V]) UnmarshalJSON(data []byte) error {
 		m.OrderedMap = orderedmap.NewOrderedMap[K, V]()
 	}
 	temp := make(map[K]V)
+	defer clear(temp) // for gc
 	if err := json.Unmarshal(data, &temp); err != nil {
 		return err
 	}
