@@ -3,7 +3,6 @@ package maps
 import (
 	"bytes"
 	"encoding/json"
-	"sync"
 
 	"github.com/elliotchance/orderedmap/v2"
 	jsoniter "github.com/json-iterator/go"
@@ -17,16 +16,10 @@ var (
 type OrderedMap[K comparable, V any] struct {
 	*orderedmap.OrderedMap[K, V]
 	escapeHTML bool
-	initOnce   sync.Once
 }
 
 func NewOrderedMap[K comparable, V any]() *OrderedMap[K, V] {
-	return (&OrderedMap[K, V]{}).init()
-}
-
-func (m *OrderedMap[K, V]) init() *OrderedMap[K, V] {
-	m.initOnce.Do(func() { m.OrderedMap = orderedmap.NewOrderedMap[K, V]() })
-	return m
+	return &OrderedMap[K, V]{OrderedMap: orderedmap.NewOrderedMap[K, V]()}
 }
 
 func (m *OrderedMap[K, V]) SetEscapeHTML(on bool) {
@@ -34,7 +27,6 @@ func (m *OrderedMap[K, V]) SetEscapeHTML(on bool) {
 }
 
 func (m *OrderedMap[K, V]) Set(key K, value V) bool {
-	m.init()
 	return m.OrderedMap.Set(key, value)
 }
 
@@ -62,6 +54,9 @@ func (m *OrderedMap[K, V]) MarshalJSON() ([]byte, error) {
 }
 
 func (m *OrderedMap[K, V]) UnmarshalJSON(data []byte) error {
+	if m.OrderedMap == nil {
+		m.OrderedMap = orderedmap.NewOrderedMap[K, V]()
+	}
 	temp := make(map[K]V)
 	if err := json.Unmarshal(data, &temp); err != nil {
 		return err
