@@ -125,14 +125,11 @@ func (ft *fileTree) query(s string) (images []string, err error) {
 		return nil, nil
 	})
 	// query
-	for _, co := range ft.Content.Keys() {
-		if am, ok := ft.Content.Get(co); ok {
-			for _, n := range am.Keys() {
-				if n[:len(n)-len(path.Ext(n))] == s /* exact match */ {
-					u, _ := am.Get(n)
-					if u, e := url.Parse(fmt.Sprintf(contentURL, co, u)); e == nil {
-						images = append(images, u.String())
-					}
+	for co, am := range ft.Content.Iterator() {
+		for n, p := range am.Iterator() {
+			if n[:len(n)-len(path.Ext(n))] == s /* exact match */ {
+				if u, e := url.Parse(fmt.Sprintf(contentURL, co, p)); e == nil {
+					images = append(images, u.String())
 				}
 			}
 		}

@@ -3,6 +3,7 @@ package collections
 import (
 	"bytes"
 	"encoding/json"
+	"slices"
 
 	"github.com/elliotchance/orderedmap/v2"
 	jsoniter "github.com/json-iterator/go"
@@ -26,8 +27,21 @@ func (m *OrderedMap[K, V]) SetEscapeHTML(on bool) {
 	m.escapeHTML = on
 }
 
-func (m *OrderedMap[K, V]) Set(key K, value V) bool {
-	return m.OrderedMap.Set(key, value)
+func (m *OrderedMap[K, V]) Copy() *OrderedMap[K, V] {
+	return &OrderedMap[K, V]{
+		OrderedMap: m.OrderedMap.Copy(),
+		escapeHTML: m.escapeHTML,
+	}
+}
+
+func (m *OrderedMap[K, V]) Values() []V {
+	return slices.Collect(func(yield func(V) bool) {
+		for _, v := range m.Iterator() {
+			if !yield(v) {
+				return
+			}
+		}
+	})
 }
 
 func (m *OrderedMap[K, V]) MarshalJSON() ([]byte, error) {

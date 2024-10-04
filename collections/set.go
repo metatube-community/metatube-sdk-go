@@ -41,7 +41,7 @@ func (s *OrderedSet[K, V]) Del(items ...V) {
 	}
 }
 
-func (s *OrderedSet[K, V]) Values() iter.Seq[V] {
+func (s *OrderedSet[K, V]) Iterator() iter.Seq[V] {
 	return func(yield func(V) bool) {
 		for _, v := range s.m.Iterator() {
 			if !yield(v) {
@@ -52,7 +52,7 @@ func (s *OrderedSet[K, V]) Values() iter.Seq[V] {
 }
 
 func (s *OrderedSet[K, V]) Slice() []V {
-	return slices.Collect(s.Values())
+	return slices.Collect(s.Iterator())
 }
 
 func (s *OrderedSet[K, V]) MarshalJSON() ([]byte, error) {
