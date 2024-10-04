@@ -1,4 +1,4 @@
-package maps
+package collections
 
 import (
 	"encoding/json"

@@ -8,10 +8,9 @@ import (
 
 	"gorm.io/gorm/clause"
 
+	"github.com/metatube-community/metatube-sdk-go/collections"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
-	"github.com/metatube-community/metatube-sdk-go/common/priority"
-	"github.com/metatube-community/metatube-sdk-go/common/sets"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/gfriends"
@@ -44,7 +43,7 @@ func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool
 					return // ignore error or empty.
 				}
 				const minSimilarity = 0.3
-				ps := new(priority.Slice[float64, *model.ActorSearchResult])
+				ps := new(collections.Slice[float64, *model.ActorSearchResult])
 				for _, result := range results {
 					if similarity := comparer.Compare(result.Name, keyword); similarity >= minSimilarity {
 						ps.Append(similarity, result)
@@ -60,7 +59,7 @@ func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool
 						// overwrite error.
 						err = nil
 						// update results.
-						asr := sets.NewOrderedSet(func(v *model.ActorSearchResult) string { return v.Provider + v.ID })
+						asr := collections.NewOrderedSet(func(v *model.ActorSearchResult) string { return v.Provider + v.ID })
 						// unlike movie searching, we want search results go first
 						// than DB data here, so we add results later than DB results.
 						asr.Add(innerResults...)

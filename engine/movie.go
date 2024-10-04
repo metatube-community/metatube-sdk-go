@@ -8,10 +8,9 @@ import (
 
 	"gorm.io/gorm/clause"
 
+	"github.com/metatube-community/metatube-sdk-go/collections"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
-	"github.com/metatube-community/metatube-sdk-go/common/priority"
-	"github.com/metatube-community/metatube-sdk-go/common/sets"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
@@ -57,7 +56,7 @@ func (e *Engine) searchMovie(keyword string, provider mt.MovieProvider, fallback
 					// overwrite error.
 					err = nil
 					// update results.
-					msr := sets.NewOrderedSet(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
+					msr := collections.NewOrderedSet(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
 					msr.Add(results...)
 					msr.Add(innerResults...)
 					results = msr.Slice()
@@ -158,11 +157,11 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			return
 		}
 		// remove duplicate results, if any.
-		msr := sets.NewOrderedSet(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
+		msr := collections.NewOrderedSet(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
 		msr.Add(results...)
 		results = msr.Slice()
 		// post-processing
-		ps := new(priority.Slice[float64, *model.MovieSearchResult])
+		ps := new(collections.Slice[float64, *model.MovieSearchResult])
 		for _, result := range results {
 			if !result.Valid() /* validation check */ {
 				continue
