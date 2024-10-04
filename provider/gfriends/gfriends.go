@@ -8,9 +8,8 @@ import (
 	"slices"
 	"time"
 
-	"github.com/iancoleman/orderedmap"
-
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
+	"github.com/metatube-community/metatube-sdk-go/common/maps"
 	"github.com/metatube-community/metatube-sdk-go/common/singledo"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
@@ -102,7 +101,7 @@ type fileTree struct {
 	single *singledo.Single
 
 	// `Content`
-	Content *orderedmap.OrderedMap `json:"Content"`
+	Content *maps.OrderedMap[string, *maps.OrderedMap[string, string]] `json:"Content"`
 
 	// `Information`
 	//Information struct {
@@ -115,7 +114,7 @@ type fileTree struct {
 func newFileTree(wait time.Duration) *fileTree {
 	return &fileTree{
 		single:  singledo.NewSingle(wait),
-		Content: orderedmap.New(),
+		Content: maps.NewOrderedMap[string, *maps.OrderedMap[string, string]](),
 	}
 }
 
@@ -126,13 +125,12 @@ func (ft *fileTree) query(s string) (images []string, err error) {
 		return nil, nil
 	})
 	// query
-	for _, c := range ft.Content.Keys() {
-		if o, ok := ft.Content.Get(c); ok {
-			am := o.(orderedmap.OrderedMap)
+	for _, co := range ft.Content.Keys() {
+		if am, ok := ft.Content.Get(co); ok {
 			for _, n := range am.Keys() {
 				if n[:len(n)-len(path.Ext(n))] == s /* exact match */ {
-					p, _ := am.Get(n)
-					if u, e := url.Parse(fmt.Sprintf(contentURL, c, p.(string))); e == nil {
+					u, _ := am.Get(n)
+					if u, e := url.Parse(fmt.Sprintf(contentURL, co, u)); e == nil {
 						images = append(images, u.String())
 					}
 				}
