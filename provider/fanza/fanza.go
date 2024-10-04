@@ -18,10 +18,10 @@ import (
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
 
+	"github.com/metatube-community/metatube-sdk-go/collections"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
-	"github.com/metatube-community/metatube-sdk-go/common/sets"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/imcmp"
@@ -331,7 +331,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	})
 
 	// In case of any duplication
-	previewImageSet := sets.NewOrderedSet(func(v string) string { return v })
+	previewImageSet := collections.NewOrderedSet(func(v string) string { return v })
 	extractImageSrc := func(e *colly.XMLElement) string {
 		src := e.ChildAttr(`.//img`, "data-lazy")
 		if strings.TrimSpace(src) == "" {

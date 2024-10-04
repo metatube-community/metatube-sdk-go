@@ -1,4 +1,4 @@
-package priority
+package collections
 
 import "sort"
 

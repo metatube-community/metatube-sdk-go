@@ -8,8 +8,8 @@ import (
 	"slices"
 	"time"
 
+	"github.com/metatube-community/metatube-sdk-go/collections"
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
-	"github.com/metatube-community/metatube-sdk-go/common/maps"
 	"github.com/metatube-community/metatube-sdk-go/common/singledo"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
@@ -101,7 +101,7 @@ type fileTree struct {
 	single *singledo.Single
 
 	// `Content`
-	Content *maps.OrderedMap[string, *maps.OrderedMap[string, string]] `json:"Content"`
+	Content *collections.OrderedMap[string, *collections.OrderedMap[string, string]] `json:"Content"`
 
 	// `Information`
 	//Information struct {
@@ -114,7 +114,7 @@ type fileTree struct {
 func newFileTree(wait time.Duration) *fileTree {
 	return &fileTree{
 		single:  singledo.NewSingle(wait),
-		Content: maps.NewOrderedMap[string, *maps.OrderedMap[string, string]](),
+		Content: collections.NewOrderedMap[string, *collections.OrderedMap[string, string]](),
 	}
 }
 
