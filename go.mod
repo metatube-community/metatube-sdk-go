@@ -20,8 +20,8 @@ require (
 	github.com/grafov/m3u8 v0.12.0
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-retryablehttp v0.7.7
-	github.com/iancoleman/orderedmap v0.3.0
 	github.com/jellydator/ttlcache/v3 v3.3.0
+	github.com/json-iterator/go v1.1.12
 	github.com/lib/pq v1.10.9
 	github.com/nlnwa/whatwg-url v0.5.0
 	github.com/peterbourgon/ff/v3 v3.4.0
@@ -75,7 +75,6 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
