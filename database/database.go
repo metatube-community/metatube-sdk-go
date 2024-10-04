@@ -35,7 +35,7 @@ type Config struct {
 	MaxIdleConns int
 }
 
-func Open(cfg *Config) (db *gorm.DB, err error) {
+func Open(cfg *Config) (*gorm.DB, error) {
 	if cfg.DSN == "" {
 		// use sqlite DB memory mode by default.
 		cfg.DSN = "file::memory:?cache=shared"
@@ -60,7 +60,7 @@ func Open(cfg *Config) (db *gorm.DB, err error) {
 		dialector = sqlite.Open(cfg.DSN)
 	}
 
-	db, err = gorm.Open(dialector, &gorm.Config{
+	db, err := gorm.Open(dialector, &gorm.Config{
 		Logger: logger.New(log.New(os.Stdout, "[GORM]\u0020", log.LstdFlags), logger.Config{
 			SlowThreshold:             100 * time.Millisecond,
 			LogLevel:                  logger.Info,
@@ -72,12 +72,12 @@ func Open(cfg *Config) (db *gorm.DB, err error) {
 		DisableAutomaticPing: cfg.DisableAutomaticPing,
 	})
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	if sqlDB, err := db.DB(); err == nil /* ignore error */ {
 		sqlDB.SetMaxIdleConns(cfg.MaxIdleConns)
 		sqlDB.SetMaxOpenConns(cfg.MaxOpenConns)
 	}
-	return
+	return db, nil
 }
