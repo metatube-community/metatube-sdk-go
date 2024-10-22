@@ -6,7 +6,7 @@ toolchain go1.23.1
 
 require (
 	github.com/adrg/strutil v0.3.1
-	github.com/antchfx/htmlquery v1.3.2
+	github.com/antchfx/htmlquery v1.3.3
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/corona10/goimagehash v1.1.0
 	github.com/docker/go-units v0.5.0
@@ -25,8 +25,8 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/nlnwa/whatwg-url v0.5.0
 	github.com/peterbourgon/ff/v3 v3.4.0
-	github.com/projectdiscovery/useragent v0.0.72
-	github.com/projectdiscovery/utils v0.2.12
+	github.com/projectdiscovery/useragent v0.0.73
+	github.com/projectdiscovery/utils v0.2.13
 	github.com/robertkrimen/otto v0.4.0
 	github.com/stretchr/testify v1.9.0
 	github.com/zijiren233/google-translator v1.0.1
@@ -47,8 +47,8 @@ require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/PuerkitoBio/goquery v1.10.0 // indirect
 	github.com/andybalholm/cascadia v1.3.2 // indirect
-	github.com/antchfx/xmlquery v1.4.1 // indirect
-	github.com/antchfx/xpath v1.3.1 // indirect
+	github.com/antchfx/xmlquery v1.4.2 // indirect
+	github.com/antchfx/xpath v1.3.2 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/bits-and-blooms/bitset v1.14.3 // indirect
 	github.com/bytedance/sonic v1.12.3 // indirect
@@ -91,9 +91,9 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
-	github.com/sashabaranov/go-openai v1.31.0 // indirect
+	github.com/sashabaranov/go-openai v1.32.0 // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
-	github.com/tetratelabs/wazero v1.8.0 // indirect
+	github.com/tetratelabs/wazero v1.8.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	golang.org/x/arch v0.11.0 // indirect
@@ -101,7 +101,7 @@ require (
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/protobuf v1.34.2 // indirect
+	google.golang.org/protobuf v1.35.1 // indirect
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.7 // indirect
