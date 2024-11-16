@@ -292,10 +292,10 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	// Preview Video
 	c.OnXML(`//*[@id="detail-sample-movie"]/div/a`, func(e *colly.XMLElement) {
 		var videoPath string
-		if v := e.Attr("onclick"); v != "" { // digital
+		if dvu := e.Attr("data-video-url"); dvu != "" { // mono
+			videoPath = dvu
+		} else if v := e.Attr("onclick"); v != "" { // digital
 			videoPath = regexp.MustCompile(`/(.+)/`).FindString(v)
-		} else { // mono
-			videoPath = e.Attr("data-video-url")
 		}
 		d := c.Clone()
 		d.OnXML(`//iframe`, func(e *colly.XMLElement) {
