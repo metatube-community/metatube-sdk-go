@@ -32,6 +32,7 @@ func TestFANZA_GetMovieInfoByID(t *testing.T) {
 
 func TestFANZA_GetMovieInfoByURL(t *testing.T) {
 	testkit.Test(t, New, []string{
+		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=1start00190/",
 		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=ebwh00164/",
 		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=fpre00106/",
 		"https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=41hodv21810/",
