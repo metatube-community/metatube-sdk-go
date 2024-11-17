@@ -369,7 +369,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 
 	// Find big thumb/cover images (awsimgsrc.dmm.co.jp)
 	c.OnScraped(func(_ *colly.Response) {
-		start := time.Date(2024, 5, 20, 0, 0, 0, 0, time.UTC)
+		start := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 		if time.Time(info.ReleaseDate).Before(start) {
 			return // ignore movies released before this date.
 		}
