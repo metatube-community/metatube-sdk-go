@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	ErrTranslator = &errorTranslator{errors.New("translate: unknown translator")}
+	ErrTranslator           = &errorTranslator{errors.New("translate: unknown translator")}
 	ErrInvalidConfiguration = errors.New("translate: invalid configuration")
 )
 
