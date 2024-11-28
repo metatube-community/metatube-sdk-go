@@ -9,7 +9,10 @@ import (
 	"go.uber.org/atomic"
 )
 
-var ErrTranslator = &errorTranslator{errors.New("translate: unknown translator")}
+var (
+	ErrTranslator = &errorTranslator{errors.New("translate: unknown translator")}
+	ErrInvalidConfiguration = errors.New("translate: invalid configuration")
+)
 
 type Translator interface {
 	Translate(text, from, to string) (string, error)

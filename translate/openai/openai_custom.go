@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -14,9 +15,9 @@ import (
 var _ translate.Translator = (*OpenAIX)(nil)
 
 type OpenAIX struct {
-	APIKey   string `json:"openai-api-key"`
-	BaseURL  string `json:"base-url"`
-	Model    string `json:"model"`
+	APIKey  string `json:"openai-api-key"`
+	BaseURL string `json:"base-url"`
+	Model   string `json:"model"`
 }
 
 func (oa *OpenAIX) Translate(q, source, target string) (result string, err error) {
@@ -27,7 +28,7 @@ func (oa *OpenAIX) Translate(q, source, target string) (result string, err error
 	// Prepare the chat message
 	prompt := fmt.Sprintf(`You are a professional translator for adult video content. Please translate the following text from %s to %s.
 Rules:
-1. Keep actor/actress names and video codes unchanged
+1. Keep actor/actress names and video codes unchanged, output as is in translation
 2. Maintain any numbers, dates, and measurements in their original format
 3. Translate naturally and fluently, avoiding word-for-word translation
 4. Do not add any explanations or notes
@@ -35,41 +36,62 @@ Rules:
 
 Text to translate:
 %s`, source, target, q)
-	
+
 	model := oa.Model
 	if model == "" {
 		model = "gpt-3.5-turbo"
 	}
 
+	// 准备请求体
 	reqBody := map[string]interface{}{
 		"model": model,
 		"messages": []map[string]string{
+			{
+				"role":    "system",
+				"content": "You are a professional translator for adult video content.",
+			},
 			{
 				"role":    "user",
 				"content": prompt,
 			},
 		},
 		"temperature": 0.3,
+		"max_tokens":  1000,
 	}
 
-	reqJSON, err := json.Marshal(reqBody)
-	if err != nil {
-		return "", err
+	// 准备请求选项
+	opts := []fetch.Option{
+		fetch.WithRaiseForStatus(true),
+		fetch.WithHeader("Content-Type", "application/json"),
+		fetch.WithHeader("Accept", "application/json"),
+	}
+
+	// 如果配置了 API Key，添加认证头
+	if oa.APIKey != "" {
+		opts = append(opts,
+			fetch.WithHeader("Authorization", "Bearer "+oa.APIKey),
+		)
 	}
 
 	var resp *http.Response
-	if resp, err = fetch.Post(
-		oa.BaseURL,
-		fetch.WithJSONBody(bytes.NewReader(reqJSON)),
-		fetch.WithRaiseForStatus(true),
-		fetch.WithHeader("Authorization", "Bearer "+oa.APIKey),
-		fetch.WithHeader("Content-Type", "application/json"),
-	); err != nil {
-		return
+	if resp, err = fetch.Post(oa.BaseURL, fetch.WithJSONBody(reqBody), opts...); err != nil {
+		return "", fmt.Errorf("request failed: %v", err)
 	}
 	defer resp.Body.Close()
 
+	// 读取响应内容
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response body: %v", err)
+	}
+	fmt.Printf("Response: %s\n", string(respBody))
+
 	var data struct {
+		Error *struct {
+			Message string `json:"message"`
+			Type    string `json:"type"`
+			Code    string `json:"code"`
+		} `json:"error,omitempty"`
 		Choices []struct {
 			Message struct {
 				Content string `json:"content"`
@@ -77,12 +99,18 @@ Text to translate:
 		} `json:"choices"`
 	}
 
-	if err = json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		return
+	if err = json.NewDecoder(bytes.NewReader(respBody)).Decode(&data); err != nil {
+		return "", fmt.Errorf("failed to decode response: %v, body: %s", err, string(respBody))
+	}
+
+	if data.Error != nil {
+		return "", fmt.Errorf("API error: %s (%s)", data.Error.Message, data.Error.Type)
 	}
 
 	if len(data.Choices) > 0 {
 		result = strings.TrimSpace(data.Choices[0].Message.Content)
+	} else {
+		err = fmt.Errorf("no translation result")
 	}
 	return
 }
