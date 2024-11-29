@@ -15,9 +15,10 @@ import (
 var _ translate.Translator = (*OpenAIX)(nil)
 
 type OpenAIX struct {
-	APIKey  string `json:"openai-api-key"`
-	BaseURL string `json:"base-url"`
-	Model   string `json:"model"`
+	APIKey       string `json:"openai-api-key"`
+	BaseURL      string `json:"base-url"`
+	Model        string `json:"model"`
+	SystemPrompt string `json:"system-prompt"`
 }
 
 func (oa *OpenAIX) Translate(q, source, target string) (result string, err error) {
@@ -26,17 +27,19 @@ func (oa *OpenAIX) Translate(q, source, target string) (result string, err error
 	}
 
 	// Prepare the chat message
-	prompt := fmt.Sprintf(`You are a professional translator for adult video content. Please translate the following text from %s to %s.
+	systemPrompt := oa.SystemPrompt
+	if systemPrompt == "" {
+		systemPrompt = `You are a professional translator for adult video content.
 Rules:
 1. Use official translations for actor/actress names if available, otherwise keep them unchanged
 2. Do not invent translations for names without official versions
 3. Maintain any numbers, dates, and measurements in their original format
 4. Translate naturally and fluently, avoiding word-for-word translation
 5. Do not add any explanations or notes
-6. Only output the translation
+6. Only output the translation`
+	}
 
-Text to translate:
-%s`, source, target, q)
+	userPrompt := fmt.Sprintf("Please translate the following text from %s to %s:\n\n%s", source, target, q)
 
 	model := oa.Model
 	if model == "" {
@@ -49,11 +52,11 @@ Text to translate:
 		"messages": []map[string]string{
 			{
 				"role":    "system",
-				"content": "You are a professional translator for adult video content.",
+				"content": systemPrompt,
 			},
 			{
 				"role":    "user",
-				"content": prompt,
+				"content": userPrompt,
 			},
 		},
 		"temperature": 0.3,
