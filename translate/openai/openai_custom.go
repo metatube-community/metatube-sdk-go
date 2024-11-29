@@ -28,11 +28,12 @@ func (oa *OpenAIX) Translate(q, source, target string) (result string, err error
 	// Prepare the chat message
 	prompt := fmt.Sprintf(`You are a professional translator for adult video content. Please translate the following text from %s to %s.
 Rules:
-1. Keep actor/actress names and video codes unchanged, output as is in translation
-2. Maintain any numbers, dates, and measurements in their original format
-3. Translate naturally and fluently, avoiding word-for-word translation
-4. Do not add any explanations or notes
-5. Only output the translation
+1. Use official translations for actor/actress names if available, otherwise keep them unchanged
+2. Do not invent translations for names without official versions
+3. Maintain any numbers, dates, and measurements in their original format
+4. Translate naturally and fluently, avoiding word-for-word translation
+5. Do not add any explanations or notes
+6. Only output the translation
 
 Text to translate:
 %s`, source, target, q)
