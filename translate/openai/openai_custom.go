@@ -15,19 +15,19 @@ import (
 var _ translate.Translator = (*OpenAIX)(nil)
 
 type OpenAIX struct {
-	APIKey       string `json:"openai-api-key"`
-	BaseURL      string `json:"base-url"`
-	Model        string `json:"model"`
-	SystemPrompt string `json:"system-prompt"`
+	APIKey       string `json:"openaix-api-key"`
+	BaseURL      string `json:"openaix-base-url"`
+	Model        string `json:"openaix-model"`
+	SystemPrompt string `json:"openaix-system-prompt"`
 }
 
-func (oa *OpenAIX) Translate(q, source, target string) (result string, err error) {
-	if oa.BaseURL == "" {
+func (oax *OpenAIX) Translate(q, source, target string) (result string, err error) {
+	if oax.BaseURL == "" {
 		return "", translate.ErrTranslator
 	}
 
 	// Prepare the chat message
-	systemPrompt := oa.SystemPrompt
+	systemPrompt := oax.SystemPrompt
 	if systemPrompt == "" {
 		systemPrompt = `You are a professional translator for adult video content.
 Rules:
@@ -41,7 +41,7 @@ Rules:
 
 	userPrompt := fmt.Sprintf("Please translate the following text from %s to %s:\n\n%s", source, target, q)
 
-	model := oa.Model
+	model := oax.Model
 	if model == "" {
 		model = "gpt-3.5-turbo"
 	}
@@ -68,14 +68,14 @@ Rules:
 		fetch.WithHeader("Accept", "application/json"),
 	}
 
-	if oa.APIKey != "" {
+	if oax.APIKey != "" {
 		opts = append(opts,
-			fetch.WithHeader("Authorization", "Bearer "+oa.APIKey),
+			fetch.WithHeader("Authorization", "Bearer "+oax.APIKey),
 		)
 	}
 
 	var resp *http.Response
-	if resp, err = fetch.Post(oa.BaseURL, fetch.WithJSONBody(reqBody), opts...); err != nil {
+	if resp, err = fetch.Post(oax.BaseURL, fetch.WithJSONBody(reqBody), opts...); err != nil {
 		return "", fmt.Errorf("request failed: %v", err)
 	}
 	defer resp.Body.Close()
@@ -84,7 +84,6 @@ Rules:
 	if err != nil {
 		return "", fmt.Errorf("failed to read response body: %v", err)
 	}
-	fmt.Printf("Response: %s\n", string(respBody))
 
 	var data struct {
 		Error *struct {
