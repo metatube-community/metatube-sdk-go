@@ -15,12 +15,12 @@ import (
 var _ translate.Translator = (*DeepLX)(nil)
 
 type DeepLX struct {
-	APIKey  string `json:"deepl-api-key"`
-	BaseURL string `json:"base-url"`
+	APIKey  string `json:"deeplx-api-key"`
+	BaseURL string `json:"deeplx-base-url"`
 }
 
-func (dpl *DeepLX) Translate(q, source, target string) (result string, err error) {
-	if dpl.BaseURL == "" {
+func (dplx *DeepLX) Translate(q, source, target string) (result string, err error) {
+	if dplx.BaseURL == "" {
 		return "", translate.ErrTranslator
 	}
 
@@ -37,19 +37,16 @@ func (dpl *DeepLX) Translate(q, source, target string) (result string, err error
 	opts := []fetch.Option{
 		fetch.WithRaiseForStatus(true),
 		fetch.WithHeader("Content-Type", "application/json"),
-		fetch.WithHeader("Accept", "*/*"),
-		fetch.WithHeader("User-Agent", "MetaTube/1.0.0"),
-		fetch.WithHeader("Connection", "keep-alive"),
 	}
 
-	if dpl.APIKey != "" {
+	if dplx.APIKey != "" {
 		opts = append(opts,
-			fetch.WithHeader("Authorization", "DeepL-Auth-Key "+dpl.APIKey),
+			fetch.WithHeader("Authorization", "DeepL-Auth-Key "+dplx.APIKey),
 		)
 	}
 
 	var resp *http.Response
-	if resp, err = fetch.Post(dpl.BaseURL, fetch.WithJSONBody(reqBody), opts...); err != nil {
+	if resp, err = fetch.Post(dplx.BaseURL, fetch.WithJSONBody(reqBody), opts...); err != nil {
 		return "", fmt.Errorf("request failed: %v", err)
 	}
 	defer resp.Body.Close()
@@ -58,7 +55,6 @@ func (dpl *DeepLX) Translate(q, source, target string) (result string, err error
 	if err != nil {
 		return "", fmt.Errorf("failed to read response body: %v", err)
 	}
-	fmt.Printf("Response: %s\n", string(respBody))
 
 	var data struct {
 		Code   int    `json:"code"`
