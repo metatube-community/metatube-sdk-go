@@ -17,7 +17,7 @@ const deeplTranslateAPI = "https://api-free.deepl.com/v2/translate"
 
 type DeepL struct {
 	APIKey  string `json:"deepl-api-key"`
-	BaseURL string `json:"deepl-base-url"`
+	BaseURL string `json:"deepl-alt-url"`
 }
 
 func (dpl *DeepL) Translate(q, source, target string) (result string, err error) {
@@ -40,18 +40,7 @@ func (dpl *DeepL) Translate(q, source, target string) (result string, err error)
 	opts := []fetch.Option{
 		fetch.WithRaiseForStatus(true),
 		fetch.WithHeader("Content-Type", "application/json"),
-	}
-
-	if dpl.APIKey != "" {
-		if strings.Contains(apiURL, "/v2/") {
-			opts = append(opts,
-				fetch.WithHeader("Authorization", "DeepL-Auth-Key "+dpl.APIKey),
-			)
-		} else {
-			opts = append(opts,
-				fetch.WithHeader("Authorization", "Bearer "+dpl.APIKey),
-			)
-		}
+		fetch.WithHeader("Authorization", "DeepL-Auth-Key "+dpl.APIKey),
 	}
 
 	var resp *http.Response
