@@ -3,6 +3,7 @@ package collections
 import (
 	"bytes"
 	"encoding/json"
+	"iter"
 
 	"github.com/elliotchance/orderedmap/v3"
 	jsoniter "github.com/json-iterator/go"
@@ -31,6 +32,10 @@ func (m *OrderedMap[K, V]) Copy() *OrderedMap[K, V] {
 		OrderedMap: m.OrderedMap.Copy(),
 		escapeHTML: m.escapeHTML,
 	}
+}
+
+func (m *OrderedMap[K, V]) Iterator() iter.Seq2[K, V] {
+	return m.AllFromFront() // For compatibility.
 }
 
 func (m *OrderedMap[K, V]) MarshalJSON() ([]byte, error) {
