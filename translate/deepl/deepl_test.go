@@ -16,8 +16,8 @@ func TestDeeplTranslate(t *testing.T) {
 		{`Oh yeah! I'm a translator!`, "", "fr"},
 	} {
 		result, err := (&DeepL{
-			APIKey:  os.Getenv("DEEPL_API_KEY"),
-			BaseURL: os.Getenv("DEEPL_BASE_URL"),
+			APIKey: os.Getenv("DEEPL_API_KEY"),
+			AltURL: os.Getenv("DEEPL_ALT_URL"),
 		}).Translate(unit.text, unit.from, unit.to)
 		if err != nil {
 			t.Fatal(err)
