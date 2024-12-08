@@ -15,12 +15,20 @@ const deeplTranslateAPI = "https://api-free.deepl.com/v2/translate"
 
 type DeepL struct {
 	APIKey string `json:"deepl-api-key"`
+	// AltURL is an optional DeepLX URL. It is only
+	// compatible with the /v2/translate API.
+	AltURL string `json:"deepl-alt-url"`
 }
 
 func (dpl *DeepL) Translate(q, source, target string) (result string, err error) {
+	apiURL := deeplTranslateAPI
+	if dpl.AltURL != "" {
+		apiURL = dpl.AltURL
+	}
+
 	var resp *http.Response
 	if resp, err = fetch.Post(
-		deeplTranslateAPI,
+		apiURL,
 		fetch.WithURLEncodedBody(map[string]string{
 			"text":            q,
 			"source_lang":     parseToDeeplSupportedLanguage(source),
