@@ -2,6 +2,7 @@ package collections
 
 import (
 	"encoding/json"
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -17,7 +18,7 @@ func TestOrderedMap(t *testing.T) {
 		m.Set("c", "2")
 		m.Set("b", 3.0)
 		m.Set("b", 1.5)
-		require.Equal(t, []any{1, "2", 1.5}, m.Values())
+		require.Equal(t, []any{1, "2", 1.5}, slices.Collect(m.Values()))
 
 		b, _ = json.Marshal(m)
 		require.Equal(t, `{"a":1,"c":"2","b":1.5}`, string(b))

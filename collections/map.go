@@ -3,9 +3,9 @@ package collections
 import (
 	"bytes"
 	"encoding/json"
-	"slices"
+	"iter"
 
-	"github.com/elliotchance/orderedmap/v2"
+	"github.com/elliotchance/orderedmap/v3"
 	jsoniter "github.com/json-iterator/go"
 )
 
@@ -34,14 +34,8 @@ func (m *OrderedMap[K, V]) Copy() *OrderedMap[K, V] {
 	}
 }
 
-func (m *OrderedMap[K, V]) Values() []V {
-	return slices.Collect(func(yield func(V) bool) {
-		for _, v := range m.Iterator() {
-			if !yield(v) {
-				return
-			}
-		}
-	})
+func (m *OrderedMap[K, V]) Iterator() iter.Seq2[K, V] {
+	return m.AllFromFront() // For compatibility.
 }
 
 func (m *OrderedMap[K, V]) MarshalJSON() ([]byte, error) {
