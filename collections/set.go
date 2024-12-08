@@ -5,7 +5,7 @@ import (
 	"iter"
 	"slices"
 
-	"github.com/elliotchance/orderedmap/v2"
+	"github.com/elliotchance/orderedmap/v3"
 )
 
 var (
@@ -43,7 +43,7 @@ func (s *OrderedSet[K, V]) Del(items ...V) {
 
 func (s *OrderedSet[K, V]) Iterator() iter.Seq[V] {
 	return func(yield func(V) bool) {
-		for _, v := range s.m.Iterator() {
+		for _, v := range s.m.AllFromFront() {
 			if !yield(v) {
 				return
 			}

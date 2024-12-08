@@ -1,8 +1,8 @@
 module github.com/metatube-community/metatube-sdk-go
 
-go 1.23
+go 1.23.0
 
-toolchain go1.23.1
+toolchain go1.23.3
 
 require (
 	github.com/adrg/strutil v0.3.1
@@ -10,7 +10,7 @@ require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/corona10/goimagehash v1.1.0
 	github.com/docker/go-units v0.5.0
-	github.com/elliotchance/orderedmap/v2 v2.6.0
+	github.com/elliotchance/orderedmap/v3 v3.0.0
 	github.com/esimov/pigo v1.4.7-0.20230220101645-e922e5442d38
 	github.com/gen2brain/jpegli v0.3.3
 	github.com/gin-gonic/gin v1.10.0
