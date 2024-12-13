@@ -16,7 +16,6 @@ Metadata Tube SDK in Golang.
     - [Contents](#contents)
     - [Features](#features)
     - [Installation](#installation)
-    - [API Examples](#api-examples)
     - [Credits](#credits)
     - [License](#license)
 
@@ -47,12 +46,6 @@ the below Go command to install SDK.
 ```sh
 go get -u github.com/metatube-community/metatube-sdk-go
 ```
-
-## API Examples
-
-You can find quickstart examples in
-the [examples folder](https://github.com/metatube-community/metatube-sdk-go/tree/main/_examples/) or specific
-implementations in the [cmd folder](https://github.com/metatube-community/metatube-sdk-go/tree/main/cmd/).
 
 ## Credits
 
