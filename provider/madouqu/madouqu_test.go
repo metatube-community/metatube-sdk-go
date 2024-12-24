@@ -1,15 +1,15 @@
 package madouqu
 
 import (
-	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/metatube-community/metatube-sdk-go/provider/internal/testkit"
 )
 
 func TestMadouQu_GetMovieInfoByID(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"mdx-0267",
 		"91cm109",
 		"ras-361",
@@ -18,29 +18,14 @@ func TestMadouQu_GetMovieInfoByID(t *testing.T) {
 		"xg19",
 		"hkd38",
 		"dd002",
-	} {
-		info, err := provider.GetMovieInfoByID(item)
-		data, _ := json.MarshalIndent(info, "", "\t")
-		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
-		t.Logf("%s", data)
-	}
+	})
 }
 
 func TestMadouQu_SearchMovie(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"mdx",
 		"厨房",
-	} {
-		results, err := provider.SearchMovie(provider.NormalizeMovieKeyword(item))
-		data, _ := json.MarshalIndent(results, "", "\t")
-		if assert.NoError(t, err) {
-			for _, result := range results {
-				assert.True(t, result.Valid())
-			}
-		}
-		t.Logf("%s", data)
-	}
+	})
 }
 
 func TestExtractImgSrc(t *testing.T) {

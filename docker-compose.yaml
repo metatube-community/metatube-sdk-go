@@ -1,0 +1,31 @@
+services:
+  metatube:
+    image: metatube/metatube-server:latest
+    container_name: metatube
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+    volumes:
+      - run:/var/run
+    command: -dsn "postgres://metatube:metatube@/metatube?host=/var/run/postgresql" -port 8080 -db-auto-migrate -db-prepared-stmt
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: metatube-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=metatube
+      - POSTGRES_PASSWORD=metatube
+      - POSTGRES_DB=metatube
+    volumes:
+      - ./db:/var/lib/postgresql/data
+      - run:/var/run
+    command: "-c TimeZone=Asia/Shanghai -c log_timezone=Asia/Shanghai -c listen_addresses='' -c unix_socket_permissions=0777"
+
+volumes:
+  run:

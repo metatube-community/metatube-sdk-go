@@ -229,5 +229,5 @@ func ParseNumber(s string) string {
 }
 
 func init() {
-	provider.RegisterMovieFactory(Name, New)
+	provider.Register(Name, New)
 }

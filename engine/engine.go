@@ -1,25 +1,31 @@
 package engine
 
 import (
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/database"
-	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
+)
+
+const (
+	DefaultEngineName     = "metatube"
+	DefaultRequestTimeout = time.Minute
 )
 
 type Engine struct {
 	db      *gorm.DB
+	name    string
+	timeout time.Duration
 	fetcher *fetch.Fetcher
 	// Engine Logger
-	logger *zap.SugaredLogger
+	logger *log.Logger
 	// Name:Provider Map
 	actorProviders map[string]mt.ActorProvider
 	movieProviders map[string]mt.MovieProvider
@@ -28,16 +34,17 @@ type Engine struct {
 	movieHostProviders map[string][]mt.MovieProvider
 }
 
-func New(db *gorm.DB, timeout time.Duration) *Engine {
+func New(db *gorm.DB, opts ...Option) *Engine {
 	engine := &Engine{
 		db:      db,
-		fetcher: fetch.Default(&fetch.Config{Timeout: timeout}),
+		name:    DefaultEngineName,
+		timeout: DefaultRequestTimeout,
 	}
-	logger, _ := zap.NewProduction()
-	engine.logger = logger.Sugar()
-	engine.initActorProviders(timeout)
-	engine.initMovieProviders(timeout)
-	return engine
+	// apply options
+	for _, opt := range opts {
+		opt(engine)
+	}
+	return engine.init()
 }
 
 func Default() *Engine {
@@ -45,47 +52,9 @@ func Default() *Engine {
 		DSN:                  "",
 		DisableAutomaticPing: true,
 	})
-	engine := New(db, time.Minute)
-	defer engine.AutoMigrate(true)
+	engine := New(db)
+	defer engine.DBAutoMigrate(true)
 	return engine
-}
-
-// initActorProviders initializes actor providers.
-func (e *Engine) initActorProviders(timeout time.Duration) {
-	{ // init
-		e.actorProviders = make(map[string]mt.ActorProvider)
-		e.actorHostProviders = make(map[string][]mt.ActorProvider)
-	}
-	mt.RangeActorFactory(func(name string, factory mt.ActorFactory) {
-		provider := factory()
-		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
-			s.SetRequestTimeout(timeout)
-		}
-		// Add actor provider by name.
-		e.actorProviders[strings.ToUpper(name)] = provider
-		// Add actor provider by host.
-		host := provider.URL().Hostname()
-		e.actorHostProviders[host] = append(e.actorHostProviders[host], provider)
-	})
-}
-
-// initMovieProviders initializes movie providers.
-func (e *Engine) initMovieProviders(timeout time.Duration) {
-	{ // init
-		e.movieProviders = make(map[string]mt.MovieProvider)
-		e.movieHostProviders = make(map[string][]mt.MovieProvider)
-	}
-	mt.RangeMovieFactory(func(name string, factory mt.MovieFactory) {
-		provider := factory()
-		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
-			s.SetRequestTimeout(timeout)
-		}
-		// Add movie provider by name.
-		e.movieProviders[strings.ToUpper(name)] = provider
-		// Add movie provider by host.
-		host := provider.URL().Hostname()
-		e.movieHostProviders[host] = append(e.movieHostProviders[host], provider)
-	})
 }
 
 func (e *Engine) IsActorProvider(name string) (ok bool) {
@@ -164,24 +133,6 @@ func (e *Engine) MustGetMovieProviderByName(name string) mt.MovieProvider {
 	return provider
 }
 
-func (e *Engine) AutoMigrate(v bool) error {
-	if !v {
-		return nil
-	}
-	// Create Case-Insensitive Collation for Postgres.
-	if e.db.Config.Dialector.Name() == database.Postgres {
-		e.db.Exec(`CREATE COLLATION IF NOT EXISTS NOCASE (
-		provider = icu,
-		locale = 'und-u-ks-level2',
-		deterministic = FALSE)`)
-	}
-	return e.db.AutoMigrate(
-		&model.MovieInfo{},
-		&model.ActorInfo{},
-		&model.MovieReviewInfo{},
-	)
-}
-
 // Fetch fetches content from url. If provider is nil, the
 // default fetcher will be used.
 func (e *Engine) Fetch(url string, provider mt.Provider) (*http.Response, error) {
@@ -192,3 +143,6 @@ func (e *Engine) Fetch(url string, provider mt.Provider) (*http.Response, error)
 	}
 	return e.fetcher.Fetch(url)
 }
+
+// String returns the name of the Engine instance.
+func (e *Engine) String() string { return e.name }

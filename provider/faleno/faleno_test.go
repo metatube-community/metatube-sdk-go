@@ -1,44 +1,27 @@
 package faleno
 
 import (
-	"encoding/json"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/metatube-community/metatube-sdk-go/provider/internal/testkit"
 )
 
 func TestFALENO_GetMovieInfoByID(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"fsdss754",
 		"FSDSS749",
 		"fcdss072",
 		"FCDSS060",
-	} {
-		info, err := provider.GetMovieInfoByID(item)
-		data, _ := json.MarshalIndent(info, "", "\t")
-		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
-		t.Logf("%s", data)
-	}
+	})
 }
 
 func TestFALENO_SearchMovie(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"FSDSS-723",
 		"FSDSS746",
 		"fsdss728",
 		"fsdss-721",
 		"FCDSS-069",
 		"FCDSS066",
-	} {
-		results, err := provider.SearchMovie(provider.NormalizeMovieKeyword(item))
-		data, _ := json.MarshalIndent(results, "", "\t")
-		if assert.NoError(t, err) {
-			for _, result := range results {
-				assert.True(t, result.Valid())
-			}
-		}
-		t.Logf("%s", data)
-	}
+	})
 }

@@ -1,56 +1,54 @@
 package fanza
 
 import (
-	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/metatube-community/metatube-sdk-go/provider/internal/testkit"
 )
 
 func TestFANZA_GetMovieInfoByID(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"1silk00113",
 		"adn00306",
-		"1sdjs00033",
 		"okax841",
 		"zuko00122",
 		"118chn064",
-		"h_346rebd655tk2",
 		"midv00047",
 		"403jdxa57676",
 		"pkpd00170",
 		"mism00238",
 		"1msfh00007",
 		"1stars00141",
-		"vrkm00722",
-	} {
-		info, err := provider.GetMovieInfoByID(item)
-		data, _ := json.MarshalIndent(info, "", "\t")
-		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
-		t.Logf("%s", data)
-	}
+		"118abp906",
+		"196glod0325t",
+	},
+		testkit.FieldsNotEmpty("preview_images"),
+		testkit.FieldsNotEmptyAny("maker", "label", "series"),
+		testkit.FieldsNotEmptyAny("preview_video_url", "preview_video_hls_url"),
+	)
 }
 
 func TestFANZA_GetMovieInfoByURL(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
+		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=1start00190/",
+		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=ebwh00164/",
+		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=fpre00106/",
 		"https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=41hodv21810/",
 		"https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=h_346rebd655/",
 		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=ipvr00231/",
 		"https://www.dmm.co.jp/mono/anime/-/detail/=/cid=196glod0323t/",
 		"https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=fuyu079/",
-	} {
-		info, err := provider.GetMovieInfoByURL(item)
-		data, _ := json.MarshalIndent(info, "", "\t")
-		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
-		t.Logf("%s", data)
-	}
+	},
+		testkit.FieldsNotEmpty("preview_images", "actors"),
+		testkit.FieldsNotEmptyAny("maker", "label", "series"),
+		testkit.FieldsNotEmptyAny("preview_video_url", "preview_video_hls_url"),
+	)
 }
 
 func TestFANZA_SearchMovie(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"OREC-062",
 		"T-28621",
 		"midv-003",
@@ -60,21 +58,11 @@ func TestFANZA_SearchMovie(t *testing.T) {
 		"SSIS-122",
 		"MIDV-047",
 		"abw",
-	} {
-		results, err := provider.SearchMovie(provider.NormalizeMovieKeyword(item))
-		data, _ := json.MarshalIndent(results, "", "\t")
-		if assert.NoError(t, err) {
-			for _, result := range results {
-				assert.True(t, result.Valid())
-			}
-		}
-		t.Logf("%s", data)
-	}
+	})
 }
 
 func TestFANZA_GetMovieReviewsByURL(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+	testkit.Test(t, New, []string{
 		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=dass00256/",
 		"https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=1fsdss301/",
 		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=ssis00964/",
@@ -82,16 +70,7 @@ func TestFANZA_GetMovieReviewsByURL(t *testing.T) {
 		"https://www.dmm.co.jp/digital/nikkatsu/-/detail/=/cid=5421ksd00051/",
 		"https://www.dmm.co.jp/digital/anime/-/detail/=/cid=h_402mjad00329/",
 		"https://www.dmm.co.jp/mono/anime/-/detail/=/cid=196glod0154/",
-	} {
-		reviews, err := provider.GetMovieReviewsByURL(item)
-		data, _ := json.MarshalIndent(reviews, "", "\t")
-		if assert.NoError(t, err) {
-			for _, review := range reviews {
-				assert.True(t, review.Valid())
-			}
-		}
-		t.Logf("%s", data)
-	}
+	})
 }
 
 func TestParseNumber(t *testing.T) {

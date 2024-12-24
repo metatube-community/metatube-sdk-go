@@ -13,7 +13,10 @@ type Provider interface {
 	Name() string
 
 	// Priority returns the matching priority of the provider.
-	Priority() int
+	Priority() float64
+
+	// SetPriority sets the provider priority to the given value.
+	SetPriority(v float64)
 
 	// URL returns the base url of the provider.
 	URL() *url.URL

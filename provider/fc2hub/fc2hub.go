@@ -29,9 +29,9 @@ const (
 )
 
 const (
-	baseURL   = "https://fc2hub.com/"
-	movieURL  = "https://fc2hub.com/video/%s/id%s/%s"
-	searchURL = "https://fc2hub.com/search?kw=%s"
+	baseURL   = "https://javten.com/"
+	movieURL  = "https://javten.com/video/%s/id%s/%s"
+	searchURL = "https://javten.com/search?kw=%s"
 )
 
 type FC2HUB struct {
@@ -251,5 +251,5 @@ func removeEmpty(in []string) (out []string) {
 }
 
 func init() {
-	provider.RegisterMovieFactory(Name, New)
+	provider.Register(Name, New)
 }

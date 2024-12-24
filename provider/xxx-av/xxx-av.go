@@ -18,7 +18,7 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
 
-var _ provider.MovieProvider = (*TripleX)(nil)
+var _ provider.MovieProvider = (*XXXAV)(nil)
 
 const (
 	Name     = "XXX-AV"
@@ -30,12 +30,12 @@ const (
 	movieURL = "https://www.xxx-av.com/mov/movie/%s/"
 )
 
-type TripleX struct {
+type XXXAV struct {
 	*scraper.Scraper
 }
 
-func New() *TripleX {
-	return &TripleX{
+func New() *XXXAV {
+	return &XXXAV{
 		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
 			scraper.WithCookies(baseURL, []*http.Cookie{
 				{Name: "acc_accept_lang", Value: "japanese"},
@@ -43,18 +43,18 @@ func New() *TripleX {
 	}
 }
 
-func (xav *TripleX) NormalizeMovieID(id string) string {
+func (xav *XXXAV) NormalizeMovieID(id string) string {
 	if ss := regexp.MustCompile(`^(?i)(?:xxx[-_]av[-_])?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}
 	return ""
 }
 
-func (xav *TripleX) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+func (xav *XXXAV) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	return xav.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
 }
 
-func (xav *TripleX) ParseMovieIDFromURL(rawURL string) (string, error) {
+func (xav *XXXAV) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
@@ -62,7 +62,7 @@ func (xav *TripleX) ParseMovieIDFromURL(rawURL string) (string, error) {
 	return path.Base(homepage.Path), nil
 }
 
-func (xav *TripleX) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+func (xav *XXXAV) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
 	id, err := xav.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
@@ -126,5 +126,5 @@ func (xav *TripleX) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err
 }
 
 func init() {
-	provider.RegisterMovieFactory(Name, New)
+	provider.Register(Name, New)
 }

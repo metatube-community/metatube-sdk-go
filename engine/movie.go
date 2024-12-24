@@ -2,16 +2,16 @@ package engine
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"sync"
 	"time"
 
 	"gorm.io/gorm/clause"
 
+	"github.com/metatube-community/metatube-sdk-go/collections"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
-	"github.com/metatube-community/metatube-sdk-go/common/priority"
-	"github.com/metatube-community/metatube-sdk-go/engine/internal/utils"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
@@ -20,7 +20,7 @@ func (e *Engine) searchMovieFromDB(keyword string, provider mt.MovieProvider, al
 	var infos []*model.MovieInfo
 	tx := e.db.
 		// Note: keyword might be an ID or just a regular number, so we should
-		// query both of them for best match. Also, case should not mater.
+		// query both of them for best match. Also, case should not matter.
 		Where("number = ? COLLATE NOCASE", keyword).
 		Or("id = ? COLLATE NOCASE", keyword)
 	if all {
@@ -57,10 +57,10 @@ func (e *Engine) searchMovie(keyword string, provider mt.MovieProvider, fallback
 					// overwrite error.
 					err = nil
 					// update results.
-					msr := utils.NewMovieSearchResultSet()
+					msr := collections.NewOrderedSet(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
 					msr.Add(results...)
 					msr.Add(innerResults...)
-					results = msr.Results()
+					results = msr.Slice()
 				}
 			}()
 		}
@@ -119,14 +119,19 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 		close(respCh)
 	}()
 
-	ds := &strings.Builder{}
-
+	ds := make([]string, 0, len(e.movieProviders))
 	// response channel.
 	for resp := range respCh {
-		ds.WriteString(fmt.Sprintf(" %s(%s): %v",
+		ds = append(ds, func(a, b, c any) string {
+			if c == nil {
+				c = "no error"
+			}
+			return fmt.Sprintf("%s(%s):<%v>", a, b, c)
+		}(
 			resp.Provider.Name(),
 			resp.EndTime.Sub(resp.StartTime),
-			resp.Error))
+			resp.Error,
+		))
 
 		if resp.Error != nil {
 			continue
@@ -134,7 +139,7 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 		results = append(results, resp.Results...)
 	}
 
-	e.logger.Infof("Search keyword %s:%s", keyword, ds.String())
+	e.logger.Printf("Search keyword %s: %s", keyword, strings.Join(ds, " | "))
 	return
 }
 
@@ -153,23 +158,25 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			return
 		}
 		// remove duplicate results, if any.
-		msr := utils.NewMovieSearchResultSet()
+		msr := collections.NewOrderedSet(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
 		msr.Add(results...)
-		results = msr.Results()
+		results = msr.Slice()
 		// post-processing
-		ps := new(priority.Slice[float64, *model.MovieSearchResult])
+		ps := new(collections.WeightedSlice[float64, *model.MovieSearchResult])
 		for _, result := range results {
 			if !result.Valid() /* validation check */ {
 				continue
 			}
 			if _, err := e.GetMovieProviderByName(result.Provider); err != nil {
-				e.logger.Warnf("ignore provider %s as not found", result.Provider)
+				e.logger.Printf("ignore provider %s as not found", result.Provider)
 				continue
 			}
-			ps.Append(comparer.Compare(keyword, result.Number)*float64(e.MustGetMovieProviderByName(result.Provider).Priority()), result)
+			priority := comparer.Compare(keyword, result.Number) *
+				e.MustGetMovieProviderByName(result.Provider).Priority()
+			ps.Append(priority, result)
 		}
 		// sort according to priority.
-		results = ps.Stable().Underlying()
+		results = ps.SortFunc(sort.Stable).Underlying()
 	}()
 
 	if fallback /* query database for missing results  */ {

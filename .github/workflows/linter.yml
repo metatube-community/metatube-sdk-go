@@ -11,19 +11,18 @@ on:
   pull_request:
 
 jobs:
-  lint:
+  golangci-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
           check-latest: true
-          go-version: '1.21'
+          go-version-file: 'go.mod'
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v6
         with:
           version: latest
-          args: "--out-${NO_FUTURE}format line-number"

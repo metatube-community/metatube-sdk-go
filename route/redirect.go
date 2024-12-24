@@ -1,13 +1,13 @@
 package route
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/engine"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
@@ -19,17 +19,13 @@ func redirect(app *engine.Engine) gin.HandlerFunc {
 		queryKey  = "redirect"
 	)
 	return func(c *gin.Context) {
-		getQuery := func(key string) (value string) {
-			m, _ := parseQuery(c.Request.URL.RawQuery)
-			return m.Get(key)
-		}
-		if red := getQuery(queryKey); red != "" {
-			var (
-				provider string
-				id       string
-			)
-			if ss := strings.Split(red, separator); len(ss) > 1 {
-				provider, id = ss[0], ss[1]
+		if redir := c.Query(queryKey); redir != "" {
+			provider, id, found := strings.Cut(
+				parser.ParseProviderID(redir),
+				separator)
+			if !found || id == "" {
+				abortWithStatusMessage(c, http.StatusBadRequest, "invalid provider id")
+				return
 			}
 
 			var (
@@ -69,29 +65,4 @@ func redirect(app *engine.Engine) gin.HandlerFunc {
 		}
 		c.Next()
 	}
-}
-
-func parseQuery(query string) (m url.Values, err error) {
-	m = make(url.Values)
-	for query != "" {
-		var key string
-		key, query, _ = strings.Cut(query, "&")
-		if strings.Contains(key, ";") {
-			err = fmt.Errorf("invalid semicolon separator in query")
-			continue
-		}
-		if key == "" {
-			continue
-		}
-		key, value, _ := strings.Cut(key, "=")
-		key, err1 := url.QueryUnescape(key)
-		if err1 != nil {
-			if err == nil {
-				err = err1
-			}
-			continue
-		}
-		m[key] = append(m[key], value)
-	}
-	return m, err
 }

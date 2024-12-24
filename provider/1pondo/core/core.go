@@ -35,7 +35,7 @@ type Core struct {
 	SampleVideoURL string
 
 	// Values
-	DefaultPriority int
+	DefaultPriority float64
 	DefaultName     string
 	DefaultMaker    string
 

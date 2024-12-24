@@ -5,30 +5,34 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"go.uber.org/atomic"
 
 	"github.com/metatube-community/metatube-sdk-go/provider"
 )
 
-var _ provider.Provider = (*Scraper)(nil)
+var (
+	_ provider.Provider             = (*Scraper)(nil)
+	_ provider.RequestTimeoutSetter = (*Scraper)(nil)
+)
 
 // Scraper implements basic Provider interface.
 type Scraper struct {
 	name     string
-	priority int
 	baseURL  *url.URL
+	priority *atomic.Float64
 	c        *colly.Collector
 }
 
-// NewScraper returns Provider implemented *Scraper.
-func NewScraper(name, baseURL string, priority int, opts ...Option) *Scraper {
-	u, err := url.Parse(baseURL)
+// NewScraper returns a *Scraper that implements provider.Provider .
+func NewScraper(name, base string, priority float64, opts ...Option) *Scraper {
+	baseURL, err := url.Parse(base)
 	if err != nil {
 		panic(err)
 	}
 	s := &Scraper{
 		name:     name,
-		priority: priority,
-		baseURL:  u,
+		baseURL:  baseURL,
+		priority: atomic.NewFloat64(priority),
 		c:        colly.NewCollector(),
 	}
 	for _, opt := range opts {
@@ -41,7 +45,7 @@ func NewScraper(name, baseURL string, priority int, opts ...Option) *Scraper {
 }
 
 // NewDefaultScraper returns a *Scraper with default options enabled.
-func NewDefaultScraper(name, baseURL string, priority int, opts ...Option) *Scraper {
+func NewDefaultScraper(name, baseURL string, priority float64, opts ...Option) *Scraper {
 	return NewScraper(name, baseURL, priority, append([]Option{
 		WithAllowURLRevisit(),
 		WithIgnoreRobotsTxt(),
@@ -53,7 +57,9 @@ func (s *Scraper) Name() string { return s.name }
 
 func (s *Scraper) URL() *url.URL { return s.baseURL }
 
-func (s *Scraper) Priority() int { return s.priority }
+func (s *Scraper) Priority() float64 { return s.priority.Load() }
+
+func (s *Scraper) SetPriority(v float64) { s.priority.Store(v) }
 
 func (s *Scraper) NormalizeMovieID(id string) string { return id /* AS IS */ }
 

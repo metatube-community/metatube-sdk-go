@@ -249,5 +249,5 @@ func (jav *JAV321) SearchMovie(keyword string) (results []*model.MovieSearchResu
 }
 
 func init() {
-	provider.RegisterMovieFactory(Name, New)
+	provider.Register(Name, New)
 }

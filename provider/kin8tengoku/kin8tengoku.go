@@ -220,5 +220,5 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 }
 
 func init() {
-	provider.RegisterMovieFactory(Name, New)
+	provider.Register(Name, New)
 }

@@ -220,5 +220,5 @@ func (az *ARZON) SearchMovie(keyword string) (results []*model.MovieSearchResult
 }
 
 func init() {
-	provider.RegisterMovieFactory(Name, New)
+	provider.Register(Name, New)
 }

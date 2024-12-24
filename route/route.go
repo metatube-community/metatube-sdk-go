@@ -4,6 +4,7 @@ import (
 	goerr "errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -27,13 +28,20 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 	r.Use(redirect(app))
 
 	// index page
-	r.GET("/", getIndex())
+	r.GET("/", getIndex(app))
 
-	public := r.Group("/v1")
+	system := r.Group("/v1", cacheNoStore())
+	{
+		system.GET("/modules", getModules())
+		system.GET("/providers", getProviders(app))
+	}
+
+	public := r.Group("/v1",
+		// It's planned to cache public data for
+		// a long time, especially behind a CDN.
+		cachePublicSMaxAge(180*24*time.Hour))
 	{
 		public.GET("/translate", getTranslate())
-
-		public.GET("/providers", getProviders(app))
 
 		images := public.Group("/images")
 		{
@@ -45,6 +53,11 @@ func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 
 	private := r.Group("/v1", authentication(v))
 	{
+		db := private.Group("/db")
+		{
+			db.GET("/version", getDBVersion(app))
+		}
+
 		actors := private.Group("/actors")
 		{
 			actors.GET("/:provider/:id", getInfo(app, actorInfoType))
@@ -90,33 +103,40 @@ func notAllowed() gin.HandlerFunc {
 	}
 }
 
-func getIndex() gin.HandlerFunc {
+func getIndex(app *engine.Engine) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, &responseMessage{
 			Data: gin.H{
-				"app":     "metatube",
-				"commit":  V.GitCommit,
-				"version": V.Version,
+				"app":     app.String(),
+				"version": V.BuildString(),
 			},
 		})
 	}
 }
 
-func getProviders(app *engine.Engine) gin.HandlerFunc {
+func getModules() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		data := struct {
-			ActorProviders map[string]string `json:"actor_providers"`
-			MovieProviders map[string]string `json:"movie_providers"`
-		}{
-			ActorProviders: make(map[string]string),
-			MovieProviders: make(map[string]string),
-		}
-		for _, provider := range app.GetActorProviders() {
-			data.ActorProviders[provider.Name()] = provider.URL().String()
-		}
-		for _, provider := range app.GetMovieProviders() {
-			data.MovieProviders[provider.Name()] = provider.URL().String()
-		}
+		c.JSON(http.StatusOK, gin.H{
+			"modules": V.Modules(),
+		})
+	}
+}
+
+func getProviders(app *engine.Engine) gin.HandlerFunc {
+	data := struct {
+		ActorProviders map[string]string `json:"actor_providers"`
+		MovieProviders map[string]string `json:"movie_providers"`
+	}{
+		ActorProviders: make(map[string]string),
+		MovieProviders: make(map[string]string),
+	}
+	for _, provider := range app.GetActorProviders() {
+		data.ActorProviders[provider.Name()] = provider.URL().String()
+	}
+	for _, provider := range app.GetMovieProviders() {
+		data.MovieProviders[provider.Name()] = provider.URL().String()
+	}
+	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, &responseMessage{Data: data})
 	}
 }

@@ -12,6 +12,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 
+	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/common/singledo"
@@ -28,6 +29,7 @@ import (
 var (
 	_ provider.MovieProvider = (*AVBase)(nil)
 	_ provider.MovieSearcher = (*AVBase)(nil)
+	_ provider.Fetcher       = (*AVBase)(nil)
 )
 
 const (
@@ -43,6 +45,7 @@ const (
 )
 
 type AVBase struct {
+	*fetch.Fetcher
 	*scraper.Scraper
 	single    *singledo.Single
 	providers map[string]provider.MovieProvider
@@ -50,6 +53,7 @@ type AVBase struct {
 
 func New() *AVBase {
 	return &AVBase{
+		Fetcher: fetch.Default(&fetch.Config{SkipVerify: true}),
 		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
 			scraper.WithHeaders(map[string]string{
 				"Referer": baseURL,
@@ -384,5 +388,5 @@ type Actor struct {
 
 func init() {
 	// The stability of this provider is still unknown.
-	provider.RegisterMovieFactory(Name, New)
+	provider.Register(Name, New)
 }

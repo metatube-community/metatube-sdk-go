@@ -20,13 +20,13 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           check-latest: true
-          go-version: '1.21'
+          go-version-file: 'go.mod'
 
       - name: Cache go module
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -38,7 +38,7 @@ jobs:
         run: make releases
 
       - name: Upload Releases
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           body: _Auto Released by Actions_

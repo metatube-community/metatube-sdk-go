@@ -1,22 +1,15 @@
 package c0930
 
 import (
-	"encoding/json"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/metatube-community/metatube-sdk-go/provider/internal/testkit"
 )
 
-func TestC0930_NormalizeID(t *testing.T) {
-	provider := New()
-	for _, item := range []string{
+func TestC0930_GetMovieInfoByID(t *testing.T) {
+	testkit.Test(t, New, []string{
 		"ki220913",
 		"hitozuma1391",
 		"hitozuma1371",
-	} {
-		info, err := provider.GetMovieInfoByID(item)
-		data, _ := json.MarshalIndent(info, "", "\t")
-		assert.True(t, assert.NoError(t, err) && assert.True(t, info.Valid()))
-		t.Logf("%s", data)
-	}
+	})
 }

@@ -24,7 +24,7 @@ type Core struct {
 	SearchURL string
 
 	// Values
-	DefaultPriority int
+	DefaultPriority float64
 	DefaultName     string
 }
 
@@ -149,6 +149,8 @@ func (core *Core) SearchMovie(keyword string) (results []*model.MovieSearchResul
 	c.SetRedirectHandler(func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	})
+	// Set max search timeout.
+	// c.SetRequestTimeout(8 * time.Second)
 
 	c.OnXML(`//div[@class="box_kanren01"]//li`, func(e *colly.XMLElement) {
 		cover := e.Request.AbsoluteURL(e.ChildAttr(`.//img`, "src"))
