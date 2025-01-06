@@ -14,7 +14,7 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
-	"github.com/metatube-community/metatube-sdk-go/provider/fc2"
+	"github.com/metatube-community/metatube-sdk-go/provider/fc2/fc2util"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
 
@@ -91,7 +91,7 @@ func (fc2hub *FC2HUB) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, e
 
 	// Number
 	c.OnXML(`//*[@id="content"]/div/div[2]/div[1]/div[1]/div[2]/div[1]/div[2]/h1`, func(e *colly.XMLElement) {
-		if num := fc2.ParseNumber(strings.TrimSpace(e.Text)); num != "" {
+		if num := fc2util.ParseNumber(strings.TrimSpace(e.Text)); num != "" {
 			info.Number = fmt.Sprintf("FC2-%s", num)
 		}
 	})
@@ -165,7 +165,7 @@ func (fc2hub *FC2HUB) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, e
 					info.Actors = removeEmpty(data.Actor)
 				}
 				for _, identifier := range data.Identifier {
-					if num := fc2.ParseNumber(identifier); num != "" {
+					if num := fc2util.ParseNumber(identifier); num != "" {
 						info.Number = fmt.Sprintf("FC2-%s", num)
 						break
 					}
@@ -209,7 +209,7 @@ func (fc2hub *FC2HUB) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, e
 }
 
 func (fc2hub *FC2HUB) NormalizeMovieKeyword(keyword string) string {
-	return fc2.ParseNumber(keyword)
+	return fc2util.ParseNumber(keyword)
 }
 
 func (fc2hub *FC2HUB) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
