@@ -12,6 +12,7 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
+	"github.com/metatube-community/metatube-sdk-go/provider/fc2/fc2util"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
 
@@ -37,7 +38,7 @@ func New() *FC2 {
 }
 
 func (fc2 *FC2) NormalizeMovieID(id string) string {
-	return ParseNumber(id)
+	return fc2util.ParseNumber(id)
 }
 
 func (fc2 *FC2) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -132,13 +133,6 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 
 	err = c.Visit(info.Homepage)
 	return
-}
-
-func ParseNumber(s string) string {
-	if ss := regexp.MustCompile(`^(?i)(?:FC2(?:[-_]?PPV)?[-_]?)?(\d+)$`).FindStringSubmatch(s); len(ss) == 2 {
-		return ss[1]
-	}
-	return ""
 }
 
 func init() {
