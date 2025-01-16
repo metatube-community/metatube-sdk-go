@@ -117,7 +117,6 @@ func (javfree *JAVFREE) SearchMovie(keyword string) (results []*model.MovieSearc
 	c := javfree.ClonedCollector()
 	fc2ID := keyword[strings.LastIndex(keyword, "-")+1:]
 	c.OnXML(`//article[@class="hentry clear"]`, func(e *colly.XMLElement) {
-
 		var thumb, cover string
 		// 提取图片地址
 		thumb = e.Request.AbsoluteURL(e.ChildAttr(`.//a/div/img`, "src"))
