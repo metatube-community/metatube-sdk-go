@@ -23,10 +23,10 @@ require (
 	github.com/jellydator/ttlcache/v3 v3.3.0
 	github.com/json-iterator/go v1.1.12
 	github.com/lib/pq v1.10.9
-	github.com/nlnwa/whatwg-url v0.5.0
+	github.com/nlnwa/whatwg-url v0.5.1
 	github.com/peterbourgon/ff/v3 v3.4.0
-	github.com/projectdiscovery/useragent v0.0.86
-	github.com/projectdiscovery/utils v0.4.5
+	github.com/projectdiscovery/useragent v0.0.89
+	github.com/projectdiscovery/utils v0.4.8
 	github.com/robertkrimen/otto v0.5.1
 	github.com/stretchr/testify v1.10.0
 	github.com/zijiren233/google-translator v1.0.1
@@ -51,10 +51,9 @@ require (
 	github.com/antchfx/xpath v1.3.3 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/bits-and-blooms/bitset v1.20.0 // indirect
-	github.com/bytedance/sonic v1.12.6 // indirect
-	github.com/bytedance/sonic/loader v0.2.1 // indirect
-	github.com/cloudwego/base64x v0.1.4 // indirect
-	github.com/cloudwego/iasm v0.2.0 // indirect
+	github.com/bytedance/sonic v1.12.8 // indirect
+	github.com/bytedance/sonic/loader v0.2.3 // indirect
+	github.com/cloudwego/base64x v0.1.5 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
@@ -62,10 +61,10 @@ require (
 	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.23.0 // indirect
+	github.com/go-playground/validator/v10 v10.24.0 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
-	github.com/goccy/go-json v0.10.4 // indirect
+	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -101,12 +100,12 @@ require (
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/protobuf v1.36.1 // indirect
+	google.golang.org/protobuf v1.36.4 // indirect
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.7 // indirect
-	modernc.org/libc v1.61.6 // indirect
+	modernc.org/libc v1.61.10 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
-	modernc.org/memory v1.8.1 // indirect
-	modernc.org/sqlite v1.34.4 // indirect
+	modernc.org/memory v1.8.2 // indirect
+	modernc.org/sqlite v1.34.5 // indirect
 )
