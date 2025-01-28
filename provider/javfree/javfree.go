@@ -118,17 +118,15 @@ func (javfree *JAVFREE) SearchMovie(keyword string) (results []*model.MovieSearc
 	fc2ID := keyword[strings.LastIndex(keyword, "-")+1:]
 	c.OnXML(`//article[@class="hentry clear"]`, func(e *colly.XMLElement) {
 		var thumb, cover string
-		// 提取图片地址
 		thumb = e.Request.AbsoluteURL(e.ChildAttr(`.//a/div/img`, "src"))
 		cover = fmt.Sprintf("https://cf.javfree.me/HLIC/%s", thumb[strings.LastIndex(thumb, "/")+1:])
-		// 提取标题
 		title := e.ChildText(`.//h2/a`)
 
 		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//h2/a`, "href"))
 		id, _ := javfree.ParseMovieIDFromURL(homepage)
 		results = append(results, &model.MovieSearchResult{
 			ID:       id,
-			Number:   fmt.Sprintf("FC2-PPV-%s", fc2ID),
+			Number:   fmt.Sprintf("FC2-%s", fc2ID),
 			Title:    title,
 			Provider: javfree.Name(),
 			Homepage: homepage,
