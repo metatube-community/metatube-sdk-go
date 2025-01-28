@@ -7,8 +7,10 @@ import (
 	"strings"
 
 	"github.com/gocolly/colly/v2"
+	"golang.org/x/net/html"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
+	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/fc2/fc2util"
@@ -81,11 +83,20 @@ func (javfree *JAVFREE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo,
 
 	// Title
 	c.OnXML(`//header[@class="entry-header"]/h1`, func(e *colly.XMLElement) {
-		regex := `(?i)(?:FC2(?:[-_]?PPV)?[-_]?)(\d+)`
-		re, _ := regexp.Compile(regex)
-		info.Title = strings.TrimSpace(re.ReplaceAllString(e.Text, ""))
-		if num := fc2util.ParseNumber(strings.TrimSpace(rawURL[strings.LastIndex(rawURL, "/")+1:])); num != "" {
+		info.Title = strings.TrimSpace(regexp.
+			MustCompile(`(?i)(?:FC2(?:[-_]?PPV)?[-_]?)(\d+)`).
+			ReplaceAllString(e.Text, ""))
+		if num := fc2util.ParseNumber(strings.
+			TrimSpace(rawURL[strings.LastIndex(rawURL, "/")+1:])); num != "" {
 			info.Number = fmt.Sprintf("FC2-%s", num)
+		}
+	})
+
+	// Director & Release Date
+	c.OnXML(`//span[@class="post-author"]/strong`, func(e *colly.XMLElement) {
+		info.Director = strings.TrimSpace(e.Text)
+		if next := e.DOM.(*html.Node).NextSibling; next != nil {
+			info.ReleaseDate = parser.ParseDate(next.Data)
 		}
 	})
 
@@ -100,6 +111,7 @@ func (javfree *JAVFREE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo,
 	c.OnScraped(func(_ *colly.Response) {
 		if info.CoverURL == "" && len(info.PreviewImages) > 0 {
 			info.CoverURL = info.PreviewImages[0]
+			info.PreviewImages = info.PreviewImages[1:]
 		}
 		// cover as thumb image.
 		info.ThumbURL = info.CoverURL
