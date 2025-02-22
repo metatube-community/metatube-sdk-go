@@ -29,15 +29,15 @@ func (dpl *DeepL) Translate(q, source, target string) (result string, err error)
 	var resp *http.Response
 	if resp, err = fetch.Post(
 		apiURL,
-		fetch.WithURLEncodedBody(map[string]string{
-			"text":            q,
+		fetch.WithJSONBody(map[string]any{
+			"text":            splitTextsAfter(q, "\n", ".", "。"),
 			"source_lang":     parseToDeeplSupportedLanguage(source),
 			"target_lang":     parseToDeeplSupportedLanguage(target),
 			"split_sentences": "0", // disable sentence split
 		}),
 		fetch.WithRaiseForStatus(true),
 		fetch.WithHeader("Authorization", "DeepL-Auth-Key "+dpl.APIKey),
-		fetch.WithHeader("Content-Type", "application/x-www-form-urlencoded"),
+		fetch.WithHeader("Content-Type", "application/json"),
 	); err != nil {
 		return
 	}
@@ -50,9 +50,26 @@ func (dpl *DeepL) Translate(q, source, target string) (result string, err error)
 		} `json:"translations"`
 	}{}
 	if err = json.NewDecoder(resp.Body).Decode(&data); err == nil {
-		result = data.Translations[0].Text
+		sb := &strings.Builder{}
+		for _, tl := range data.Translations {
+			sb.WriteString(tl.Text)
+		}
+		result = sb.String()
 	}
 	return
+}
+
+func splitTextsAfter(text string, seps ...string) []string {
+	results := []string{text}
+	for _, sep := range seps {
+		var temp []string
+		for _, str := range results {
+			parts := strings.SplitAfter(str, sep)
+			temp = append(temp, parts...)
+		}
+		results = temp
+	}
+	return results
 }
 
 func parseToDeeplSupportedLanguage(lang string) string {
