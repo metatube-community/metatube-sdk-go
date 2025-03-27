@@ -39,6 +39,8 @@ func (e *Engine) initAllProviderPriorities() {
 		switch {
 		case strings.HasPrefix(key, ActorProviderPriorityEnvPrefix):
 			name := key[len(ActorProviderPriorityEnvPrefix):]
+			// TODO: improve this provider weight settings.
+			name = strings.ReplaceAll(name, "_", "-")
 			prio, _ := strconv.ParseFloat(value, 64)
 			if prio == 0 {
 				delete(e.actorProviders, name)
@@ -49,6 +51,8 @@ func (e *Engine) initAllProviderPriorities() {
 			}
 		case strings.HasPrefix(key, MovieProviderPriorityEnvPrefix):
 			name := key[len(MovieProviderPriorityEnvPrefix):]
+			// TODO: improve this provider weight settings.
+			name = strings.ReplaceAll(name, "_", "-")
 			prio, _ := strconv.ParseFloat(value, 64)
 			if prio == 0 {
 				delete(e.movieProviders, name)
