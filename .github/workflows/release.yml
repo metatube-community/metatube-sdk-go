@@ -46,4 +46,4 @@ jobs:
           draft: false
           prerelease: false
           repository: metatube-community/metatube-server-releases
-          token: ${{ secrets.BOT_PAT }}
+          token: ${{ secrets.ORG_PAT }}

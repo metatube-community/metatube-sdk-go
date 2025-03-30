@@ -2,11 +2,16 @@ package js
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/robertkrimen/otto"
 )
 
 func UnmarshalObject[T ~string | ~[]byte](jsCode T, objName string, i any) error {
+	if len(jsCode) == 0 {
+		return errors.New("empty JS code snippet")
+	}
+
 	vm := otto.New()
 	v, _ := vm.Run(jsCode)
 

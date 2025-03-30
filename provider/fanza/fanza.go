@@ -21,6 +21,7 @@ import (
 
 	"github.com/metatube-community/metatube-sdk-go/collections"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
+	"github.com/metatube-community/metatube-sdk-go/common/js"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -290,7 +291,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		info.ThumbURL = e.Request.AbsoluteURL(e.Attr("content"))
 	})
 
-	// Preview Video
+	// Preview Video (DVD)
 	c.OnXML(`//*[@id="detail-sample-movie"]/div/a`, func(e *colly.XMLElement) {
 		var videoPath string
 		if dvu := e.Attr("data-video-url"); dvu != "" { // mono
@@ -298,37 +299,51 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		} else if v := e.Attr("onclick"); v != "" { // digital
 			videoPath = regexp.MustCompile(`/(.+)/`).FindString(v)
 		}
-		d := c.Clone()
-		d.OnXML(`//iframe`, func(e *colly.XMLElement) {
-			d.OnResponse(func(r *colly.Response) {
-				if resp := regexp.MustCompile(`const args = (\{.+});`).FindSubmatch(r.Body); len(resp) == 2 {
-					data := struct {
-						Bitrates []struct {
-							// Bitrate int    `json:"bitrate"`
-							Src string `json:"src"`
-						} `json:"bitrates"`
-					}{}
-					if json.Unmarshal(resp[1], &data) == nil && len(data.Bitrates) > 0 {
-						info.PreviewVideoURL = e.Request.AbsoluteURL(data.Bitrates[0].Src)
-					}
-				}
-			})
-			d.Visit(e.Request.AbsoluteURL(e.Attr("src")))
-		})
-		d.Visit(e.Request.AbsoluteURL(videoPath))
+		info.PreviewVideoURL = fz.parsePreviewVideoURL(c, e.Request.AbsoluteURL(videoPath))
 	})
 
+	// Deprecated (?)
 	// Preview Video (VR)
 	c.OnXML(`//*[@id="detail-sample-vr-movie"]/div/a`, func(e *colly.XMLElement) {
-		d := c.Clone()
-		d.OnResponse(func(r *colly.Response) {
-			sub := regexp.MustCompile(`var sampleUrl = "(.+?)";`).FindSubmatch(r.Body)
-			if len(sub) == 2 {
-				info.PreviewVideoURL = e.Request.AbsoluteURL(string(sub[1]))
+		info.PreviewVideoURL = fz.parseVRPreviewVideoURL(c,
+			e.Request.AbsoluteURL(
+				regexp.MustCompile(`/(.+)/`).FindString(e.Attr("onclick"))))
+	})
+
+	// Preview Video (/digital/video*/)
+	c.OnXML(`//script[@type="text/javascript"]`, func(e *colly.XMLElement) {
+		// // プレイヤー呼び出し
+		// if (autoPlayerMovieFlg) { // 通常プレイヤー
+		// 	sampleplay(`/digital/${autoPlayerFloor}/-/detail/ajax-movie/=/cid=${gaContentId}/`);
+		// } else { // VRプレイヤー
+		// 	vrsampleplay(`/digital/-/vr-sample-player/=/cid=${gaContentId}/`);
+		// }
+		if jsCodes := regexp.MustCompile(`const\s+.+?\s*=.*?;`).FindAllString(e.Text, -1); len(jsCodes) > 0 {
+			var (
+				autoPlayerMovieFlg bool
+				autoPlayerFloor    string
+			)
+			extractCode := func(v string) string {
+				for _, jsCode := range jsCodes {
+					if strings.Contains(jsCode, v) {
+						return strings.ReplaceAll(jsCode, "const ", "var ")
+					}
+				}
+				return ""
 			}
-		})
-		d.Visit(e.Request.AbsoluteURL(regexp.MustCompile(`/(.+)/`).
-			FindString(e.Attr("onclick"))))
+			_ = js.UnmarshalObject(extractCode("autoPlayerFloor"), "autoPlayerFloor", &autoPlayerFloor)
+			_ = js.UnmarshalObject(extractCode("autoPlayerMovieFlg"), "autoPlayerMovieFlg", &autoPlayerMovieFlg)
+			if autoPlayerFloor == "" {
+				return // skip
+			}
+			if autoPlayerMovieFlg {
+				sampleURL := e.Request.AbsoluteURL(fmt.Sprintf(`/digital/%s/-/detail/ajax-movie/=/cid=%s/`, autoPlayerFloor, info.ID))
+				info.PreviewVideoURL = fz.parsePreviewVideoURL(c, sampleURL)
+			} else {
+				vrSampleURL := e.Request.AbsoluteURL(fmt.Sprintf(`/digital/-/vr-sample-player/=/cid=%s/`, info.ID))
+				info.PreviewVideoURL = fz.parseVRPreviewVideoURL(c, vrSampleURL)
+			}
+		}
 	})
 
 	// In case of any duplication
@@ -649,6 +664,40 @@ func (fz *FANZA) parseScoreFromURL(s string) float64 {
 		score = score / 10.0
 	}
 	return score
+}
+
+func (fz *FANZA) parsePreviewVideoURL(c *colly.Collector, iFrameURL string) (previewVideoURL string) {
+	d := c.Clone()
+	d.OnXML(`//iframe`, func(e *colly.XMLElement) {
+		d.OnResponse(func(r *colly.Response) {
+			if resp := regexp.MustCompile(`const args = (\{.+});`).FindSubmatch(r.Body); len(resp) == 2 {
+				data := struct {
+					Bitrates []struct {
+						// Bitrate int    `json:"bitrate"`
+						Src string `json:"src"`
+					} `json:"bitrates"`
+				}{}
+				if json.Unmarshal(resp[1], &data) == nil && len(data.Bitrates) > 0 {
+					previewVideoURL = e.Request.AbsoluteURL(data.Bitrates[0].Src)
+				}
+			}
+		})
+		d.Visit(e.Request.AbsoluteURL(e.Attr("src")))
+	})
+	d.Visit(iFrameURL)
+	return
+}
+
+func (fz *FANZA) parseVRPreviewVideoURL(c *colly.Collector, vrVideoURL string) (previewVideoURL string) {
+	d := c.Clone()
+	d.OnResponse(func(r *colly.Response) {
+		sub := regexp.MustCompile(`var sampleUrl = "(.+?)";`).FindSubmatch(r.Body)
+		if len(sub) == 2 {
+			previewVideoURL = r.Request.AbsoluteURL(string(sub[1]))
+		}
+	})
+	d.Visit(vrVideoURL)
+	return
 }
 
 // ParseNumber parses FANZA-formatted id to general ID.
