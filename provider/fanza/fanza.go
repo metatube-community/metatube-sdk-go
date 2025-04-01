@@ -546,6 +546,8 @@ func (fz *FANZA) searchMovieNext(keyword string) (results []*model.MovieSearchRe
 }
 
 // Deprecated: this function is deprecated.
+//
+//nolint:unused // ignore unused warning for this function.
 func (fz *FANZA) searchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	defer func() {
 		fz.sortMovieSearchResults(keyword, results)
