@@ -13,6 +13,7 @@ import (
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
 
+	"github.com/metatube-community/metatube-sdk-go/collections"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
@@ -158,8 +159,14 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 					}
 				}
 			case "プレイ内容":
-				parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), dd),
-					(*[]string)(&info.Genres))
+				var genres []string
+				parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), dd), &genres)
+				info.Genres = append(info.Genres, genres...)
+			case "タグ":
+				// Additional Genres info
+				var genres []string
+				parser.ParseTexts(htmlquery.FindOne(e.DOM.(*html.Node), dd), &genres)
+				info.Genres = append(info.Genres, genres...)
 			case "シリーズ":
 				info.Series = e.ChildText(dda)
 			case "レーベル":
@@ -172,6 +179,15 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 				info.Number = e.ChildText(dd)
 			}
 		}
+	})
+
+	// Deduplicate Genres
+	c.OnScraped(func(_ *colly.Response) {
+		genres := collections.NewOrderedSet(func(v string) string { return v })
+		for _, genre := range info.Genres {
+			genres.Add(genre)
+		}
+		info.Genres = genres.Slice()
 	})
 
 	// Fallbacks
