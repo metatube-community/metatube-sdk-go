@@ -26,6 +26,7 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
+	"github.com/metatube-community/metatube-sdk-go/provider/fanza/internal"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/imcmp"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
@@ -490,7 +491,7 @@ func (fz *FANZA) NormalizeMovieKeyword(keyword string) string {
 
 func (fz *FANZA) SearchMovie(keyword string) ([]*model.MovieSearchResult, error) {
 	if strings.Contains(keyword, "-") {
-		if results, err := fz.searchMovie(strings.Replace(keyword,
+		if results, err := fz.searchMovieNext(strings.Replace(keyword,
 			/* FANZA cannot search hyphened number */
 			"-", "00", 1) +
 			/* Add a `#` sign to distinguish 001 style number */
@@ -499,25 +500,57 @@ func (fz *FANZA) SearchMovie(keyword string) ([]*model.MovieSearchResult, error)
 		}
 	}
 	// fallback to normal dvd search.
-	return fz.searchMovie(strings.Replace(keyword, "-", "", 1))
+	return fz.searchMovieNext(strings.Replace(keyword, "-", "", 1))
 }
 
+func (fz *FANZA) searchMovieNext(keyword string) (results []*model.MovieSearchResult, err error) {
+	defer func() {
+		fz.sortMovieSearchResults(keyword, results)
+	}()
+
+	c := fz.ClonedCollector()
+	p := internal.NewSearchPageParser()
+
+	c.OnXML("//script", func(e *colly.XMLElement) {
+		_ = p.LoadJSCode(e.Text)
+	})
+
+	if err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword))); err != nil {
+		return
+	}
+
+	resp := &internal.ResponseWrapper{}
+	if err = p.Parse(resp); err != nil {
+		return
+	}
+
+	for _, product := range resp.BackendResponse.Contents.Data {
+		var releaseDate string
+		if re := regexp.MustCompile(`(配信日|発売日|貸出日)：\s*`); re.MatchString(product.ReleaseAnnouncement) {
+			releaseDate = re.ReplaceAllString(product.ReleaseAnnouncement, "")
+		}
+		results = append(results, &model.MovieSearchResult{
+			ID:          product.ContentID,
+			Number:      ParseNumber(product.ContentID),
+			Title:       product.Title,
+			Provider:    fz.Name(),
+			Homepage:    product.DetailURL,
+			Actors:      product.Casts,
+			ThumbURL:    product.ThumbnailImageURL,
+			CoverURL:    PreviewSrc(product.ThumbnailImageURL),
+			Score:       product.Rate,
+			ReleaseDate: parser.ParseDate(releaseDate /* 発売日：2022/07/21 */),
+		})
+	}
+	return
+}
+
+// Deprecated: this function is deprecated.
+//
+//nolint:unused // ignore unused warning for this function.
 func (fz *FANZA) searchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	defer func() {
-		if err == nil && len(results) > 0 {
-			r := regexp.MustCompile(`(?i)([A-Z]+)0*([1-9]*)`)
-			x := r.ReplaceAllString(keyword, "${1}${2}")
-			sort.SliceStable(results, func(i, j int) bool {
-				a := r.ReplaceAllString(results[i].ID, "${1}${2}")
-				b := r.ReplaceAllString(results[j].ID, "${1}${2}")
-				if a == b {
-					// prefer digital results.
-					return strings.Contains(results[i].Homepage, "/digital/") ||
-						!strings.Contains(results[j].Homepage, "/digital/")
-				}
-				return comparer.Compare(a, x) >= comparer.Compare(b, x)
-			})
-		}
+		fz.sortMovieSearchResults(keyword, results)
 	}()
 
 	c := fz.ClonedCollector()
@@ -563,6 +596,24 @@ func (fz *FANZA) searchMovie(keyword string) (results []*model.MovieSearchResult
 		err = vErr
 	}
 	return
+}
+
+func (fz *FANZA) sortMovieSearchResults(keyword string, results []*model.MovieSearchResult) {
+	if len(results) == 0 {
+		return
+	}
+	r := regexp.MustCompile(`(?i)([A-Z]+)0*([1-9]*)`)
+	x := r.ReplaceAllString(keyword, "${1}${2}")
+	sort.SliceStable(results, func(i, j int) bool {
+		a := r.ReplaceAllString(results[i].ID, "${1}${2}")
+		b := r.ReplaceAllString(results[j].ID, "${1}${2}")
+		if a == b {
+			// prefer digital results.
+			return strings.Contains(results[i].Homepage, "/digital/") ||
+				!strings.Contains(results[j].Homepage, "/digital/")
+		}
+		return comparer.Compare(a, x) >= comparer.Compare(b, x)
+	})
 }
 
 func (fz *FANZA) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {

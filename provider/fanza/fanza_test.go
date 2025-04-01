@@ -61,6 +61,8 @@ func TestFANZA_SearchMovie(t *testing.T) {
 		"SSIS-122",
 		"MIDV-047",
 		"abw",
+		"HMN-686",
+		"START-285",
 	})
 }
 
