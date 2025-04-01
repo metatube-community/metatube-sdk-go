@@ -11,6 +11,7 @@ func TestTokyoHot_GetMovieInfoByID(t *testing.T) {
 		"s2mbd-002",
 		"n1633",
 		"n1624",
+		"5656",
 		"kb1624",
 	})
 }
