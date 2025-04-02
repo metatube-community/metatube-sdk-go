@@ -35,8 +35,8 @@ func (e *Engine) initFetcher() {
 func (e *Engine) initAllProviderPriorities() {
 	defer func() {
 		// remove references.
-		e.actorProviders = nil
-		e.movieProviders = nil
+		e.actorPriorities = nil
+		e.moviePriorities = nil
 	}()
 	for name, prio := range e.actorPriorities {
 		if prio == 0 {
