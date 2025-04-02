@@ -29,6 +29,9 @@ type Engine struct {
 	// Name:Provider Map
 	actorProviders map[string]mt.ActorProvider
 	movieProviders map[string]mt.MovieProvider
+	// Name:Priority Map
+	actorPriorities map[string]float64
+	moviePriorities map[string]float64
 	// Host:Providers Map
 	actorHostProviders map[string][]mt.ActorProvider
 	movieHostProviders map[string][]mt.MovieProvider
@@ -146,3 +149,8 @@ func (e *Engine) Fetch(url string, provider mt.Provider) (*http.Response, error)
 
 // String returns the name of the Engine instance.
 func (e *Engine) String() string { return e.name }
+
+var (
+	_ = New
+	_ = Default
+)

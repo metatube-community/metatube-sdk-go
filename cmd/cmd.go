@@ -11,6 +11,7 @@ import (
 
 	"github.com/metatube-community/metatube-sdk-go/database"
 	"github.com/metatube-community/metatube-sdk-go/engine"
+	"github.com/metatube-community/metatube-sdk-go/internal/env"
 	"github.com/metatube-community/metatube-sdk-go/route"
 	"github.com/metatube-community/metatube-sdk-go/route/auth"
 )
@@ -79,6 +80,16 @@ func Router(names ...string) *gin.Engine {
 	// specify engine name
 	for _, name := range names {
 		opts = append(opts, engine.WithEngineName(name))
+	}
+
+	// set actor provider priorities if any
+	if priorities := env.ActorProviderPriorities(); len(priorities) > 0 {
+		opts = append(opts, engine.WithActorProviderPriorities(priorities))
+	}
+
+	// set movie provider priorities if any
+	if priorities := env.MovieProviderPriorities(); len(priorities) > 0 {
+		opts = append(opts, engine.WithMovieProviderPriorities(priorities))
 	}
 
 	app := engine.New(db, opts...)
