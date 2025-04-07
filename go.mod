@@ -30,8 +30,8 @@ require (
 	github.com/robertkrimen/otto v0.5.1
 	github.com/sashabaranov/go-openai v1.38.1
 	github.com/stretchr/testify v1.10.0
+	github.com/xjasonlyu/openai-translator v0.0.0-20250407224746-653ea0d077ec
 	github.com/zijiren233/google-translator v1.0.1
-	github.com/zijiren233/openai-translator v0.2.2-0.20231006085303-3088cf9f41a8
 	go.eigsys.de/gin-cachecontrol/v2 v2.3.0
 	go.uber.org/atomic v1.11.0
 	go.uber.org/automaxprocs v1.6.0

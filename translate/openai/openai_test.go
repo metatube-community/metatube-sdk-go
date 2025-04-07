@@ -3,6 +3,8 @@ package openai
 import (
 	"os"
 	"testing"
+
+	"github.com/sashabaranov/go-openai"
 )
 
 func TestOpenaiTranslate(t *testing.T) {
@@ -18,7 +20,7 @@ func TestOpenaiTranslate(t *testing.T) {
 		result, err := (&OpenAI{
 			APIKey: os.Getenv("OPENAI_API_KEY"),
 			APIUrl: os.Getenv("OPENAI_API_URL"),
-			Model:  os.Getenv("OPENAI_MODEL"),
+			Model:  openai.GPT4,
 		}).Translate(unit.text, unit.from, unit.to)
 		if err != nil {
 			t.Fatal(err)

@@ -203,11 +203,11 @@ github.com/twitchyliquid64/golang-asm v0.15.1 h1:SU5vSMR7hnwNxj24w34ZyCi/FmDZTkS
 github.com/twitchyliquid64/golang-asm v0.15.1/go.mod h1:a1lVb/DtPvCB8fslRZhAngC2+aY1QWCk3Cedj/Gdt08=
 github.com/ugorji/go/codec v1.2.12 h1:9LC83zGrHhuUA9l16C9AHXAqEV/2wBQ4nkvumAE65EE=
 github.com/ugorji/go/codec v1.2.12/go.mod h1:UNopzCgEMSXjBc6AOMqYvWC1ktqTAfzJZUZgYf6w6lg=
+github.com/xjasonlyu/openai-translator v0.0.0-20250407224746-653ea0d077ec h1:qjXQMBUkKtLOsiEaY3f99piFPqIehU3X04n3tIl14rE=
+github.com/xjasonlyu/openai-translator v0.0.0-20250407224746-653ea0d077ec/go.mod h1:CFMrjK5Js0UhFdOMRP0ubvjop1ZT9EiJZsyMOZdv4gY=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/zijiren233/google-translator v1.0.1 h1:pQESPiTteOrk3gKxs/wXYHgqZR4sB0Q7QcwOAkF+IyI=
 github.com/zijiren233/google-translator v1.0.1/go.mod h1:Cto5Y9lA6Gn3i0IA1s5MsZJgDpb/71kBhao2yOv1zK4=
-github.com/zijiren233/openai-translator v0.2.2-0.20231006085303-3088cf9f41a8 h1:IkneCw/j7O8d7e2tlKHVO49+K+ZFjhXNwmWhHbteJ5w=
-github.com/zijiren233/openai-translator v0.2.2-0.20231006085303-3088cf9f41a8/go.mod h1:8PGK1Cd1/+O4Zcyw2hwDbJWsyWBEnqkUBARx48FWJ0w=
 go.eigsys.de/gin-cachecontrol/v2 v2.3.0 h1:j0MSZeTYrfccbA+CaY0zZc7YUPW0nJjKrM1Zl1vyNaQ=
 go.eigsys.de/gin-cachecontrol/v2 v2.3.0/go.mod h1:KUxGovzzfDv1B38s6WLs5IHjlGnMPQNHpgBZ+8K5Sp0=
 go.uber.org/atomic v1.11.0 h1:ZvwS0R+56ePWxUNi+Atn9dWONBPp/AUETXlHW0DxSjE=
