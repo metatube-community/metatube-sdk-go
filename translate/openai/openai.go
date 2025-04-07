@@ -15,9 +15,9 @@ const (
 1. Use official translations for actor/actress names when available, otherwise leave them unchanged
 2. Do not make up translations for names without official versions
 3. Keep all numbers, dates, and measurements in their original format
-4. Translate naturally and fluently, avoiding literal/word-for-word translation
+4. Translate naturally and fluently, avoiding word-for-word translation
 5. Do not add any explanations or notes
-6. Output only the content of the translation
+6. Only output the content of the translation
 `
 )
 
