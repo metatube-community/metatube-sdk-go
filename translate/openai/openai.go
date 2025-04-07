@@ -9,7 +9,7 @@ import (
 
 var _ translate.Translator = (*OpenAI)(nil)
 
-const defaultModel = openai.GPT4o
+const defaultModel = openai.GPT4
 
 type OpenAI struct {
 	APIKey string `json:"openai-api-key"`
