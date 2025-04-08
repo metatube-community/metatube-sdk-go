@@ -6,8 +6,6 @@
 [![GitHub License](https://img.shields.io/github/license/metatube-community/metatube-sdk-go?color=e4682a&logo=apache&style=flat-square)](https://github.com/metatube-community/metatube-sdk-go/blob/main/LICENSE)
 [![Tag](https://img.shields.io/github/v/tag/metatube-community/metatube-sdk-go?color=%23ff8936&logo=fitbit&style=flat-square)](https://github.com/metatube-community/metatube-sdk-go/tags)
 
-[//]: # ([![Supported Platforms]&#40;https://img.shields.io/badge/platform-Linux%20%7C%20FreeBSD%20%7C%20NetBSD%20%7C%20OpenBSD%20%7C%20Darwin%20%7C%20Windows-549688?style=flat-square&logo=launchpad&#41;]&#40;https://github.com/metatube-community/metatube-sdk-go&#41;)
-
 Metadata Tube SDK in Golang.
 
 ## Contents

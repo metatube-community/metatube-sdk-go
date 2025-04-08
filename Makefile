@@ -36,8 +36,6 @@ UNIX_ARCH_LIST = \
 	linux-armv7 \
 	linux-ppc64le \
 	linux-s390x \
-	netbsd-amd64 \
-	netbsd-amd64-v3 \
 	openbsd-amd64 \
 	openbsd-amd64-v3
 
@@ -98,12 +96,6 @@ linux-ppc64le:
 
 linux-s390x:
 	GOARCH=s390x GOOS=linux $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@ $(SERVER_CODE)
-
-netbsd-amd64:
-	GOARCH=amd64 GOOS=netbsd $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@ $(SERVER_CODE)
-
-netbsd-amd64-v3:
-	GOARCH=amd64 GOOS=netbsd GOAMD64=v3 $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@ $(SERVER_CODE)
 
 openbsd-amd64:
 	GOARCH=amd64 GOOS=openbsd $(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME)-$@ $(SERVER_CODE)

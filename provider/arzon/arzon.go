@@ -1,3 +1,4 @@
+// Deprecated: This provider is no longer available.
 package arzon
 
 import (
