@@ -21,6 +21,7 @@ type OpenAI struct {
 	APIKey string `json:"openai-api-key"`
 	APIUrl string `json:"openai-api-url"`
 	Model  string `json:"openai-model"`
+	Prompt string `json:"openai-prompt"`
 }
 
 func (oa *OpenAI) Translate(q, source, target string) (result string, err error) {
@@ -33,7 +34,10 @@ func (oa *OpenAI) Translate(q, source, target string) (result string, err error)
 		TranslateText(q, target,
 			openai.WithModel(oa.Model),
 			openai.WithSourceLanguage(source),
-			openai.WithSystemPrompt(defaultSystemPrompt),
+			openai.WithSystemPrompt(map[bool]string{
+				true:  oa.Prompt,
+				false: defaultSystemPrompt,
+			}[oa.Prompt != ""]),
 		)
 }
 
