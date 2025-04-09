@@ -24,9 +24,12 @@ type OpenAI struct {
 }
 
 func (oa *OpenAI) Translate(q, source, target string) (result string, err error) {
+	var opts []openai.TranslatorOption
+	if oa.APIUrl != "" {
+		opts = append(opts, openai.WithBaseURL(oa.APIUrl))
+	}
 	return openai.
-		NewTranslator(oa.APIKey,
-			openai.WithBaseURL(oa.APIUrl)).
+		NewTranslator(oa.APIKey, opts...).
 		TranslateText(q, target,
 			openai.WithModel(oa.Model),
 			openai.WithSourceLanguage(source),
