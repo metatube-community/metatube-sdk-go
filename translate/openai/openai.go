@@ -1,7 +1,7 @@
 package openai
 
 import (
-	translator "github.com/xjasonlyu/openai-translator"
+	openai "github.com/xjasonlyu/openai-translator"
 
 	"github.com/metatube-community/metatube-sdk-go/translate"
 )
@@ -24,17 +24,14 @@ type OpenAI struct {
 }
 
 func (oa *OpenAI) Translate(q, source, target string) (result string, err error) {
-	opts := []translator.Option{
-		translator.WithSourceLanguage(source),
-		translator.WithSystemPrompt(defaultSystemPrompt),
-	}
-	if oa.APIUrl != "" {
-		opts = append(opts, translator.WithBaseURL(oa.APIUrl))
-	}
-	if oa.Model != "" {
-		opts = append(opts, translator.WithModel(oa.Model)) // overwrite
-	}
-	return translator.Translate(q, target, oa.APIKey, opts...)
+	return openai.
+		NewTranslator(oa.APIKey,
+			openai.WithBaseURL(oa.APIUrl)).
+		TranslateText(q, target,
+			openai.WithModel(oa.Model),
+			openai.WithSourceLanguage(source),
+			openai.WithSystemPrompt(defaultSystemPrompt),
+		)
 }
 
 func init() {
