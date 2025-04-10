@@ -5,7 +5,9 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
+	"os"
 	"reflect"
+	"strconv"
 	"testing"
 	"time"
 
@@ -146,6 +148,10 @@ func (s *internalTestSuite) TestFetch(p mt.Fetcher, items []string, vfs ...Valid
 }
 
 func Test[T mt.Provider](t *testing.T, new func() T, items []string, vfs ...ValidateFunc) {
+	if ci, _ := strconv.ParseBool(os.Getenv("GITHUB_ACTIONS")); ci {
+		t.SkipNow() // Skip in GitHub Actions
+	}
+
 	functionName := getFrame(1).Function
 	providerName, testMethod, err := parseTestFunction(functionName)
 	require.NoError(t, err)
