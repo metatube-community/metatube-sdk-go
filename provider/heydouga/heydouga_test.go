@@ -14,5 +14,6 @@ func TestHeyDouga_GetMovieInfoByID(t *testing.T) {
 		"4229-759",
 		"4030-2000",
 		"4037-478",
+		"4226-032",
 	})
 }
