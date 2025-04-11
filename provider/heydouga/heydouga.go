@@ -129,6 +129,10 @@ func (hey *HeyDouga) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 		switch e.ChildText(`.//span[1]`) {
 		case "配信日：":
 			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//span[2]`))
+		case "配信期間：":
+			dateRange := e.ChildText(`.//span[2]`)
+			startDate, _, _ := strings.Cut(dateRange, "～")
+			info.ReleaseDate = parser.ParseDate(startDate)
 		case "主演：":
 			// heydouga's actor info is sticky, but whatever...
 			info.Actors = strings.Fields(e.ChildText(`.//span[2]`))
