@@ -12,6 +12,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/nlnwa/whatwg-url/url"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -50,7 +51,11 @@ func (core *Core) Init() *Core {
 	t.MaxIdleConnsPerHost = 2
 	t.IdleConnTimeout = 5 * time.Minute
 
-	core.Scraper = scraper.NewDefaultScraper(core.DefaultName, core.BaseURL, core.DefaultPriority,
+	core.Scraper = scraper.NewDefaultScraper(
+		core.DefaultName,
+		core.BaseURL,
+		core.DefaultPriority,
+		language.Japanese,
 		scraper.WithHeaders(map[string]string{
 			"Content-Type": "application/json",
 			"Connection":   "keep-alive",

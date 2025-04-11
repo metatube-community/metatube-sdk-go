@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"time"
 
+	"golang.org/x/text/language"
+
 	"github.com/metatube-community/metatube-sdk-go/model"
 )
 
@@ -17,6 +19,9 @@ type Provider interface {
 
 	// SetPriority sets the provider priority to the given value.
 	SetPriority(v float64)
+
+	// Language returns the primary language supported by the provider.
+	Language() language.Tag
 
 	// URL returns the base url of the provider.
 	URL() *url.URL

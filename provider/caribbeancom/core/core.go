@@ -13,6 +13,7 @@ import (
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
+	"golang.org/x/text/language"
 	dt "gorm.io/datatypes"
 
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -38,6 +39,7 @@ func (core *Core) Init() *Core {
 		core.DefaultName,
 		core.BaseURL,
 		core.DefaultPriority,
+		language.Japanese,
 		scraper.WithDetectCharset())
 	return core
 }
