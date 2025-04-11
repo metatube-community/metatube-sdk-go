@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -33,6 +34,7 @@ func (core *Core) Init() *Core {
 		core.DefaultName,
 		core.BaseURL,
 		core.DefaultPriority,
+		language.Japanese,
 		scraper.WithCookies(core.BaseURL, []*http.Cookie{
 			{Name: "modal", Value: "off"},
 		}))

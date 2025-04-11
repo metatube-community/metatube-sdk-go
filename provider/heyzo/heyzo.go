@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/gocolly/colly/v2"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/js"
 	"github.com/metatube-community/metatube-sdk-go/common/m3u8"
@@ -43,7 +44,7 @@ type Heyzo struct {
 }
 
 func New() *Heyzo {
-	return &Heyzo{scraper.NewDefaultScraper(Name, baseURL, Priority)}
+	return &Heyzo{scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese)}
 }
 
 func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {

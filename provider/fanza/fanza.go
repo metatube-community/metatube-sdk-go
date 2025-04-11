@@ -18,6 +18,7 @@ import (
 	"github.com/docker/go-units"
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/collections"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
@@ -64,12 +65,12 @@ type FANZA struct {
 }
 
 func New() *FANZA {
-	return &FANZA{
-		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
-			scraper.WithCookies(baseURL, []*http.Cookie{
-				{Name: "age_check_done", Value: "1"},
-			})),
-	}
+	return &FANZA{scraper.NewDefaultScraper(
+		Name, baseURL, Priority, language.Japanese,
+		scraper.WithCookies(baseURL, []*http.Cookie{
+			{Name: "age_check_done", Value: "1"},
+		}),
+	)}
 }
 
 func (fz *FANZA) NormalizeMovieID(id string) string {

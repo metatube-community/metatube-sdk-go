@@ -13,6 +13,7 @@ import (
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -44,12 +45,13 @@ type MGS struct {
 }
 
 func New() *MGS {
-	return &MGS{
-		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
-			scraper.WithCookies(baseURL, []*http.Cookie{
-				{Name: "adc", Value: "1"},
-			})),
-	}
+	return &MGS{scraper.NewDefaultScraper(
+		Name, baseURL, Priority,
+		language.Japanese,
+		scraper.WithCookies(baseURL, []*http.Cookie{
+			{Name: "adc", Value: "1"},
+		}),
+	)}
 }
 
 func (mgs *MGS) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {

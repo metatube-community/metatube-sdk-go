@@ -12,6 +12,7 @@ import (
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/collections"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -41,7 +42,9 @@ type TokyoHot struct {
 }
 
 func New() *TokyoHot {
-	return &TokyoHot{scraper.NewDefaultScraper(Name, baseURL, Priority,
+	return &TokyoHot{scraper.NewDefaultScraper(
+		Name, baseURL, Priority,
+		language.Japanese,
 		// Temporary workaround for unknown CA issue.
 		scraper.WithTransport(&http.Transport{
 			Proxy:                 http.DefaultTransport.(*http.Transport).Proxy,
@@ -52,7 +55,8 @@ func New() *TokyoHot {
 			TLSHandshakeTimeout:   http.DefaultTransport.(*http.Transport).TLSHandshakeTimeout,
 			ExpectContinueTimeout: http.DefaultTransport.(*http.Transport).ExpectContinueTimeout,
 			TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
-		}))}
+		}),
+	)}
 }
 
 func (tht *TokyoHot) NormalizeMovieID(id string) string {

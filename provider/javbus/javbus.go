@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/gocolly/colly/v2"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
@@ -45,7 +46,9 @@ type JavBus struct {
 func New() *JavBus {
 	return &JavBus{
 		Fetcher: fetch.Default(&fetch.Config{Referer: baseURL}),
-		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
+		Scraper: scraper.NewDefaultScraper(
+			Name, baseURL, Priority,
+			language.Japanese,
 			scraper.WithDisableRedirects(),
 			scraper.WithHeaders(map[string]string{
 				"Referer": baseURL,
