@@ -9,12 +9,6 @@ import (
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
 
-// Special environment prefixes for setting provider priorities.
-const (
-	ActorProviderPriorityEnvPrefix = "MT_ACTOR_PROVIDER_PRIORITY_"
-	MovieProviderPriorityEnvPrefix = "MT_MOVIE_PROVIDER_PRIORITY_"
-)
-
 func (e *Engine) init() *Engine {
 	e.initLogger()
 	e.initFetcher()
