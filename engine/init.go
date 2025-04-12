@@ -47,7 +47,16 @@ func (e *Engine) initAllProviderPriorities() {
 			continue
 		}
 		if provider, ok := e.movieProviders[name]; ok {
+			e.logger.Printf("Found movie provider with overrided priority: %s, %f", name, prio)
 			provider.SetPriority(prio)
+		}
+	}
+	// Disable provider if it's priority is 0 after apply priority from env.
+	for name, provider := range e.movieProviders {
+		if provider.Priority() == 0 {
+			e.logger.Printf("Disable provider: %s", name)
+			delete(e.movieProviders, name)
+			continue
 		}
 	}
 }
