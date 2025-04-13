@@ -29,9 +29,10 @@ const (
 )
 
 const (
-	baseURL   = "https://api.modelmediaasia.com/api/v2"
-	movieURL  = baseURL + "/videos/%s"
-	searchURL = baseURL + "/search?keyword=%s"
+	baseURL      = "https://modelmediaasia.com/"
+	movieURL     = "https://modelmediaasia.com/zh-CN/videos/%s"
+	apiMovieURL  = "https://api.modelmediaasia.com/api/v2/videos/%s"
+	apiSearchURL = "https://api.modelmediaasia.com/api/v2/search?keyword=%s"
 )
 
 type ModelMediaAsia struct {
@@ -42,12 +43,8 @@ func New() *ModelMediaAsia {
 	return &ModelMediaAsia{scraper.NewDefaultScraper(Name, baseURL, Priority, language.Chinese)}
 }
 
-func (mma *ModelMediaAsia) SetRequestTimeout(_ time.Duration) {
-	mma.Scraper.SetRequestTimeout(10 * time.Second) // force timeout setting.
-}
-
 func (mma *ModelMediaAsia) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return mma.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
+	return mma.GetMovieInfoByURL(fmt.Sprintf(apiMovieURL, id))
 }
 
 func (mma *ModelMediaAsia) ParseMovieIDFromURL(rawURL string) (string, error) {
@@ -103,10 +100,15 @@ type movieInfoResponse struct {
 }
 
 func (mma *ModelMediaAsia) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := mma.ParseMovieIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
+
 	info = &model.MovieInfo{
 		Provider:      mma.Name(),
-		Homepage:      rawURL,
-		Maker:         "Model Media Asian",
+		Homepage:      fmt.Sprintf(movieURL, id),
+		Maker:         "Model Media",
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Genres:        []string{},
@@ -127,19 +129,22 @@ func (mma *ModelMediaAsia) GetMovieInfoByURL(rawURL string) (info *model.MovieIn
 		info.ThumbURL = resp.Data.Cover
 		info.CoverURL = resp.Data.Cover
 		info.ReleaseDate = datatypes.Date(time.UnixMilli(resp.Data.PublishedAt))
-		info.PreviewVideoURL = resp.Data.PreviewVideo
-		info.PreviewVideoHLSURL = resp.Data.Trailer
+		// Trailer > PreviewVideo
+		info.PreviewVideoURL = map[bool]string{
+			true:  resp.Data.Trailer,
+			false: resp.Data.PreviewVideo,
+		}[resp.Data.Trailer != ""]
 
 		for _, tag := range resp.Data.Tags {
 			info.Genres = append(info.Genres, tag.NameCn)
 		}
 
-		for _, model := range resp.Data.Models {
-			info.Actors = append(info.Actors, model.NameCn)
+		for _, actor := range resp.Data.Models {
+			info.Actors = append(info.Actors, actor.NameCn)
 		}
 	})
 
-	err = c.Visit(info.Homepage)
+	err = c.Visit(fmt.Sprintf(apiMovieURL, id))
 	return
 }
 
@@ -187,8 +192,7 @@ func (mma *ModelMediaAsia) SearchMovie(keyword string) (results []*model.MovieSe
 		}
 	})
 
-	err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword)))
-
+	err = c.Visit(fmt.Sprintf(apiSearchURL, url.QueryEscape(keyword)))
 	return
 }
 
