@@ -24,8 +24,8 @@ var (
 )
 
 const (
-	Name     = "MODEL-MEDIA-ASIA"
-	Priority = 0 // Disabled by default, use `export MT_MOVIE_PROVIDER_PRIORITY_MODEL_MEDIA_ASIA=1000` to enable.
+	Name     = "ModelMediaAsia"
+	Priority = 0 // Disabled by default, use `export MT_MOVIE_PROVIDER_PRIORITY_MODELMEDIAASIA=1000` to enable.
 )
 
 const (
@@ -108,7 +108,7 @@ func (mma *ModelMediaAsia) GetMovieInfoByURL(rawURL string) (info *model.MovieIn
 	info = &model.MovieInfo{
 		Provider:      mma.Name(),
 		Homepage:      fmt.Sprintf(movieURL, id),
-		Maker:         "Model Media",
+		Maker:         "麻豆傳媒映畫",
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Genres:        []string{},

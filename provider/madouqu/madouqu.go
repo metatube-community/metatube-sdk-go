@@ -24,8 +24,8 @@ var (
 )
 
 const (
-	Name     = "MADOU-QU"
-	Priority = 0 // Disabled by default, use `export MT_MOVIE_PROVIDER_PRIORITY_MADOU_QU=1000` to enable.
+	Name     = "MadouQu"
+	Priority = 0 // Disabled by default, use `export MT_MOVIE_PROVIDER_PRIORITY_MADOUQU=1000` to enable.
 )
 
 const (
