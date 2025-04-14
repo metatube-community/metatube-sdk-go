@@ -17,11 +17,14 @@ import (
 )
 
 /*
-  # Generate MD5 Hashed Images:
+  # Generate MD5-hashed images:
   setopt null_glob
   for IMG in *.jpg *.jpeg *.png; do
     gbase64 "$IMG" > "$(md5sum "$IMG" | cut -d' ' -f1)"
   done
+
+  # Decode image:
+  gbase64 -d "$IMG"  > "$IMG".jpg
 */
 
 //go:embed assets/*
