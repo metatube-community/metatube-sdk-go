@@ -11,7 +11,7 @@ func TestRotatePoint(t *testing.T) {
 	for _, unit := range []struct {
 		x, y   int
 		w, h   int
-		degree float64
+		angle  float64
 		x1, y1 int
 	}{
 		{0, 0, 100, 100, 270, 99, 0},
@@ -23,7 +23,7 @@ func TestRotatePoint(t *testing.T) {
 		{5, 295, 400, 300, 270, 5, 5},
 		{5, 5, 300, 400, 90, 5, 295},
 	} {
-		x1, y1 := RotatePoint(unit.x, unit.y, unit.w, unit.h, unit.degree)
+		x1, y1 := RotatePoint(unit.x, unit.y, unit.w, unit.h, unit.angle)
 		assert.Truef(t,
 			pointEqual([2]int{unit.x1, unit.y1}, [2]int{x1, y1}, 1.0),
 			"expect: (%d±1,%d±1), but got: (%d,%d)", unit.x1, unit.y1, x1, y1)

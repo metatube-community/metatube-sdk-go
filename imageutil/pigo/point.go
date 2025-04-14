@@ -16,12 +16,12 @@ func rotateFloat(x, y, rad float64) (float64, float64) {
 	return xNew, yNew
 }
 
-func RotatePoint(x, y int, width, height int, degree float64) (int, int) {
+func RotatePoint(x, y int, width, height int, angle float64) (int, int) {
 	if width <= 0 || height <= 0 {
 		return 0, 0
 	}
 
-	rad := degree * math.Pi / 180.0
+	rad := angle * math.Pi / 180.0
 
 	w := float64(width - 1)
 	h := float64(height - 1)
