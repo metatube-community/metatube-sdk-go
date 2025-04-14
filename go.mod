@@ -23,7 +23,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/nlnwa/whatwg-url v0.6.2
 	github.com/peterbourgon/ff/v3 v3.4.0
-	github.com/projectdiscovery/useragent v0.0.98
+	github.com/projectdiscovery/useragent v0.0.99
 	github.com/projectdiscovery/utils v0.4.17
 	github.com/robertkrimen/otto v0.5.1
 	github.com/sashabaranov/go-openai v1.38.1
@@ -45,7 +45,7 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/PuerkitoBio/goquery v1.10.2 // indirect
+	github.com/PuerkitoBio/goquery v1.10.3 // indirect
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/antchfx/xmlquery v1.4.4 // indirect
 	github.com/antchfx/xpath v1.3.4 // indirect
