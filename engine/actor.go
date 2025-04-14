@@ -6,6 +6,7 @@ import (
 	"sort"
 	"sync"
 
+	"golang.org/x/text/language"
 	"gorm.io/gorm/clause"
 
 	"github.com/metatube-community/metatube-sdk-go/collections"
@@ -13,7 +14,6 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
-	"github.com/metatube-community/metatube-sdk-go/provider/gfriends"
 )
 
 func (e *Engine) searchActorFromDB(keyword string, provider mt.Provider) (results []*model.ActorSearchResult, err error) {
@@ -34,9 +34,6 @@ func (e *Engine) searchActorFromDB(keyword string, provider mt.Provider) (result
 
 func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool) ([]*model.ActorSearchResult, error) {
 	innerSearch := func(keyword string) (results []*model.ActorSearchResult, err error) {
-		if provider.Name() == gfriends.Name {
-			return provider.(mt.ActorSearcher).SearchActor(keyword)
-		}
 		if searcher, ok := provider.(mt.ActorSearcher); ok {
 			defer func() {
 				if err != nil || len(results) == 0 {
@@ -147,40 +144,46 @@ func (e *Engine) getActorInfoFromDB(provider mt.ActorProvider, id string) (*mode
 	return info, err
 }
 
-func (e *Engine) getActorInfoWithCallback(provider mt.ActorProvider, id string, lazy bool, callback func() (*model.ActorInfo, error)) (info *model.ActorInfo, err error) {
-	defer func() {
-		// metadata validation check.
-		if err == nil && (info == nil || !info.Valid()) {
-			err = mt.ErrIncompleteMetadata
-		}
-	}()
-	if provider.Name() == gfriends.Name {
-		return provider.GetActorInfoByID(id)
-	}
-	defer func() {
-		// actor image injection.
-		if err == nil && info != nil {
-			if gInfo, gErr := e.MustGetActorProviderByName(gfriends.Name).GetActorInfoByID(info.Name); gErr == nil && len(gInfo.Images) > 0 {
-				info.Images = append(gInfo.Images, info.Images...)
-			}
-		}
-	}()
+func (e *Engine) getActorInfoWithCallback(provider mt.ActorProvider, id string, lazy bool, callback func() (*model.ActorInfo, error)) (*model.ActorInfo, error) {
 	// Query DB first (by id).
 	if lazy {
-		if info, err = e.getActorInfoFromDB(provider, id); err == nil && info.Valid() {
-			return
+		if info, err := e.getActorInfoFromDB(provider, id); err == nil && info.Valid() {
+			// actor image injection.
+			e.injectActorImages(provider.Language(), info)
+			return info, nil
 		}
 	}
-	// Delayed info auto-save.
-	defer func() {
-		if err == nil && info.Valid() {
-			// Make sure we save the original info here.
-			e.db.Clauses(clause.OnConflict{
-				UpdateAll: true,
-			}).Create(info) // ignore error
+
+	info, err := callback()
+	if err != nil {
+		return nil, err
+	}
+
+	// metadata validation check.
+	if info == nil {
+		return nil, mt.ErrInfoNotFound
+	} else if !info.Valid() {
+		return nil, mt.ErrIncompleteMetadata
+	}
+
+	// save info to db.
+	e.db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(info) // ignore error
+
+	// actor image injection.
+	e.injectActorImages(provider.Language(), info)
+
+	return info, nil
+}
+
+func (e *Engine) injectActorImages(lang language.Tag, info *model.ActorInfo) {
+	imageProviders := e.GetActorImageProviderByLanguage(lang)
+	for _, imageProvider := range imageProviders {
+		if images, err := imageProvider.GetActorImagesByName(info.Name); err == nil && len(images) > 0 {
+			info.Images = append(info.Images, images...)
 		}
-	}()
-	return callback()
+	}
 }
 
 func (e *Engine) getActorInfoByProviderID(provider mt.ActorProvider, id string, lazy bool) (*model.ActorInfo, error) {
