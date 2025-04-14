@@ -25,7 +25,7 @@ var (
 
 const (
 	Name     = "MadouQu"
-	Priority = 1000 - 3
+	Priority = 0 // Disabled by default, use `export MT_MOVIE_PROVIDER_PRIORITY_MADOUQU=1000` to enable.
 )
 
 const (

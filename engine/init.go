@@ -14,7 +14,6 @@ func (e *Engine) init() *Engine {
 	e.initFetcher()
 	e.initActorProviders()
 	e.initMovieProviders()
-	e.initAllProviderPriorities()
 	return e
 }
 
@@ -26,43 +25,35 @@ func (e *Engine) initFetcher() {
 	e.fetcher = fetch.Default(&fetch.Config{Timeout: e.timeout})
 }
 
-func (e *Engine) initAllProviderPriorities() {
+// initActorProviders initializes actor providers.
+func (e *Engine) initActorProviders() {
 	defer func() {
 		// remove references.
 		e.actorPriorities = nil
-		e.moviePriorities = nil
 	}()
-	for name, prio := range e.actorPriorities {
-		if prio == 0 {
-			delete(e.actorProviders, name)
-			continue
-		}
-		if provider, ok := e.actorProviders[name]; ok {
-			provider.SetPriority(prio)
-		}
-	}
-	for name, prio := range e.moviePriorities {
-		if prio == 0 {
-			delete(e.movieProviders, name)
-			continue
-		}
-		if provider, ok := e.movieProviders[name]; ok {
-			provider.SetPriority(prio)
-		}
-	}
-}
 
-// initActorProviders initializes actor providers.
-func (e *Engine) initActorProviders() {
 	e.actorProviders = make(map[string]mt.ActorProvider)
 	e.actorHostProviders = make(map[string][]mt.ActorProvider)
 	for name, factory := range mt.RangeActorFactory {
+		name = strings.ToUpper(name)
+
 		provider := factory()
+		if p, ok := e.actorPriorities[name]; ok {
+			e.logger.Printf("Set actor provider with overridden priority: %s=%.2f", provider.Name(), p)
+			provider.SetPriority(p)
+		}
+		if provider.Priority() <= 0 {
+			e.logger.Printf("Disable actor provider: %s", provider.Name())
+			continue
+		}
+
+		// Set request timeout.
 		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(e.timeout)
 		}
+
 		// Add actor provider by name.
-		e.actorProviders[strings.ToUpper(name)] = provider
+		e.actorProviders[name] = provider
 		// Add actor provider by host.
 		host := provider.URL().Hostname()
 		e.actorHostProviders[host] = append(e.actorHostProviders[host], provider)
@@ -71,15 +62,33 @@ func (e *Engine) initActorProviders() {
 
 // initMovieProviders initializes movie providers.
 func (e *Engine) initMovieProviders() {
+	defer func() {
+		// remove references.
+		e.moviePriorities = nil
+	}()
+
 	e.movieProviders = make(map[string]mt.MovieProvider)
 	e.movieHostProviders = make(map[string][]mt.MovieProvider)
 	for name, factory := range mt.RangeMovieFactory {
+		name = strings.ToUpper(name)
+
 		provider := factory()
+		if p, ok := e.moviePriorities[name]; ok {
+			e.logger.Printf("Set movie provider with overridden priority: %s=%.2f", provider.Name(), p)
+			provider.SetPriority(p)
+		}
+		if provider.Priority() <= 0 {
+			e.logger.Printf("Disable movie provider: %s", provider.Name())
+			continue
+		}
+
+		// Set request timeout.
 		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(e.timeout)
 		}
+
 		// Add movie provider by name.
-		e.movieProviders[strings.ToUpper(name)] = provider
+		e.movieProviders[name] = provider
 		// Add movie provider by host.
 		host := provider.URL().Hostname()
 		e.movieHostProviders[host] = append(e.movieHostProviders[host], provider)
