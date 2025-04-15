@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/gocolly/colly/v2"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -41,13 +42,14 @@ type AirAV struct {
 }
 
 func New() *AirAV {
-	return &AirAV{
-		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
-			scraper.WithHeaders(map[string]string{
-				"Origin":  baseURL,
-				"Referer": baseURL,
-			})),
-	}
+	return &AirAV{scraper.NewDefaultScraper(
+		Name, baseURL, Priority,
+		language.Japanese,
+		scraper.WithHeaders(map[string]string{
+			"Origin":  baseURL,
+			"Referer": baseURL,
+		}),
+	)}
 }
 
 func (air *AirAV) NormalizeMovieID(id string) string { return strings.ToUpper(id) }

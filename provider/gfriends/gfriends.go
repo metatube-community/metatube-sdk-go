@@ -8,6 +8,8 @@ import (
 	"slices"
 	"time"
 
+	"golang.org/x/text/language"
+
 	"github.com/metatube-community/metatube-sdk-go/collections"
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/singledo"
@@ -39,7 +41,11 @@ type Gfriends struct {
 }
 
 func New() *Gfriends {
-	return &Gfriends{scraper.NewDefaultScraper(Name, baseURL, Priority, scraper.WithDisableCookies())}
+	return &Gfriends{scraper.NewDefaultScraper(
+		Name, baseURL, Priority,
+		language.Japanese,
+		scraper.WithDisableCookies(),
+	)}
 }
 
 func (gf *Gfriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {

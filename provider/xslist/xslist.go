@@ -11,6 +11,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
+	"golang.org/x/text/language"
 	dt "gorm.io/datatypes"
 
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -40,7 +41,11 @@ type XsList struct {
 }
 
 func New() *XsList {
-	return &XsList{scraper.NewDefaultScraper(Name, baseURL, Priority, scraper.WithDisableCookies())}
+	return &XsList{scraper.NewDefaultScraper(
+		Name, baseURL, Priority,
+		language.Japanese,
+		scraper.WithDisableCookies(),
+	)}
 }
 
 func (xsl *XsList) GetActorInfoByID(id string) (info *model.ActorInfo, err error) {

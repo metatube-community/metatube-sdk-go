@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
@@ -54,7 +55,8 @@ type AVBase struct {
 func New() *AVBase {
 	return &AVBase{
 		Fetcher: fetch.Default(&fetch.Config{SkipVerify: true}),
-		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
+		Scraper: scraper.NewDefaultScraper(
+			Name, baseURL, Priority, language.Japanese,
 			scraper.WithHeaders(map[string]string{
 				"Referer": baseURL,
 			})),

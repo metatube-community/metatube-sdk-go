@@ -9,6 +9,7 @@ import (
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -38,7 +39,7 @@ type AVE struct {
 }
 
 func New() *AVE {
-	return &AVE{scraper.NewDefaultScraper(Name, baseURL, Priority)}
+	return &AVE{scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese)}
 }
 
 func (ave *AVE) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
