@@ -16,9 +16,7 @@ func redirect(app *engine.Engine) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		if redir := c.Query(queryKey); redir != "" {
-			var (
-				provider, id string
-			)
+			var provider, id string
 			if pid, err := providerid.Parse(redir); err != nil {
 				abortWithStatusMessage(c, http.StatusBadRequest, err)
 				return
@@ -30,7 +28,6 @@ func redirect(app *engine.Engine) gin.HandlerFunc {
 				info any
 				err  error
 			)
-
 			switch {
 			case app.IsActorProvider(provider):
 				info, err = app.GetActorInfoByProviderID(provider, id, true)
