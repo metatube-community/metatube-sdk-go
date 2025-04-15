@@ -67,7 +67,8 @@ func (e *Engine) GetImageByURL(provider mt.Provider, url string, ratio, pos floa
 		return
 	}
 	if auto {
-		pos = pigo.CalculatePosition(img, ratio, pos)
+		dets := pigo.DetectFacesAdvanced(img)
+		pos = pigo.CalculatePosition(img, ratio, pos, dets)
 	}
 	return imageutil.CropImagePosition(img, ratio, pos), nil
 }

@@ -2,8 +2,11 @@ package pigo
 
 import (
 	"image"
+	"image/color"
+	"math"
 	"sort"
 
+	"github.com/disintegration/imaging"
 	pigo "github.com/esimov/pigo/core"
 )
 
@@ -13,7 +16,7 @@ func init() {
 	classifier, _ = pigo.NewPigo().Unpack(cascade)
 }
 
-func detectFaces(img image.Image, params *pigo.CascadeParams) (dets []pigo.Detection) {
+func detectFaces(params *pigo.CascadeParams) (dets []pigo.Detection) {
 	// Run the classifier over the obtained leaf nodes and return the detection results.
 	// The result contains quadruplets representing the row, column, scale and detection score.
 	dets = classifier.RunCascade(*params, 0.0)
@@ -46,15 +49,54 @@ func DetectFaces(img image.Image) []pigo.Detection {
 			ImageParams: imgParams,
 		},
 	} {
-		if dets := detectFaces(img, &params); len(dets) > 0 {
+		if dets := detectFaces(&params); len(dets) > 0 {
 			return dets
 		}
 	}
 	return nil
 }
 
-func CalculatePosition(img image.Image, ratio float64, pos float64) float64 {
-	if dets := DetectFaces(img); len(dets) > 0 {
+func DetectFacesWithAngle(img image.Image, angle float64) []pigo.Detection {
+	var (
+		origWidth  = img.Bounds().Dx()
+		origHeight = img.Bounds().Dy()
+	)
+	rotatedImg := imaging.Rotate(img, angle, color.Transparent)
+	dets := DetectFaces(rotatedImg)
+	if angle == 0 {
+		return dets
+	}
+	// Calculate converted coordinates.
+	for i := range dets {
+		x, y := RotatePoint(
+			dets[i].Col, dets[i].Row,
+			rotatedImg.Bounds().Dx(),
+			rotatedImg.Bounds().Dy(),
+			math.Mod(360-angle, 360), /* inverse angle */
+		)
+		x = max(min(x, origWidth), 0)
+		y = max(min(y, origHeight), 0)
+		dets[i].Col, dets[i].Row = x, y
+	}
+	return dets
+}
+
+func DetectFacesAdvanced(img image.Image) (dets []pigo.Detection) {
+	// Try different angles to get better results.
+	for _, angle := range []float64{
+		0,
+		90,
+		270,
+	} {
+		dets = append(dets, DetectFacesWithAngle(img, angle)...)
+	}
+	// Calculate the intersection over union (IoU) of two clusters.
+	dets = classifier.ClusterDetections(dets, 0.2)
+	return
+}
+
+func CalculatePosition(img image.Image, ratio float64, pos float64, dets []pigo.Detection) float64 {
+	if len(dets) > 0 {
 		sort.SliceStable(dets, func(i, j int) bool {
 			return float32(dets[i].Scale)*dets[i].Q > float32(dets[j].Scale)*dets[j].Q
 		})
