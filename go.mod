@@ -7,9 +7,10 @@ require (
 	github.com/antchfx/htmlquery v1.3.4
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/corona10/goimagehash v1.1.0
+	github.com/disintegration/imaging v1.6.2
 	github.com/docker/go-units v0.5.0
 	github.com/elliotchance/orderedmap/v3 v3.1.0
-	github.com/esimov/pigo v1.4.7-0.20230220101645-e922e5442d38
+	github.com/esimov/pigo v1.4.7-0.20240801095032-7465ed14de47
 	github.com/gen2brain/jpegli v0.3.4
 	github.com/gin-gonic/gin v1.10.0
 	github.com/glebarez/sqlite v1.11.0
