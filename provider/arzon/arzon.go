@@ -207,7 +207,7 @@ func (az *ARZON) SearchMovie(keyword string) (results []*model.MovieSearchResult
 			wg.Add(1)
 			go func(i int) {
 				defer wg.Done()
-				if info, _ := az.GetMovieInfoByID(ids[i]); info != nil && info.Valid() {
+				if info, _ := az.GetMovieInfoByID(ids[i]); info != nil && info.IsValid() {
 					mu.Lock()
 					results = append(results, info.ToSearchResult())
 					mu.Unlock()

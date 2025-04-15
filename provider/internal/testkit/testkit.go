@@ -39,7 +39,7 @@ func (s *internalTestSuite) testItems(items []string, call func(*testing.T, stri
 }
 
 func (s *internalTestSuite) testGetInfo(f any, items []string, vfs ...ValidateFunc) {
-	ff := func(item string) (info interface{ Valid() bool }, err error) {
+	ff := func(item string) (info interface{ IsValid() bool }, err error) {
 		switch v := f.(type) {
 		case func(string) (*model.ActorInfo, error):
 			info, err = v(item)

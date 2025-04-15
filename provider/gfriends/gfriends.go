@@ -92,7 +92,7 @@ func (gf *Gfriends) GetActorInfoByURL(u string) (*model.ActorInfo, error) {
 
 func (gf *Gfriends) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
 	var info *model.ActorInfo
-	if info, err = gf.GetActorInfoByID(keyword); err == nil && info.Valid() {
+	if info, err = gf.GetActorInfoByID(keyword); err == nil && info.IsValid() {
 		results = []*model.ActorSearchResult{info.ToSearchResult()}
 	}
 	return

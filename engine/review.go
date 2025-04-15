@@ -24,19 +24,19 @@ func (e *Engine) getMovieReviewsWithCallback(provider mt.MovieProvider, id strin
 ) (info *model.MovieReviewInfo, err error) {
 	defer func() {
 		// metadata validation check.
-		if err == nil && (info == nil || !info.Valid()) {
+		if err == nil && (info == nil || !info.IsValid()) {
 			err = mt.ErrIncompleteMetadata
 		}
 	}()
 	// Query DB first (by id).
 	if lazy {
-		if info, err = e.getMovieReviewsFromDB(provider, id); err == nil && info.Valid() {
+		if info, err = e.getMovieReviewsFromDB(provider, id); err == nil && info.IsValid() {
 			return // ignore DB query error.
 		}
 	}
 	// delayed info auto-save.
 	defer func() {
-		if err == nil && info.Valid() {
+		if err == nil && info.IsValid() {
 			e.db.Clauses(clause.OnConflict{
 				UpdateAll: true,
 			}).Create(info) // ignore error

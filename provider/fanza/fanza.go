@@ -95,7 +95,7 @@ func (fz *FANZA) getHomepagesByID(id string) []string {
 
 func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	for _, homepage := range fz.getHomepagesByID(id) {
-		if info, err = fz.GetMovieInfoByURL(homepage); errors.Is(err, ErrRegionNotAvailable) || err == nil && info.Valid() {
+		if info, err = fz.GetMovieInfoByURL(homepage); errors.Is(err, ErrRegionNotAvailable) || err == nil && info.IsValid() {
 			return
 		}
 	}
@@ -472,7 +472,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	})
 
 	c.OnScraped(func(r *colly.Response) {
-		if !info.Valid() && isRegionError(r) {
+		if !info.IsValid() && isRegionError(r) {
 			err = ErrRegionNotAvailable
 		}
 	})

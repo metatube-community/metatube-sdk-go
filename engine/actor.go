@@ -23,7 +23,7 @@ func (e *Engine) searchActorFromDB(keyword string, provider mt.Provider) (result
 			provider.Name(), keyword).
 		Find(&infos).Error; err == nil {
 		for _, info := range infos {
-			if !info.Valid() {
+			if !info.IsValid() {
 				continue
 			}
 			results = append(results, info.ToSearchResult())
@@ -120,7 +120,7 @@ func (e *Engine) SearchActorAll(keyword string, fallback bool) (results []*model
 			defer wg.Done()
 			if innerResults, innerErr := e.searchActor(keyword, provider, fallback); innerErr == nil {
 				for _, result := range innerResults {
-					if result.Valid() /* validation check */ {
+					if result.IsValid() /* validation check */ {
 						mu.Lock()
 						results = append(results, result)
 						mu.Unlock()
@@ -150,7 +150,7 @@ func (e *Engine) getActorInfoFromDB(provider mt.ActorProvider, id string) (*mode
 func (e *Engine) getActorInfoWithCallback(provider mt.ActorProvider, id string, lazy bool, callback func() (*model.ActorInfo, error)) (info *model.ActorInfo, err error) {
 	defer func() {
 		// metadata validation check.
-		if err == nil && (info == nil || !info.Valid()) {
+		if err == nil && (info == nil || !info.IsValid()) {
 			err = mt.ErrIncompleteMetadata
 		}
 	}()
@@ -167,13 +167,13 @@ func (e *Engine) getActorInfoWithCallback(provider mt.ActorProvider, id string, 
 	}()
 	// Query DB first (by id).
 	if lazy {
-		if info, err = e.getActorInfoFromDB(provider, id); err == nil && info.Valid() {
+		if info, err = e.getActorInfoFromDB(provider, id); err == nil && info.IsValid() {
 			return
 		}
 	}
 	// Delayed info auto-save.
 	defer func() {
-		if err == nil && info.Valid() {
+		if err == nil && info.IsValid() {
 			// Make sure we save the original info here.
 			e.db.Clauses(clause.OnConflict{
 				UpdateAll: true,
