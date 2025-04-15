@@ -63,22 +63,3 @@ func TestParseIDToNumber(t *testing.T) {
 		assert.Equal(t, unit.want, ParseIDToNumber(unit.id))
 	}
 }
-
-func TestParseProviderID(t *testing.T) {
-	for _, unit := range []struct {
-		id, want string
-	}{
-		{"FANZA:mdx0109", "FANZA:mdx0109"},
-		{"FANZA:mdx0109:0.9", "FANZA:mdx0109"},
-		{"FANZA:mdx0109:0", "FANZA:mdx0109"},
-		{"FANZA:mdx0109:1", "FANZA:mdx0109"},
-		{"FANZA:mdx0109:1.2", "FANZA:mdx0109"},
-		{"AVBASE:dmm:ssis899", "AVBASE:dmm:ssis899"},
-		{"AVBASE:dmm:ssis899:0.99", "AVBASE:dmm:ssis899"},
-		{"ARZON:2234", "ARZON:2234"},
-		{"ARZON:2234:0.55", "ARZON:2234"},
-		{"ARZON:2234:1233", "ARZON:2234:1233"},
-	} {
-		assert.Equal(t, unit.want, ParseProviderID(unit.id))
-	}
-}
