@@ -18,13 +18,13 @@ const googleTranslateAPI = "https://translation.googleapis.com/language/translat
 
 type Google struct {
 	APIKey string `json:"google-api-key"`
-	AltURL string `json:"google-alt-url"`
+	APIUrl string `json:"google-api-url"`
 }
 
 func (gl *Google) Translate(q, source, target string) (result string, err error) {
 	apiURL := googleTranslateAPI
-	if gl.AltURL != "" {
-		apiURL = gl.AltURL
+	if gl.APIUrl != "" {
+		apiURL = gl.APIUrl
 	}
 
 	var resp *http.Response
