@@ -17,7 +17,7 @@ func TestGoogleTranslate(t *testing.T) {
 	} {
 		result, err := (&Google{
 			APIKey: os.Getenv("GOOGLE_API_KEY"),
-			AltURL: os.Getenv("GOOGLE_ALT_URL"),
+			APIUrl: os.Getenv("GOOGLE_API_URL"),
 		}).Translate(unit.text, unit.from, unit.to)
 		if err != nil {
 			t.Fatal(err)
