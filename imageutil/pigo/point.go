@@ -76,5 +76,5 @@ func RotatePoint(x, y int, width, height int, angle float64) (int, int) {
 		iy = newH - 1
 	}
 
-	return int(math.Round(rxShift)), int(math.Round(ryShift))
+	return ix, iy
 }
