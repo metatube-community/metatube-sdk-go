@@ -26,8 +26,8 @@ func (gl *Google) Translate(q, source, target string) (result string, err error)
 		googleTranslateAPI,
 		fetch.WithJSONBody(map[string]string{
 			"q":      q,
-			"source": parseToGoogleSupportedLanguage(source),
-			"target": parseToGoogleSupportedLanguage(target),
+			"source": parseToSupportedLanguage(source),
+			"target": parseToSupportedLanguage(target),
 			"format": "text",
 		}),
 		fetch.WithRaiseForStatus(false),
@@ -57,7 +57,7 @@ func (gl *Google) Translate(q, source, target string) (result string, err error)
 	return
 }
 
-func parseToGoogleSupportedLanguage(lang string) string {
+func parseToSupportedLanguage(lang string) string {
 	if lang = strings.ToLower(lang); lang == "" || lang == "auto" /* auto detect */ {
 		return ""
 	}
