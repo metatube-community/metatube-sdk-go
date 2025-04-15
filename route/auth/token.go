@@ -1,5 +1,10 @@
 package auth
 
+var (
+	_ Validator = (*Token)(nil)
+	_ Validator = (*TokenStore)(nil)
+)
+
 type Token string
 
 func (token Token) Valid(t string) bool {
