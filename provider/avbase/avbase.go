@@ -224,12 +224,12 @@ func (ab *AVBase) getMovieInfoFromSource(work Work) (info *model.MovieInfo, err 
 			continue
 		}
 		info, err = movieProvider.GetMovieInfoByID(product.ProductID)
-		if err != nil || info == nil || !info.Valid() {
+		if err != nil || info == nil || !info.IsValid() {
 			continue
 		}
 		break
 	}
-	if info == nil || !info.Valid() {
+	if info == nil || !info.IsValid() {
 		if err == nil {
 			err = provider.ErrInfoNotFound
 		}

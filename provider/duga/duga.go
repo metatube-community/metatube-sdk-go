@@ -240,7 +240,7 @@ func (duga *DUGA) SearchMovie(keyword string) (results []*model.MovieSearchResul
 			wg.Add(1)
 			go func(i int) {
 				defer wg.Done()
-				if info, _ := duga.GetMovieInfoByID(ids[i]); info != nil && info.Valid() {
+				if info, _ := duga.GetMovieInfoByID(ids[i]); info != nil && info.IsValid() {
 					mu.Lock()
 					results = append(results, info.ToSearchResult())
 					mu.Unlock()

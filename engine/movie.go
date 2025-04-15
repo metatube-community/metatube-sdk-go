@@ -33,7 +33,7 @@ func (e *Engine) searchMovieFromDB(keyword string, provider mt.MovieProvider, al
 	}
 	if err == nil {
 		for _, info := range infos {
-			if !info.Valid() {
+			if !info.IsValid() {
 				// normally it is valid, but just in case.
 				continue
 			}
@@ -164,7 +164,7 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 		// post-processing
 		ps := new(collections.WeightedSlice[float64, *model.MovieSearchResult])
 		for _, result := range results {
-			if !result.Valid() /* validation check */ {
+			if !result.IsValid() /* validation check */ {
 				continue
 			}
 			if _, err := e.GetMovieProviderByName(result.Provider); err != nil {
@@ -208,19 +208,19 @@ func (e *Engine) getMovieInfoFromDB(provider mt.MovieProvider, id string) (*mode
 func (e *Engine) getMovieInfoWithCallback(provider mt.MovieProvider, id string, lazy bool, callback func() (*model.MovieInfo, error)) (info *model.MovieInfo, err error) {
 	defer func() {
 		// metadata validation check.
-		if err == nil && (info == nil || !info.Valid()) {
+		if err == nil && (info == nil || !info.IsValid()) {
 			err = mt.ErrIncompleteMetadata
 		}
 	}()
 	// Query DB first (by id).
 	if lazy {
-		if info, err = e.getMovieInfoFromDB(provider, id); err == nil && info.Valid() {
+		if info, err = e.getMovieInfoFromDB(provider, id); err == nil && info.IsValid() {
 			return // ignore DB query error.
 		}
 	}
 	// delayed info auto-save.
 	defer func() {
-		if err == nil && info.Valid() {
+		if err == nil && info.IsValid() {
 			e.db.Clauses(clause.OnConflict{
 				UpdateAll: true,
 			}).Create(info) // ignore error

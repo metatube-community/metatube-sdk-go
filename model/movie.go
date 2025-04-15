@@ -24,7 +24,7 @@ type MovieSearchResult struct {
 	ReleaseDate datatypes.Date `json:"release_date"`
 }
 
-func (m *MovieSearchResult) Valid() bool {
+func (m *MovieSearchResult) IsValid() bool {
 	return m.ID != "" && m.Number != "" && m.Title != "" &&
 		m.Provider != "" && m.Homepage != ""
 }
@@ -40,12 +40,12 @@ func (*MovieReviewInfo) TableName() string {
 	return MovieReviewsTableName
 }
 
-func (m *MovieReviewInfo) Valid() bool {
+func (m *MovieReviewInfo) IsValid() bool {
 	if !(m.ID != "" && m.Provider != "") {
 		return false
 	}
 	for _, review := range m.Reviews.Data() {
-		if !review.Valid() {
+		if !review.IsValid() {
 			return false
 		}
 	}
@@ -60,7 +60,7 @@ type MovieReviewDetail struct {
 	Date    datatypes.Date `json:"date"`
 }
 
-func (m *MovieReviewDetail) Valid() bool {
+func (m *MovieReviewDetail) IsValid() bool {
 	return m.Author != "" && m.Comment != ""
 }
 
@@ -99,7 +99,7 @@ func (*MovieInfo) TableName() string {
 	return MovieMetadataTableName
 }
 
-func (m *MovieInfo) Valid() bool {
+func (m *MovieInfo) IsValid() bool {
 	return m.ID != "" && m.Number != "" && m.Title != "" &&
 		m.CoverURL != "" && m.Provider != "" && m.Homepage != ""
 }

@@ -17,7 +17,7 @@ type ActorSearchResult struct {
 	Images   pq.StringArray `json:"images"`
 }
 
-func (a *ActorSearchResult) Valid() bool {
+func (a *ActorSearchResult) IsValid() bool {
 	return a.ID != "" && a.Name != "" &&
 		a.Provider != "" && a.Homepage != ""
 }
@@ -46,7 +46,7 @@ func (*ActorInfo) TableName() string {
 	return ActorMetadataTableName
 }
 
-func (a *ActorInfo) Valid() bool {
+func (a *ActorInfo) IsValid() bool {
 	return a.ID != "" && a.Name != "" && a.Provider != "" && a.Homepage != ""
 }
 
