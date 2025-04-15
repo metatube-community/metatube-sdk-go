@@ -24,6 +24,12 @@ func WithActorProviderPriorities(priorities map[string]float64) Option {
 	}
 }
 
+func WithActorImageProviderPriorities(priorities map[string]float64) Option {
+	return func(e *Engine) {
+		e.actorImagePriorities = priorities
+	}
+}
+
 func WithMovieProviderPriorities(priorities map[string]float64) Option {
 	return func(e *Engine) {
 		e.moviePriorities = priorities

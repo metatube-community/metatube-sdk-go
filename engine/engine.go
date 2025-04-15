@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/text/language"
 	"gorm.io/gorm"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
@@ -27,14 +28,18 @@ type Engine struct {
 	// Engine Logger
 	logger *log.Logger
 	// Name:Provider Map
-	actorProviders map[string]mt.ActorProvider
-	movieProviders map[string]mt.MovieProvider
+	actorProviders      map[string]mt.ActorProvider
+	actorImageProviders map[string]mt.ActorImageProvider
+	movieProviders      map[string]mt.MovieProvider
 	// Name:Priority Map
-	actorPriorities map[string]float64
-	moviePriorities map[string]float64
+	actorPriorities      map[string]float64
+	actorImagePriorities map[string]float64
+	moviePriorities      map[string]float64
 	// Host:Providers Map
 	actorHostProviders map[string][]mt.ActorProvider
 	movieHostProviders map[string][]mt.MovieProvider
+	// LanguageTag:Providers
+	actorImageLanguageProviders map[string][]mt.ActorImageProvider
 }
 
 func New(db *gorm.DB, opts ...Option) *Engine {
@@ -96,6 +101,14 @@ func (e *Engine) MustGetActorProviderByName(name string) mt.ActorProvider {
 		panic(err)
 	}
 	return provider
+}
+
+func (e *Engine) GetActorImageProviders() map[string]mt.ActorImageProvider {
+	return e.actorImageProviders
+}
+
+func (e *Engine) GetActorImageProviderByLanguage(lang language.Tag) []mt.ActorImageProvider {
+	return e.actorImageLanguageProviders[lang.String()]
 }
 
 func (e *Engine) IsMovieProvider(name string) (ok bool) {

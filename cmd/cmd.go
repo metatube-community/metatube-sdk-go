@@ -87,6 +87,11 @@ func Router(names ...string) *gin.Engine {
 		opts = append(opts, engine.WithActorProviderPriorities(priorities))
 	}
 
+	// set actor image provider priorities if any
+	if priorities := env.ActorImageProviderPriorities(); len(priorities) > 0 {
+		opts = append(opts, engine.WithActorImageProviderPriorities(priorities))
+	}
+
 	// set movie provider priorities if any
 	if priorities := env.MovieProviderPriorities(); len(priorities) > 0 {
 		opts = append(opts, engine.WithMovieProviderPriorities(priorities))

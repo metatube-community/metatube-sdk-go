@@ -147,6 +147,19 @@ func (s *internalTestSuite) TestFetch(p mt.Fetcher, items []string, vfs ...Valid
 	})
 }
 
+func (s *internalTestSuite) TestGetActorImagesByName(p mt.ActorImageProvider, items []string, vfs ...ValidateFunc) {
+	s.testItems(items, func(t *testing.T, item string) {
+		images, err := p.GetActorImagesByName(item)
+		require.NoError(t, err)
+		require.NotEmpty(t, images)
+		for _, vf := range append([]ValidateFunc{
+			logJSONContent(),
+		}, vfs...) {
+			vf(t, images)
+		}
+	})
+}
+
 func Test[T mt.Provider](t *testing.T, new func() T, items []string, vfs ...ValidateFunc) {
 	if ci, _ := strconv.ParseBool(os.Getenv("GITHUB_ACTIONS")); ci {
 		t.SkipNow() // Skip in GitHub Actions

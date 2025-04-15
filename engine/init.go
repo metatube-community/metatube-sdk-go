@@ -13,6 +13,7 @@ func (e *Engine) init() *Engine {
 	e.initLogger()
 	e.initFetcher()
 	e.initActorProviders()
+	e.initActorImageProviders()
 	e.initMovieProviders()
 	return e
 }
@@ -57,6 +58,38 @@ func (e *Engine) initActorProviders() {
 		// Add actor provider by host.
 		host := provider.URL().Hostname()
 		e.actorHostProviders[host] = append(e.actorHostProviders[host], provider)
+	}
+}
+
+func (e *Engine) initActorImageProviders() {
+	defer func() {
+		// remove references.
+		e.actorImagePriorities = nil
+	}()
+
+	e.actorImageProviders = make(map[string]mt.ActorImageProvider)
+	e.actorImageLanguageProviders = make(map[string][]mt.ActorImageProvider)
+	for name, factory := range mt.RangeActorImageFactory {
+		name = strings.ToUpper(name)
+
+		provider := factory()
+		if p, ok := e.actorImagePriorities[name]; ok {
+			e.logger.Printf("Set actor image provider with overridden priority: %s=%.2f", provider.Name(), p)
+			provider.SetPriority(p)
+		}
+		if provider.Priority() <= 0 {
+			e.logger.Printf("Disable actor image provider: %s", provider.Name())
+			continue
+		}
+
+		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
+			s.SetRequestTimeout(e.timeout)
+		}
+		// Add actor image provider by name.
+		e.actorImageProviders[strings.ToUpper(name)] = provider
+		// Add actor image provider by language.
+		lang := provider.Language().String()
+		e.actorImageLanguageProviders[lang] = append(e.actorImageLanguageProviders[lang], provider)
 	}
 }
 

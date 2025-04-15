@@ -10,8 +10,9 @@ const MetaTubeEnvPrefix = "MT_"
 
 // Special environment prefixes for setting provider priorities.
 const (
-	actorProviderPriorityEnvPrefix = MetaTubeEnvPrefix + "ACTOR_PROVIDER_PRIORITY_"
-	movieProviderPriorityEnvPrefix = MetaTubeEnvPrefix + "MOVIE_PROVIDER_PRIORITY_"
+	actorProviderPriorityEnvPrefix      = MetaTubeEnvPrefix + "ACTOR_PROVIDER_PRIORITY_"
+	actorImageProviderPriorityEnvPrefix = MetaTubeEnvPrefix + "ACTOR_IMAGE_PROVIDER_PRIORITY_"
+	movieProviderPriorityEnvPrefix      = MetaTubeEnvPrefix + "MOVIE_PROVIDER_PRIORITY_"
 )
 
 var _metaTubeEnvs map[string]string
@@ -54,6 +55,10 @@ func getProviderPriorities(prefix string) map[string]float64 {
 
 func ActorProviderPriorities() map[string]float64 {
 	return getProviderPriorities(actorProviderPriorityEnvPrefix)
+}
+
+func ActorImageProviderPriorities() map[string]float64 {
+	return getProviderPriorities(actorImageProviderPriorityEnvPrefix)
 }
 
 func MovieProviderPriorities() map[string]float64 {

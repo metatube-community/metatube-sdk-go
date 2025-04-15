@@ -124,14 +124,19 @@ func getModules() gin.HandlerFunc {
 
 func getProviders(app *engine.Engine) gin.HandlerFunc {
 	data := struct {
-		ActorProviders map[string]string `json:"actor_providers"`
-		MovieProviders map[string]string `json:"movie_providers"`
+		ActorProviders      map[string]string `json:"actor_providers"`
+		ActorImageProviders map[string]string `json:"actor_image_providers"`
+		MovieProviders      map[string]string `json:"movie_providers"`
 	}{
-		ActorProviders: make(map[string]string),
-		MovieProviders: make(map[string]string),
+		ActorProviders:      make(map[string]string),
+		ActorImageProviders: make(map[string]string),
+		MovieProviders:      make(map[string]string),
 	}
 	for _, provider := range app.GetActorProviders() {
 		data.ActorProviders[provider.Name()] = provider.URL().String()
+	}
+	for _, provider := range app.GetActorImageProviders() {
+		data.ActorImageProviders[provider.Name()] = provider.URL().String()
 	}
 	for _, provider := range app.GetMovieProviders() {
 		data.MovieProviders[provider.Name()] = provider.URL().String()

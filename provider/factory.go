@@ -6,16 +6,18 @@ import (
 )
 
 type (
-	MovieFactory = func() MovieProvider
-	ActorFactory = func() ActorProvider
+	MovieFactory      = func() MovieProvider
+	ActorFactory      = func() ActorProvider
+	ActorImageFactory = func() ActorImageProvider
 )
 
 var (
 	// Factory RW Mutex
 	factoryMu sync.RWMutex
 	// Actor/Movie Factories
-	movieFactories = make(map[string]MovieFactory)
-	actorFactories = make(map[string]ActorFactory)
+	movieFactories      = make(map[string]MovieFactory)
+	actorFactories      = make(map[string]ActorFactory)
+	actorImageFactories = make(map[string]ActorImageFactory)
 )
 
 func Register[T Provider](name string, factory func() T) {
@@ -24,6 +26,11 @@ func Register[T Provider](name string, factory func() T) {
 
 	provider := *new(T)
 	registered := false
+
+	if _, ok := any(provider).(ActorImageProvider); ok {
+		actorImageFactories[name] = func() ActorImageProvider { return any(factory()).(ActorImageProvider) }
+		registered = true
+	}
 
 	if _, ok := any(provider).(ActorProvider); ok {
 		actorFactories[name] = func() ActorProvider { return any(factory()).(ActorProvider) }
@@ -53,6 +60,16 @@ func RangeMovieFactory(f func(string, MovieFactory) bool) {
 func RangeActorFactory(f func(string, ActorFactory) bool) {
 	factoryMu.RLock()
 	for name, factory := range actorFactories {
+		if !f(name, factory) {
+			return
+		}
+	}
+	factoryMu.RUnlock()
+}
+
+func RangeActorImageFactory(f func(string, ActorImageFactory) bool) {
+	factoryMu.RLock()
+	for name, factory := range actorImageFactories {
 		if !f(name, factory) {
 			return
 		}

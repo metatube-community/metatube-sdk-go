@@ -13,22 +13,16 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/collections"
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/singledo"
-	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
 
-var (
-	_ provider.ActorProvider = (*Gfriends)(nil)
-	_ provider.ActorSearcher = (*Gfriends)(nil)
-)
+var _ provider.ActorImageProvider = (*Gfriends)(nil)
 
 const (
 	Name     = "Gfriends"
 	Priority = 1000 - 1
 )
-
-const gFriendsID = "gfriends-id"
 
 const (
 	baseURL    = "https://github.com/gfriends/gfriends"
@@ -48,54 +42,12 @@ func New() *Gfriends {
 	)}
 }
 
-func (gf *Gfriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
-	images, err := _fileTree.query(id)
-	if len(images) == 0 {
-		if err != nil {
-			return nil, err
-		}
-		return nil, provider.ErrInfoNotFound
-	}
-	return &model.ActorInfo{
-		ID:       id,
-		Name:     id,
-		Provider: gf.Name(),
-		Homepage: gf.formatURL(id),
-		Aliases:  []string{},
-		Images:   images,
-	}, nil
-}
-
-func (gf *Gfriends) formatURL(id string) string {
-	u, _ := url.Parse(baseURL)
-	q := u.Query()
-	q.Set(gFriendsID, id)
-	u.RawQuery = q.Encode()
-	return u.String()
-}
-
-func (gf *Gfriends) ParseActorIDFromURL(rawURL string) (string, error) {
-	homepage, err := url.Parse(rawURL)
-	if err != nil {
-		return "", err
-	}
-	return homepage.Query().Get(gFriendsID), nil
-}
-
-func (gf *Gfriends) GetActorInfoByURL(u string) (*model.ActorInfo, error) {
-	id, err := gf.ParseActorIDFromURL(u)
+func (gf *Gfriends) GetActorImagesByName(name string) ([]string, error) {
+	images, err := _fileTree.query(name)
 	if err != nil {
 		return nil, err
 	}
-	return gf.GetActorInfoByID(id)
-}
-
-func (gf *Gfriends) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
-	var info *model.ActorInfo
-	if info, err = gf.GetActorInfoByID(keyword); err == nil && info.Valid() {
-		results = []*model.ActorSearchResult{info.ToSearchResult()}
-	}
-	return
+	return images, nil
 }
 
 var (
