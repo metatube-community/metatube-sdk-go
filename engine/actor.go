@@ -6,6 +6,7 @@ import (
 	"sort"
 	"sync"
 
+	"golang.org/x/text/language"
 	"gorm.io/gorm/clause"
 
 	"github.com/metatube-community/metatube-sdk-go/collection/sets"
@@ -160,8 +161,8 @@ func (e *Engine) getActorInfoWithCallback(provider mt.ActorProvider, id string, 
 		return provider.GetActorInfoByID(id)
 	}
 	defer func() {
-		// actor image injection.
-		if err == nil && info != nil {
+		// gfriends actor image injection for JAV actor providers.
+		if err == nil && info != nil && provider.Language() == language.Japanese {
 			if gInfo, gErr := e.MustGetActorProviderByName(gfriends.Name).GetActorInfoByID(info.Name); gErr == nil && len(gInfo.Images) > 0 {
 				info.Images = append(gInfo.Images, info.Images...)
 			}
