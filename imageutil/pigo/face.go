@@ -4,10 +4,17 @@ import (
 	"image"
 	"image/color"
 	"math"
-	"sort"
 
 	"github.com/disintegration/imaging"
 	pigo "github.com/esimov/pigo/core"
+
+	"github.com/metatube-community/metatube-sdk-go/common/parallel"
+)
+
+const (
+	maxImageWidth = 650
+	minFaceSize   = 20
+	maxFaceSize   = maxImageWidth * 0.8
 )
 
 var classifier *pigo.Pigo
@@ -16,17 +23,21 @@ func init() {
 	classifier, _ = pigo.NewPigo().Unpack(cascade)
 }
 
-func detectFaces(params *pigo.CascadeParams) (dets []pigo.Detection) {
-	// Run the classifier over the obtained leaf nodes and return the detection results.
-	// The result contains quadruplets representing the row, column, scale and detection score.
-	dets = classifier.RunCascade(*params, 0.0)
+func detectFaces(params *pigo.CascadeParams, angles ...float64) []pigo.Detection {
+	// Initialize angles if unset.
+	if len(angles) == 0 {
+		angles = []float64{0.0}
+	}
 
-	// Calculate the intersection over union (IoU) of two clusters.
-	dets = classifier.ClusterDetections(dets, 0.2)
-	return
+	detect := func(angle float64) []pigo.Detection {
+		// Run the classifier over the obtained leaf nodes and return the detection results.
+		// The result contains quadruplets representing the row, column, scale and detection score.
+		return classifier.RunCascade(*params, angle)
+	}
+	return parallel.Flatten(parallel.Parallel(detect, angles...))
 }
 
-func DetectFaces(img image.Image) []pigo.Detection {
+func DetectFaces(img image.Image, angles ...float64) []pigo.Detection {
 	imgParams := pigo.ImageParams{
 		Pixels: pigo.RgbToGrayscale(img),
 		Rows:   img.Bounds().Dy(),
@@ -35,80 +46,91 @@ func DetectFaces(img image.Image) []pigo.Detection {
 	}
 	for _, params := range []pigo.CascadeParams{
 		{
-			MinSize:     20,
-			MaxSize:     750,
-			ShiftFactor: 0.1,
-			ScaleFactor: 1.0,
+			MinSize:     minFaceSize,
+			MaxSize:     maxFaceSize,
+			ShiftFactor: 0.10,
+			ScaleFactor: 1.08,
 			ImageParams: imgParams,
 		},
-		{
-			MinSize:     20,
-			MaxSize:     800,
-			ShiftFactor: 0.09,
-			ScaleFactor: 1.0,
-			ImageParams: imgParams,
-		},
+		/*
+			{
+				MinSize:     minFaceSize,
+				MaxSize:     maxFaceSize,
+				ShiftFactor: 0.09,
+				ScaleFactor: 1.0,
+				ImageParams: imgParams,
+			},
+		*/
 	} {
-		if dets := detectFaces(&params); len(dets) > 0 {
-			return dets
+		if faces := detectFaces(&params, angles...); len(faces) > 0 {
+			return faces
 		}
 	}
 	return nil
 }
 
-func DetectFacesWithAngle(img image.Image, angle float64) []pigo.Detection {
+func DetectRotatedFaces(img image.Image, rotatedAngle float64, angles ...float64) []pigo.Detection {
 	var (
 		origWidth  = img.Bounds().Dx()
 		origHeight = img.Bounds().Dy()
 	)
-	rotatedImg := imaging.Rotate(img, angle, color.Transparent)
-	dets := DetectFaces(rotatedImg)
-	if angle == 0 {
-		return dets
+	rotatedImg := imaging.Rotate(img, rotatedAngle, color.Transparent)
+	faces := DetectFaces(rotatedImg, angles...)
+	if rotatedAngle == 0 {
+		return faces
 	}
 	// Calculate converted coordinates.
-	for i := range dets {
+	for i := range faces {
 		x, y := RotatePoint(
-			dets[i].Col, dets[i].Row,
+			faces[i].Col, faces[i].Row,
 			rotatedImg.Bounds().Dx(),
 			rotatedImg.Bounds().Dy(),
-			math.Mod(360-angle, 360), /* inverse angle */
+			math.Mod(360-rotatedAngle, 360), /* inverse angle */
 		)
 		x = max(min(x, origWidth), 0)
 		y = max(min(y, origHeight), 0)
-		dets[i].Col, dets[i].Row = x, y
+		faces[i].Col, faces[i].Row = x, y
 	}
-	return dets
+	return faces
 }
 
-func DetectFacesAdvanced(img image.Image) (dets []pigo.Detection) {
-	// Try different angles to get better results.
-	for _, angle := range []float64{
+func DetectFacesAdvanced(img image.Image) (faces []pigo.Detection) {
+	fixedAngles := []float64{ // in radians
+		0.00,
+		0.13,
+		0.87,
+	}
+	rotatedAngles := []float64{ // in degrees
 		0,
 		90,
 		270,
-	} {
-		dets = append(dets, DetectFacesWithAngle(img, angle)...)
 	}
-	// Calculate the intersection over union (IoU) of two clusters.
-	dets = classifier.ClusterDetections(dets, 0.2)
-	return
+	detect := func(angle float64) []pigo.Detection {
+		return DetectRotatedFaces(img, angle, fixedAngles...)
+	}
+	return parallel.Flatten(parallel.Parallel(detect, rotatedAngles...))
 }
 
-func CalculatePosition(img image.Image, ratio float64, pos float64, dets []pigo.Detection) float64 {
-	if len(dets) > 0 {
-		sort.SliceStable(dets, func(i, j int) bool {
-			return float32(dets[i].Scale)*dets[i].Q > float32(dets[j].Scale)*dets[j].Q
-		})
-		var (
-			width  = img.Bounds().Dx()
-			height = img.Bounds().Dy()
+func DetectMainFacePosition(img image.Image, ratio float64, debugs ...debugFunc) (float64, bool) {
+	// Limit max width for performance improvement.
+	if img.Bounds().Dx() > maxImageWidth {
+		img = imaging.Resize(
+			img, maxImageWidth, 0,
+			imaging.NearestNeighbor, /* fastest */
 		)
-		if int(float64(height)*ratio) < width {
-			pos = float64(dets[0].Col) / float64(width)
-		} else {
-			pos = float64(dets[0].Row) / float64(height)
-		}
 	}
-	return pos
+	// Detect faces from different angles.
+	faces := DetectFacesAdvanced(img)
+	// Calculate position votes based on weights.
+	votes := aggregateVotesFromFaces(img, ratio, faces)
+	// Callback debug functions.
+	defer func() {
+		for _, fn := range debugs {
+			fn(img, faces, votes)
+		}
+	}()
+	return getTopVotedPosition(votes)
 }
+
+// debugFunc should be used for debugging only.
+type debugFunc func(image.Image, []pigo.Detection, []vote)
