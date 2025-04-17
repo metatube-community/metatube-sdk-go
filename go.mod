@@ -27,7 +27,7 @@ require (
 	github.com/projectdiscovery/useragent v0.0.99
 	github.com/projectdiscovery/utils v0.4.17
 	github.com/robertkrimen/otto v0.5.1
-	github.com/sashabaranov/go-openai v1.38.1
+	github.com/sashabaranov/go-openai v1.38.2
 	github.com/stretchr/testify v1.10.0
 	github.com/xjasonlyu/deeplx-translator v0.1.0
 	github.com/xjasonlyu/openai-translator v0.2.1
@@ -104,8 +104,8 @@ require (
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.7 // indirect
-	modernc.org/libc v1.62.1 // indirect
+	modernc.org/libc v1.63.0 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
-	modernc.org/memory v1.9.1 // indirect
+	modernc.org/memory v1.10.0 // indirect
 	modernc.org/sqlite v1.37.0 // indirect
 )
