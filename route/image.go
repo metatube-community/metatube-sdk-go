@@ -66,6 +66,8 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 			return
 		}
 
+		// TODO: how to handle providers that implement
+		//   both actor and movie provider interfaces?
 		var isActorProvider bool
 		switch {
 		case app.IsActorProvider(uri.Provider):
