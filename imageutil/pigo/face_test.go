@@ -76,9 +76,10 @@ func TestCalculatePosition(t *testing.T) {
 		{filename: "7e655977ad687e683815567b8081d9f9", position: 0.55},
 		{filename: "3ed1e1a46f25375ba3478d72cd2b9958", position: 0.28},
 		// Failed detection:
-		// {filename: "ca5993f3f85d7ee19aeb9bf1e997e7bb", position: 0.72},
-		// {filename: "ffe1f9b37d33bc9b7e0a4e400ffb64f7", position: 0.85},
-		// {filename: "bad4c3bd1484a6e32873839f0a5ec77e", position: 0.25},
+		//{filename: "ca5993f3f85d7ee19aeb9bf1e997e7bb", position: 0.72},
+		//{filename: "ffe1f9b37d33bc9b7e0a4e400ffb64f7", position: 0.85},
+		//{filename: "bad4c3bd1484a6e32873839f0a5ec77e", position: 0.25},
+		//{filename: "5ee9fe74516c23d3633c22bb12c59869", position: 0.78},
 	} {
 		t.Run(unit.filename, func(t *testing.T) {
 			data, err := fs.ReadFile("testdata/" + unit.filename)
@@ -122,7 +123,7 @@ func TestCalculatePosition(t *testing.T) {
 			// debug: print all faces.
 			for _, face := range innerFaces {
 				t.Logf("%v, weight=%.2f, pos=%.2f",
-					face, float32(face.Scale)*face.Q,
+					face, calculateWeight(face),
 					calculateFacePosition(innerImg, ratio, face),
 				)
 			}
