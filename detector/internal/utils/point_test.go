@@ -1,4 +1,4 @@
-package pigo
+package utils
 
 import (
 	"math"

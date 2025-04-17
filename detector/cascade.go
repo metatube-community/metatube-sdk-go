@@ -1,4 +1,4 @@
-package pigo
+package detector
 
 import _ "embed"
 

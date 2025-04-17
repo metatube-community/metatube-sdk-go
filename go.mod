@@ -1,6 +1,6 @@
 module github.com/metatube-community/metatube-sdk-go
 
-go 1.23.0
+go 1.23.4
 
 require (
 	github.com/adrg/strutil v0.3.1
@@ -22,6 +22,7 @@ require (
 	github.com/jellydator/ttlcache/v3 v3.3.0
 	github.com/json-iterator/go v1.1.12
 	github.com/lib/pq v1.10.9
+	github.com/moorara/algo v0.11.1-0.20250307161131-9cc2ea1611bf
 	github.com/nlnwa/whatwg-url v0.6.2
 	github.com/peterbourgon/ff/v3 v3.4.0
 	github.com/projectdiscovery/useragent v0.0.99

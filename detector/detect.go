@@ -1,4 +1,4 @@
-package pigo
+package detector
 
 import (
 	"image"
@@ -8,7 +8,10 @@ import (
 	"github.com/disintegration/imaging"
 	pigo "github.com/esimov/pigo/core"
 
+	"github.com/metatube-community/metatube-sdk-go/common/cluster"
 	"github.com/metatube-community/metatube-sdk-go/common/parallel"
+	"github.com/metatube-community/metatube-sdk-go/detector/internal/position"
+	"github.com/metatube-community/metatube-sdk-go/detector/internal/utils"
 )
 
 const (
@@ -24,7 +27,7 @@ func init() {
 }
 
 func detectFaces(params *pigo.CascadeParams, angles ...float64) []pigo.Detection {
-	// Initialize angles if unset.
+	// Initialize angles if empty.
 	if len(angles) == 0 {
 		angles = []float64{0.0}
 	}
@@ -52,15 +55,6 @@ func DetectFaces(img image.Image, angles ...float64) []pigo.Detection {
 			ScaleFactor: 1.08,
 			ImageParams: imgParams,
 		},
-		/*
-			{
-				MinSize:     minFaceSize,
-				MaxSize:     maxFaceSize,
-				ShiftFactor: 0.09,
-				ScaleFactor: 1.0,
-				ImageParams: imgParams,
-			},
-		*/
 	} {
 		if faces := detectFaces(&params, angles...); len(faces) > 0 {
 			return faces
@@ -69,7 +63,7 @@ func DetectFaces(img image.Image, angles ...float64) []pigo.Detection {
 	return nil
 }
 
-func DetectRotatedFaces(img image.Image, rotatedAngle float64, angles ...float64) []pigo.Detection {
+func DetectFacesWithRotation(img image.Image, rotatedAngle float64, angles ...float64) []pigo.Detection {
 	var (
 		origWidth  = img.Bounds().Dx()
 		origHeight = img.Bounds().Dy()
@@ -81,7 +75,7 @@ func DetectRotatedFaces(img image.Image, rotatedAngle float64, angles ...float64
 	}
 	// Calculate converted coordinates.
 	for i := range faces {
-		x, y := RotatePoint(
+		x, y := utils.RotatePoint(
 			faces[i].Col, faces[i].Row,
 			rotatedImg.Bounds().Dx(),
 			rotatedImg.Bounds().Dy(),
@@ -94,7 +88,7 @@ func DetectRotatedFaces(img image.Image, rotatedAngle float64, angles ...float64
 	return faces
 }
 
-func DetectFacesAdvanced(img image.Image) (faces []pigo.Detection) {
+func DetectFacesWithMultiAngles(img image.Image) []pigo.Detection {
 	fixedAngles := []float64{ // in radians
 		0.00,
 		0.13,
@@ -106,7 +100,7 @@ func DetectFacesAdvanced(img image.Image) (faces []pigo.Detection) {
 		270,
 	}
 	detect := func(angle float64) []pigo.Detection {
-		return DetectRotatedFaces(img, angle, fixedAngles...)
+		return DetectFacesWithRotation(img, angle, fixedAngles...)
 	}
 	return parallel.Flatten(parallel.Parallel(detect, rotatedAngles...))
 }
@@ -120,17 +114,22 @@ func DetectMainFacePosition(img image.Image, ratio float64, debugs ...debugFunc)
 		)
 	}
 	// Detect faces from different angles.
-	faces := DetectFacesAdvanced(img)
-	// Calculate position votes based on weights.
-	votes := aggregateVotesFromFaces(img, ratio, faces)
+	faces := DetectFacesWithMultiAngles(img)
+	dim := 0
+	// Calculate pos-vector groups based on distances.
+	groups := clusterFacesToGroups(img, faces, dim /* X */)
 	// Callback debug functions.
 	defer func() {
 		for _, fn := range debugs {
-			fn(img, faces, votes)
+			fn(img, faces, groups)
 		}
 	}()
-	return getTopVotedPosition(votes)
+	vec, ok := topWeightedVector(groups)
+	if !ok || len(vec) == 0 {
+		return 0, false
+	}
+	return float64(vec.At(dim)), true
 }
 
 // debugFunc should be used for debugging only.
-type debugFunc func(image.Image, []pigo.Detection, []vote)
+type debugFunc func(image.Image, []pigo.Detection, []cluster.Group[position.WeightedVector, float64])

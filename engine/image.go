@@ -5,8 +5,8 @@ import (
 
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	R "github.com/metatube-community/metatube-sdk-go/constant"
+	"github.com/metatube-community/metatube-sdk-go/detector"
 	"github.com/metatube-community/metatube-sdk-go/imageutil"
-	"github.com/metatube-community/metatube-sdk-go/imageutil/pigo"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
@@ -67,7 +67,7 @@ func (e *Engine) GetImageByURL(provider mt.Provider, url string, ratio, pos floa
 		return
 	}
 	if auto {
-		if p, found := pigo.DetectMainFacePosition(img, ratio); found {
+		if p, found := detector.DetectMainFacePosition(img, ratio); found {
 			pos = p // override default position with detected position.
 		}
 	}
