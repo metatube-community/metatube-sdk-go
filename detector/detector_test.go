@@ -12,6 +12,7 @@ import (
 	_ "image/png"
 	"math"
 	"os"
+	"sort"
 	"testing"
 
 	pigo "github.com/esimov/pigo/core"
@@ -91,7 +92,10 @@ func TestDetectMainFacePosition(t *testing.T) {
 		{filename: "263a3cc91c74673957ea9ca7dbac11f4", position: 0.25, imgRatio: yRatio},
 		{filename: "bfc6d0dcf7d9750d13d3c52cac84ed9a", position: 0.24, imgRatio: yRatio},
 		{filename: "db4aec6ce163c3113473af00848f717a", position: 0.25, imgRatio: yRatio},
-		{filename: "a6d7e2f816aae0c22150688489491d21", position: 0.90, imgRatio: yRatio},
+		{filename: "c977809e691fc2037f3a9279068720c2", position: 0.30, imgRatio: yRatio},
+		{filename: "1784b7cff949300740437e4a777b9c14", position: 0.25, imgRatio: yRatio},
+		{filename: "5771fe21c5304bb2e164a278f3dbfc39", position: 0.29, imgRatio: yRatio},
+		{filename: "99037fa52996b8da6f8e4a630be1c0ff", position: 0.26, imgRatio: yRatio},
 		// Failed detection:
 		//{filename: "ca5993f3f85d7ee19aeb9bf1e997e7bb", position: 0.72, imgRatio: xRatio},
 		//{filename: "ffe1f9b37d33bc9b7e0a4e400ffb64f7", position: 0.85, imgRatio: xRatio},
@@ -126,21 +130,29 @@ func TestDetectMainFacePosition(t *testing.T) {
 
 			// debug: print all groups.
 			for _, g := range innerGroups {
-				// avgPos := position.AverageVector(points)
-				_ = g
-				//t.Logf(
-				//	"total:%d, weight:%.2f, pos=%s",
-				//	len(g.Items), g,
-				//)
+				weight := 0.0
+				for _, v := range g.Items {
+					weight += v.Weight()
+				}
+				t.Logf(
+					"total:%d, weight:%.2f, avePos=%s, allPos=%s",
+					len(g.Items), weight,
+					position.WeightedAverageVector(g.Items), g.Items,
+				)
 			}
 
+			// debug: sort faces before printing.
+			sort.SliceStable(innerFaces, func(i, j int) bool {
+				return computeFaceWeight(innerFaces[i]) >
+					computeFaceWeight(innerFaces[j])
+			})
 			// debug: print all faces.
 			for _, face := range innerFaces {
-				weight := computeFaceWeight(face)
-				pp := extractFaceVector(innerImg, face)
 				t.Logf(
 					"%v, weight=%.2f, pos=%s",
-					face, weight, pp,
+					face,
+					computeFaceWeight(face),
+					extractFaceVector(innerImg, face),
 				)
 			}
 
