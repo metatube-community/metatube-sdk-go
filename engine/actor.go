@@ -8,7 +8,8 @@ import (
 
 	"gorm.io/gorm/clause"
 
-	"github.com/metatube-community/metatube-sdk-go/collections"
+	"github.com/metatube-community/metatube-sdk-go/collection/sets"
+	"github.com/metatube-community/metatube-sdk-go/collection/slices"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -43,7 +44,7 @@ func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool
 					return // ignore error or empty.
 				}
 				const minSimilarity = 0.3
-				ps := new(collections.WeightedSlice[float64, *model.ActorSearchResult])
+				ps := new(slices.WeightedSlice[float64, *model.ActorSearchResult])
 				for _, result := range results {
 					if similarity := comparer.Compare(result.Name, keyword); similarity >= minSimilarity {
 						ps.Append(similarity, result)
@@ -55,11 +56,11 @@ func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool
 				defer func() {
 					if innerResults, innerErr := e.searchActorFromDB(keyword, provider);
 					// ignore DB query error.
-					innerErr == nil && len(innerResults) > 0 {
+						innerErr == nil && len(innerResults) > 0 {
 						// overwrite error.
 						err = nil
 						// update results.
-						asr := collections.NewOrderedSet(func(v *model.ActorSearchResult) string { return v.Provider + v.ID })
+						asr := sets.NewOrderedSet(func(v *model.ActorSearchResult) string { return v.Provider + v.ID })
 						// unlike movie searching, we want search results go first
 						// than DB data here, so we add results later than DB results.
 						asr.Add(innerResults...)
@@ -141,9 +142,9 @@ func (e *Engine) SearchActorAll(keyword string, fallback bool) (results []*model
 func (e *Engine) getActorInfoFromDB(provider mt.ActorProvider, id string) (*model.ActorInfo, error) {
 	info := &model.ActorInfo{}
 	err := e.db. // Exact match here.
-			Where("provider = ?", provider.Name()).
-			Where("id = ? COLLATE NOCASE", id).
-			First(info).Error
+		Where("provider = ?", provider.Name()).
+		Where("id = ? COLLATE NOCASE", id).
+		First(info).Error
 	return info, err
 }
 

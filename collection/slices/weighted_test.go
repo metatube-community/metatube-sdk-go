@@ -1,4 +1,4 @@
-package collections
+package slices
 
 import (
 	"sort"
