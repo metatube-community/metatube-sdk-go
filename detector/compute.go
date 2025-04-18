@@ -41,7 +41,7 @@ func clusterFacesToGroups(img image.Image, faces []pigo.Detection, dims ...int) 
 
 func topWeightedVector(groups []cluster.Group[position.WeightedVector, float64]) (position.Vector, bool) {
 	if len(groups) == 0 {
-		return nil, false
+		return position.Vector{}, false
 	}
 	// sort weighted vector groups.
 	cluster.SortGroupsByWeight(groups)

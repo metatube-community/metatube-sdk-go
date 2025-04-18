@@ -23,11 +23,11 @@ func WeightedAverageVector(vectors []WeightedVector) Vector {
 
 func WeightedAverageBy[T any](items []T, get func(T) WeightedVector) Vector {
 	if len(items) == 0 {
-		return nil
+		return Vector{}
 	}
 
 	dim := get(items[0]).Dim()
-	sum := make(Vector, dim)
+	sum := make([]Position, dim)
 	var totalWeight float64
 
 	for _, item := range items {
@@ -44,12 +44,12 @@ func WeightedAverageBy[T any](items []T, get func(T) WeightedVector) Vector {
 	}
 
 	if totalWeight <= 0 {
-		return nil
+		return Vector{}
 	}
 
 	for i := 0; i < dim; i++ {
 		sum[i] /= Position(totalWeight)
 	}
 
-	return sum
+	return Vector{sum}
 }

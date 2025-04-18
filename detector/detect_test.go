@@ -110,7 +110,7 @@ func TestDetectMainFacePosition(t *testing.T) {
 				innerGroups []cluster.Group[position.WeightedVector, float64]
 			)
 
-			pos, found := DetectMainFacePosition(
+			pos, found := DetectPrimaryFacePosition(
 				img, unit.imgRatio,
 				// debug: extract all inner variables.
 				func(img image.Image, faces []pigo.Detection, groups []cluster.Group[position.WeightedVector, float64]) {

@@ -27,7 +27,7 @@ func init() {
 }
 
 func detectFaces(params *pigo.CascadeParams, angles ...float64) []pigo.Detection {
-	// Initialize angles if empty.
+	// initialize angles if empty.
 	if len(angles) == 0 {
 		angles = []float64{0.0}
 	}
@@ -55,6 +55,16 @@ func DetectFaces(img image.Image, angles ...float64) []pigo.Detection {
 			ScaleFactor: 1.08,
 			ImageParams: imgParams,
 		},
+		/*
+			// extra params for better accuracy.
+			{
+				MinSize:     minFaceSize,
+				MaxSize:     maxFaceSize,
+				ShiftFactor: 0.09,
+				ScaleFactor: 1.0,
+				ImageParams: imgParams,
+			},
+		*/
 	} {
 		if faces := detectFaces(&params, angles...); len(faces) > 0 {
 			return faces
@@ -73,7 +83,7 @@ func DetectFacesWithRotation(img image.Image, rotatedAngle float64, angles ...fl
 	if rotatedAngle == 0 {
 		return faces
 	}
-	// Calculate converted coordinates.
+	// calculate converted coordinates.
 	for i := range faces {
 		x, y := utils.RotatePoint(
 			faces[i].Col, faces[i].Row,
@@ -105,27 +115,27 @@ func DetectFacesWithMultiAngles(img image.Image) []pigo.Detection {
 	return parallel.Flatten(parallel.Parallel(detect, rotatedAngles...))
 }
 
-func DetectMainFacePosition(img image.Image, ratio float64, debugs ...debugFunc) (float64, bool) {
-	// Limit max width for performance improvement.
+func DetectPrimaryFacePosition(img image.Image, ratio float64, debugs ...debugFunc) (float64, bool) {
+	// limit max width for performance improvement.
 	if img.Bounds().Dx() > maxImageWidth {
 		img = imaging.Resize(
 			img, maxImageWidth, 0,
 			imaging.NearestNeighbor, /* fastest */
 		)
 	}
-	// Detect faces from different angles.
+	// detect faces from different angles.
 	faces := DetectFacesWithMultiAngles(img)
 	dim := 0
-	// Calculate pos-vector groups based on distances.
+	// calculate pos-vector groups based on distances.
 	groups := clusterFacesToGroups(img, faces, dim /* X */)
-	// Callback debug functions.
+	// callback debug functions.
 	defer func() {
 		for _, fn := range debugs {
 			fn(img, faces, groups)
 		}
 	}()
 	vec, ok := topWeightedVector(groups)
-	if !ok || len(vec) == 0 {
+	if !ok || vec.Dim() != 1 {
 		return 0, false
 	}
 	return float64(vec.At(dim)), true

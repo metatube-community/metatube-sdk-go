@@ -67,7 +67,7 @@ func (e *Engine) GetImageByURL(provider mt.Provider, url string, ratio, pos floa
 		return
 	}
 	if auto {
-		if p, found := detector.DetectMainFacePosition(img, ratio); found {
+		if p, found := detector.DetectPrimaryFacePosition(img, ratio); found {
 			pos = p // override default position with detected position.
 		}
 	}

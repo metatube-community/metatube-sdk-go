@@ -12,21 +12,23 @@ var (
 	_ cluster.WeightedLocatable[WeightedVector, float64, float64] = (*WeightedVector)(nil)
 )
 
-type Vector []Position
+type Vector struct {
+	vector []Position
+}
 
 func NewVector(pos ...Position) Vector {
-	return append([]Position(nil), pos...)
+	return Vector{append([]Position(nil), pos...)}
 }
 
 func (v Vector) At(i int) Position {
-	if i < 0 || i >= len(v) {
+	if i < 0 || i >= len(v.vector) {
 		panic("index out of range")
 	}
-	return v[i]
+	return v.vector[i]
 }
 
 func (v Vector) Dim() int {
-	return len(v)
+	return len(v.vector)
 }
 
 func (v Vector) DistanceTo(o Vector) float64 {
@@ -37,13 +39,16 @@ func (v Vector) DistanceTo(o Vector) float64 {
 	case 0:
 		return 0.0
 	case 1:
-		return v[0].DistanceTo(o[0])
+		return v.vector[0].DistanceTo(o.vector[0])
 	case 2:
-		return math.Hypot(v[0].DistanceTo(o[0]), v[1].DistanceTo(o[1]))
+		return math.Hypot(
+			v.vector[0].DistanceTo(o.vector[0]),
+			v.vector[1].DistanceTo(o.vector[1]),
+		)
 	default:
 		var sum float64
-		for i := range v {
-			d := v[i].DistanceTo(o[i])
+		for i := range v.vector {
+			d := v.vector[i].DistanceTo(o.vector[i])
 			sum += d * d
 		}
 		return math.Sqrt(sum)
@@ -51,8 +56,8 @@ func (v Vector) DistanceTo(o Vector) float64 {
 }
 
 func (v Vector) IsValid() bool {
-	for _, v := range v {
-		if !v.IsValid() {
+	for _, p := range v.vector {
+		if !p.IsValid() {
 			return false
 		}
 	}
@@ -60,19 +65,19 @@ func (v Vector) IsValid() bool {
 }
 
 func (v Vector) Select(dims ...int) Vector {
-	vec := make(Vector, len(dims))
+	vec := make([]Position, len(dims))
 	for i, d := range dims {
-		if d < 0 || d >= len(v) {
+		if d < 0 || d >= len(v.vector) {
 			panic("index out of range")
 		}
-		vec[i] = v[d]
+		vec[i] = v.vector[d]
 	}
-	return vec
+	return Vector{vec}
 }
 
 func (v Vector) String() string {
 	var parts []string
-	for _, p := range v {
+	for _, p := range v.vector {
 		parts = append(parts, p.String())
 	}
 	return "(" + strings.Join(parts, ",") + ")"

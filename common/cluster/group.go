@@ -37,7 +37,6 @@ func GroupByDistance[T Locatable[T, R], R cmp.Ordered](items []T, threshold R) [
 			Items: group,
 		})
 	}
-	groupMap = nil // clear reference.
 
 	return groups
 }
