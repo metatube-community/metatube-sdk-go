@@ -9,7 +9,8 @@ import (
 
 	"gorm.io/gorm/clause"
 
-	"github.com/metatube-community/metatube-sdk-go/collections"
+	"github.com/metatube-community/metatube-sdk-go/collection/sets"
+	"github.com/metatube-community/metatube-sdk-go/collection/slices"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -57,7 +58,7 @@ func (e *Engine) searchMovie(keyword string, provider mt.MovieProvider, fallback
 					// overwrite error.
 					err = nil
 					// update results.
-					msr := collections.NewOrderedSet(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
+					msr := sets.NewOrderedSet(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
 					msr.Add(results...)
 					msr.Add(innerResults...)
 					results = msr.Slice()
@@ -158,11 +159,11 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			return
 		}
 		// remove duplicate results, if any.
-		msr := collections.NewOrderedSet(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
+		msr := sets.NewOrderedSet(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
 		msr.Add(results...)
 		results = msr.Slice()
 		// post-processing
-		ps := new(collections.WeightedSlice[float64, *model.MovieSearchResult])
+		ps := new(slices.WeightedSlice[*model.MovieSearchResult, float64])
 		for _, result := range results {
 			if !result.IsValid() /* validation check */ {
 				continue
@@ -173,10 +174,10 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			}
 			priority := comparer.Compare(keyword, result.Number) *
 				e.MustGetMovieProviderByName(result.Provider).Priority()
-			ps.Append(priority, result)
+			ps.Append(result, priority)
 		}
-		// sort according to priority.
-		results = ps.SortFunc(sort.Stable).Underlying()
+		// sort by priority.
+		results = ps.SortFunc(sort.Stable).Slice()
 	}()
 
 	if fallback /* query database for missing results  */ {
