@@ -8,6 +8,7 @@ import (
 	"github.com/disintegration/imaging"
 	pigo "github.com/esimov/pigo/core"
 
+	"github.com/metatube-community/metatube-sdk-go/collection/slices"
 	"github.com/metatube-community/metatube-sdk-go/common/cluster"
 	"github.com/metatube-community/metatube-sdk-go/common/parallel"
 	"github.com/metatube-community/metatube-sdk-go/detector/internal/geomath"
@@ -37,7 +38,7 @@ func detectFaces(params *pigo.CascadeParams, angles ...float64) []pigo.Detection
 		// The result contains quadruplets representing the row, column, scale and detection score.
 		return classifier.RunCascade(*params, angle)
 	}
-	return parallel.Flatten(parallel.Parallel(detect, angles...))
+	return slices.Flatten(parallel.Parallel(detect, angles...))
 }
 
 func DetectFaces(img image.Image, angles ...float64) []pigo.Detection {
@@ -112,7 +113,7 @@ func DetectFacesWithMultiAngles(img image.Image) []pigo.Detection {
 	detect := func(angle float64) []pigo.Detection {
 		return DetectFacesWithRotation(img, angle, fixedAngles...)
 	}
-	return parallel.Flatten(parallel.Parallel(detect, rotatedAngles...))
+	return slices.Flatten(parallel.Parallel(detect, rotatedAngles...))
 }
 
 func FindPrimaryFaceAxisRatio(img image.Image, ratio float64, advanced bool, debugs ...debugFunc) (float64, bool) {
