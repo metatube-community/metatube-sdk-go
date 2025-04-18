@@ -1,4 +1,4 @@
-package pigo
+package geomath
 
 import (
 	"math"
@@ -16,7 +16,7 @@ func rotateFloat(x, y, rad float64) (float64, float64) {
 	return xNew, yNew
 }
 
-func RotatePoint(x, y int, width, height int, angle float64) (int, int) {
+func RotatePoint(x, y int, width, height int, angle float64 /* in degrees */) (int, int) {
 	if width <= 0 || height <= 0 {
 		return 0, 0
 	}

@@ -1,4 +1,4 @@
-package pigo
+package geomath
 
 import (
 	"math"
