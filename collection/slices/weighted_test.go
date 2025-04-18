@@ -8,17 +8,20 @@ import (
 )
 
 func TestWeightedSlice(t *testing.T) {
-	s := &WeightedSlice[int, int]{}
-	s.Append(2, 5)
-	s.Append(3, 1)
-	s.Append(1, 9)
-	s.Append(6, -1)
-	s.Append(6, 9)
-	s.Append(6, 8)
-	s.Append(6, 7)
-	s.Append(6, 0)
-	s.Append(0, 12)
+	s := NewWeightedSlice(
+		// initialized pairs.
+		[]int{9}, []float64{3},
+	)
+	s.Append(5, 2)
+	s.Append(1, 3)
+	s.Append(9, 1)
+	s.Append(-1, 6)
+	s.Append(9, 6)
+	s.Append(8, 6)
+	s.Append(7, 6)
+	s.Append(0, 6)
+	s.Append(12, 0)
 	assert.Equal(t,
-		[]int{-1, 9, 8, 7, 0, 1, 5, 9, 12},
-		s.SortFunc(sort.Stable).Underlying())
+		[]int{-1, 9, 8, 7, 0, 9, 1, 5, 9, 12},
+		s.SortFunc(sort.Stable).Slice())
 }

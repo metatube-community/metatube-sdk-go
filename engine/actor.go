@@ -44,19 +44,19 @@ func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool
 					return // ignore error or empty.
 				}
 				const minSimilarity = 0.3
-				ps := new(slices.WeightedSlice[float64, *model.ActorSearchResult])
+				ps := new(slices.WeightedSlice[*model.ActorSearchResult, float64])
 				for _, result := range results {
 					if similarity := comparer.Compare(result.Name, keyword); similarity >= minSimilarity {
-						ps.Append(similarity, result)
+						ps.Append(result, similarity)
 					}
 				}
-				results = ps.SortFunc(sort.Stable).Underlying() // replace results.
+				results = ps.SortFunc(sort.Stable).Slice() // replace results.
 			}()
 			if fallback {
 				defer func() {
 					if innerResults, innerErr := e.searchActorFromDB(keyword, provider);
 					// ignore DB query error.
-						innerErr == nil && len(innerResults) > 0 {
+					innerErr == nil && len(innerResults) > 0 {
 						// overwrite error.
 						err = nil
 						// update results.
@@ -142,9 +142,9 @@ func (e *Engine) SearchActorAll(keyword string, fallback bool) (results []*model
 func (e *Engine) getActorInfoFromDB(provider mt.ActorProvider, id string) (*model.ActorInfo, error) {
 	info := &model.ActorInfo{}
 	err := e.db. // Exact match here.
-		Where("provider = ?", provider.Name()).
-		Where("id = ? COLLATE NOCASE", id).
-		First(info).Error
+			Where("provider = ?", provider.Name()).
+			Where("id = ? COLLATE NOCASE", id).
+			First(info).Error
 	return info, err
 }
 

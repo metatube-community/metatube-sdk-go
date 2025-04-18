@@ -5,39 +5,44 @@ import (
 	"sort"
 )
 
-var _ sort.Interface = (*WeightedSlice[int, int])(nil)
+var _ sort.Interface = (*WeightedSlice[any, int])(nil)
 
-type WeightedSlice[W cmp.Ordered, T any] struct {
+type WeightedSlice[O any, W cmp.Ordered] struct {
+	objects []O
 	weights []W
-	objects []T
 }
 
-func (s *WeightedSlice[W, T]) Len() int {
-	return len(s.weights)
+func NewWeightedSlice[O any, W cmp.Ordered](objects []O, weights []W) *WeightedSlice[O, W] {
+	if len(objects) != len(weights) {
+		panic("objects and weights must have the same length")
+	}
+	return &WeightedSlice[O, W]{objects, weights}
 }
 
-func (s *WeightedSlice[W, T]) Less(i int, j int) bool {
-	// higher weighted item comes first.
+func (s *WeightedSlice[O, W]) Len() int {
+	return len(s.objects)
+}
+
+func (s *WeightedSlice[O, W]) Less(i int, j int) bool {
+	// higher-weighted item comes first.
 	return s.weights[i] > s.weights[j]
 }
 
-func (s *WeightedSlice[W, T]) Swap(i int, j int) {
+func (s *WeightedSlice[O, W]) Swap(i int, j int) {
 	s.weights[i], s.weights[j] = s.weights[j], s.weights[i]
 	s.objects[i], s.objects[j] = s.objects[j], s.objects[i]
 }
 
-func (s *WeightedSlice[W, T]) Append(weight W, object T) {
+func (s *WeightedSlice[O, W]) Append(object O, weight W) {
 	s.weights = append(s.weights, weight)
 	s.objects = append(s.objects, object)
 }
 
-func (s *WeightedSlice[W, T]) Underlying() []T {
+func (s *WeightedSlice[O, W]) Slice() []O {
 	return s.objects
 }
 
-func (s *WeightedSlice[W, T]) SortFunc(fs ...func(p sort.Interface)) *WeightedSlice[W, T] {
-	for _, f := range fs {
-		f(s)
-	}
+func (s *WeightedSlice[O, W]) SortFunc(sortFn func(p sort.Interface)) *WeightedSlice[O, W] {
+	sortFn(s)
 	return s
 }

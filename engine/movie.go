@@ -163,7 +163,7 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 		msr.Add(results...)
 		results = msr.Slice()
 		// post-processing
-		ps := new(slices.WeightedSlice[float64, *model.MovieSearchResult])
+		ps := new(slices.WeightedSlice[*model.MovieSearchResult, float64])
 		for _, result := range results {
 			if !result.IsValid() /* validation check */ {
 				continue
@@ -174,10 +174,10 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			}
 			priority := comparer.Compare(keyword, result.Number) *
 				e.MustGetMovieProviderByName(result.Provider).Priority()
-			ps.Append(priority, result)
+			ps.Append(result, priority)
 		}
-		// sort according to priority.
-		results = ps.SortFunc(sort.Stable).Underlying()
+		// sort by priority.
+		results = ps.SortFunc(sort.Stable).Slice()
 	}()
 
 	if fallback /* query database for missing results  */ {
