@@ -10,8 +10,8 @@ import (
 
 	"github.com/metatube-community/metatube-sdk-go/common/cluster"
 	"github.com/metatube-community/metatube-sdk-go/common/parallel"
+	"github.com/metatube-community/metatube-sdk-go/detector/internal/geomath"
 	"github.com/metatube-community/metatube-sdk-go/detector/internal/position"
-	"github.com/metatube-community/metatube-sdk-go/detector/internal/utils"
 )
 
 const (
@@ -83,13 +83,13 @@ func DetectFacesWithRotation(img image.Image, rotatedAngle float64, angles ...fl
 	if rotatedAngle == 0 {
 		return faces
 	}
-	// calculate converted coordinates.
+	invAngle := math.Mod(360-rotatedAngle, 360)
 	for i := range faces {
-		x, y := utils.RotatePoint(
+		x, y := geomath.RotatePoint(
 			faces[i].Col, faces[i].Row,
 			rotatedImg.Bounds().Dx(),
 			rotatedImg.Bounds().Dy(),
-			math.Mod(360-rotatedAngle, 360), /* inverse angle */
+			invAngle,
 		)
 		x = max(min(x, origWidth), 0)
 		y = max(min(y, origHeight), 0)
@@ -115,7 +115,7 @@ func DetectFacesWithMultiAngles(img image.Image) []pigo.Detection {
 	return parallel.Flatten(parallel.Parallel(detect, rotatedAngles...))
 }
 
-func DetectPrimaryFacePosition(img image.Image, ratio float64, debugs ...debugFunc) (float64, bool) {
+func FindPrimaryFaceAxisRatio(img image.Image, ratio float64, debugs ...debugFunc) (float64, bool) {
 	// limit max width for performance improvement.
 	if img.Bounds().Dx() > maxImageWidth {
 		img = imaging.Resize(
@@ -125,20 +125,21 @@ func DetectPrimaryFacePosition(img image.Image, ratio float64, debugs ...debugFu
 	}
 	// detect faces from different angles.
 	faces := DetectFacesWithMultiAngles(img)
-	dim := 0
-	// calculate pos-vector groups based on distances.
-	groups := clusterFacesToGroups(img, faces, dim /* X */)
+	// compute axis based on the ratio.
+	axis := dominantAxisByRatio(img, ratio)
+	// compute pos-vector groups based on distances.
+	groups := clusterFaceVectors(img, faces, axis)
 	// callback debug functions.
 	defer func() {
 		for _, fn := range debugs {
 			fn(img, faces, groups)
 		}
 	}()
-	vec, ok := topWeightedVector(groups)
-	if !ok || vec.Dim() != 1 {
+	vec, ok := getDominantVector(groups)
+	if !ok || vec.Dim() != 1 /* only one dimension vector expected due to Select(dim) */ {
 		return 0, false
 	}
-	return float64(vec.At(dim)), true
+	return float64(vec.At(0)), true
 }
 
 // debugFunc should be used for debugging only.
