@@ -29,14 +29,12 @@ type Engine struct {
 	// Name:Provider Map
 	actorProviders map[string]mt.ActorProvider
 	movieProviders map[string]mt.MovieProvider
-	// Name:Priority Map
-	actorPriorities map[string]float64
-	moviePriorities map[string]float64
 	// Host:Providers Map
 	actorHostProviders map[string][]mt.ActorProvider
 	movieHostProviders map[string][]mt.MovieProvider
-
-	configs map[string]any
+	// mt.ConfigGetter Interface
+	actorConfigManager mt.ConfigGetter
+	movieConfigManager mt.ConfigGetter
 }
 
 func New(db *gorm.DB, opts ...Option) *Engine {
