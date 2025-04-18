@@ -92,6 +92,11 @@ func Router(names ...string) *gin.Engine {
 		opts = append(opts, engine.WithMovieProviderPriorities(priorities))
 	}
 
+	// pass configs to providers
+	if conf := env.MetaTubeEnvs(); len(conf) > 0 {
+		opts = append(opts, engine.WithConfigs(conf))
+	}
+
 	app := engine.New(db, opts...)
 
 	// always enable auto migrate for sqlite DB

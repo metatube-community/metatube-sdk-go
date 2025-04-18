@@ -29,3 +29,9 @@ func WithMovieProviderPriorities(priorities map[string]float64) Option {
 		e.moviePriorities = priorities
 	}
 }
+
+func WithConfigs(configs map[string]any) Option {
+	return func(e *Engine) {
+		e.configs = configs
+	}
+}

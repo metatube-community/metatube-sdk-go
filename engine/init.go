@@ -52,6 +52,11 @@ func (e *Engine) initActorProviders() {
 			s.SetRequestTimeout(e.timeout)
 		}
 
+		// Set Config.
+		if s, ok := provider.(mt.ConfigSetter); ok {
+			s.SetConfig(e.configs)
+		}
+
 		// Add actor provider by name.
 		e.actorProviders[name] = provider
 		// Add actor provider by host.
@@ -85,6 +90,11 @@ func (e *Engine) initMovieProviders() {
 		// Set request timeout.
 		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
 			s.SetRequestTimeout(e.timeout)
+		}
+
+		// Set Config.
+		if s, ok := provider.(mt.ConfigSetter); ok {
+			s.SetConfig(e.configs)
 		}
 
 		// Add movie provider by name.

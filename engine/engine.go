@@ -35,6 +35,8 @@ type Engine struct {
 	// Host:Providers Map
 	actorHostProviders map[string][]mt.ActorProvider
 	movieHostProviders map[string][]mt.MovieProvider
+
+	configs map[string]any
 }
 
 func New(db *gorm.DB, opts ...Option) *Engine {

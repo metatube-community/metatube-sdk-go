@@ -59,3 +59,11 @@ func ActorProviderPriorities() map[string]float64 {
 func MovieProviderPriorities() map[string]float64 {
 	return getProviderPriorities(movieProviderPriorityEnvPrefix)
 }
+
+func MetaTubeEnvs() map[string]any {
+	envs := make(map[string]any)
+	for key, value := range _metaTubeEnvs {
+		envs[key] = value
+	}
+	return envs
+}
