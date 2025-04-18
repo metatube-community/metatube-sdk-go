@@ -1,14 +1,13 @@
 package collections
 
 import (
+	"cmp"
 	"sort"
-
-	. "golang.org/x/exp/constraints"
 )
 
 var _ sort.Interface = (*WeightedSlice[int, int])(nil)
 
-type WeightedSlice[W Ordered, T any] struct {
+type WeightedSlice[W cmp.Ordered, T any] struct {
 	weights []W
 	objects []T
 }
