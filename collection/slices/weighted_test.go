@@ -21,7 +21,8 @@ func TestWeightedSlice(t *testing.T) {
 	s.Append(7, 6)
 	s.Append(0, 6)
 	s.Append(12, 0)
-	assert.Equal(t,
-		[]int{-1, 9, 8, 7, 0, 9, 1, 5, 9, 12},
-		s.SortFunc(sort.Stable).Slice())
+
+	exp := []int{-1, 9, 8, 7, 0, 9, 1, 5, 9, 12}
+	got := s.SortFunc(sort.Stable).Slice()
+	assert.Equal(t, exp, got)
 }
