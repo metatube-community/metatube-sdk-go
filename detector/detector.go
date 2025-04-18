@@ -115,7 +115,7 @@ func DetectFacesWithMultiAngles(img image.Image) []pigo.Detection {
 	return parallel.Flatten(parallel.Parallel(detect, rotatedAngles...))
 }
 
-func FindPrimaryFaceAxisRatio(img image.Image, ratio float64, debugs ...debugFunc) (float64, bool) {
+func FindPrimaryFaceAxisRatio(img image.Image, ratio float64, advanced bool, debugs ...debugFunc) (float64, bool) {
 	// limit max width for performance improvement.
 	if img.Bounds().Dx() > maxImageWidth {
 		img = imaging.Resize(
@@ -123,8 +123,15 @@ func FindPrimaryFaceAxisRatio(img image.Image, ratio float64, debugs ...debugFun
 			imaging.NearestNeighbor, /* fastest */
 		)
 	}
-	// detect faces from different angles.
-	faces := DetectFacesWithMultiAngles(img)
+	detectFunc := func(img image.Image) []pigo.Detection {
+		if !advanced {
+			// simple face detection.
+			return DetectFaces(img)
+		}
+		// detect faces from different angles.
+		return DetectFacesWithMultiAngles(img)
+	}
+	faces := detectFunc(img)
 	// compute axis based on the ratio.
 	axis := dominantAxisByRatio(img, ratio)
 	// compute pos-vector groups based on distances.

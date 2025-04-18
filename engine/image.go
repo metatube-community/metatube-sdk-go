@@ -67,8 +67,11 @@ func (e *Engine) GetImageByURL(provider mt.Provider, url string, ratio, pos floa
 		return
 	}
 	if auto {
-		if p, found := detector.FindPrimaryFaceAxisRatio(img, ratio); found {
-			pos = p // override default position with detected position.
+		// only turn on advanced for movie providers.
+		advancedMode := e.IsMovieProvider(provider.Name())
+		axisR, found := detector.FindPrimaryFaceAxisRatio(img, ratio, advancedMode)
+		if found {
+			pos = axisR // override the default position with detected position.
 		}
 	}
 	return imageutil.CropImagePosition(img, ratio, pos), nil
