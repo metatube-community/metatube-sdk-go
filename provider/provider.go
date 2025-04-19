@@ -87,12 +87,19 @@ type Fetcher interface {
 	Fetch(url string) (*http.Response, error)
 }
 
-type ConfigSetter interface {
-	// SetConfig sets any additional configs for Provider.
-	SetConfig(config map[string]any) error
-}
-
 type RequestTimeoutSetter interface {
 	// SetRequestTimeout sets timeout for HTTP requests.
 	SetRequestTimeout(timeout time.Duration)
+}
+
+type ConfigSetter interface {
+	// SetConfig sets any additional configs for Provider.
+	SetConfig(config map[string]string) error
+}
+
+type ConfigGetter interface {
+	Get(provider, key string) (string, bool)
+	GetConfig(provider string) map[string]string
+	GetPriority(provider string) (float64, bool)
+	GetTimeout(provider string) (time.Duration, bool)
 }

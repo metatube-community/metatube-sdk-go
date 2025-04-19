@@ -16,7 +16,7 @@ var (
 	_ provider.RequestTimeoutSetter = (*Scraper)(nil)
 )
 
-// Scraper implements basic Provider interface.
+// Scraper implements the basic Provider interface.
 type Scraper struct {
 	name     string
 	baseURL  *url.URL
