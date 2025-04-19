@@ -8,7 +8,7 @@ import (
 
 func TestFC2_GetMovieInfoByID(t *testing.T) {
 	testkit.Test(t, New, []string{
-		"406996",
 		"2812904",
+		"4669533",
 	})
 }
