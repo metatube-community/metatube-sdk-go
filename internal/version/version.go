@@ -13,12 +13,16 @@ var (
 	GitCommit = Unknown
 )
 
-// version is helpful to get the version info from the
-// go.mod when using this pkg as a third-party module.
-func version() string {
-	const (
-		module = "github.com/metatube-community/metatube-sdk-go"
-	)
+func init() {
+	if Version == Unknown {
+		Version = modVersion()
+	}
+}
+
+// modVersion returns the module version from go.mod
+// when this package is used as a dependency.
+func modVersion() string {
+	const module = "github.com/metatube-community/metatube-sdk-go"
 	for _, mod := range Modules() {
 		if mod.Path == module {
 			return mod.Version
@@ -27,13 +31,7 @@ func version() string {
 	return Unknown
 }
 
-func init() {
-	if Version == Unknown {
-		Version = version()
-	}
-}
-
-// BuildString returns hyphen joined version and commit string.
+// BuildString returns a hyphen-joined version and commit string.
 func BuildString() string {
 	if GitCommit == Unknown {
 		return Version
