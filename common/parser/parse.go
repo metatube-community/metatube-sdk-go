@@ -51,6 +51,8 @@ func ParseDuration(s string) time.Duration {
 	s = strings.ReplaceAll(s, "min", "m")
 	if ss := regexp.MustCompile(`(?i)(\d+):(\d+):(\d+)`).FindStringSubmatch(s); len(ss) > 0 {
 		s = fmt.Sprintf("%02sh%02sm%02ss", ss[1], ss[2], ss[3])
+	} else if ss := regexp.MustCompile(`(?i)(\d+):(\d+)`).FindStringSubmatch(s); len(ss) > 0 {
+		s = fmt.Sprintf("%02sm%02ss", ss[1], ss[2])
 	} else if ss := regexp.MustCompile(`(?i)(\d+[mhs]?)`).FindAllStringSubmatch(s, -1); len(ss) > 0 {
 		ds := make([]string, 0, 3)
 		for _, d := range ss {

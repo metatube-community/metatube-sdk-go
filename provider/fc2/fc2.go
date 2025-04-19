@@ -87,6 +87,26 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		}
 	})
 
+	// Extra Info
+	c.OnXML(`//div[@class="items_article_headerInfo"]/div[@class="items_article_softDevice"]/p`, func(e *colly.XMLElement) {
+		key, value, found := strings.Cut(e.Text, ":")
+		if !found {
+			return
+		}
+		key, value = strings.TrimSpace(key), strings.TrimSpace(value)
+		switch key {
+		case "Sale Day", "販売日":
+			info.ReleaseDate = parser.ParseDate(value)
+		case "Product ID", "商品ID":
+			// Fallback only:
+			if productID := fc2util.ParseNumber(value); productID != id {
+				// info.ID = productID
+				// info.Number = fmt.Sprintf("FC2-%s", productID)
+				err = fmt.Errorf("ID mismatch: FC2-%s != FC2-%s", id, productID)
+			}
+		}
+	})
+
 	// Summary
 	c.OnXML(`//section[@class="items_article_Contents"]/iframe`, func(e *colly.XMLElement) {
 		d := c.Clone()
@@ -101,6 +121,11 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		info.ThumbURL = e.Request.AbsoluteURL(e.Attr("src"))
 	})
 
+	// Runtime
+	c.OnXML(`//div[@class="items_article_MainitemThumb"]//p[@class="items_article_info"]`, func(e *colly.XMLElement) {
+		info.Runtime = parser.ParseRuntime(e.Text)
+	})
+
 	// Preview Images
 	c.OnXML(`//section[@class="items_article_SampleImages"]/ul/li`, func(e *colly.XMLElement) {
 		info.PreviewImages = append(info.PreviewImages, e.Request.AbsoluteURL(e.ChildAttr(`.//a`, "href")))
@@ -111,8 +136,8 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		if info.ThumbURL != "" {
 			info.CoverURL = info.ThumbURL
 		} else if len(info.PreviewImages) > 0 {
-			// Use first preview image as cover due to
-			// thumb image poor resolution.
+			// Use the first preview image as cover due to
+			// thumb image's poor resolution.
 			info.CoverURL = info.PreviewImages[0]
 		}
 	})
@@ -132,7 +157,9 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 	//	d.Visit(fmt.Sprintf(sampleURL, info.ID))
 	//})
 
-	err = c.Visit(info.Homepage)
+	if vErr := c.Visit(info.Homepage); vErr != nil {
+		err = vErr
+	}
 	return
 }
 

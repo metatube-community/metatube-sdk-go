@@ -26,6 +26,7 @@ func TestParseDuration(t *testing.T) {
 		{"03s", time.Second * 3},
 		{"02m03s", time.Minute*2 + time.Second*3},
 		{"pt02m03s", time.Minute*2 + time.Second*3},
+		{"38:28", time.Minute*38 + time.Second*28},
 		{"01:02:03", time.Hour + time.Minute*2 + time.Second*3},
 		{"PT1:2:03", time.Hour + time.Minute*2 + time.Second*3},
 		{"PT01:02:03", time.Hour + time.Minute*2 + time.Second*3},
