@@ -27,7 +27,7 @@ require (
 	github.com/peterbourgon/ff/v3 v3.4.0
 	github.com/projectbarks/cimap v0.1.1
 	github.com/projectdiscovery/useragent v0.0.99
-	github.com/projectdiscovery/utils v0.4.17
+	github.com/projectdiscovery/utils v0.4.18
 	github.com/robertkrimen/otto v0.5.1
 	github.com/sashabaranov/go-openai v1.38.2
 	github.com/stretchr/testify v1.10.0
