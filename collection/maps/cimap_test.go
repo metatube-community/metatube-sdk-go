@@ -47,6 +47,9 @@ func TestCaseInsensitiveMap(t *testing.T) {
 	val = m.GetOrDefault("bar", "quux")
 	assert.Equal(t, "quux", val)
 
+	val = m.GetOrDefault("bar")
+	assert.Equal(t, "", val)
+
 	keys := slices.Collect(m.Keys())
 	slices.Sort(keys)
 	assert.Equal(t, []string{"Baz", "FOO"}, keys)
@@ -63,16 +66,25 @@ func TestCaseInsensitiveMap(t *testing.T) {
 
 	// Test JSON marshal/unmarshal
 	data, err := json.Marshal(m)
-	assert.NoError(t, err)
-	assert.JSONEq(t, `{
-		"Baz":"qux"
-	}`, string(data))
+	if assert.NoError(t, err) {
+		assert.JSONEq(t, `{
+			"Baz":"qux"
+		}`, string(data))
+	}
 
-	m2 := NewCaseInsensitiveMap[string]()
+	copied := m.Copy()
+	data2, err := json.Marshal(copied)
+	if assert.NoError(t, err) {
+		assert.JSONEq(t, `{
+			"Baz":"qux"
+		}`, string(data2))
+	}
+
+	m2 := NewCaseInsensitiveMapWithCapacity[string](m.Len())
 	err = json.Unmarshal(data, m2)
-	assert.NoError(t, err)
-
-	val, ok = m2.Get("baz")
-	assert.True(t, ok)
-	assert.Equal(t, "qux", val)
+	if assert.NoError(t, err) {
+		val, ok = m2.Get("baz")
+		assert.True(t, ok)
+		assert.Equal(t, "qux", val)
+	}
 }

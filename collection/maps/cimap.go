@@ -22,6 +22,20 @@ func NewCaseInsensitiveMap[T any]() *CaseInsensitiveMap[T] {
 	}
 }
 
+func NewCaseInsensitiveMapWithCapacity[T any](capacity int) *CaseInsensitiveMap[T] {
+	return &CaseInsensitiveMap[T]{
+		internalMap: cimap.New[T](capacity),
+	}
+}
+
+func (m *CaseInsensitiveMap[T]) Copy() *CaseInsensitiveMap[T] {
+	m2 := NewCaseInsensitiveMapWithCapacity[T](m.Len())
+	for key, value := range m.Iterator() {
+		m2.Set(key, value)
+	}
+	return m2
+}
+
 func (m *CaseInsensitiveMap[T]) Has(key string) bool {
 	_, exist := m.internalMap.Get(key)
 	return exist
@@ -31,11 +45,15 @@ func (m *CaseInsensitiveMap[T]) Get(key string) (T, bool) {
 	return m.internalMap.Get(key)
 }
 
-func (m *CaseInsensitiveMap[T]) GetOrDefault(key string, defaultValue T) T {
+func (m *CaseInsensitiveMap[T]) GetOrDefault(key string, defaultValues ...T) T {
 	value, exist := m.internalMap.Get(key)
 	if exist {
 		return value
 	}
+	if len(defaultValues) > 0 {
+		return defaultValues[0]
+	}
+	var defaultValue T
 	return defaultValue
 }
 

@@ -83,13 +83,13 @@ func Router(names ...string) *gin.Engine {
 	}
 
 	// // set actor provider configs if any
-	if c := envconfig.ActorProviderConfigs.Clone(); !c.IsEmpty() {
-		opts = append(opts, engine.WithActorProviderConfigs(c))
+	for provider, config := range envconfig.ActorProviderConfigs.Iterator() {
+		opts = append(opts, engine.WithActorProviderConfig(provider, config))
 	}
 
 	// set movie provider configs if any
-	if c := envconfig.MovieProviderConfigs.Clone(); !c.IsEmpty() {
-		opts = append(opts, engine.WithMovieProviderConfigs(c))
+	for provider, config := range envconfig.MovieProviderConfigs.Iterator() {
+		opts = append(opts, engine.WithMovieProviderConfig(provider, config))
 	}
 
 	app := engine.New(db, opts...)

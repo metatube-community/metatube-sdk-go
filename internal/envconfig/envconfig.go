@@ -2,9 +2,10 @@ package envconfig
 
 import (
 	"fmt"
-	"maps"
 	"os"
 	"strings"
+
+	"github.com/metatube-community/metatube-sdk-go/collection/maps"
 )
 
 const (
@@ -12,26 +13,26 @@ const (
 	metaTubeConfigSep = "__"
 )
 
-var (
-	metaTubeEnvs map[string]string
+// metaTubeEnvs stores all MetaTube related environment variables.
+var metaTubeEnvs *maps.CaseInsensitiveMap[string]
 
-	ActorProviderConfigs ProviderConfigs
-	MovieProviderConfigs ProviderConfigs
+var (
+	ActorProviderConfigs *maps.CaseInsensitiveMap[*Config]
+	MovieProviderConfigs *maps.CaseInsensitiveMap[*Config]
 )
 
 func init() {
-	InitAllConfigs()
+	InitAllEnvConfigs()
 }
 
-func InitAllConfigs() {
-	initMetaTubeEnvs()
+func InitAllEnvConfigs() {
+	metaTubeEnvs = initMetaTubeEnvs()
 	ActorProviderConfigs = initProviderConfigs("actor")
 	MovieProviderConfigs = initProviderConfigs("movie")
 }
 
-func initMetaTubeEnvs() {
-	// reset before loading.
-	metaTubeEnvs = make(map[string]string)
+func initMetaTubeEnvs() *maps.CaseInsensitiveMap[string] {
+	envs := maps.NewCaseInsensitiveMap[string]()
 	// initialize ENV.
 	for _, env := range os.Environ() {
 		key, value, found := strings.Cut(env, "=")
@@ -42,12 +43,13 @@ func initMetaTubeEnvs() {
 			key = strings.ToUpper(key)
 		}
 		if strings.HasPrefix(key, metaTubeEnvPrefix) {
-			metaTubeEnvs[key] = value
+			envs.Set(key, value)
 		}
 	}
+	return envs
 }
 
-func initProviderConfigs(providerType string) ProviderConfigs {
+func initProviderConfigs(providerType string) *maps.CaseInsensitiveMap[*Config] {
 	typed := parseProviderEnvsWithPrefix(
 		fmt.Sprintf("%s%s_PROVIDER_", metaTubeEnvPrefix, strings.ToUpper(providerType)))
 	common := parseProviderEnvsWithPrefix(
@@ -55,9 +57,9 @@ func initProviderConfigs(providerType string) ProviderConfigs {
 	return mergeProviderConfigs(typed, common)
 }
 
-func parseProviderEnvsWithPrefix(prefix string) providerMap {
-	result := make(providerMap)
-	for key, value := range metaTubeEnvs {
+func parseProviderEnvsWithPrefix(prefix string) *maps.CaseInsensitiveMap[*Config] {
+	result := maps.NewCaseInsensitiveMap[*Config]()
+	for key, value := range metaTubeEnvs.Iterator() {
 		if !strings.HasPrefix(key, prefix) {
 			continue
 		}
@@ -66,30 +68,28 @@ func parseProviderEnvsWithPrefix(prefix string) providerMap {
 		if !found {
 			continue // malformed entry.
 		}
-		provider = normalizeProviderKey(provider)
-		configKey = normalizeConfigKey(configKey)
 
-		if _, ok := result[provider]; !ok {
-			result[provider] = make(providerSetting)
+		if !result.Has(provider) {
+			result.Set(provider, NewConfig())
 		}
-		result[provider][configKey] = value
+		result.GetOrDefault(provider).Set(configKey, value)
 	}
 	return result
 }
 
-func mergeProviderConfigs(primary, fallback providerMap) ProviderConfigs {
-	merged := make(providerMap)
-	for provider, setting := range fallback {
-		merged[provider] = maps.Clone(setting)
+func mergeProviderConfigs(primary, fallback *maps.CaseInsensitiveMap[*Config]) *maps.CaseInsensitiveMap[*Config] {
+	merged := maps.NewCaseInsensitiveMap[*Config]()
+	for provider, config := range fallback.Iterator() {
+		merged.Set(provider, config.Copy())
 	}
-	for provider, setting := range primary {
-		if _, exists := merged[provider]; !exists {
-			merged[provider] = make(providerSetting)
+	for provider, config := range primary.Iterator() {
+		if !merged.Has(provider) {
+			merged.Set(provider, NewConfig())
 		}
-		for k, v := range setting {
+		for k, v := range config.Iterator() {
 			// primarily map overwrites fallback.
-			merged[provider][k] = v
+			merged.GetOrDefault(provider).Set(k, v)
 		}
 	}
-	return ProviderConfigs{merged}
+	return merged
 }

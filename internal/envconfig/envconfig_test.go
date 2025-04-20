@@ -19,10 +19,11 @@ func TestMetaTubeEnvConfigs(t *testing.T) {
 		{"MT_MOVIE_PROVIDER_DEF__PRIORITY", "2"},
 		{"MT_MOVIE_PROVIDER_xyz__PRIORITY", "0"},
 		{"MT_MOVIE_PROVIDER_OPQ__TOKEN", "token1"},
-		{"MT_MOVIE_PROVIDER_UVW__tOkEn", "token2"},
 		{"MT_PROVIDER_UVW__TIMEout", "900s"},
-		{"MT_PROVIDER_UVW__PRIORITY", "5"},       // -> actor/movie
-		{"MT_MOVIE_PROVIDER_UVW__PRIORITY", "0"}, // override movie
+		{"MT_PROVIDER_UVW__tOkEn", "wrong"},
+		{"MT_MOVIE_PROVIDER_UVW__tOkEn", "token2"}, // override movie
+		{"MT_PROVIDER_UVW__PRIORITY", "5"},         // -> actor/movie
+		{"MT_MOVIE_PROVIDER_UVW__PRIORITY", "0"},   // override movie
 		{"irrelevant_key", "ignore_me"},
 		{"mt_malformed_key", "ignore_me"},
 	} {
@@ -31,19 +32,19 @@ func TestMetaTubeEnvConfigs(t *testing.T) {
 	}
 
 	// Reload
-	InitAllConfigs()
+	InitAllEnvConfigs()
 
 	// Assert
-	assert.Len(t, metaTubeEnvs, 8+1 /* includes malformed */)
-	assert.Equal(t, ActorProviderConfigs.IsEmpty(), false)
-	assert.Equal(t, MovieProviderConfigs.IsEmpty(), false)
+	assert.Equal(t, 10, metaTubeEnvs.Len())
+	assert.Equal(t, 2, ActorProviderConfigs.Len())
+	assert.Equal(t, 4, MovieProviderConfigs.Len())
 
 	for k, v := range map[string]float64{
 		"ABC": 1,
 		"UVW": 5,
 	} {
-		priority, ok := ActorProviderConfigs.GetPriority(k)
-		if assert.True(t, ok) {
+		priority, err := ActorProviderConfigs.GetOrDefault(k).GetFloat64("priority")
+		if assert.NoError(t, err) {
 			assert.Equal(t, v, priority)
 		}
 	}
@@ -53,18 +54,24 @@ func TestMetaTubeEnvConfigs(t *testing.T) {
 		"XYZ": 0,
 		"UVW": 0,
 	} {
-		priority, ok := MovieProviderConfigs.GetPriority(k)
-		if assert.True(t, ok) {
+		priority, err := MovieProviderConfigs.GetOrDefault(k).GetFloat64("priority")
+		if assert.NoError(t, err) {
 			assert.Equal(t, v, priority)
 		}
 	}
 
-	val, _ := MovieProviderConfigs.Get("OPQ", "token")
-	assert.Equal(t, "token1", val)
+	val, err := MovieProviderConfigs.GetOrDefault("OPQ").GetString("token")
+	if assert.NoError(t, err) {
+		assert.Equal(t, "token1", val)
+	}
 
-	val, _ = MovieProviderConfigs.Get("UVW", "ToKeN")
-	assert.Equal(t, "token2", val)
+	val, err = MovieProviderConfigs.GetOrDefault("UVW").GetString("ToKeN")
+	if assert.NoError(t, err) {
+		assert.Equal(t, "token2", val)
+	}
 
-	timeout, _ := MovieProviderConfigs.GetTimeout("UVW")
-	assert.Equal(t, 900*time.Second, timeout)
+	timeout, err := MovieProviderConfigs.GetOrDefault("UVW").GetDuration("timeout")
+	if assert.NoError(t, err) {
+		assert.Equal(t, 900*time.Second, timeout)
+	}
 }
