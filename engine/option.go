@@ -20,14 +20,14 @@ func WithRequestTimeout(timeout time.Duration) Option {
 	}
 }
 
-func WithActorProviderConfig(name string, c mt.Config) Option {
+func WithActorProviderConfig(name string, config mt.Config) Option {
 	return func(e *Engine) {
-		e.actorProviderConfigs.Set(name, c)
+		e.actorProviderConfigs.Set(name, config)
 	}
 }
 
-func WithMovieProviderConfig(name string, c mt.Config) Option {
+func WithMovieProviderConfig(name string, config mt.Config) Option {
 	return func(e *Engine) {
-		e.movieProviderConfigs.Set(name, c)
+		e.movieProviderConfigs.Set(name, config)
 	}
 }

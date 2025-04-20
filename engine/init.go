@@ -95,12 +95,10 @@ func (e *Engine) applyProviderConfig(providerType string, provider mt.Provider, 
 	}
 
 	// Apply request timeout.
-	if s, ok := provider.(mt.RequestTimeoutSetter); ok {
-		if config.Has(timeoutConfigKey) {
-			if v, err := config.GetDuration(timeoutConfigKey); err == nil {
-				e.logger.Printf("Set %s provider with overridden request timeout: %s=%s", providerType, provider.Name(), v)
-				s.SetRequestTimeout(v)
-			}
+	if s, ok := provider.(mt.RequestTimeoutSetter); ok && config.Has(timeoutConfigKey) {
+		if v, err := config.GetDuration(timeoutConfigKey); err == nil {
+			e.logger.Printf("Set %s provider with overridden request timeout: %s=%s", providerType, provider.Name(), v)
+			s.SetRequestTimeout(v)
 		}
 	}
 
