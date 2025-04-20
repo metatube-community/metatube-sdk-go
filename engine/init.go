@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/metatube-community/metatube-sdk-go/collection/maps"
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
@@ -27,34 +26,20 @@ func (e *Engine) initFetcher() {
 
 // initActorProviders initializes actor providers.
 func (e *Engine) initActorProviders() {
-	e.actorProviders = maps.NewCaseInsensitiveMap[mt.ActorProvider]()
-	e.actorHostProviders = maps.NewCaseInsensitiveMap[[]mt.ActorProvider]()
 	for name, factory := range mt.RangeActorFactory {
 		provider := factory()
-		if p, exist := e.actorConfigManager.GetPriority(name); exist {
-			e.logger.Printf("Set actor provider with overridden priority: %s=%.2f", provider.Name(), p)
-			provider.SetPriority(p)
+
+		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
+			s.SetRequestTimeout(e.timeout /* global timeout */)
 		}
+
+		if config, hasConfig := e.actorProviderConfigs.Get(name); hasConfig {
+			e.applyProviderConfig("actor", provider, config)
+		}
+
 		if provider.Priority() <= 0 {
 			e.logger.Printf("Disable actor provider: %s", provider.Name())
 			continue
-		}
-
-		// Set request timeout.
-		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
-			timeout := e.timeout
-			if v, exist := e.actorConfigManager.GetTimeout(name); exist {
-				e.logger.Printf("Set actor provider with overridden request timeout: %s=%s", provider.Name(), v)
-				timeout = v // override global timeout.
-			}
-			s.SetRequestTimeout(timeout)
-		}
-
-		// Set provider config.
-		if s, ok := provider.(mt.ConfigSetter); ok {
-			if err := s.SetConfig(e.actorConfigManager.GetConfig(name)); err != nil {
-				e.logger.Fatalf("Set actor provider config for %s: %v", provider.Name(), err)
-			}
 		}
 
 		// Add actor provider by name.
@@ -69,34 +54,20 @@ func (e *Engine) initActorProviders() {
 
 // initMovieProviders initializes movie providers.
 func (e *Engine) initMovieProviders() {
-	e.movieProviders = maps.NewCaseInsensitiveMap[mt.MovieProvider]()
-	e.movieHostProviders = maps.NewCaseInsensitiveMap[[]mt.MovieProvider]()
 	for name, factory := range mt.RangeMovieFactory {
 		provider := factory()
-		if p, exist := e.movieConfigManager.GetPriority(name); exist {
-			e.logger.Printf("Set movie provider with overridden priority: %s=%.2f", provider.Name(), p)
-			provider.SetPriority(p)
+
+		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
+			s.SetRequestTimeout(e.timeout /* global timeout */)
 		}
+
+		if config, hasConfig := e.actorProviderConfigs.Get(name); hasConfig {
+			e.applyProviderConfig("movie", provider, config)
+		}
+
 		if provider.Priority() <= 0 {
 			e.logger.Printf("Disable movie provider: %s", provider.Name())
 			continue
-		}
-
-		// Set request timeout.
-		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
-			timeout := e.timeout
-			if v, exist := e.movieConfigManager.GetTimeout(name); exist {
-				e.logger.Printf("Set movie provider with overridden request timeout: %s=%s", provider.Name(), v)
-				timeout = v // override global timeout.
-			}
-			s.SetRequestTimeout(timeout)
-		}
-
-		// Set provider config.
-		if s, ok := provider.(mt.ConfigSetter); ok {
-			if err := s.SetConfig(e.movieConfigManager.GetConfig(name)); err != nil {
-				e.logger.Fatalf("Set movie provider config for %s: %v", provider.Name(), err)
-			}
 		}
 
 		// Add movie provider by name.
@@ -106,5 +77,37 @@ func (e *Engine) initMovieProviders() {
 		e.movieHostProviders.Set(host,
 			append(e.movieHostProviders.
 				GetOrDefault(host, nil), provider))
+	}
+}
+
+func (e *Engine) applyProviderConfig(providerType string, provider mt.Provider, config mt.Config) {
+	const (
+		priorityConfigKey = "priority"
+		timeoutConfigKey  = "timeout"
+	)
+
+	// Apply overridden priority.
+	if config.Has(priorityConfigKey) {
+		if v, err := config.GetFloat64(priorityConfigKey); err == nil {
+			e.logger.Printf("Set %s provider with overridden priority: %s=%.2f", providerType, provider.Name(), v)
+			provider.SetPriority(v)
+		}
+	}
+
+	// Apply request timeout.
+	if s, ok := provider.(mt.RequestTimeoutSetter); ok {
+		if config.Has(timeoutConfigKey) {
+			if v, err := config.GetDuration(timeoutConfigKey); err == nil {
+				e.logger.Printf("Set %s provider with overridden request timeout: %s=%s", providerType, provider.Name(), v)
+				s.SetRequestTimeout(v)
+			}
+		}
+	}
+
+	// Apply full config.
+	if s, ok := provider.(mt.ConfigSetter); ok {
+		if err := s.SetConfig(config); err != nil {
+			e.logger.Fatalf("Set %s provider config for %s: %v", providerType, provider.Name(), err)
+		}
 	}
 }

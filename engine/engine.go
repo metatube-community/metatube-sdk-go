@@ -29,9 +29,9 @@ type Engine struct {
 	fetcher *fetch.Fetcher
 	// Engine Logger
 	logger *log.Logger
-	// mt.ConfigGetter Interface
-	actorConfigManager mt.ConfigGetter
-	movieConfigManager mt.ConfigGetter
+	// Name:Config Case-Insensitive Map
+	actorProviderConfigs *maps.CaseInsensitiveMap[mt.Config]
+	movieProviderConfigs *maps.CaseInsensitiveMap[mt.Config]
 	// Name:Provider Case-Insensitive Map
 	actorProviders *maps.CaseInsensitiveMap[mt.ActorProvider]
 	movieProviders *maps.CaseInsensitiveMap[mt.MovieProvider]
@@ -49,8 +49,15 @@ func New(db *gorm.DB, opts ...Option) *Engine {
 		db:      db,
 		name:    DefaultEngineName,
 		timeout: DefaultRequestTimeout,
+		// pre-initialize case-insensitive maps.
+		actorProviderConfigs: maps.NewCaseInsensitiveMap[mt.Config](),
+		movieProviderConfigs: maps.NewCaseInsensitiveMap[mt.Config](),
+		actorProviders:       maps.NewCaseInsensitiveMap[mt.ActorProvider](),
+		movieProviders:       maps.NewCaseInsensitiveMap[mt.MovieProvider](),
+		actorHostProviders:   maps.NewCaseInsensitiveMap[[]mt.ActorProvider](),
+		movieHostProviders:   maps.NewCaseInsensitiveMap[[]mt.MovieProvider](),
 	}
-	// apply options
+	// apply options.
 	for _, opt := range opts {
 		opt(engine)
 	}
