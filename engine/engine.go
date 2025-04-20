@@ -9,6 +9,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/metatube-community/metatube-sdk-go/collection/maps"
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/database"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
@@ -26,9 +27,9 @@ type Engine struct {
 	fetcher *fetch.Fetcher
 	// Engine Logger
 	logger *log.Logger
-	// Name:Provider Map
-	actorProviders map[string]mt.ActorProvider
-	movieProviders map[string]mt.MovieProvider
+	// Name:Provider Case-insensitive Map
+	actorProviders *maps.CaseInsensitiveMap[mt.ActorProvider]
+	movieProviders *maps.CaseInsensitiveMap[mt.MovieProvider]
 	// Host:Providers Map
 	actorHostProviders map[string][]mt.ActorProvider
 	movieHostProviders map[string][]mt.MovieProvider
