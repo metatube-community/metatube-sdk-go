@@ -89,7 +89,7 @@ func (e *Engine) applyProviderConfig(providerType string, provider mt.Provider, 
 	// Apply overridden priority.
 	if config.Has(priorityConfigKey) {
 		if v, err := config.GetFloat64(priorityConfigKey); err == nil {
-			e.logger.Printf("Set %s provider with overridden priority: %s=%.2f", providerType, provider.Name(), v)
+			e.logger.Printf("Override %s provider priority: %s=%.2f", providerType, provider.Name(), v)
 			provider.SetPriority(v)
 		}
 	}
@@ -97,7 +97,7 @@ func (e *Engine) applyProviderConfig(providerType string, provider mt.Provider, 
 	// Apply request timeout.
 	if s, ok := provider.(mt.RequestTimeoutSetter); ok && config.Has(timeoutConfigKey) {
 		if v, err := config.GetDuration(timeoutConfigKey); err == nil {
-			e.logger.Printf("Set %s provider with overridden request timeout: %s=%s", providerType, provider.Name(), v)
+			e.logger.Printf("Override %s provider request timeout: %s=%s", providerType, provider.Name(), v)
 			s.SetRequestTimeout(v)
 		}
 	}
