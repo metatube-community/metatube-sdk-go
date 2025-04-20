@@ -34,6 +34,11 @@ func (m *CaseInsensitiveMap[T]) Delete(key string) {
 	m.internalMap.Delete(key)
 }
 
+func (m *CaseInsensitiveMap[T]) Has(key string) bool {
+	_, exist := m.internalMap.Get(key)
+	return exist
+}
+
 func (m *CaseInsensitiveMap[T]) Len() int {
 	return m.internalMap.Len()
 }

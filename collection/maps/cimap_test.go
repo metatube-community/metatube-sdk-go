@@ -29,6 +29,15 @@ func TestCaseInsensitiveMap(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, "qux", val)
 
+	exist := m.Has("foo")
+	assert.True(t, exist)
+
+	exist = m.Has("baz")
+	assert.True(t, exist)
+
+	exist = m.Has("BAZ")
+	assert.True(t, exist)
+
 	keys := slices.Collect(m.Keys())
 	slices.Sort(keys)
 	assert.Equal(t, []string{"Baz", "FOO"}, keys)
