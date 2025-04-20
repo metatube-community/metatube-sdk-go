@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"log"
 	gomaps "maps"
 	"net/http"
@@ -158,3 +159,5 @@ var (
 	_ = New
 	_ = Default
 )
+
+var _ fmt.Stringer = (*Engine)(nil)
