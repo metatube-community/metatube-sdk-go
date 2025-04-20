@@ -6,6 +6,7 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	R "github.com/metatube-community/metatube-sdk-go/constant"
 	"github.com/metatube-community/metatube-sdk-go/detector"
+	"github.com/metatube-community/metatube-sdk-go/engine/providerid"
 	"github.com/metatube-community/metatube-sdk-go/imageutil"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
@@ -19,19 +20,22 @@ const (
 	defaultMovieBackdropImagePosition = 0.0
 )
 
-func (e *Engine) GetActorPrimaryImage(name, id string) (image.Image, error) {
-	info, err := e.GetActorInfoByProviderID(name, id, true)
+func (e *Engine) GetActorPrimaryImage(pid providerid.ProviderID) (image.Image, error) {
+	info, err := e.GetActorInfoByProviderID(pid, true)
 	if err != nil {
 		return nil, err
 	}
 	if len(info.Images) == 0 {
 		return nil, mt.ErrImageNotFound
 	}
-	return e.GetImageByURL(e.MustGetActorProviderByName(name), info.Images[0], R.PrimaryImageRatio, defaultActorPrimaryImagePosition, false)
+	return e.GetImageByURL(
+		e.MustGetActorProviderByName(pid.Provider), info.Images[0],
+		R.PrimaryImageRatio, defaultActorPrimaryImagePosition, false,
+	)
 }
 
-func (e *Engine) GetMoviePrimaryImage(name, id string, ratio, pos float64) (image.Image, error) {
-	url, info, err := e.getPreferredMovieImageURLAndInfo(name, id, true)
+func (e *Engine) GetMoviePrimaryImage(pid providerid.ProviderID, ratio, pos float64) (image.Image, error) {
+	url, info, err := e.getPreferredMovieImageURLAndInfo(pid, true)
 	if err != nil {
 		return nil, err
 	}
@@ -43,23 +47,32 @@ func (e *Engine) GetMoviePrimaryImage(name, id string, ratio, pos float64) (imag
 		pos = defaultMoviePrimaryImagePosition
 		auto = number.RequireFaceDetection(info.Number)
 	}
-	return e.GetImageByURL(e.MustGetMovieProviderByName(name), url, ratio, pos, auto)
+	return e.GetImageByURL(
+		e.MustGetMovieProviderByName(pid.Provider),
+		url, ratio, pos, auto,
+	)
 }
 
-func (e *Engine) GetMovieThumbImage(name, id string) (image.Image, error) {
-	url, _, err := e.getPreferredMovieImageURLAndInfo(name, id, false)
+func (e *Engine) GetMovieThumbImage(pid providerid.ProviderID) (image.Image, error) {
+	url, _, err := e.getPreferredMovieImageURLAndInfo(pid, false)
 	if err != nil {
 		return nil, err
 	}
-	return e.GetImageByURL(e.MustGetMovieProviderByName(name), url, R.ThumbImageRatio, defaultMovieThumbImagePosition, false)
+	return e.GetImageByURL(
+		e.MustGetMovieProviderByName(pid.Provider), url,
+		R.ThumbImageRatio, defaultMovieThumbImagePosition, false,
+	)
 }
 
-func (e *Engine) GetMovieBackdropImage(name, id string) (image.Image, error) {
-	url, _, err := e.getPreferredMovieImageURLAndInfo(name, id, false)
+func (e *Engine) GetMovieBackdropImage(pid providerid.ProviderID) (image.Image, error) {
+	url, _, err := e.getPreferredMovieImageURLAndInfo(pid, false)
 	if err != nil {
 		return nil, err
 	}
-	return e.GetImageByURL(e.MustGetMovieProviderByName(name), url, R.BackdropImageRatio, defaultMovieBackdropImagePosition, false)
+	return e.GetImageByURL(
+		e.MustGetMovieProviderByName(pid.Provider), url,
+		R.BackdropImageRatio, defaultMovieBackdropImagePosition, false,
+	)
 }
 
 func (e *Engine) GetImageByURL(provider mt.Provider, url string, ratio, pos float64, auto bool) (img image.Image, err error) {
@@ -87,8 +100,8 @@ func (e *Engine) getImageByURL(provider mt.Provider, url string) (img image.Imag
 	return
 }
 
-func (e *Engine) getPreferredMovieImageURLAndInfo(name, id string, thumb bool) (url string, info *model.MovieInfo, err error) {
-	info, err = e.GetMovieInfoByProviderID(name, id, true)
+func (e *Engine) getPreferredMovieImageURLAndInfo(pid providerid.ProviderID, thumb bool) (url string, info *model.MovieInfo, err error) {
+	info, err = e.GetMovieInfoByProviderID(pid, true)
 	if err != nil {
 		return
 	}

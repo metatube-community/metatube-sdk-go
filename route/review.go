@@ -10,6 +10,10 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/model"
 )
 
+type reviewUri struct {
+	infoUri // same as info uri
+}
+
 type reviewQuery struct {
 	Homepage string `form:"homepage"`
 	Lazy     bool   `form:"lazy"`
@@ -17,7 +21,7 @@ type reviewQuery struct {
 
 func getReview(app *engine.Engine) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		uri := &infoUri{}
+		uri := &reviewUri{}
 		if err := c.ShouldBindUri(uri); err != nil {
 			abortWithStatusMessage(c, http.StatusBadRequest, err)
 			return
@@ -41,9 +45,9 @@ func getReview(app *engine.Engine) gin.HandlerFunc {
 			err     error
 		)
 		if query.Homepage != "" {
-			reviews, err = app.GetMovieReviewsByProviderURL(uri.Provider, query.Homepage, query.Lazy)
+			reviews, err = app.GetMovieReviewsByProviderURL(query.Homepage, query.Lazy)
 		} else {
-			reviews, err = app.GetMovieReviewsByProviderID(uri.Provider, uri.ID, query.Lazy)
+			reviews, err = app.GetMovieReviewsByProviderID(uri.AsProviderID(), query.Lazy)
 		}
 		if err != nil {
 			abortWithError(c, err)

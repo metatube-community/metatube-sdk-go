@@ -3,8 +3,8 @@ package engine
 import (
 	"log"
 	"os"
-	"strings"
 
+	"github.com/metatube-community/metatube-sdk-go/collection/maps"
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
@@ -27,13 +27,11 @@ func (e *Engine) initFetcher() {
 
 // initActorProviders initializes actor providers.
 func (e *Engine) initActorProviders() {
-	e.actorProviders = make(map[string]mt.ActorProvider)
-	e.actorHostProviders = make(map[string][]mt.ActorProvider)
+	e.actorProviders = maps.NewCaseInsensitiveMap[mt.ActorProvider]()
+	e.actorHostProviders = maps.NewCaseInsensitiveMap[[]mt.ActorProvider]()
 	for name, factory := range mt.RangeActorFactory {
-		name = strings.ToUpper(name)
-
 		provider := factory()
-		if p, ok := e.actorConfigManager.GetPriority(name); ok {
+		if p, exist := e.actorConfigManager.GetPriority(name); exist {
 			e.logger.Printf("Set actor provider with overridden priority: %s=%.2f", provider.Name(), p)
 			provider.SetPriority(p)
 		}
@@ -45,7 +43,7 @@ func (e *Engine) initActorProviders() {
 		// Set request timeout.
 		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
 			timeout := e.timeout
-			if v, ok := e.actorConfigManager.GetTimeout(name); ok {
+			if v, exist := e.actorConfigManager.GetTimeout(name); exist {
 				e.logger.Printf("Set actor provider with overridden request timeout: %s=%s", provider.Name(), v)
 				timeout = v // override global timeout.
 			}
@@ -60,22 +58,22 @@ func (e *Engine) initActorProviders() {
 		}
 
 		// Add actor provider by name.
-		e.actorProviders[name] = provider
+		e.actorProviders.Set(name, provider)
 		// Add actor provider by host.
 		host := provider.URL().Hostname()
-		e.actorHostProviders[host] = append(e.actorHostProviders[host], provider)
+		e.actorHostProviders.Set(host,
+			append(e.actorHostProviders.
+				GetOrDefault(host, nil), provider))
 	}
 }
 
 // initMovieProviders initializes movie providers.
 func (e *Engine) initMovieProviders() {
-	e.movieProviders = make(map[string]mt.MovieProvider)
-	e.movieHostProviders = make(map[string][]mt.MovieProvider)
+	e.movieProviders = maps.NewCaseInsensitiveMap[mt.MovieProvider]()
+	e.movieHostProviders = maps.NewCaseInsensitiveMap[[]mt.MovieProvider]()
 	for name, factory := range mt.RangeMovieFactory {
-		name = strings.ToUpper(name)
-
 		provider := factory()
-		if p, ok := e.movieConfigManager.GetPriority(name); ok {
+		if p, exist := e.movieConfigManager.GetPriority(name); exist {
 			e.logger.Printf("Set movie provider with overridden priority: %s=%.2f", provider.Name(), p)
 			provider.SetPriority(p)
 		}
@@ -87,7 +85,7 @@ func (e *Engine) initMovieProviders() {
 		// Set request timeout.
 		if s, ok := provider.(mt.RequestTimeoutSetter); ok {
 			timeout := e.timeout
-			if v, ok := e.movieConfigManager.GetTimeout(name); ok {
+			if v, exist := e.movieConfigManager.GetTimeout(name); exist {
 				e.logger.Printf("Set movie provider with overridden request timeout: %s=%s", provider.Name(), v)
 				timeout = v // override global timeout.
 			}
@@ -102,9 +100,11 @@ func (e *Engine) initMovieProviders() {
 		}
 
 		// Add movie provider by name.
-		e.movieProviders[name] = provider
+		e.movieProviders.Set(name, provider)
 		// Add movie provider by host.
 		host := provider.URL().Hostname()
-		e.movieHostProviders[host] = append(e.movieHostProviders[host], provider)
+		e.movieHostProviders.Set(host,
+			append(e.movieHostProviders.
+				GetOrDefault(host, nil), provider))
 	}
 }
