@@ -44,21 +44,21 @@ const (
 
 type ThePornDBVideo struct {
 	*scraper.Scraper
+
 	pageURL      string
 	apiGetURL    string
 	apiSearchURL string
+
+	accessToken string
 }
 
 func new(name, baseURL, pageURL, apiGetURL, apiSearchURL string) *ThePornDBVideo {
-	var priority float64 = Priority
-	if accessToken == "" {
-		priority = 0
-	}
 	return &ThePornDBVideo{
-		scraper.NewDefaultScraper(name, baseURL, priority, language.English),
-		pageURL,
-		apiGetURL,
-		apiSearchURL,
+		Scraper:      scraper.NewDefaultScraper(name, baseURL, Priority, language.English),
+		pageURL:      pageURL,
+		apiGetURL:    apiGetURL,
+		apiSearchURL: apiSearchURL,
+		accessToken:  "",
 	}
 }
 
@@ -70,8 +70,20 @@ func NewThePornDBMovie() *ThePornDBVideo {
 	return new(MovieProviderName, movieBaseURL, moviePageURL, apiGetMovieURL, apiSearchMovieURL)
 }
 
+func (s *ThePornDBVideo) SetConfig(config map[string]string) error {
+	if accessToken, ok := config["ACCESS_TOKEN"]; ok {
+		fmt.Println(s.Name(), "set token")
+		s.accessToken = accessToken
+	}
+	return nil
+}
+
 // GetMovieInfoByID impls MovieProvider.GetMovieInfoByID.
 func (s *ThePornDBVideo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	if s.accessToken == "" {
+		return nil, nil
+	}
+
 	info = &model.MovieInfo{
 		Provider:      s.Name(),
 		Actors:        []string{},
@@ -117,7 +129,7 @@ func (s *ThePornDBVideo) GetMovieInfoByID(id string) (info *model.MovieInfo, err
 	})
 
 	headers := http.Header{}
-	headers.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+	headers.Set("Authorization", fmt.Sprintf("Bearer %s", s.accessToken))
 	err = c.Request(http.MethodGet, fmt.Sprintf(s.apiGetURL, id), nil, nil, headers)
 	return
 }
@@ -151,6 +163,10 @@ func (s *ThePornDBVideo) NormalizeMovieKeyword(keyword string) string {
 
 // SearchMovie impls MovieSearcher.SearchMovie.
 func (s *ThePornDBVideo) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
+	if s.accessToken == "" {
+		return nil, nil
+	}
+
 	c := s.ClonedCollector()
 
 	c.OnResponse(func(r *colly.Response) {
@@ -174,7 +190,7 @@ func (s *ThePornDBVideo) SearchMovie(keyword string) (results []*model.MovieSear
 	})
 
 	headers := http.Header{}
-	headers.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+	headers.Set("Authorization", fmt.Sprintf("Bearer %s", s.accessToken))
 	err = c.Request(http.MethodGet, fmt.Sprintf(s.apiSearchURL, url.QueryEscape(keyword)), nil, nil, headers)
 	return
 }

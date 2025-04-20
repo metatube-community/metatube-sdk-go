@@ -32,16 +32,22 @@ const (
 
 type ThePornDBActor struct {
 	*scraper.Scraper
+
+	accessToken string
 }
 
 func NewThePornDBActor() *ThePornDBActor {
-	var priority float64 = Priority
-	if accessToken == "" {
-		priority = 0
-	}
 	return &ThePornDBActor{
-		scraper.NewDefaultScraper(ActorProviderName, actorBaseURL, priority, language.English),
+		Scraper:     scraper.NewDefaultScraper(ActorProviderName, actorBaseURL, Priority, language.English),
+		accessToken: "",
 	}
+}
+
+func (s *ThePornDBActor) SetConfig(config map[string]string) error {
+	if accessToken, ok := config["ACCESS_TOKEN"]; ok {
+		s.accessToken = accessToken
+	}
+	return nil
 }
 
 // ParseActorIDFromURL impls ActorProvider.ParseActorIDFromURL.
@@ -55,6 +61,10 @@ func (s *ThePornDBActor) ParseActorIDFromURL(rawURL string) (string, error) {
 
 // GetActorInfoByID impls ActorProvider.GetActorInfoByID.
 func (s *ThePornDBActor) GetActorInfoByID(id string) (info *model.ActorInfo, err error) {
+	if s.accessToken == "" {
+		return nil, nil
+	}
+
 	info = &model.ActorInfo{
 		Provider: s.Name(),
 		Aliases:  []string{},
@@ -108,7 +118,7 @@ func (s *ThePornDBActor) GetActorInfoByID(id string) (info *model.ActorInfo, err
 	})
 
 	headers := http.Header{}
-	headers.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+	headers.Set("Authorization", fmt.Sprintf("Bearer %s", s.accessToken))
 	err = c.Request(http.MethodGet, fmt.Sprintf(apiGetActorURL, id), nil, nil, headers)
 	return
 }
@@ -125,6 +135,10 @@ func (s *ThePornDBActor) GetActorInfoByURL(rawURL string) (*model.ActorInfo, err
 
 // SearchActor impls ActorSearcher.SearchActor.
 func (s *ThePornDBActor) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
+	if s.accessToken == "" {
+		return nil, nil
+	}
+
 	c := s.ClonedCollector()
 
 	results = make([]*model.ActorSearchResult, 0)
@@ -160,7 +174,7 @@ func (s *ThePornDBActor) SearchActor(keyword string) (results []*model.ActorSear
 	})
 
 	headers := http.Header{}
-	headers.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+	headers.Set("Authorization", fmt.Sprintf("Bearer %s", s.accessToken))
 	err = c.Request(http.MethodGet, fmt.Sprintf(apiSearchActorURL, url.QueryEscape(keyword)), nil, nil, headers)
 	return
 }
