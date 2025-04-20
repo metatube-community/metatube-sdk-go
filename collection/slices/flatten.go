@@ -9,7 +9,9 @@ func Flatten[E any](s [][]E) []E {
 	return slices.Collect(func(yield func(E) bool) {
 		for _, i := range s {
 			for _, j := range i {
-				yield(j)
+				if !yield(j) {
+					return
+				}
 			}
 		}
 	})

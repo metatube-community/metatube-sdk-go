@@ -25,6 +25,7 @@ require (
 	github.com/moorara/algo v0.11.1-0.20250307161131-9cc2ea1611bf
 	github.com/nlnwa/whatwg-url v0.6.2
 	github.com/peterbourgon/ff/v3 v3.4.0
+	github.com/projectbarks/cimap v0.1.1
 	github.com/projectdiscovery/useragent v0.0.99
 	github.com/projectdiscovery/utils v0.4.17
 	github.com/robertkrimen/otto v0.5.1
