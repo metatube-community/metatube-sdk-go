@@ -24,13 +24,13 @@ func (dpl *DeepL) Translate(q, source, target string) (result string, err error)
 	return deeplx.
 		NewTranslator(dpl.APIKey, opts...).
 		TranslateText(q,
-			parseToDeeplSupportedLanguage(target),
+			parseToSupportedLanguage(target),
 			deeplx.WithSourceLang(
-				parseToDeeplSupportedLanguage(source)),
+				parseToSupportedLanguage(source)),
 		)
 }
 
-func parseToDeeplSupportedLanguage(lang string) string {
+func parseToSupportedLanguage(lang string) string {
 	lang = strings.ToUpper(lang)
 	switch lang {
 	case "CHS", "ZH-CN", "ZH-HANS":

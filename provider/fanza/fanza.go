@@ -20,7 +20,7 @@ import (
 	"golang.org/x/net/html"
 	"golang.org/x/text/language"
 
-	"github.com/metatube-community/metatube-sdk-go/collections"
+	"github.com/metatube-community/metatube-sdk-go/collection/sets"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/js"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
@@ -349,7 +349,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	})
 
 	// In case of any duplication
-	previewImageSet := collections.NewOrderedSet(func(v string) string { return v })
+	previewImageSet := sets.NewOrderedSet(func(v string) string { return v })
 	extractImageSrc := func(e *colly.XMLElement) string {
 		src := e.ChildAttr(`.//img`, "data-lazy")
 		if strings.TrimSpace(src) == "" {

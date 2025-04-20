@@ -1,4 +1,4 @@
-package collections
+package maps
 
 import (
 	"bytes"

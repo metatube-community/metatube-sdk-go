@@ -34,7 +34,7 @@ func New(provider, id string) (ProviderID, error) {
 
 func Parse(s string) (ProviderID, error) {
 	const separator = ":"
-	provider, id, found := strings.Cut(trimExtraArgs(s), separator)
+	provider, id, found := strings.Cut(trimPosSuffix(s), separator)
 	if !found {
 		return ProviderID{}, ErrInvalidProviderID
 	}
@@ -44,10 +44,6 @@ func Parse(s string) (ProviderID, error) {
 		return ProviderID{}, ErrInvalidProviderID
 	}
 	return New(provider, id)
-}
-
-func trimExtraArgs(s string) string {
-	return regexp.MustCompile(`:[0|1](\.\d+)?$`).ReplaceAllString(s, "")
 }
 
 func (pid *ProviderID) IsValid() bool {
@@ -70,4 +66,10 @@ func (pid *ProviderID) UnmarshalText(text []byte) error {
 	pid.Provider = p.Provider
 	pid.ID = p.ID
 	return nil
+}
+
+var posSuffixPattern = regexp.MustCompile(`:[0|1](\.\d+)?$`)
+
+func trimPosSuffix(s string) string {
+	return posSuffixPattern.ReplaceAllString(s, "")
 }

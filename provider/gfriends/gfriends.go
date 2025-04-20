@@ -10,7 +10,7 @@ import (
 
 	"golang.org/x/text/language"
 
-	"github.com/metatube-community/metatube-sdk-go/collections"
+	"github.com/metatube-community/metatube-sdk-go/collection/maps"
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/singledo"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -107,7 +107,7 @@ type fileTree struct {
 	single *singledo.Single
 
 	// `Content`
-	Content *collections.OrderedMap[string, *collections.OrderedMap[string, string]] `json:"Content"`
+	Content *maps.OrderedMap[string, *maps.OrderedMap[string, string]] `json:"Content"`
 
 	// `Information`
 	//Information struct {
@@ -120,7 +120,7 @@ type fileTree struct {
 func newFileTree(wait time.Duration) *fileTree {
 	return &fileTree{
 		single:  singledo.NewSingle(wait),
-		Content: collections.NewOrderedMap[string, *collections.OrderedMap[string, string]](),
+		Content: maps.NewOrderedMap[string, *maps.OrderedMap[string, string]](),
 	}
 }
 

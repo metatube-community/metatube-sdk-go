@@ -14,7 +14,7 @@ import (
 	"golang.org/x/net/html"
 	"golang.org/x/text/language"
 
-	"github.com/metatube-community/metatube-sdk-go/collections"
+	"github.com/metatube-community/metatube-sdk-go/collection/sets"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
@@ -187,7 +187,7 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 
 	// Deduplicate Genres
 	c.OnScraped(func(_ *colly.Response) {
-		genres := collections.NewOrderedSet(func(v string) string { return v })
+		genres := sets.NewOrderedSet(func(v string) string { return v })
 		for _, genre := range info.Genres {
 			genres.Add(genre)
 		}

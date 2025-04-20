@@ -1,4 +1,4 @@
-package pigo
+package detector
 
 import (
 	"image"
@@ -8,7 +8,11 @@ import (
 	"github.com/disintegration/imaging"
 	pigo "github.com/esimov/pigo/core"
 
+	"github.com/metatube-community/metatube-sdk-go/collection/slices"
+	"github.com/metatube-community/metatube-sdk-go/common/cluster"
 	"github.com/metatube-community/metatube-sdk-go/common/parallel"
+	"github.com/metatube-community/metatube-sdk-go/detector/internal/geomath"
+	"github.com/metatube-community/metatube-sdk-go/detector/internal/position"
 )
 
 const (
@@ -24,7 +28,7 @@ func init() {
 }
 
 func detectFaces(params *pigo.CascadeParams, angles ...float64) []pigo.Detection {
-	// Initialize angles if unset.
+	// initialize angles if empty.
 	if len(angles) == 0 {
 		angles = []float64{0.0}
 	}
@@ -34,7 +38,7 @@ func detectFaces(params *pigo.CascadeParams, angles ...float64) []pigo.Detection
 		// The result contains quadruplets representing the row, column, scale and detection score.
 		return classifier.RunCascade(*params, angle)
 	}
-	return parallel.Flatten(parallel.Parallel(detect, angles...))
+	return slices.Flatten(parallel.Parallel(detect, angles...))
 }
 
 func DetectFaces(img image.Image, angles ...float64) []pigo.Detection {
@@ -53,6 +57,7 @@ func DetectFaces(img image.Image, angles ...float64) []pigo.Detection {
 			ImageParams: imgParams,
 		},
 		/*
+			// extra params for better accuracy.
 			{
 				MinSize:     minFaceSize,
 				MaxSize:     maxFaceSize,
@@ -69,7 +74,7 @@ func DetectFaces(img image.Image, angles ...float64) []pigo.Detection {
 	return nil
 }
 
-func DetectRotatedFaces(img image.Image, rotatedAngle float64, angles ...float64) []pigo.Detection {
+func DetectFacesWithRotation(img image.Image, rotatedAngle float64, angles ...float64) []pigo.Detection {
 	var (
 		origWidth  = img.Bounds().Dx()
 		origHeight = img.Bounds().Dy()
@@ -79,13 +84,13 @@ func DetectRotatedFaces(img image.Image, rotatedAngle float64, angles ...float64
 	if rotatedAngle == 0 {
 		return faces
 	}
-	// Calculate converted coordinates.
+	invAngle := math.Mod(360-rotatedAngle, 360)
 	for i := range faces {
-		x, y := RotatePoint(
+		x, y := geomath.RotatePoint(
 			faces[i].Col, faces[i].Row,
 			rotatedImg.Bounds().Dx(),
 			rotatedImg.Bounds().Dy(),
-			math.Mod(360-rotatedAngle, 360), /* inverse angle */
+			invAngle,
 		)
 		x = max(min(x, origWidth), 0)
 		y = max(min(y, origHeight), 0)
@@ -94,7 +99,7 @@ func DetectRotatedFaces(img image.Image, rotatedAngle float64, angles ...float64
 	return faces
 }
 
-func DetectFacesAdvanced(img image.Image) (faces []pigo.Detection) {
+func DetectFacesWithMultiAngles(img image.Image) []pigo.Detection {
 	fixedAngles := []float64{ // in radians
 		0.00,
 		0.13,
@@ -106,31 +111,44 @@ func DetectFacesAdvanced(img image.Image) (faces []pigo.Detection) {
 		270,
 	}
 	detect := func(angle float64) []pigo.Detection {
-		return DetectRotatedFaces(img, angle, fixedAngles...)
+		return DetectFacesWithRotation(img, angle, fixedAngles...)
 	}
-	return parallel.Flatten(parallel.Parallel(detect, rotatedAngles...))
+	return slices.Flatten(parallel.Parallel(detect, rotatedAngles...))
 }
 
-func DetectMainFacePosition(img image.Image, ratio float64, debugs ...debugFunc) (float64, bool) {
-	// Limit max width for performance improvement.
+func FindPrimaryFaceAxisRatio(img image.Image, ratio float64, advanced bool, debugs ...debugFunc) (float64, bool) {
+	// limit max width for performance improvement.
 	if img.Bounds().Dx() > maxImageWidth {
 		img = imaging.Resize(
 			img, maxImageWidth, 0,
 			imaging.NearestNeighbor, /* fastest */
 		)
 	}
-	// Detect faces from different angles.
-	faces := DetectFacesAdvanced(img)
-	// Calculate position votes based on weights.
-	votes := aggregateVotesFromFaces(img, ratio, faces)
-	// Callback debug functions.
+	detectFunc := func(img image.Image) []pigo.Detection {
+		if !advanced {
+			// simple face detection.
+			return DetectFaces(img)
+		}
+		// detect faces from different angles.
+		return DetectFacesWithMultiAngles(img)
+	}
+	faces := detectFunc(img)
+	// compute axis based on the ratio.
+	axis := dominantAxisByRatio(img, ratio)
+	// compute pos-vector groups based on distances.
+	groups := clusterFaceVectors(img, faces, axis)
+	// callback debug functions.
 	defer func() {
 		for _, fn := range debugs {
-			fn(img, faces, votes)
+			fn(img, faces, groups)
 		}
 	}()
-	return getTopVotedPosition(votes)
+	vec, ok := getDominantVector(groups)
+	if !ok || vec.Dim() != 1 /* only one dimension vector expected due to Select(dim) */ {
+		return 0, false
+	}
+	return float64(vec.At(0)), true
 }
 
 // debugFunc should be used for debugging only.
-type debugFunc func(image.Image, []pigo.Detection, []vote)
+type debugFunc func(image.Image, []pigo.Detection, []cluster.Group[position.WeightedVector, float64])
