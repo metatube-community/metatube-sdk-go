@@ -33,7 +33,9 @@ func SortGroupsByWeight[T WeightedLocatable[T, R, W], R cmp.Ordered, W cmp.Order
 	// calculate weights for each group.
 	weights := slices.Collect(func(yield func(W) bool) {
 		for _, group := range groups {
-			yield(weight(group))
+			if !yield(weight(group)) {
+				return
+			}
 		}
 	})
 

@@ -5,26 +5,31 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestOrderedMap(t *testing.T) {
-	{ // JSON marshal
+	t.Run("JSON Marshal", func(t *testing.T) {
 		m := NewOrderedMap[string, any]()
 		b, _ := json.Marshal(m)
-		require.Equal(t, `{}`, string(b))
+		assert.JSONEq(t, `{}`, string(b))
 
 		m.Set("a", 1)
 		m.Set("c", "2")
 		m.Set("b", 3.0)
 		m.Set("b", 1.5)
-		require.Equal(t, []any{1, "2", 1.5}, slices.Collect(m.Values()))
+		assert.Equal(t, []any{1, "2", 1.5}, slices.Collect(m.Values()))
 
 		b, _ = json.Marshal(m)
-		require.Equal(t, `{"a":1,"c":"2","b":1.5}`, string(b))
-	}
+		assert.JSONEq(t, `{
+			"a":1,
+			"c":"2",
+			"b":1.5
+		}`, string(b))
+	})
 
-	{ // fixed type map unmarshal
+	t.Run("fixed type map unmarshal", func(t *testing.T) {
 		jsonData := `{
 			"a":1,
 			"c":2,
@@ -35,10 +40,10 @@ func TestOrderedMap(t *testing.T) {
 		require.NoError(t, err)
 
 		b, _ := json.Marshal(m)
-		require.Equal(t, `{"a":1,"c":2,"b":0}`, string(b))
-	}
+		assert.JSONEq(t, `{"a":1,"c":2,"b":0}`, string(b))
+	})
 
-	{ // any type map unmarshal
+	t.Run("any type map unmarshal", func(t *testing.T) {
 		jsonData := `{
 			"a":1,
 			"c":"2",
@@ -50,10 +55,13 @@ func TestOrderedMap(t *testing.T) {
 		require.NoError(t, err)
 
 		b, _ := json.Marshal(m)
-		require.Equal(t, `{"a":1,"c":"2","b":1.5,"?":{"3":2,"j":"k","x":"y"}}`, string(b))
-	}
+		assert.JSONEq(t, `{
+			"a":1,"c":"2","b":1.5,
+			"?":{"3":2,"j":"k","x":"y"}
+		}`, string(b))
+	})
 
-	{ // Sorted sub map unmarshal
+	t.Run("Sorted sub map unmarshal", func(t *testing.T) {
 		jsonData := `{
 			"w":{"n":3,"m":5},
 			"b":{"f":1,"j":0}
@@ -63,10 +71,13 @@ func TestOrderedMap(t *testing.T) {
 		require.NoError(t, err)
 
 		b, _ := json.Marshal(m)
-		require.Equal(t, `{"w":{"m":5,"n":3},"b":{"f":1,"j":0}}`, string(b))
-	}
+		assert.JSONEq(t, `{
+			"w":{"m":5,"n":3},
+			"b":{"f":1,"j":0}
+		}`, string(b))
+	})
 
-	{ // Ordered sub map unmarshal
+	t.Run("Ordered sub map unmarshal", func(t *testing.T) {
 		jsonData := `{
 			"w":{"n":3,"m":5},
 			"b":{"f":1,"j":0}
@@ -76,10 +87,13 @@ func TestOrderedMap(t *testing.T) {
 		require.NoError(t, err)
 
 		b, _ := json.Marshal(m)
-		require.Equal(t, `{"w":{"n":3,"m":5},"b":{"f":1,"j":0}}`, string(b))
-	}
+		assert.JSONEq(t, `{
+			"w":{"n":3,"m":5},
+			"b":{"f":1,"j":0}
+		}`, string(b))
+	})
 
-	{ // A lot of ordered sub maps unmarshal
+	t.Run("A lot of ordered sub maps unmarshal", func(t *testing.T) {
 		jsonData := `{
 			"w":{"n":{"g":3,"5":5},"m":{"v":3,"2":5}},
 			"b":{"f":{"h":3,"3":5},"j":{"x":3,"c":5}}
@@ -89,6 +103,11 @@ func TestOrderedMap(t *testing.T) {
 		require.NoError(t, err)
 
 		b, _ := json.Marshal(m)
-		require.Equal(t, `{"w":{"n":{"g":3,"5":5},"m":{"v":3,"2":5}},"b":{"f":{"h":3,"3":5},"j":{"x":3,"c":5}}}`, string(b))
-	}
+		assert.JSONEq(t, `{
+			"w":{"n":{"g":3,"5":5},
+			"m":{"v":3,"2":5}},
+			"b":{"f":{"h":3,"3":5},
+			"j":{"x":3,"c":5}}
+		}`, string(b))
+	})
 }
