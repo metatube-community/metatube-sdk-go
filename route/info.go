@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/metatube-community/metatube-sdk-go/engine"
+	"github.com/metatube-community/metatube-sdk-go/engine/providerid"
 )
 
 type infoType uint8
@@ -18,6 +19,10 @@ const (
 type infoUri struct {
 	Provider string `uri:"provider" binding:"required"`
 	ID       string `uri:"id" binding:"required"`
+}
+
+func (uri *infoUri) AsProviderID() providerid.ProviderID {
+	return providerid.ProviderID{Provider: uri.Provider, ID: uri.ID}
 }
 
 type infoQuery struct {
@@ -45,9 +50,9 @@ func getInfo(app *engine.Engine, typ infoType) gin.HandlerFunc {
 		)
 		switch typ {
 		case actorInfoType:
-			info, err = app.GetActorInfoByProviderID(uri.Provider, uri.ID, query.Lazy)
+			info, err = app.GetActorInfoByProviderID(uri.AsProviderID(), query.Lazy)
 		case movieInfoType:
-			info, err = app.GetMovieInfoByProviderID(uri.Provider, uri.ID, query.Lazy)
+			info, err = app.GetMovieInfoByProviderID(uri.AsProviderID(), query.Lazy)
 		default:
 			panic("invalid info/metadata type")
 		}

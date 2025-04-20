@@ -18,7 +18,8 @@ var (
 var ErrInvalidProviderID = errors.New("invalid provider/id pair")
 
 type ProviderID struct {
-	Provider, ID string
+	Provider string
+	ID       string
 }
 
 func New(provider, id string) (ProviderID, error) {

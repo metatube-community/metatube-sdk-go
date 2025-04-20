@@ -92,14 +92,16 @@ type RequestTimeoutSetter interface {
 	SetRequestTimeout(timeout time.Duration)
 }
 
-type ConfigSetter interface {
-	// SetConfig sets any additional configs for Provider.
-	SetConfig(config map[string]string) error
+type Config interface {
+	Has(string) bool
+	GetString(string) (string, error)
+	GetBool(string) (bool, error)
+	GetInt64(string) (int64, error)
+	GetFloat64(string) (float64, error)
+	GetDuration(string) (time.Duration, error)
 }
 
-type ConfigGetter interface {
-	Get(provider, key string) (string, bool)
-	GetConfig(provider string) map[string]string
-	GetPriority(provider string) (float64, bool)
-	GetTimeout(provider string) (time.Duration, bool)
+type ConfigSetter interface {
+	// SetConfig sets any additional configs for Provider.
+	SetConfig(config Config) error
 }

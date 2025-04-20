@@ -13,6 +13,7 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/collection/slices"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
+	"github.com/metatube-community/metatube-sdk-go/engine/providerid"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
@@ -97,7 +98,7 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 	respCh := make(chan response)
 
 	var wg sync.WaitGroup
-	for _, provider := range e.movieProviders {
+	for _, provider := range e.movieProviders.Iterator() {
 		wg.Add(1)
 		// Goroutine started time.
 		startTime := time.Now()
@@ -120,7 +121,7 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 		close(respCh)
 	}()
 
-	ds := make([]string, 0, len(e.movieProviders))
+	ds := make([]string, 0, e.movieProviders.Len())
 	// response channel.
 	for resp := range respCh {
 		ds = append(ds, func(a, b, c any) string {
@@ -239,12 +240,12 @@ func (e *Engine) getMovieInfoByProviderID(provider mt.MovieProvider, id string, 
 	})
 }
 
-func (e *Engine) GetMovieInfoByProviderID(name, id string, lazy bool) (*model.MovieInfo, error) {
-	provider, err := e.GetMovieProviderByName(name)
+func (e *Engine) GetMovieInfoByProviderID(pid providerid.ProviderID, lazy bool) (*model.MovieInfo, error) {
+	provider, err := e.GetMovieProviderByName(pid.Provider)
 	if err != nil {
 		return nil, err
 	}
-	return e.getMovieInfoByProviderID(provider, id, lazy)
+	return e.getMovieInfoByProviderID(provider, pid.ID, lazy)
 }
 
 func (e *Engine) getMovieInfoByProviderURL(provider mt.MovieProvider, rawURL string, lazy bool) (*model.MovieInfo, error) {

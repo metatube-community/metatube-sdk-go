@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/metatube-community/metatube-sdk-go/engine"
-	"github.com/metatube-community/metatube-sdk-go/internal/providerid"
+	"github.com/metatube-community/metatube-sdk-go/engine/providerid"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
@@ -16,23 +16,18 @@ func redirect(app *engine.Engine) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		if redir := c.Query(queryKey); redir != "" {
-			var provider, id string
-			if pid, err := providerid.Parse(redir); err != nil {
+			pid, err := providerid.Parse(redir)
+			if err != nil {
 				abortWithStatusMessage(c, http.StatusBadRequest, err)
 				return
-			} else {
-				provider, id = pid.Provider, pid.ID
 			}
 
-			var (
-				info any
-				err  error
-			)
+			var info any
 			switch {
-			case app.IsActorProvider(provider):
-				info, err = app.GetActorInfoByProviderID(provider, id, true)
-			case app.IsMovieProvider(provider):
-				info, err = app.GetMovieInfoByProviderID(provider, id, true)
+			case app.IsActorProvider(pid.Provider):
+				info, err = app.GetActorInfoByProviderID(pid, true)
+			case app.IsMovieProvider(pid.Provider):
+				info, err = app.GetMovieInfoByProviderID(pid, true)
 			default:
 				abortWithError(c, mt.ErrProviderNotFound)
 				return
