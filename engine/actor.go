@@ -12,6 +12,7 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/collection/slices"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
+	"github.com/metatube-community/metatube-sdk-go/engine/providerid"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/gfriends"
@@ -115,7 +116,7 @@ func (e *Engine) SearchActorAll(keyword string, fallback bool) (results []*model
 		mu sync.Mutex
 		wg sync.WaitGroup
 	)
-	for _, provider := range e.actorProviders {
+	for _, provider := range e.actorProviders.Iterator() {
 		wg.Add(1)
 		go func(provider mt.ActorProvider) {
 			defer wg.Done()
@@ -193,12 +194,12 @@ func (e *Engine) getActorInfoByProviderID(provider mt.ActorProvider, id string, 
 	})
 }
 
-func (e *Engine) GetActorInfoByProviderID(name, id string, lazy bool) (*model.ActorInfo, error) {
-	provider, err := e.GetActorProviderByName(name)
+func (e *Engine) GetActorInfoByProviderID(pid providerid.ProviderID, lazy bool) (*model.ActorInfo, error) {
+	provider, err := e.GetActorProviderByName(pid.Provider)
 	if err != nil {
 		return nil, err
 	}
-	return e.getActorInfoByProviderID(provider, id, lazy)
+	return e.getActorInfoByProviderID(provider, pid.ID, lazy)
 }
 
 func (e *Engine) getActorInfoByProviderURL(provider mt.ActorProvider, rawURL string, lazy bool) (*model.ActorInfo, error) {

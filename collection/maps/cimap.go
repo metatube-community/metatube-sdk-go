@@ -22,8 +22,21 @@ func NewCaseInsensitiveMap[T any]() *CaseInsensitiveMap[T] {
 	}
 }
 
+func (m *CaseInsensitiveMap[T]) Has(key string) bool {
+	_, exist := m.internalMap.Get(key)
+	return exist
+}
+
 func (m *CaseInsensitiveMap[T]) Get(key string) (T, bool) {
 	return m.internalMap.Get(key)
+}
+
+func (m *CaseInsensitiveMap[T]) GetOrDefault(key string, defaultValue T) T {
+	value, exist := m.internalMap.Get(key)
+	if exist {
+		return value
+	}
+	return defaultValue
 }
 
 func (m *CaseInsensitiveMap[T]) Set(key string, value T) {

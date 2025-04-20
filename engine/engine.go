@@ -1,7 +1,9 @@
 package engine
 
 import (
+	"fmt"
 	"log"
+	gomaps "maps"
 	"net/http"
 	"net/url"
 	"strings"
@@ -9,6 +11,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/metatube-community/metatube-sdk-go/collection/maps"
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/database"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
@@ -26,15 +29,19 @@ type Engine struct {
 	fetcher *fetch.Fetcher
 	// Engine Logger
 	logger *log.Logger
-	// Name:Provider Map
-	actorProviders map[string]mt.ActorProvider
-	movieProviders map[string]mt.MovieProvider
-	// Host:Providers Map
-	actorHostProviders map[string][]mt.ActorProvider
-	movieHostProviders map[string][]mt.MovieProvider
 	// mt.ConfigGetter Interface
 	actorConfigManager mt.ConfigGetter
 	movieConfigManager mt.ConfigGetter
+	// Name:Provider Case-Insensitive Map
+	actorProviders *maps.CaseInsensitiveMap[mt.ActorProvider]
+	movieProviders *maps.CaseInsensitiveMap[mt.MovieProvider]
+	// Host:[]Provider Case-Insensitive Map
+	// We need a []mt.ActorProvider here because sometimes providers
+	// can share the same host, but they're two different providers.
+	// However, in most cases, a host is mapped to only one provider.
+	// E.g., github.com -> [Gfriends, ...]
+	actorHostProviders *maps.CaseInsensitiveMap[[]mt.ActorProvider]
+	movieHostProviders *maps.CaseInsensitiveMap[[]mt.MovieProvider]
 }
 
 func New(db *gorm.DB, opts ...Option) *Engine {
@@ -60,13 +67,12 @@ func Default() *Engine {
 	return engine
 }
 
-func (e *Engine) IsActorProvider(name string) (ok bool) {
-	_, ok = e.actorProviders[strings.ToUpper(name)]
-	return
+func (e *Engine) IsActorProvider(name string) bool {
+	return e.actorProviders.Has(name)
 }
 
 func (e *Engine) GetActorProviders() map[string]mt.ActorProvider {
-	return e.actorProviders
+	return gomaps.Collect(e.actorProviders.Iterator())
 }
 
 func (e *Engine) GetActorProviderByURL(rawURL string) (mt.ActorProvider, error) {
@@ -74,7 +80,7 @@ func (e *Engine) GetActorProviderByURL(rawURL string) (mt.ActorProvider, error) 
 	if err != nil {
 		return nil, err
 	}
-	for _, p := range e.actorHostProviders[u.Hostname()] {
+	for _, p := range e.actorHostProviders.GetOrDefault(u.Hostname(), nil) {
 		if strings.HasPrefix(u.Path, p.URL().Path) {
 			return p, nil
 		}
@@ -83,7 +89,7 @@ func (e *Engine) GetActorProviderByURL(rawURL string) (mt.ActorProvider, error) 
 }
 
 func (e *Engine) GetActorProviderByName(name string) (mt.ActorProvider, error) {
-	provider, ok := e.actorProviders[strings.ToUpper(name)]
+	provider, ok := e.actorProviders.Get(name)
 	if !ok {
 		return nil, mt.ErrProviderNotFound
 	}
@@ -98,13 +104,12 @@ func (e *Engine) MustGetActorProviderByName(name string) mt.ActorProvider {
 	return provider
 }
 
-func (e *Engine) IsMovieProvider(name string) (ok bool) {
-	_, ok = e.movieProviders[strings.ToUpper(name)]
-	return
+func (e *Engine) IsMovieProvider(name string) bool {
+	return e.movieProviders.Has(name)
 }
 
 func (e *Engine) GetMovieProviders() map[string]mt.MovieProvider {
-	return e.movieProviders
+	return gomaps.Collect(e.movieProviders.Iterator())
 }
 
 func (e *Engine) GetMovieProviderByURL(rawURL string) (mt.MovieProvider, error) {
@@ -112,7 +117,7 @@ func (e *Engine) GetMovieProviderByURL(rawURL string) (mt.MovieProvider, error) 
 	if err != nil {
 		return nil, err
 	}
-	for _, p := range e.movieHostProviders[u.Hostname()] {
+	for _, p := range e.movieHostProviders.GetOrDefault(u.Hostname(), nil) {
 		if strings.HasPrefix(u.Path, p.URL().Path) {
 			return p, nil
 		}
@@ -121,7 +126,7 @@ func (e *Engine) GetMovieProviderByURL(rawURL string) (mt.MovieProvider, error) 
 }
 
 func (e *Engine) GetMovieProviderByName(name string) (mt.MovieProvider, error) {
-	provider, ok := e.movieProviders[strings.ToUpper(name)]
+	provider, ok := e.movieProviders.Get(name)
 	if !ok {
 		return nil, mt.ErrProviderNotFound
 	}
@@ -136,8 +141,8 @@ func (e *Engine) MustGetMovieProviderByName(name string) mt.MovieProvider {
 	return provider
 }
 
-// Fetch fetches content from url. If provider is nil, the
-// default fetcher will be used.
+// Fetch fetches content from url. If the provider
+// is nil, the default fetcher will be used.
 func (e *Engine) Fetch(url string, provider mt.Provider) (*http.Response, error) {
 	// Provider which implements Fetcher interface should be
 	// used to fetch all its corresponding resources.
@@ -154,3 +159,5 @@ var (
 	_ = New
 	_ = Default
 )
+
+var _ fmt.Stringer = (*Engine)(nil)
