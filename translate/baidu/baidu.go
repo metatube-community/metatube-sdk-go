@@ -34,8 +34,8 @@ func (bd *Baidu) Translate(text, from, to string) (result string, err error) {
 		baiduTranslateAPI,
 		fetch.WithURLEncodedBody(map[string]string{
 			"q":     text,
-			"from":  parseToBaiduSupportedLanguage(from),
-			"to":    parseToBaiduSupportedLanguage(to),
+			"from":  parseToSupportedLanguage(from),
+			"to":    parseToSupportedLanguage(to),
 			"appid": bd.AppID,
 			"salt":  salt,
 			"sign":  sign,
@@ -77,7 +77,7 @@ func md5sum(s string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func parseToBaiduSupportedLanguage(lang string) string {
+func parseToSupportedLanguage(lang string) string {
 	if lang = strings.ToLower(lang); lang == "" || lang == "auto" /* auto detect */ {
 		return "auto"
 	}
