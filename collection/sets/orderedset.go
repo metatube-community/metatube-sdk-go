@@ -18,7 +18,14 @@ type OrderedSet[K comparable, V any] struct {
 	m *orderedmap.OrderedMap[K, V]
 }
 
-func NewOrderedSet[K comparable, V any](hash func(V) K) *OrderedSet[K, V] {
+func NewOrderedSet[T comparable]() *OrderedSet[T, T] {
+	return &OrderedSet[T, T]{
+		h: func(t T) T { return t },
+		m: orderedmap.NewOrderedMap[T, T](),
+	}
+}
+
+func NewOrderedSetWithHash[K comparable, V any](hash func(V) K) *OrderedSet[K, V] {
 	return &OrderedSet[K, V]{
 		h: hash,
 		m: orderedmap.NewOrderedMap[K, V](),
@@ -51,12 +58,12 @@ func (s *OrderedSet[K, V]) Iterator() iter.Seq[V] {
 	}
 }
 
-func (s *OrderedSet[K, V]) Slice() []V {
+func (s *OrderedSet[K, V]) AsSlice() []V {
 	return slices.Collect(s.Iterator())
 }
 
 func (s *OrderedSet[K, V]) MarshalJSON() ([]byte, error) {
-	return json.Marshal(s.Slice())
+	return json.Marshal(s.AsSlice())
 }
 
 func (s *OrderedSet[K, V]) UnmarshalJSON(data []byte) error {

@@ -6,6 +6,7 @@ import (
 	"sort"
 	"sync"
 
+	"golang.org/x/text/language"
 	"gorm.io/gorm/clause"
 
 	"github.com/metatube-community/metatube-sdk-go/collection/sets"
@@ -61,18 +62,18 @@ func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool
 						// overwrite error.
 						err = nil
 						// update results.
-						asr := sets.NewOrderedSet(func(v *model.ActorSearchResult) string { return v.Provider + v.ID })
+						asr := sets.NewOrderedSetWithHash(func(v *model.ActorSearchResult) string { return v.Provider + v.ID })
 						// unlike movie searching, we want search results go first
 						// than DB data here, so we add results later than DB results.
 						asr.Add(innerResults...)
 						asr.Add(results...)
-						results = asr.Slice()
+						results = asr.AsSlice()
 					}
 				}()
 			}
 			return searcher.SearchActor(keyword)
 		}
-		// All providers should implement ActorSearcher interface.
+		// All providers should implement the ActorSearcher interface.
 		return nil, mt.ErrInfoNotFound
 	}
 	names := parser.ParseActorNames(keyword)
@@ -160,8 +161,8 @@ func (e *Engine) getActorInfoWithCallback(provider mt.ActorProvider, id string, 
 		return provider.GetActorInfoByID(id)
 	}
 	defer func() {
-		// actor image injection.
-		if err == nil && info != nil {
+		// gfriends actor image injection for JAV actor providers.
+		if err == nil && info != nil && provider.Language() == language.Japanese {
 			if gInfo, gErr := e.MustGetActorProviderByName(gfriends.Name).GetActorInfoByID(info.Name); gErr == nil && len(gInfo.Images) > 0 {
 				info.Images = append(gInfo.Images, info.Images...)
 			}
