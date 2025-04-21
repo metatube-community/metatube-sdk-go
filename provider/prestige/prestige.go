@@ -14,6 +14,7 @@ import (
 	"golang.org/x/net/html"
 	"golang.org/x/text/language"
 
+	"github.com/metatube-community/metatube-sdk-go/common/convertor"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -129,7 +130,7 @@ func (pst *PRESTIGE) GetMovieInfoByURL(u string) (info *model.MovieInfo, err err
 		for _, actor := range actors {
 			for _, actor = range strings.Split(actor, "\u00a0" /* nbsp */) {
 				// Remove redundant space from actor name.
-				if actor = parser.ReplaceSpaceAll(actor); actor != "" {
+				if actor = convertor.ReplaceSpaceAll(actor); actor != "" {
 					info.Actors = append(info.Actors, actor)
 				}
 			}

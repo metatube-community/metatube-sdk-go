@@ -3,10 +3,8 @@ package modelmediaasia
 import (
 	"encoding/json"
 	"fmt"
-	"math"
 	"net/url"
 	"path"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -16,6 +14,7 @@ import (
 	"gorm.io/datatypes"
 
 	"github.com/metatube-community/metatube-sdk-go/collection/sets"
+	"github.com/metatube-community/metatube-sdk-go/common/convertor"
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -206,11 +205,11 @@ func (mma *ModelMediaAsia) GetActorInfoByID(id string) (info *model.ActorInfo, e
 		if resp.Data.HeightCm > 0 {
 			info.Height = resp.Data.HeightCm
 		} else {
-			info.Height = convertHeightToCentimeters(
+			info.Height = convertor.ConvertToCentimeters(
 				resp.Data.HeightFt, resp.Data.HeightIn)
 		}
 
-		if size, cup, err := parseChestSize(resp.Data.MeasurementsChest); err == nil {
+		if size, cup, err := parser.ParseBustCupSize(resp.Data.MeasurementsChest); err == nil {
 			if size != 0 &&
 				resp.Data.MeasurementsWaist != 0 &&
 				resp.Data.MeasurementsHips != 0 {
@@ -264,31 +263,6 @@ func (mma *ModelMediaAsia) SearchActor(keyword string) (results []*model.ActorSe
 
 	err = c.Visit(fmt.Sprintf(apiSearchURL, url.QueryEscape(keyword)))
 	return
-}
-
-var chestSizeRE = regexp.MustCompile(`^(\d+)([A-Z])$`)
-
-func parseChestSize(s string) (int, string, error) {
-	match := chestSizeRE.FindStringSubmatch(s)
-
-	if len(match) != 3 {
-		return 0, "", fmt.Errorf("invalid format: %s", s)
-	}
-
-	num := match[1]
-	unit := match[2]
-
-	value, err := strconv.Atoi(num)
-	if err != nil {
-		return 0, "", fmt.Errorf("failed to parse numeric part '%s': %w", num, err)
-	}
-	return value, unit, nil
-}
-
-// convertHeightToCentimeters converts feet + inch to cm.
-func convertHeightToCentimeters(feet, inches int) int {
-	cm := math.Round(float64(feet*12+inches) * 2.54)
-	return int(cm)
 }
 
 func init() {
