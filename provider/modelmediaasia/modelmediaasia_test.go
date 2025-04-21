@@ -43,8 +43,11 @@ func TestModelMediaAsia_ParseMovieIDFromURL(t *testing.T) {
 
 func TestModelMediaAsia_GetActorInfoByID(t *testing.T) {
 	testkit.Test(t, New, []string{
+		"9",
 		"11",
 		"15",
+		"62",
+		"115",
 	})
 }
 

@@ -34,7 +34,7 @@ type ActorInfo struct {
 	CupSize      string         `json:"cup_size"`
 	Measurements string         `json:"measurements"`
 	Nationality  string         `json:"nationality"`
-	Height       int            `json:"height"` // in cm
+	Height       int            `json:"height"`
 	Aliases      pq.StringArray `json:"aliases" gorm:"type:text[]"`
 	Images       pq.StringArray `json:"images" gorm:"type:text[]"`
 	Birthday     datatypes.Date `json:"birthday"`

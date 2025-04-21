@@ -3,6 +3,7 @@ package modelmediaasia
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/url"
 	"path"
 	"regexp"
@@ -14,17 +15,21 @@ import (
 	"golang.org/x/text/language"
 	"gorm.io/datatypes"
 
+	"github.com/metatube-community/metatube-sdk-go/collection/sets"
+	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
+	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
 
 var (
-	_ provider.MovieProvider = (*ModelMediaAsia)(nil)
-	_ provider.MovieSearcher = (*ModelMediaAsia)(nil)
 	_ provider.ActorProvider = (*ModelMediaAsia)(nil)
 	_ provider.ActorSearcher = (*ModelMediaAsia)(nil)
+	_ provider.MovieProvider = (*ModelMediaAsia)(nil)
+	_ provider.MovieSearcher = (*ModelMediaAsia)(nil)
+	_ provider.Fetcher       = (*ModelMediaAsia)(nil)
 )
 
 const (
@@ -42,11 +47,15 @@ const (
 )
 
 type ModelMediaAsia struct {
+	*fetch.Fetcher
 	*scraper.Scraper
 }
 
 func New() *ModelMediaAsia {
-	return &ModelMediaAsia{scraper.NewDefaultScraper(Name, baseURL, Priority, language.Chinese)}
+	return &ModelMediaAsia{
+		Fetcher: fetch.Default(&fetch.Config{Referer: baseURL}),
+		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority, language.Chinese),
+	}
 }
 
 // GetMovieInfoByID impls MovieProvider.GetMovieInfoByID.
@@ -75,6 +84,7 @@ func (mma *ModelMediaAsia) GetMovieInfoByID(id string) (info *model.MovieInfo, e
 		info.ThumbURL = resp.Data.Cover
 		info.CoverURL = resp.Data.Cover
 		info.ReleaseDate = datatypes.Date(time.UnixMilli(resp.Data.PublishedAt))
+
 		// Trailer > PreviewVideo
 		info.PreviewVideoURL = map[bool]string{
 			true:  resp.Data.Trailer,
@@ -103,50 +113,6 @@ func (mma *ModelMediaAsia) ParseMovieIDFromURL(rawURL string) (string, error) {
 	return path.Base(homepage.Path), nil
 }
 
-type movieInfoResponse struct {
-	Data struct {
-		ID            int    `json:"id"`
-		SerialNumber  string `json:"serial_number"`
-		Title         string `json:"title"`
-		TitleCn       string `json:"title_cn"`
-		Description   string `json:"description"`
-		DescriptionCn string `json:"description_cn"`
-		Trailer       string `json:"trailer"`
-		Duration      int    `json:"duration"`
-		Cover         string `json:"cover"`
-		PreviewVideo  string `json:"preview_video"`
-		PublishedAt   int64  `json:"published_at"`
-		Models        []struct {
-			ID                int    `json:"id"`
-			Name              string `json:"name"`
-			NameCn            string `json:"name_cn"`
-			Avatar            string `json:"avatar"`
-			Gender            string `json:"gender"`
-			HeightFt          int    `json:"height_ft"`
-			HeightIn          int    `json:"height_in"`
-			WeightLbs         int    `json:"weight_lbs"`
-			MeasurementsChest string `json:"measurements_chest"`
-			MeasurementsWaist int    `json:"measurements_waist"`
-			MeasurementsHips  int    `json:"measurements_hips"`
-
-			// API return empty for following fields.
-			Cover       string      `json:"cover"`
-			MobileCover string      `json:"mobile_cover"`
-			BirthDay    string      `json:"birth_day"`
-			BirthPlace  string      `json:"birth_place"`
-			HeightCm    int         `json:"height_cm"`
-			WeightKg    int         `json:"weight_kg"`
-			Videos      interface{} `json:"videos"`
-			Photos      interface{} `json:"photos"`
-		} `json:"models"`
-		Tags []struct {
-			ID     int    `json:"id"`
-			Name   string `json:"name"`
-			NameCn string `json:"name_cn"`
-		} `json:"tags"`
-	} `json:"data"`
-}
-
 // GetMovieInfoByURL impls MovieProvider.GetMovieInfoByURL.
 func (mma *ModelMediaAsia) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
 	id, err := mma.ParseMovieIDFromURL(rawURL)
@@ -163,27 +129,6 @@ func (mma *ModelMediaAsia) NormalizeMovieKeyword(keyword string) string {
 		return ""
 	}
 	return strings.ToUpper(keyword)
-}
-
-type searchResponse struct {
-	Data struct {
-		Videos []struct {
-			ID            int    `json:"id"`
-			SerialNumber  string `json:"serial_number"`
-			Title         string `json:"title"`
-			TitleCn       string `json:"title_cn"`
-			Description   string `json:"description"`
-			DescriptionCn string `json:"description_cn"`
-			Cover         string `json:"cover"`
-			PublishedAt   int64  `json:"published_at"`
-		} `json:"videos"`
-		Models []struct {
-			ID     int    `json:"id"`
-			Name   string `json:"name"`
-			NameCn string `json:"name_cn"`
-			Avatar string `json:"avatar"`
-		} `json:"models"`
-	} `json:"data"`
 }
 
 // SearchMovie impls MovieSearcher.SearchMovie.
@@ -222,37 +167,6 @@ func (mma *ModelMediaAsia) ParseActorIDFromURL(rawURL string) (string, error) {
 	return path.Base(homepage.Path), nil
 }
 
-type actorInfoResponse struct {
-	Data struct {
-		ID                int    `json:"id"`
-		Name              string `json:"name"`
-		NameCn            string `json:"name_cn"`
-		Avatar            string `json:"avatar"`
-		Gender            string `json:"gender"`
-		HeightFt          int    `json:"height_ft"`
-		HeightIn          int    `json:"height_in"`
-		WeightLbs         int    `json:"weight_lbs"`
-		MeasurementsChest string `json:"measurements_chest"`
-		MeasurementsWaist int    `json:"measurements_waist"`
-		MeasurementsHips  int    `json:"measurements_hips"`
-
-		// API return empty for following fields.
-		Cover       string `json:"cover"`
-		MobileCover string `json:"mobile_cover"`
-		Socialmedia string `json:"socialmedia"`
-		PeriodViews int    `json:"period_views"`
-		BirthDay    string `json:"birth_day"`
-		BirthPlace  string `json:"birth_place"`
-		Description string `json:"description"`
-		Tooltips    string `json:"tooltips"`
-		HeightCm    int    `json:"height_cm"`
-		WeightKg    int    `json:"weight_kg"`
-		Photos      []struct {
-			Image string `json:"image"`
-		} `json:"photos"`
-	} `json:"data"`
-}
-
 // GetActorInfoByID impls ActorProvider.GetActorInfoByID.
 func (mma *ModelMediaAsia) GetActorInfoByID(id string) (info *model.ActorInfo, err error) {
 	info = &model.ActorInfo{
@@ -270,25 +184,40 @@ func (mma *ModelMediaAsia) GetActorInfoByID(id string) (info *model.ActorInfo, e
 			return
 		}
 
+		// Name & Aliases
 		info.Name = resp.Data.NameCn
-		if resp.Data.Name != "" {
+
+		if resp.Data.Name != "" /* English name */ {
 			info.Aliases = append(info.Aliases, resp.Data.Name)
 		}
 
-		info.Images = append(info.Images, resp.Data.Avatar)
+		// Images
+		imageSet := sets.NewOrderedSet[string]()
+		imageSet.Add(resp.Data.Avatar)
 		for _, photo := range resp.Data.Photos {
-			info.Images = append(info.Images, photo.Image)
+			imageSet.Add(photo.Image)
+		}
+		info.Images = imageSet.AsSlice()
+
+		// Birthday
+		info.Birthday = parser.ParseDate(resp.Data.BirthDay)
+
+		// Height
+		if resp.Data.HeightCm > 0 {
+			info.Height = resp.Data.HeightCm
+		} else {
+			info.Height = convertHeightToCentimeters(
+				resp.Data.HeightFt, resp.Data.HeightIn)
 		}
 
-		info.Height = lengthConversion(resp.Data.HeightFt, resp.Data.HeightIn)
-
-		parseChestSize(resp.Data.MeasurementsChest)
-		b, cup, err := parseChestSize(resp.Data.MeasurementsChest)
-		if err == nil {
-			info.CupSize = cup
-			if b != 0 && resp.Data.MeasurementsWaist != 0 && resp.Data.MeasurementsHips != 0 {
-				info.Measurements = fmt.Sprintf("B:%d / W:%d / H:%d", b, resp.Data.MeasurementsWaist, resp.Data.MeasurementsHips)
+		if size, cup, err := parseChestSize(resp.Data.MeasurementsChest); err == nil {
+			if size != 0 &&
+				resp.Data.MeasurementsWaist != 0 &&
+				resp.Data.MeasurementsHips != 0 {
+				info.Measurements = fmt.Sprintf("B:%d / W:%d / H:%d",
+					size, resp.Data.MeasurementsWaist, resp.Data.MeasurementsHips)
 			}
+			info.CupSize = cup
 		}
 	})
 
@@ -310,19 +239,18 @@ func (mma *ModelMediaAsia) GetActorInfoByURL(rawURL string) (*model.ActorInfo, e
 func (mma *ModelMediaAsia) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
 	c := mma.ClonedCollector()
 
-	results = make([]*model.ActorSearchResult, 0)
-
 	c.OnResponse(func(r *colly.Response) {
 		resp := &searchResponse{}
 		if err = json.Unmarshal(r.Body, resp); err != nil {
 			return
 		}
 		for _, actor := range resp.Data.Models {
+			actorID := strconv.Itoa(actor.ID)
 			res := &model.ActorSearchResult{
-				ID:       strconv.Itoa(actor.ID),
+				ID:       actorID,
 				Name:     actor.NameCn,
 				Provider: mma.Name(),
-				Homepage: fmt.Sprintf(actorURL, strconv.Itoa(actor.ID)),
+				Homepage: fmt.Sprintf(actorURL, actorID),
 			}
 			if actor.Avatar != "" {
 				res.Images = append(res.Images, actor.Avatar)
@@ -338,15 +266,6 @@ func (mma *ModelMediaAsia) SearchActor(keyword string) (results []*model.ActorSe
 	return
 }
 
-func init() {
-	provider.Register(Name, New)
-}
-
-// lengthConversion converts feet + inch to cm.
-func lengthConversion(feet, inch int) int {
-	return int(float32(feet*12+inch) * 2.54)
-}
-
 var chestSizeRE = regexp.MustCompile(`^(\d+)([A-Z])$`)
 
 func parseChestSize(s string) (int, string, error) {
@@ -356,13 +275,22 @@ func parseChestSize(s string) (int, string, error) {
 		return 0, "", fmt.Errorf("invalid format: %s", s)
 	}
 
-	numericPart := match[1]
-	unitPart := match[2]
+	num := match[1]
+	unit := match[2]
 
-	value, err := strconv.Atoi(numericPart)
+	value, err := strconv.Atoi(num)
 	if err != nil {
-		return 0, "", fmt.Errorf("failed to parse numeric part '%s': %w", numericPart, err)
+		return 0, "", fmt.Errorf("failed to parse numeric part '%s': %w", num, err)
 	}
+	return value, unit, nil
+}
 
-	return value, unitPart, nil
+// convertHeightToCentimeters converts feet + inch to cm.
+func convertHeightToCentimeters(feet, inches int) int {
+	cm := math.Round(float64(feet*12+inches) * 2.54)
+	return int(cm)
+}
+
+func init() {
+	provider.Register(Name, New)
 }
