@@ -69,3 +69,21 @@ func TestParseIDToNumber(t *testing.T) {
 		assert.Equal(t, unit.want, ParseIDToNumber(unit.id))
 	}
 }
+
+func TestParseBustCupSize(t *testing.T) {
+	for _, unit := range []struct {
+		size string
+		bust int
+		cup  string
+	}{
+		{"32G", 32, "G"},
+		{"28F", 28, "F"},
+		{"28 F", 28, "F"},
+	} {
+		bust, cup, err := ParseBustCupSize(unit.size)
+		if assert.NoError(t, err) {
+			assert.Equal(t, unit.bust, bust)
+			assert.Equal(t, unit.cup, cup)
+		}
+	}
+}
