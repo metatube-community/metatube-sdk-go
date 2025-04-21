@@ -187,11 +187,11 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 
 	// Deduplicate Genres
 	c.OnScraped(func(_ *colly.Response) {
-		genres := sets.NewOrderedSet(func(v string) string { return v })
+		genres := sets.NewOrderedSet[string]()
 		for _, genre := range info.Genres {
 			genres.Add(genre)
 		}
-		info.Genres = genres.Slice()
+		info.Genres = genres.AsSlice()
 	})
 
 	// Fallbacks

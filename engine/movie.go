@@ -59,10 +59,10 @@ func (e *Engine) searchMovie(keyword string, provider mt.MovieProvider, fallback
 					// overwrite error.
 					err = nil
 					// update results.
-					msr := sets.NewOrderedSet(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
+					msr := sets.NewOrderedSetWithHash(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
 					msr.Add(results...)
 					msr.Add(innerResults...)
-					results = msr.Slice()
+					results = msr.AsSlice()
 				}
 			}()
 		}
@@ -160,9 +160,9 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			return
 		}
 		// remove duplicate results, if any.
-		msr := sets.NewOrderedSet(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
+		msr := sets.NewOrderedSetWithHash(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
 		msr.Add(results...)
-		results = msr.Slice()
+		results = msr.AsSlice()
 		// post-processing
 		ps := new(slices.WeightedSlice[*model.MovieSearchResult, float64])
 		for _, result := range results {

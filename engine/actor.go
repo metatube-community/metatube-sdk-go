@@ -61,18 +61,18 @@ func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool
 						// overwrite error.
 						err = nil
 						// update results.
-						asr := sets.NewOrderedSet(func(v *model.ActorSearchResult) string { return v.Provider + v.ID })
+						asr := sets.NewOrderedSetWithHash(func(v *model.ActorSearchResult) string { return v.Provider + v.ID })
 						// unlike movie searching, we want search results go first
 						// than DB data here, so we add results later than DB results.
 						asr.Add(innerResults...)
 						asr.Add(results...)
-						results = asr.Slice()
+						results = asr.AsSlice()
 					}
 				}()
 			}
 			return searcher.SearchActor(keyword)
 		}
-		// All providers should implement ActorSearcher interface.
+		// All providers should implement the ActorSearcher interface.
 		return nil, mt.ErrInfoNotFound
 	}
 	names := parser.ParseActorNames(keyword)

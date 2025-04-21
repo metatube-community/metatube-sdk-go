@@ -349,7 +349,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	})
 
 	// In case of any duplication
-	previewImageSet := sets.NewOrderedSet(func(v string) string { return v })
+	previewImageSet := sets.NewOrderedSet[string]()
 	extractImageSrc := func(e *colly.XMLElement) string {
 		src := e.ChildAttr(`.//img`, "data-lazy")
 		if strings.TrimSpace(src) == "" {
@@ -373,7 +373,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 
 	// Final Preview Images
 	c.OnScraped(func(_ *colly.Response) {
-		info.PreviewImages = previewImageSet.Slice()
+		info.PreviewImages = previewImageSet.AsSlice()
 	})
 
 	// Final (images)
