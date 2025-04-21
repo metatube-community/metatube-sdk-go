@@ -19,5 +19,6 @@ func TestAVBase_SearchMovie(t *testing.T) {
 		"ABP-588",
 		"MEYD-856",
 		"SSIS-354",
+		"HMN",
 	})
 }

@@ -108,7 +108,7 @@ func (ab *AVBase) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 	c.OnResponse(func(r *colly.Response) {
 		data := struct {
 			PageProps struct {
-				Work Work `json:"work"`
+				Work workResponse `json:"work"`
 			} `json:"pageProps"`
 		}{}
 		if err = json.Unmarshal(r.Body, &data); err == nil {
@@ -162,7 +162,7 @@ func (ab *AVBase) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 	return
 }
 
-func (ab *AVBase) getMovieInfoFromWork(work Work) (info *model.MovieInfo, err error) {
+func (ab *AVBase) getMovieInfoFromWork(work workResponse) (info *model.MovieInfo, err error) {
 	info = &model.MovieInfo{
 		ID:            ab.JoinPrefixID(work.Prefix, work.WorkID),
 		Number:        work.WorkID,
@@ -217,7 +217,7 @@ func (ab *AVBase) getMovieInfoFromWork(work Work) (info *model.MovieInfo, err er
 	return
 }
 
-func (ab *AVBase) getMovieInfoFromSource(work Work) (info *model.MovieInfo, err error) {
+func (ab *AVBase) getMovieInfoFromSource(work workResponse) (info *model.MovieInfo, err error) {
 	for _, product := range work.Products {
 		movieProvider, ok := ab.providers[product.Source]
 		if !ok {
@@ -255,7 +255,7 @@ func (ab *AVBase) SearchMovie(keyword string) (results []*model.MovieSearchResul
 	c.OnResponse(func(r *colly.Response) {
 		data := struct {
 			PageProps struct {
-				Works []Work `json:"works"`
+				Works []workResponse `json:"works"`
 			} `json:"pageProps"`
 		}{}
 		if json.Unmarshal(r.Body, &data) == nil {
@@ -336,56 +336,6 @@ func (ab *AVBase) getBuildID() (buildID string, err error) {
 		err = vErr
 	}
 	return
-}
-
-type Work struct {
-	ID      int    `json:"id"`
-	Prefix  string `json:"prefix"`
-	WorkID  string `json:"work_id"`
-	Title   string `json:"title"`
-	MinDate string `json:"min_date"`
-	Genres  []struct {
-		ID   int    `json:"id"`
-		Name string `json:"name"`
-	} `json:"genres"`
-	Products []struct {
-		ID           int    `json:"id"`
-		ProductID    string `json:"product_id"`
-		URL          string `json:"url"`
-		Title        string `json:"title"`
-		Source       string `json:"source"`
-		ImageURL     string `json:"image_url"`
-		ThumbnailURL string `json:"thumbnail_url"`
-		Date         string `json:"date"`
-		Maker        struct {
-			Name string `json:"name"`
-		} `json:"maker"`
-		Label struct {
-			Name string `json:"name"`
-		} `json:"label"`
-		Series struct {
-			Name string `json:"name"`
-		} `json:"series"`
-		SampleImageURLS []struct {
-			S string `json:"s"`
-			L string `json:"l"`
-		} `json:"sample_image_urls"`
-		ItemInfo struct {
-			Description string `json:"description"`
-			Price       string `json:"price"`
-			Volume      string `json:"volume"`
-		} `json:"iteminfo"`
-	} `json:"products"`
-	Actors []Actor `json:"actors"`
-	Casts  []struct {
-		Actor Actor `json:"actor"`
-	} `json:"casts"`
-}
-
-type Actor struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	ImageURL string `json:"image_url"`
 }
 
 func init() {
