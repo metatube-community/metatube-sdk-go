@@ -12,6 +12,7 @@ require (
 	github.com/elliotchance/orderedmap/v3 v3.1.0
 	github.com/esimov/pigo v1.4.7-0.20240801095032-7465ed14de47
 	github.com/gen2brain/jpegli v0.3.4
+	github.com/gin-contrib/cors v1.7.5
 	github.com/gin-gonic/gin v1.10.0
 	github.com/glebarez/sqlite v1.11.0
 	github.com/gocolly/colly/v2 v2.2.0
@@ -26,10 +27,10 @@ require (
 	github.com/nlnwa/whatwg-url v0.6.2
 	github.com/peterbourgon/ff/v3 v3.4.0
 	github.com/projectbarks/cimap v0.1.1
-	github.com/projectdiscovery/useragent v0.0.99
+	github.com/projectdiscovery/useragent v0.0.100
 	github.com/projectdiscovery/utils v0.4.18
 	github.com/robertkrimen/otto v0.5.1
-	github.com/sashabaranov/go-openai v1.38.2
+	github.com/sashabaranov/go-openai v1.38.3
 	github.com/stretchr/testify v1.10.0
 	github.com/xjasonlyu/deeplx-translator v0.1.0
 	github.com/xjasonlyu/openai-translator v0.2.1
@@ -42,7 +43,7 @@ require (
 	golang.org/x/text v0.24.0
 	gorm.io/datatypes v1.2.5
 	gorm.io/driver/postgres v1.5.11
-	gorm.io/gorm v1.25.12
+	gorm.io/gorm v1.26.0
 )
 
 require (
@@ -106,7 +107,7 @@ require (
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.7 // indirect
-	modernc.org/libc v1.63.0 // indirect
+	modernc.org/libc v1.64.0 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.10.0 // indirect
 	modernc.org/sqlite v1.37.0 // indirect
