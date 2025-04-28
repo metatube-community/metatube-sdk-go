@@ -19,22 +19,23 @@ import (
 )
 
 func (e *Engine) searchMovieFromDB(keyword string, provider mt.MovieProvider, all bool) (results []*model.MovieSearchResult, err error) {
-	var infos []*model.MovieInfo
+	var infoList []*model.MovieInfo
 	tx := e.db.
 		// Note: keyword might be an ID or just a regular number, so we should
 		// query both of them for best match. Also, case should not matter.
 		Where("number = ? COLLATE NOCASE", keyword).
 		Or("id = ? COLLATE NOCASE", keyword)
 	if all {
-		err = tx.Find(&infos).Error
+		err = tx.Find(&infoList).Error
 	} else {
 		err = e.db.
 			Where("provider = ?", provider.Name()).
 			Where(tx).
-			Find(&infos).Error
+			Find(&infoList).Error
 	}
 	if err == nil {
-		for _, info := range infos {
+		for _, info := range infoList {
+			info.Language = provider.Language()
 			if !info.IsValid() {
 				// normally it is valid, but just in case.
 				continue
@@ -204,6 +205,7 @@ func (e *Engine) getMovieInfoFromDB(provider mt.MovieProvider, id string) (*mode
 			Where("provider = ?", provider.Name()).
 			Where("id = ? COLLATE NOCASE", id).
 			First(info).Error
+	info.Language = provider.Language()
 	return info, err
 }
 

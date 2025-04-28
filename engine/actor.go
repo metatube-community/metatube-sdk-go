@@ -20,12 +20,13 @@ import (
 )
 
 func (e *Engine) searchActorFromDB(keyword string, provider mt.Provider) (results []*model.ActorSearchResult, err error) {
-	var infos []*model.ActorInfo
+	var infoList []*model.ActorInfo
 	if err = e.db.
 		Where("provider = ? AND name = ? COLLATE NOCASE",
 			provider.Name(), keyword).
-		Find(&infos).Error; err == nil {
-		for _, info := range infos {
+		Find(&infoList).Error; err == nil {
+		for _, info := range infoList {
+			info.Language = provider.Language()
 			if !info.IsValid() {
 				continue
 			}
@@ -147,6 +148,7 @@ func (e *Engine) getActorInfoFromDB(provider mt.ActorProvider, id string) (*mode
 			Where("provider = ?", provider.Name()).
 			Where("id = ? COLLATE NOCASE", id).
 			First(info).Error
+	info.Language = provider.Language()
 	return info, err
 }
 
