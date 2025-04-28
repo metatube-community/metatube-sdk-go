@@ -73,6 +73,7 @@ func (avl *AVLeague) GetActorInfoByURL(rawURL string) (info *model.ActorInfo, er
 		Homepage: rawURL,
 		Aliases:  []string{},
 		Images:   []string{},
+		Language: avl.Language(),
 	}
 
 	c := avl.ClonedCollector()
@@ -158,6 +159,7 @@ func (avl *AVLeague) SearchActor(keyword string) (results []*model.ActorSearchRe
 			Images:   images,
 			Provider: avl.Name(),
 			Homepage: homepage,
+			Language: avl.Language(),
 		})
 	})
 

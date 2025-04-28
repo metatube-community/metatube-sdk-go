@@ -172,6 +172,7 @@ func (mma *ModelMediaAsia) GetActorInfoByID(id string) (info *model.ActorInfo, e
 		ID:       id,
 		Provider: mma.Name(),
 		Homepage: fmt.Sprintf(actorURL, id),
+		Language: mma.Language(),
 		Aliases:  []string{},
 		Images:   []string{},
 	}
@@ -250,6 +251,7 @@ func (mma *ModelMediaAsia) SearchActor(keyword string) (results []*model.ActorSe
 				Name:     actor.NameCn,
 				Provider: mma.Name(),
 				Homepage: fmt.Sprintf(actorURL, actorID),
+				Language: mma.Language(),
 			}
 			if actor.Avatar != "" {
 				res.Images = append(res.Images, actor.Avatar)
