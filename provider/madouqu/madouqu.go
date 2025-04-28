@@ -68,6 +68,7 @@ func (mdq *MadouQu) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err
 		ID:            id,
 		Provider:      mdq.Name(),
 		Homepage:      rawURL,
+		Language:      mdq.Language(),
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Genres:        []string{},
@@ -165,6 +166,7 @@ func (mdq *MadouQu) SearchMovie(keyword string) (results []*model.MovieSearchRes
 			Title:       title,
 			Provider:    mdq.Name(),
 			Homepage:    link,
+			Language:    mdq.Language(),
 			ThumbURL:    thumb,
 			CoverURL:    thumb, // same as thumb
 			ReleaseDate: parser.ParseDate(e.ChildAttr(`.//li/time`, "datetime")),

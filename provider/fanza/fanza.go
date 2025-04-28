@@ -126,6 +126,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	info = &model.MovieInfo{
 		Provider:      fz.Name(),
 		Homepage:      rawURL,
+		Language:      fz.Language(),
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Genres:        []string{},
@@ -536,6 +537,7 @@ func (fz *FANZA) searchMovieNext(keyword string) (results []*model.MovieSearchRe
 			Title:       product.Title,
 			Provider:    fz.Name(),
 			Homepage:    product.DetailURL,
+			Language:    fz.Language(),
 			Actors:      product.Casts,
 			ThumbURL:    product.ThumbnailImageURL,
 			CoverURL:    PreviewSrc(product.ThumbnailImageURL),

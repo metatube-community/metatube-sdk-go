@@ -65,6 +65,7 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		Number:        fmt.Sprintf("FC2-%s", id),
 		Provider:      fc2.Name(),
 		Homepage:      rawURL,
+		Language:      fc2.Language(),
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Genres:        []string{},

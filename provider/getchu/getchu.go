@@ -68,6 +68,7 @@ func (gcu *Getchu) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		Number:        fmt.Sprintf("GETCHU-%s", id),
 		Provider:      gcu.Name(),
 		Homepage:      rawURL,
+		Language:      gcu.Language(),
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Genres:        []string{},

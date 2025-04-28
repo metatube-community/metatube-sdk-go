@@ -85,6 +85,7 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 		ID:            id,
 		Provider:      tht.Name(),
 		Homepage:      rawURL,
+		Language:      tht.Language(),
 		Maker:         "TOKYO-HOT",
 		Actors:        []string{},
 		PreviewImages: []string{},
@@ -248,6 +249,7 @@ func (tht *TokyoHot) SearchMovie(keyword string) (results []*model.MovieSearchRe
 			CoverURL: img,
 			Provider: tht.Name(),
 			Homepage: homepage,
+			Language: tht.Language(),
 		})
 	})
 

@@ -154,6 +154,7 @@ func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		Number:        fmt.Sprintf("HEYZO-%s", id),
 		Provider:      hzo.Name(),
 		Homepage:      rawURL,
+		Language:      hzo.Language(),
 		Maker:         "HEYZO",
 		Actors:        []string{},
 		PreviewImages: []string{},

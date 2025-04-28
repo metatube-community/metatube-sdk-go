@@ -71,6 +71,7 @@ func (duga *DUGA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		ID:            id,
 		Provider:      duga.Name(),
 		Homepage:      rawURL,
+		Language:      duga.Language(),
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Genres:        []string{},
