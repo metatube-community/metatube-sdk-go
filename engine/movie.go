@@ -35,7 +35,9 @@ func (e *Engine) searchMovieFromDB(keyword string, provider mt.MovieProvider, al
 	}
 	if err == nil {
 		for _, info := range infoList {
-			info.Language = provider.Language()
+			if p, err := e.GetMovieProviderByName(info.Provider); err == nil {
+				info.Language = p.Language()
+			}
 			if !info.IsValid() {
 				// normally it is valid, but just in case.
 				continue
