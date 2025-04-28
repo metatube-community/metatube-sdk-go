@@ -62,6 +62,7 @@ func (mma *ModelMediaAsia) GetMovieInfoByID(id string) (info *model.MovieInfo, e
 	info = &model.MovieInfo{
 		Provider:      mma.Name(),
 		Homepage:      fmt.Sprintf(movieURL, id),
+		Language:      mma.Language(),
 		Maker:         "麻豆傳媒映畫",
 		Actors:        []string{},
 		PreviewImages: []string{},
@@ -146,6 +147,7 @@ func (mma *ModelMediaAsia) SearchMovie(keyword string) (results []*model.MovieSe
 				Title:       video.TitleCn,
 				Provider:    mma.Name(),
 				Homepage:    fmt.Sprintf(movieURL, video.SerialNumber),
+				Language:    mma.Language(),
 				ThumbURL:    video.Cover,
 				CoverURL:    video.Cover,
 				ReleaseDate: datatypes.Date(time.UnixMilli(video.PublishedAt)),
@@ -172,6 +174,7 @@ func (mma *ModelMediaAsia) GetActorInfoByID(id string) (info *model.ActorInfo, e
 		ID:       id,
 		Provider: mma.Name(),
 		Homepage: fmt.Sprintf(actorURL, id),
+		Language: mma.Language(),
 		Aliases:  []string{},
 		Images:   []string{},
 	}
@@ -250,6 +253,7 @@ func (mma *ModelMediaAsia) SearchActor(keyword string) (results []*model.ActorSe
 				Name:     actor.NameCn,
 				Provider: mma.Name(),
 				Homepage: fmt.Sprintf(actorURL, actorID),
+				Language: mma.Language(),
 			}
 			if actor.Avatar != "" {
 				res.Images = append(res.Images, actor.Avatar)

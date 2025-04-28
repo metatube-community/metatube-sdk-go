@@ -74,6 +74,7 @@ func (pcl *Pcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		Number:        fmt.Sprintf("PCOLLE-%s", id),
 		Provider:      pcl.Name(),
 		Homepage:      rawURL,
+		Language:      pcl.Language(),
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Genres:        []string{},

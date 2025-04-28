@@ -46,7 +46,9 @@ func New() *XXXAV {
 }
 
 func (xav *XXXAV) NormalizeMovieID(id string) string {
-	if ss := regexp.MustCompile(`^(?i)(?:xxx[-_]av[-_])?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
+	if ss := regexp.
+		MustCompile(`^(?i)(?:xxx[-_]av[-_])?(\d+)$`).
+		FindStringSubmatch(id); len(ss) == 2 {
 		return ss[1]
 	}
 	return ""
@@ -75,6 +77,7 @@ func (xav *XXXAV) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		Number:        fmt.Sprintf("XXX-AV-%s", id),
 		Provider:      xav.Name(),
 		Homepage:      rawURL,
+		Language:      xav.Language(),
 		Maker:         "トリプルエックス",
 		Actors:        []string{},
 		PreviewImages: []string{},

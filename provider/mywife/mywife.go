@@ -65,6 +65,7 @@ func (mw *MyWife) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		Number:        fmt.Sprintf("MYWIFE-%s", id),
 		Provider:      mw.Name(),
 		Homepage:      rawURL,
+		Language:      mw.Language(),
 		Maker:         "舞ワイフ",
 		Actors:        []string{},
 		PreviewImages: []string{},

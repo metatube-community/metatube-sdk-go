@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/lib/pq"
+	"golang.org/x/text/language"
 	"gorm.io/datatypes"
 )
 
@@ -17,6 +18,7 @@ type MovieSearchResult struct {
 	Title       string         `json:"title"`
 	Provider    string         `json:"provider"`
 	Homepage    string         `json:"homepage"`
+	Language    language.Tag   `json:"language"`
 	ThumbURL    string         `json:"thumb_url"`
 	CoverURL    string         `json:"cover_url"`
 	Score       float64        `json:"score"`
@@ -25,13 +27,18 @@ type MovieSearchResult struct {
 }
 
 func (m *MovieSearchResult) IsValid() bool {
-	return m.ID != "" && m.Number != "" && m.Title != "" &&
-		m.Provider != "" && m.Homepage != ""
+	return m.ID != "" &&
+		m.Number != "" &&
+		m.Title != "" &&
+		m.Provider != "" &&
+		m.Homepage != "" &&
+		m.Language != language.Und
 }
 
 type MovieReviewInfo struct {
 	ID          string                                   `json:"id" gorm:"primaryKey"`
 	Provider    string                                   `json:"provider" gorm:"primaryKey"`
+	Language    language.Tag                             `json:"language" gorm:"-:all"`
 	Reviews     datatypes.JSONType[[]*MovieReviewDetail] `json:"reviews"`
 	TimeTracker `json:"-"`
 }
@@ -41,7 +48,9 @@ func (*MovieReviewInfo) TableName() string {
 }
 
 func (m *MovieReviewInfo) IsValid() bool {
-	if !(m.ID != "" && m.Provider != "") {
+	if !(m.ID != "" &&
+		m.Provider != "" &&
+		m.Language != language.Und) {
 		return false
 	}
 	for _, review := range m.Reviews.Data() {
@@ -65,12 +74,13 @@ func (m *MovieReviewDetail) IsValid() bool {
 }
 
 type MovieInfo struct {
-	ID       string `json:"id" gorm:"primaryKey"`
-	Number   string `json:"number"`
-	Title    string `json:"title"`
-	Summary  string `json:"summary"`
-	Provider string `json:"provider" gorm:"primaryKey"`
-	Homepage string `json:"homepage"`
+	ID       string       `json:"id" gorm:"primaryKey"`
+	Number   string       `json:"number"`
+	Title    string       `json:"title"`
+	Summary  string       `json:"summary"`
+	Provider string       `json:"provider" gorm:"primaryKey"`
+	Homepage string       `json:"homepage"`
+	Language language.Tag `json:"language" gorm:"-:all"`
 
 	Director string         `json:"director"`
 	Actors   pq.StringArray `json:"actors" gorm:"type:text[]"`
@@ -100,8 +110,13 @@ func (*MovieInfo) TableName() string {
 }
 
 func (m *MovieInfo) IsValid() bool {
-	return m.ID != "" && m.Number != "" && m.Title != "" &&
-		m.CoverURL != "" && m.Provider != "" && m.Homepage != ""
+	return m.ID != "" &&
+		m.Number != "" &&
+		m.Title != "" &&
+		m.CoverURL != "" &&
+		m.Provider != "" &&
+		m.Homepage != "" &&
+		m.Language != language.Und
 }
 
 func (m *MovieInfo) ToSearchResult() *MovieSearchResult {
@@ -111,6 +126,7 @@ func (m *MovieInfo) ToSearchResult() *MovieSearchResult {
 		Title:       m.Title,
 		Provider:    m.Provider,
 		Homepage:    m.Homepage,
+		Language:    m.Language,
 		ThumbURL:    m.ThumbURL,
 		CoverURL:    m.CoverURL,
 		Score:       m.Score,

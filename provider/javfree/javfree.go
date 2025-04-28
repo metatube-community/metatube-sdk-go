@@ -46,15 +46,15 @@ func New() *JAVFREE {
 	}
 }
 
-func (javfree *JAVFREE) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+func (jav *JAVFREE) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	ss := strings.SplitN(id, "-", 2)
 	if len(ss) != 2 {
 		return nil, provider.ErrInvalidID
 	}
-	return javfree.GetMovieInfoByURL(fmt.Sprintf(movieURL, ss[0], "fc2-ppv-"+ss[1]))
+	return jav.GetMovieInfoByURL(fmt.Sprintf(movieURL, ss[0], "fc2-ppv-"+ss[1]))
 }
 
-func (javfree *JAVFREE) ParseMovieIDFromURL(rawURL string) (string, error) {
+func (jav *JAVFREE) ParseMovieIDFromURL(rawURL string) (string, error) {
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return "", err
@@ -65,22 +65,23 @@ func (javfree *JAVFREE) ParseMovieIDFromURL(rawURL string) (string, error) {
 	return "", provider.ErrInvalidURL
 }
 
-func (javfree *JAVFREE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := javfree.ParseMovieIDFromURL(rawURL)
+func (jav *JAVFREE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := jav.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
 	}
 
 	info = &model.MovieInfo{
 		ID:            id, // Dual-ID (id+number)
-		Provider:      javfree.Name(),
+		Provider:      jav.Name(),
 		Homepage:      rawURL,
+		Language:      jav.Language(),
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Genres:        []string{},
 	}
 
-	c := javfree.ClonedCollector()
+	c := jav.ClonedCollector()
 
 	// Title
 	c.OnXML(`//header[@class="entry-header"]/h1`, func(e *colly.XMLElement) {
@@ -122,12 +123,12 @@ func (javfree *JAVFREE) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo,
 	return
 }
 
-func (javfree *JAVFREE) NormalizeMovieKeyword(keyword string) string {
+func (jav *JAVFREE) NormalizeMovieKeyword(keyword string) string {
 	return fc2util.ParseNumber(keyword)
 }
 
-func (javfree *JAVFREE) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
-	c := javfree.ClonedCollector()
+func (jav *JAVFREE) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
+	c := jav.ClonedCollector()
 	fc2ID := keyword[strings.LastIndex(keyword, "-")+1:]
 	c.OnXML(`//article[@class="hentry clear"]`, func(e *colly.XMLElement) {
 		var thumb, cover string
@@ -136,12 +137,13 @@ func (javfree *JAVFREE) SearchMovie(keyword string) (results []*model.MovieSearc
 		title := e.ChildText(`.//h2/a`)
 
 		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//h2/a`, "href"))
-		id, _ := javfree.ParseMovieIDFromURL(homepage)
+		id, _ := jav.ParseMovieIDFromURL(homepage)
 		results = append(results, &model.MovieSearchResult{
 			ID:       id,
 			Number:   fmt.Sprintf("FC2-%s", fc2ID),
 			Title:    title,
-			Provider: javfree.Name(),
+			Provider: jav.Name(),
+			Language: jav.Language(),
 			Homepage: homepage,
 			ThumbURL: thumb,
 			CoverURL: cover,

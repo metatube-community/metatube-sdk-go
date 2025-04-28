@@ -70,6 +70,7 @@ func (jav *JAV321) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 		ID:            id,
 		Provider:      jav.Name(),
 		Homepage:      rawURL,
+		Language:      jav.Language(),
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Genres:        []string{},

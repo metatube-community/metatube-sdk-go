@@ -66,6 +66,7 @@ func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		Number:        parser.ParseIDToNumber(id),
 		Provider:      core.Name(),
 		Homepage:      rawURL,
+		Language:      core.Language(),
 		Maker:         core.Name(),
 		Label:         core.Name(),
 		Actors:        []string{},
@@ -165,6 +166,7 @@ func (core *Core) SearchMovie(keyword string) (results []*model.MovieSearchResul
 			Title:       strings.SplitN(e.ChildText(`.//div[@class="text_name"]/a`), "\n", 2)[0],
 			Provider:    core.Name(),
 			Homepage:    homepage,
+			Language:    core.Language(),
 			CoverURL:    cover,
 			ReleaseDate: parser.ParseDate(strings.Fields(e.ChildText(`.//div[contains(text(), "発売開始")]`))[0]),
 		})

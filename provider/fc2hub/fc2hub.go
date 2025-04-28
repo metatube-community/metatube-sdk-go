@@ -73,6 +73,7 @@ func (fc2hub *FC2HUB) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, e
 		ID:            id, // Dual-ID (id+number)
 		Provider:      fc2hub.Name(),
 		Homepage:      rawURL,
+		Language:      fc2hub.Language(),
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Genres:        []string{},

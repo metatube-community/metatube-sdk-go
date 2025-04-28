@@ -142,6 +142,7 @@ func (core *Core) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 	info = &model.MovieInfo{
 		Provider:      core.Name(),
 		Homepage:      rawURL,
+		Language:      core.Language(),
 		Maker:         core.DefaultMaker,
 		Actors:        []string{},
 		PreviewImages: []string{},

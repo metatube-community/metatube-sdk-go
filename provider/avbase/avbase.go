@@ -153,6 +153,7 @@ func (ab *AVBase) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 			info.ID = id
 			info.Provider = ab.Name()
 			info.Homepage = rawURL
+			info.Language = ab.Language()
 		}
 	})
 

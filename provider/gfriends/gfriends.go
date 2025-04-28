@@ -61,6 +61,7 @@ func (gf *Gfriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
 		Name:     id,
 		Provider: gf.Name(),
 		Homepage: gf.formatURL(id),
+		Language: gf.Language(),
 		Aliases:  []string{},
 		Images:   images,
 	}, nil

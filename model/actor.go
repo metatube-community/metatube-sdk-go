@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/lib/pq"
+	"golang.org/x/text/language"
 	"gorm.io/datatypes"
 )
 
@@ -13,13 +14,17 @@ type ActorSearchResult struct {
 	Name     string         `json:"name"`
 	Provider string         `json:"provider"`
 	Homepage string         `json:"homepage"`
+	Language language.Tag   `json:"language"`
 	Aliases  pq.StringArray `json:"aliases,omitempty"`
 	Images   pq.StringArray `json:"images"`
 }
 
 func (a *ActorSearchResult) IsValid() bool {
-	return a.ID != "" && a.Name != "" &&
-		a.Provider != "" && a.Homepage != ""
+	return a.ID != "" &&
+		a.Name != "" &&
+		a.Provider != "" &&
+		a.Homepage != "" &&
+		a.Language != language.Und
 }
 
 type ActorInfo struct {
@@ -27,6 +32,7 @@ type ActorInfo struct {
 	Name         string         `json:"name"`
 	Provider     string         `json:"provider" gorm:"primaryKey"`
 	Homepage     string         `json:"homepage"`
+	Language     language.Tag   `json:"language" gorm:"-:all"`
 	Summary      string         `json:"summary"`
 	Hobby        string         `json:"hobby"`
 	Skill        string         `json:"skill"`
@@ -47,7 +53,11 @@ func (*ActorInfo) TableName() string {
 }
 
 func (a *ActorInfo) IsValid() bool {
-	return a.ID != "" && a.Name != "" && a.Provider != "" && a.Homepage != ""
+	return a.ID != "" &&
+		a.Name != "" &&
+		a.Provider != "" &&
+		a.Homepage != "" &&
+		a.Language != language.Und
 }
 
 func (a *ActorInfo) ToSearchResult() *ActorSearchResult {
@@ -56,6 +66,7 @@ func (a *ActorInfo) ToSearchResult() *ActorSearchResult {
 		Name:     a.Name,
 		Provider: a.Provider,
 		Homepage: a.Homepage,
+		Language: a.Language,
 		Aliases:  a.Aliases,
 		Images:   a.Images,
 	}
