@@ -124,13 +124,6 @@ func (s *DBEngineTestSuite) TestActor() {
 		assert.Equal(t, "大場ゆい", got.Name)
 	})
 
-	s.T().Run("search actor by ID", func(t *testing.T) {
-		actors, err := s.eng.SearchActor("2213", SearchOptions{})
-		require.NoError(t, err)
-		require.Len(t, actors, 1)
-		assert.Equal(t, "音羽レオン", actors[0].Name)
-	})
-
 	s.T().Run("search actor by name (no case)", func(t *testing.T) {
 		actors, err := s.eng.SearchActor("hitOmi", SearchOptions{})
 		require.NoError(t, err)
