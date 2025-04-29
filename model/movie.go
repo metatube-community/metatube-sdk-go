@@ -25,8 +25,11 @@ type MovieSearchResult struct {
 }
 
 func (m *MovieSearchResult) IsValid() bool {
-	return m.ID != "" && m.Number != "" && m.Title != "" &&
-		m.Provider != "" && m.Homepage != ""
+	return m.ID != "" &&
+		m.Number != "" &&
+		m.Title != "" &&
+		m.Provider != "" &&
+		m.Homepage != ""
 }
 
 type MovieReviewInfo struct {
@@ -44,6 +47,7 @@ func (m *MovieReviewInfo) IsValid() bool {
 	if !(m.ID != "" && m.Provider != "") {
 		return false
 	}
+	// reviews can be empty.
 	for _, review := range m.Reviews.Data() {
 		if !review.IsValid() {
 			return false
@@ -100,8 +104,12 @@ func (*MovieInfo) TableName() string {
 }
 
 func (m *MovieInfo) IsValid() bool {
-	return m.ID != "" && m.Number != "" && m.Title != "" &&
-		m.CoverURL != "" && m.Provider != "" && m.Homepage != ""
+	return m.ID != "" &&
+		m.Number != "" &&
+		m.Title != "" &&
+		m.CoverURL != "" &&
+		m.Provider != "" &&
+		m.Homepage != ""
 }
 
 func (m *MovieInfo) ToSearchResult() *MovieSearchResult {

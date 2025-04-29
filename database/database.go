@@ -22,10 +22,10 @@ type Config struct {
 	// DSN the Data Source Name.
 	DSN string
 
-	// DisableAutomaticPing as it is.
+	// Disable automatic ping.
 	DisableAutomaticPing bool
 
-	// Prepared Statement.
+	// Prepared statement.
 	PreparedStmt bool
 
 	// Max DB open connections.
@@ -33,18 +33,30 @@ type Config struct {
 
 	// Max DB idle connections.
 	MaxIdleConns int
+
+	LogLevel logger.LogLevel
 }
 
-func Open(cfg *Config) (*gorm.DB, error) {
+func (cfg *Config) applyDefaults() {
 	if cfg.DSN == "" {
 		// use sqlite DB memory mode by default.
 		cfg.DSN = "file::memory:?cache=shared"
 	}
 
 	if cfg.MaxIdleConns <= 0 {
-		// golang default.
+		// golang's default.
 		cfg.MaxIdleConns = 2
 	}
+
+	if cfg.LogLevel < logger.Silent ||
+		cfg.LogLevel > logger.Info {
+		// INFO by default.
+		cfg.LogLevel = logger.Info
+	}
+}
+
+func Open(cfg *Config) (*gorm.DB, error) {
+	cfg.applyDefaults()
 
 	var dialector gorm.Dialector
 	// We try to parse it as postgresql, otherwise
@@ -61,13 +73,15 @@ func Open(cfg *Config) (*gorm.DB, error) {
 	}
 
 	db, err := gorm.Open(dialector, &gorm.Config{
-		Logger: logger.New(log.New(os.Stdout, "[GORM]\u0020", log.LstdFlags), logger.Config{
-			SlowThreshold:             100 * time.Millisecond,
-			LogLevel:                  logger.Info,
-			IgnoreRecordNotFoundError: false,
-			ParameterizedQueries:      false,
-			Colorful:                  false,
-		}),
+		Logger: logger.New(
+			log.New(os.Stdout, "[GORM]\u0020", log.LstdFlags),
+			logger.Config{
+				SlowThreshold:             100 * time.Millisecond,
+				LogLevel:                  cfg.LogLevel,
+				IgnoreRecordNotFoundError: false,
+				ParameterizedQueries:      false,
+				Colorful:                  false,
+			}),
 		PrepareStmt:          cfg.PreparedStmt,
 		DisableAutomaticPing: cfg.DisableAutomaticPing,
 	})
