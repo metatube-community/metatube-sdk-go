@@ -39,9 +39,10 @@ func (e *engine) AutoMigrate() error {
 		sqlStmts := []string{
 			// Create case-insensitive collation.
 			`CREATE COLLATION IF NOT EXISTS nocase (
-				provider = icu,
-				locale = 'und-u-ks-level2',
-				deterministic = FALSE)`,
+			   provider = icu,
+			   locale = 'und-u-ks-level2',
+			   deterministic = FALSE
+			 )`,
 			// Create pg_trgm extension.
 			`CREATE EXTENSION IF NOT EXISTS pg_trgm`,
 		}
@@ -62,13 +63,14 @@ func (e *engine) AutoMigrate() error {
 
 	if e.Type() == database.Postgres {
 		// Create indexes for full-text search.
+		buildTrgmIndexSQL := func(table, column string) string {
+			const tmpl = `CREATE INDEX IF NOT EXISTS idx_%s_%s_trgm ON %s USING gin (%s gin_trgm_ops)`
+			return fmt.Sprintf(tmpl, table, column, table, column)
+		}
 		sqlStmts := []string{
-			fmt.Sprintf(`CREATE INDEX IF NOT EXISTS idx_actor_metadata_name_trgm 
-				ON %s USING gin (name gin_trgm_ops)`, model.ActorMetadataTableName),
-			fmt.Sprintf(`CREATE INDEX IF NOT EXISTS idx_movie_metadata_number_trgm 
-				ON %s USING gin (number gin_trgm_ops)`, model.MovieMetadataTableName),
-			fmt.Sprintf(`CREATE INDEX IF NOT EXISTS idx_movie_metadata_title_trgm 
-				ON %s USING gin (title gin_trgm_ops)`, model.MovieMetadataTableName),
+			buildTrgmIndexSQL(model.ActorMetadataTableName, "name"),
+			buildTrgmIndexSQL(model.MovieMetadataTableName, "number"),
+			buildTrgmIndexSQL(model.MovieMetadataTableName, "title"),
 		}
 		for _, sql := range sqlStmts {
 			if err := e.db.Exec(sql).Error; err != nil {

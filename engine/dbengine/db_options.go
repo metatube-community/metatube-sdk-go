@@ -28,7 +28,6 @@ type MovieSearchOptions struct {
 }
 
 type MovieThresholds struct {
-	ID     float64
 	Number float64
 	Title  float64
 }
@@ -36,13 +35,9 @@ type MovieThresholds struct {
 func (opts *MovieSearchOptions) applyDefaults() {
 	const (
 		maxLimit        = 20
-		idThreshold     = 0.6
 		numberThreshold = 0.4
 		titleThreshold  = 0.2
 	)
-	if opts.Thresholds.ID == 0 {
-		opts.Thresholds.ID = idThreshold
-	}
 	if opts.Thresholds.Number == 0 {
 		opts.Thresholds.Number = numberThreshold
 	}

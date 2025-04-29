@@ -59,13 +59,11 @@ func (e *engine) SearchMovie(keyword string, opts MovieSearchOptions) ([]*model.
 			  number COLLATE NOCASE = ?
 			  OR id COLLATE NOCASE = ?
 			  OR similarity(number, ?) > ?
-			  OR similarity(id, ?) > ?
 			  OR similarity(title, ?) > ?
 			)`,
 			keyword,
 			keyword,
 			keyword, opts.Thresholds.Number,
-			keyword, opts.Thresholds.ID,
 			keyword, opts.Thresholds.Title,
 		)
 	} else { // sqlite

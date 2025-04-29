@@ -218,16 +218,6 @@ func (s *DBEngineTestSuite) TestMovie() {
 		assert.Equal(t, "juq00588", movies[0].ID)
 	})
 
-	s.T().Run("search movie by id (fuzz)", func(t *testing.T) {
-		if s.typ != database.Postgres {
-			t.SkipNow()
-		}
-		movies, err := s.eng.SearchMovie("h_juq00588", MovieSearchOptions{})
-		require.NoError(t, err)
-		require.Len(t, movies, 1)
-		assert.Equal(t, "juq00588", movies[0].ID)
-	})
-
 	s.T().Run("search movie by number (match)", func(t *testing.T) {
 		movies, err := s.eng.SearchMovie("SDMF-033", MovieSearchOptions{})
 		require.NoError(t, err)
