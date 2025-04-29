@@ -1,0 +1,95 @@
+package dbengine
+
+import (
+	"fmt"
+
+	"gorm.io/gorm"
+
+	"github.com/metatube-community/metatube-sdk-go/database"
+	"github.com/metatube-community/metatube-sdk-go/engine/providerid"
+	"github.com/metatube-community/metatube-sdk-go/model"
+)
+
+type DBEngine interface {
+	AutoMigrate() error
+	Version() (version string, err error)
+
+	SearchActor(keyword string, opts SearchOptions) ([]*model.ActorSearchResult, error)
+	GetActorInfo(pid providerid.ProviderID) (*model.ActorInfo, error)
+	SaveActorInfo(info *model.ActorInfo) error
+}
+
+var _ DBEngine = (*engine)(nil)
+
+type engine struct {
+	db *gorm.DB
+}
+
+func New(db *gorm.DB) DBEngine {
+	return &engine{db: db}
+}
+
+func (e *engine) DB() *gorm.DB {
+	return e.db.Session(&gorm.Session{})
+}
+
+func (e *engine) AutoMigrate() error {
+	if e.Type() == database.Postgres {
+		sqlStmts := []string{
+			// Create case-insensitive collation.
+			`CREATE COLLATION IF NOT EXISTS nocase (
+				provider = icu,
+				locale = 'und-u-ks-level2',
+				deterministic = FALSE)`,
+			// Create pg_trgm extension.
+			`CREATE EXTENSION IF NOT EXISTS pg_trgm`,
+		}
+		for _, sql := range sqlStmts {
+			if err := e.db.Exec(sql).Error; err != nil {
+				return err
+			}
+		}
+	}
+
+	if err := e.db.AutoMigrate(
+		&model.MovieInfo{},
+		&model.ActorInfo{},
+		&model.MovieReviewInfo{},
+	); err != nil {
+		return err
+	}
+
+	if e.Type() == database.Postgres {
+		// Create indexes for full-text search.
+		sqlStmts := []string{
+			fmt.Sprintf(`CREATE INDEX IF NOT EXISTS idx_actor_metadata_name_trgm 
+				ON %s USING gin (name gin_trgm_ops)`, model.ActorMetadataTableName),
+			fmt.Sprintf(`CREATE INDEX IF NOT EXISTS idx_movie_metadata_number_trgm 
+				ON %s USING gin (number gin_trgm_ops)`, model.MovieMetadataTableName),
+			fmt.Sprintf(`CREATE INDEX IF NOT EXISTS idx_movie_metadata_title_trgm 
+				ON %s USING gin (title gin_trgm_ops)`, model.MovieMetadataTableName),
+		}
+		for _, sql := range sqlStmts {
+			if err := e.db.Exec(sql).Error; err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (e *engine) Type() string {
+	return e.db.Config.Dialector.Name()
+}
+
+func (e *engine) Version() (version string, err error) {
+	switch e.Type() {
+	case database.Postgres:
+		err = e.DB().Raw("SELECT version();").Scan(&version).Error
+	case database.Sqlite:
+		err = e.DB().Raw("SELECT sqlite_version();").Scan(&version).Error
+	default:
+		err = fmt.Errorf("unsupported DB type: %s", e.Type())
+	}
+	return
+}

@@ -49,7 +49,7 @@ func (m *MovieReviewInfo) IsValid() bool {
 			return false
 		}
 	}
-	return true
+	return len(m.Reviews.Data()) > 0
 }
 
 type MovieReviewDetail struct {
