@@ -10,6 +10,33 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/model"
 )
 
+type actorEngine interface {
+	GetActorInfo(providerid.ProviderID) (*model.ActorInfo, error)
+	SaveActorInfo(*model.ActorInfo) error
+	SearchActor(string, SearchOptions) ([]*model.ActorSearchResult, error)
+}
+
+var _ actorEngine = (*engine)(nil)
+
+func (e *engine) GetActorInfo(pid providerid.ProviderID) (*model.ActorInfo, error) {
+	info := &model.ActorInfo{}
+	err := e.DB().
+		Where( // Exact match here.
+			`provider COLLATE NOCASE = ? AND id COLLATE NOCASE = ?`,
+			pid.Provider, pid.ID,
+		).First(info).Error
+	return info, err
+}
+
+func (e *engine) SaveActorInfo(info *model.ActorInfo) error {
+	if !info.IsValid() {
+		return fmt.Errorf("invalid %T", info)
+	}
+	return e.DB().Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(info).Error
+}
+
 func (e *engine) SearchActor(keyword string, opts SearchOptions) ([]*model.ActorSearchResult, error) {
 	opts.applyDefaults()
 
@@ -56,23 +83,4 @@ func (e *engine) SearchActor(keyword string, opts SearchOptions) ([]*model.Actor
 		results = append(results, info.ToSearchResult())
 	}
 	return results, nil
-}
-
-func (e *engine) GetActorInfo(pid providerid.ProviderID) (*model.ActorInfo, error) {
-	info := &model.ActorInfo{}
-	err := e.DB().
-		Where( // Exact match here.
-			`provider COLLATE NOCASE = ? AND id COLLATE NOCASE = ?`,
-			pid.Provider, pid.ID,
-		).First(info).Error
-	return info, err
-}
-
-func (e *engine) SaveActorInfo(info *model.ActorInfo) error {
-	if !info.IsValid() {
-		return fmt.Errorf("invalid %T", info)
-	}
-	return e.DB().Clauses(clause.OnConflict{
-		UpdateAll: true,
-	}).Create(info).Error
 }

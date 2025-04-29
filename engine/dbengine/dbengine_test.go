@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"net/url"
+	"slices"
 	"sort"
 	"strings"
 	"testing"
@@ -14,9 +15,13 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/ory/dockertest"
 	"github.com/ory/dockertest/docker"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"gorm.io/datatypes"
 	"gorm.io/gorm/logger"
 
+	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/database"
 	"github.com/metatube-community/metatube-sdk-go/engine/providerid"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -105,63 +110,131 @@ func (s *DBEngineTestSuite) TestActor() {
 		s.Require().NoError(err)
 	}
 
-	// get actor info.
-	got, err := s.eng.GetActorInfo(providerid.MustParse("AV-LEAGUE:1607"))
-	s.Require().NoError(err)
-	s.Require().NotNil(got)
-	s.Assert().Equal("上原亜衣", got.Name)
+	s.T().Run("get actor info", func(t *testing.T) {
+		got, err := s.eng.GetActorInfo(providerid.MustParse("AV-LEAGUE:1607"))
+		require.NoError(t, err)
+		require.NotNil(t, got)
+		assert.Equal(t, "上原亜衣", got.Name)
+	})
 
-	// get actor info (case-insensitive).
-	got, err = s.eng.GetActorInfo(providerid.MustParse("av-league:1981"))
-	s.Require().NoError(err)
-	s.Require().NotNil(got)
-	s.Assert().Equal("大場ゆい", got.Name)
+	s.T().Run("get actor info (case-insensitive)", func(t *testing.T) {
+		got, err := s.eng.GetActorInfo(providerid.MustParse("av-league:1981"))
+		require.NoError(t, err)
+		require.NotNil(t, got)
+		assert.Equal(t, "大場ゆい", got.Name)
+	})
 
-	// search actors by ID.
-	actors, err := s.eng.SearchActor("2213", SearchOptions{})
-	s.Require().NoError(err)
-	s.Require().Len(actors, 1)
-	s.Assert().Equal("音羽レオン", actors[0].Name)
+	s.T().Run("search actor by ID", func(t *testing.T) {
+		actors, err := s.eng.SearchActor("2213", SearchOptions{})
+		require.NoError(t, err)
+		require.Len(t, actors, 1)
+		assert.Equal(t, "音羽レオン", actors[0].Name)
+	})
 
-	// search actors by name (no case).
-	actors, err = s.eng.SearchActor("hitOmi", SearchOptions{})
-	s.Require().NoError(err)
-	s.Require().Len(actors, 1)
-	s.Assert().Equal("7106", actors[0].ID)
+	s.T().Run("search actor by name (no case)", func(t *testing.T) {
+		actors, err := s.eng.SearchActor("hitOmi", SearchOptions{})
+		require.NoError(t, err)
+		require.Len(t, actors, 1)
+		assert.Equal(t, "7106", actors[0].ID)
+	})
 
-	// search actors by name (match).
-	actors, err = s.eng.SearchActor("加藤あやの", SearchOptions{})
-	s.Require().NoError(err)
-	s.Require().Len(actors, 1)
-	s.Assert().Equal("2477", actors[0].ID)
+	s.T().Run("search actor by name (match)", func(t *testing.T) {
+		actors, err := s.eng.SearchActor("加藤あやの", SearchOptions{})
+		require.NoError(t, err)
+		require.Len(t, actors, 1)
+		assert.Equal(t, "2477", actors[0].ID)
+	})
 
-	// search actors by name (fuzz).
-	actors, err = s.eng.SearchActor("加藤", SearchOptions{})
-	s.Require().NoError(err)
-	s.Require().Len(actors, 2)
-	sort.Slice(actors, func(i, j int) bool { return actors[i].ID < actors[j].ID })
-	s.Assert().Equal("2477", actors[0].ID)
-	s.Assert().Equal("25352", actors[1].ID)
+	s.T().Run("search actor by name (fuzz)", func(t *testing.T) {
+		actors, err := s.eng.SearchActor("加藤", SearchOptions{})
+		require.NoError(t, err)
+		require.Len(t, actors, 2)
+		sort.Slice(actors, func(i, j int) bool { return actors[i].ID < actors[j].ID })
+		assert.Equal(t, "2477", actors[0].ID)
+		assert.Equal(t, "25352", actors[1].ID)
+	})
 
-	// search actors by name (fuzzer).
-	actors, err = s.eng.SearchActor("三", SearchOptions{Threshold: 0.1})
-	s.Require().NoError(err)
-	s.Require().Len(actors, 3)
+	s.T().Run("search actor by name (fuzzer)", func(t *testing.T) {
+		actors, err := s.eng.SearchActor("三", SearchOptions{Threshold: 0.1})
+		require.NoError(t, err)
+		require.Len(t, actors, 3)
+	})
 
-	// search actors by name (limit).
-	actors, err = s.eng.SearchActor("夏", SearchOptions{Threshold: 0.1, Limit: 2})
-	s.Require().NoError(err)
-	s.Require().Len(actors, 2)
+	s.T().Run("search actor by name (limit)", func(t *testing.T) {
+		actors, err := s.eng.SearchActor("夏", SearchOptions{Threshold: 0.1, Limit: 2})
+		require.NoError(t, err)
+		require.Len(t, actors, 2)
+	})
 
-	// search actors by name (not found).
-	actors, err = s.eng.SearchActor("无名氏", SearchOptions{})
-	s.Require().NoError(err)
-	s.Require().Len(actors, 0)
+	s.T().Run("search actor by name (not found)", func(t *testing.T) {
+		actors, err := s.eng.SearchActor("无名氏", SearchOptions{})
+		require.NoError(t, err)
+		require.Empty(t, actors)
+	})
 }
 
 func (s *DBEngineTestSuite) TestMovie() {
 	_ = movieMetadata
-	_ = movieReviews
+}
+
+func (s *DBEngineTestSuite) TestMovie_Reviews() {
+	var jsonData []struct {
+		ID         string          `json:"id"`
+		Provider   string          `json:"provider"`
+		RawReviews json.RawMessage `json:"reviews"`
+		Reviews    []struct {
+			Title   string  `json:"title"`
+			Author  string  `json:"author"`
+			Comment string  `json:"comment"`
+			Score   float64 `json:"score"`
+			Date    string  `json:"date"`
+		} `json:"-"`
+	}
+	if err := json.
+		NewDecoder(strings.NewReader(movieReviews)).
+		Decode(&jsonData); err != nil {
+		s.Require().NoError(err)
+	}
+	for _, data := range jsonData {
+		var reviewJSON string
+		err := json.Unmarshal(data.RawReviews, &reviewJSON)
+		s.Require().NoError(err)
+		err = json.Unmarshal([]byte(reviewJSON), &data.Reviews)
+		s.Require().NoError(err)
+		err = s.eng.SaveMovieReviewInfo(&model.MovieReviewInfo{
+			ID:       data.ID,
+			Provider: data.Provider,
+			Reviews: datatypes.NewJSONType(
+				slices.Collect(func(yield func(detail *model.MovieReviewDetail) bool) {
+					for _, review := range data.Reviews {
+						if !yield(&model.MovieReviewDetail{
+							Title:   review.Title,
+							Author:  review.Author,
+							Comment: review.Comment,
+							Score:   review.Score,
+							Date:    parser.ParseDate(review.Date),
+						}) {
+							return
+						}
+					}
+				})),
+		})
+		s.Require().NoError(err)
+	}
+
+	s.T().Run("get review info", func(t *testing.T) {
+		got, err := s.eng.GetMovieReviewInfo(providerid.MustParse("FANZA:ebwh00024"))
+		require.NoError(t, err)
+		require.NotNil(t, got)
+		assert.NotEmpty(t, got.Reviews)
+	})
+
+	s.T().Run("get review info (case-insensitive)", func(t *testing.T) {
+		got, err := s.eng.GetMovieReviewInfo(providerid.MustParse("fanZA:DAsS00465"))
+		require.NoError(t, err)
+		require.NotNil(t, got)
+		assert.NotEmpty(t, got.Reviews)
+	})
 }
 
 func TestMain(m *testing.M) {

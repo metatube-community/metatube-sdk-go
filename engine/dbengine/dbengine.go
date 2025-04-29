@@ -6,17 +6,14 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/metatube-community/metatube-sdk-go/database"
-	"github.com/metatube-community/metatube-sdk-go/engine/providerid"
 	"github.com/metatube-community/metatube-sdk-go/model"
 )
 
 type DBEngine interface {
+	actorEngine
+	movieEngine
 	AutoMigrate() error
-	Version() (version string, err error)
-
-	SearchActor(keyword string, opts SearchOptions) ([]*model.ActorSearchResult, error)
-	GetActorInfo(pid providerid.ProviderID) (*model.ActorInfo, error)
-	SaveActorInfo(info *model.ActorInfo) error
+	Version() (string, error)
 }
 
 var _ DBEngine = (*engine)(nil)
@@ -31,6 +28,10 @@ func New(db *gorm.DB) DBEngine {
 
 func (e *engine) DB() *gorm.DB {
 	return e.db.Session(&gorm.Session{})
+}
+
+func (e *engine) Type() string {
+	return e.db.Config.Dialector.Name()
 }
 
 func (e *engine) AutoMigrate() error {
@@ -76,10 +77,6 @@ func (e *engine) AutoMigrate() error {
 		}
 	}
 	return nil
-}
-
-func (e *engine) Type() string {
-	return e.db.Config.Dialector.Name()
 }
 
 func (e *engine) Version() (version string, err error) {
