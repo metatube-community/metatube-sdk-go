@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/gorm/clause"
 
+	"github.com/metatube-community/metatube-sdk-go/database"
 	"github.com/metatube-community/metatube-sdk-go/engine/providerid"
 	"github.com/metatube-community/metatube-sdk-go/model"
 )
@@ -13,8 +14,7 @@ import (
 type movieEngine interface {
 	GetMovieInfo(providerid.ProviderID) (*model.MovieInfo, error)
 	SaveMovieInfo(*model.MovieInfo) error
-	SearchMovie(string, SearchOptions) ([]*model.MovieSearchResult, error)
-
+	SearchMovie(string, MovieSearchOptions) ([]*model.MovieSearchResult, error)
 	GetMovieReviewInfo(providerid.ProviderID) (*model.MovieReviewInfo, error)
 	SaveMovieReviewInfo(*model.MovieReviewInfo) error
 }
@@ -40,7 +40,7 @@ func (e *engine) SaveMovieInfo(info *model.MovieInfo) error {
 	}).Create(info).Error
 }
 
-func (e *engine) SearchMovie(keyword string, opts SearchOptions) ([]*model.MovieSearchResult, error) {
+func (e *engine) SearchMovie(keyword string, opts MovieSearchOptions) ([]*model.MovieSearchResult, error) {
 	opts.applyDefaults()
 
 	// DB session.
@@ -51,13 +51,37 @@ func (e *engine) SearchMovie(keyword string, opts SearchOptions) ([]*model.Movie
 		tx = tx.Where(`provider COLLATE NOCASE = ?`, opts.Provider)
 	}
 
-	// keyword filter.
-	tx = tx.Where(
-		// Note: keyword might be an ID or just a regular number, so we should
-		// query both of them for a better match. Also, it's case-insensitive.
-		`(number COLLATE NOCASE = ? OR id COLLATE NOCASE = ?)`,
-		keyword, keyword,
-	)
+	// Note: keyword can be an ID, a number, or a title, so we should
+	// query all of them for a better match. Also, it's case-insensitive.
+	if e.Type() == database.Postgres {
+		tx = tx.Where(
+			`(
+			  number COLLATE NOCASE = ?
+			  OR id COLLATE NOCASE = ?
+			  OR similarity(number, ?) > ?
+			  OR similarity(id, ?) > ?
+			  OR similarity(title, ?) > ?
+			)`,
+			keyword,
+			keyword,
+			keyword, opts.Thresholds.Number,
+			keyword, opts.Thresholds.ID,
+			keyword, opts.Thresholds.Title,
+		)
+	} else { // sqlite
+		pattern := "%" + keyword + "%"
+		tx = tx.Where(
+			`(
+			  number COLLATE NOCASE = ?
+			  OR id COLLATE NOCASE = ?
+			  OR number LIKE ? COLLATE NOCASE
+			  OR id LIKE ? COLLATE NOCASE
+			  OR title LIKE ? COLLATE NOCASE
+			)`,
+			keyword, keyword,
+			pattern, pattern, pattern,
+		)
+	}
 
 	// pagination.
 	if opts.Limit > 0 {

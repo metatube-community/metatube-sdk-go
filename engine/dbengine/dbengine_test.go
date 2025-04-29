@@ -41,30 +41,31 @@ var (
 type DBEngineTestSuite struct {
 	suite.Suite
 
+	typ string
 	dsn string
 	eng DBEngine
 }
 
 func TestDBEngineTestSuite(t *testing.T) {
 	suites := []struct {
-		name string
-		dsn  string
+		typ string
+		dsn string
 	}{
 		{
 			// SQLite (memory mode)
-			name: database.Sqlite,
-			dsn:  ":memory:",
+			typ: database.Sqlite,
+			dsn: ":memory:",
 		},
 		{
 			// Postgres
-			name: database.Postgres,
-			dsn:  postgresDSN,
+			typ: database.Postgres,
+			dsn: postgresDSN,
 		},
 	}
 
 	for _, s := range suites {
-		t.Run(s.name, func(t *testing.T) {
-			suite.Run(t, &DBEngineTestSuite{dsn: s.dsn})
+		t.Run(s.typ, func(t *testing.T) {
+			suite.Run(t, &DBEngineTestSuite{typ: s.typ, dsn: s.dsn})
 		})
 	}
 }
@@ -125,21 +126,21 @@ func (s *DBEngineTestSuite) TestActor() {
 	})
 
 	s.T().Run("search actor by name (no case)", func(t *testing.T) {
-		actors, err := s.eng.SearchActor("hitOmi", SearchOptions{})
+		actors, err := s.eng.SearchActor("hitOmi", ActorSearchOptions{})
 		require.NoError(t, err)
 		require.Len(t, actors, 1)
 		assert.Equal(t, "7106", actors[0].ID)
 	})
 
 	s.T().Run("search actor by name (match)", func(t *testing.T) {
-		actors, err := s.eng.SearchActor("加藤あやの", SearchOptions{})
+		actors, err := s.eng.SearchActor("加藤あやの", ActorSearchOptions{})
 		require.NoError(t, err)
 		require.Len(t, actors, 1)
 		assert.Equal(t, "2477", actors[0].ID)
 	})
 
 	s.T().Run("search actor by name (fuzz)", func(t *testing.T) {
-		actors, err := s.eng.SearchActor("加藤", SearchOptions{})
+		actors, err := s.eng.SearchActor("加藤", ActorSearchOptions{})
 		require.NoError(t, err)
 		require.Len(t, actors, 2)
 		sort.Slice(actors, func(i, j int) bool { return actors[i].ID < actors[j].ID })
@@ -148,26 +149,132 @@ func (s *DBEngineTestSuite) TestActor() {
 	})
 
 	s.T().Run("search actor by name (fuzzer)", func(t *testing.T) {
-		actors, err := s.eng.SearchActor("三", SearchOptions{Threshold: 0.1})
+		actors, err := s.eng.SearchActor("三", ActorSearchOptions{Threshold: 0.1})
 		require.NoError(t, err)
 		require.Len(t, actors, 3)
 	})
 
 	s.T().Run("search actor by name (limit)", func(t *testing.T) {
-		actors, err := s.eng.SearchActor("夏", SearchOptions{Threshold: 0.1, Limit: 2})
+		actors, err := s.eng.SearchActor("夏", ActorSearchOptions{Threshold: 0.1, Limit: 2})
 		require.NoError(t, err)
 		require.Len(t, actors, 2)
 	})
 
 	s.T().Run("search actor by name (not found)", func(t *testing.T) {
-		actors, err := s.eng.SearchActor("无名氏", SearchOptions{})
+		actors, err := s.eng.SearchActor("无名氏", ActorSearchOptions{})
 		require.NoError(t, err)
 		require.Empty(t, actors)
 	})
 }
 
 func (s *DBEngineTestSuite) TestMovie() {
-	_ = movieMetadata
+	var jsonData []struct {
+		ID       string `json:"id"`
+		Number   string `json:"number"`
+		Title    string `json:"title"`
+		Summary  string `json:"summary"`
+		Provider string `json:"provider"`
+		Homepage string `json:"homepage"`
+		ThumbURL string `json:"thumb_url"`
+		CoverURL string `json:"cover_url"`
+	}
+	if err := json.
+		NewDecoder(strings.NewReader(movieMetadata)).
+		Decode(&jsonData); err != nil {
+		s.Require().NoError(err)
+	}
+	for _, data := range jsonData {
+		err := s.eng.SaveMovieInfo(&model.MovieInfo{
+			ID:       data.ID,
+			Number:   data.Number,
+			Title:    data.Title,
+			Summary:  data.Summary,
+			Provider: data.Provider,
+			Homepage: data.Homepage,
+			ThumbURL: data.ThumbURL,
+			CoverURL: data.CoverURL,
+		})
+		s.Require().NoError(err)
+	}
+
+	s.T().Run("get movie info", func(t *testing.T) {
+		got, err := s.eng.GetMovieInfo(providerid.MustParse("FANZA:pred00507"))
+		require.NoError(t, err)
+		require.NotNil(t, got)
+		assert.Equal(t, "PRED-507", got.Number)
+	})
+
+	s.T().Run("get movie info (case-insensitive)", func(t *testing.T) {
+		got, err := s.eng.GetMovieInfo(providerid.MustParse("fanZA:h_1133HonB006"))
+		require.NoError(t, err)
+		require.NotNil(t, got)
+		assert.Equal(t, "HONB-006", got.Number)
+	})
+
+	s.T().Run("search movie by id (no case)", func(t *testing.T) {
+		movies, err := s.eng.SearchMovie("juq00588", MovieSearchOptions{})
+		require.NoError(t, err)
+		require.Len(t, movies, 1)
+		assert.Equal(t, "juq00588", movies[0].ID)
+	})
+
+	s.T().Run("search movie by id (fuzz)", func(t *testing.T) {
+		if s.typ != database.Postgres {
+			t.SkipNow()
+		}
+		movies, err := s.eng.SearchMovie("h_juq00588", MovieSearchOptions{})
+		require.NoError(t, err)
+		require.Len(t, movies, 1)
+		assert.Equal(t, "juq00588", movies[0].ID)
+	})
+
+	s.T().Run("search movie by number (match)", func(t *testing.T) {
+		movies, err := s.eng.SearchMovie("SDMF-033", MovieSearchOptions{})
+		require.NoError(t, err)
+		require.Len(t, movies, 1)
+		assert.Equal(t, "1sdmf00033", movies[0].ID)
+	})
+
+	s.T().Run("search movie by number (*match*)", func(t *testing.T) {
+		movies, err := s.eng.SearchMovie("HEYZO-0", MovieSearchOptions{})
+		require.NoError(t, err)
+		assert.GreaterOrEqual(t, len(movies), 12)
+		t.Log(jsonify(movies))
+	})
+
+	s.T().Run("search movie by number (*match*)", func(t *testing.T) {
+		movies, err := s.eng.SearchMovie("ABP", MovieSearchOptions{})
+		require.NoError(t, err)
+		assert.GreaterOrEqual(t, len(movies), 6)
+		t.Log(jsonify(movies))
+	})
+
+	s.T().Run("search movie by title (fuzz)", func(t *testing.T) {
+		movies, err := s.eng.SearchMovie("密着誘惑してくるささやき淫語お姉", MovieSearchOptions{})
+		require.NoError(t, err)
+		require.Len(t, movies, 1)
+		assert.Equal(t, "ssis00250", movies[0].ID)
+		t.Log(jsonify(movies))
+	})
+
+	s.T().Run("search movie by title (fuzz&name)", func(t *testing.T) {
+		movies, err := s.eng.SearchMovie("本田岬", MovieSearchOptions{})
+		require.NoError(t, err)
+		assert.GreaterOrEqual(t, len(movies), 1)
+		t.Log(jsonify(movies))
+	})
+
+	s.T().Run("search movie by title (fuzzer)", func(t *testing.T) {
+		if s.typ != database.Postgres {
+			t.SkipNow()
+		}
+		// fuzz match here, including number and partial title.
+		movies, err := s.eng.SearchMovie("AMBI-133 エロ配信が担任の先生にバレちゃうなんて！！ 高瀬りな", MovieSearchOptions{})
+		require.NoError(t, err)
+		require.Len(t, movies, 1)
+		assert.Equal(t, "h_237ambi00133", movies[0].ID)
+		t.Log(jsonify(movies))
+	})
 }
 
 func (s *DBEngineTestSuite) TestMovie_Reviews() {
@@ -228,6 +335,11 @@ func (s *DBEngineTestSuite) TestMovie_Reviews() {
 		require.NotNil(t, got)
 		assert.NotEmpty(t, got.Reviews)
 	})
+}
+
+func jsonify(v interface{}) string {
+	data, _ := json.MarshalIndent(v, "", "\t")
+	return string(data)
 }
 
 func TestMain(m *testing.M) {

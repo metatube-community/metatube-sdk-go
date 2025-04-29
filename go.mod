@@ -31,7 +31,7 @@ require (
 	github.com/projectdiscovery/useragent v0.0.100
 	github.com/projectdiscovery/utils v0.4.18
 	github.com/robertkrimen/otto v0.5.1
-	github.com/sashabaranov/go-openai v1.38.3
+	github.com/sashabaranov/go-openai v1.39.0
 	github.com/stretchr/testify v1.10.0
 	github.com/xjasonlyu/deeplx-translator v0.1.0
 	github.com/xjasonlyu/openai-translator v0.2.1

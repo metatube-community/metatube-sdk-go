@@ -18,8 +18,10 @@ type ActorSearchResult struct {
 }
 
 func (a *ActorSearchResult) IsValid() bool {
-	return a.ID != "" && a.Name != "" &&
-		a.Provider != "" && a.Homepage != ""
+	return a.ID != "" &&
+		a.Name != "" &&
+		a.Provider != "" &&
+		a.Homepage != ""
 }
 
 type ActorInfo struct {
@@ -47,7 +49,10 @@ func (*ActorInfo) TableName() string {
 }
 
 func (a *ActorInfo) IsValid() bool {
-	return a.ID != "" && a.Name != "" && a.Provider != "" && a.Homepage != ""
+	return a.ID != "" &&
+		a.Name != "" &&
+		a.Provider != "" &&
+		a.Homepage != ""
 }
 
 func (a *ActorInfo) ToSearchResult() *ActorSearchResult {

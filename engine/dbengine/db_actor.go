@@ -13,7 +13,7 @@ import (
 type actorEngine interface {
 	GetActorInfo(providerid.ProviderID) (*model.ActorInfo, error)
 	SaveActorInfo(*model.ActorInfo) error
-	SearchActor(string, SearchOptions) ([]*model.ActorSearchResult, error)
+	SearchActor(string, ActorSearchOptions) ([]*model.ActorSearchResult, error)
 }
 
 var _ actorEngine = (*engine)(nil)
@@ -37,7 +37,7 @@ func (e *engine) SaveActorInfo(info *model.ActorInfo) error {
 	}).Create(info).Error
 }
 
-func (e *engine) SearchActor(keyword string, opts SearchOptions) ([]*model.ActorSearchResult, error) {
+func (e *engine) SearchActor(keyword string, opts ActorSearchOptions) ([]*model.ActorSearchResult, error) {
 	opts.applyDefaults()
 
 	// DB session.
@@ -51,14 +51,14 @@ func (e *engine) SearchActor(keyword string, opts SearchOptions) ([]*model.Actor
 	// keyword filter.
 	if e.Type() == database.Postgres {
 		tx = tx.Where(
-			`similarity(name, ?) > ?`,
-			keyword, opts.Threshold,
+			`(name COLLATE NOCASE = ? OR similarity(name, ?) > ?)`,
+			keyword, keyword, opts.Threshold,
 		)
 	} else { // Sqlite
 		pattern := "%" + keyword + "%"
 		tx = tx.Where(
-			`name LIKE ? COLLATE NOCASE`,
-			pattern,
+			`(name COLLATE NOCASE = ? OR name LIKE ? COLLATE NOCASE)`,
+			keyword, pattern,
 		)
 	}
 
