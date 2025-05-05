@@ -47,6 +47,14 @@ func Parse(s string) (ProviderID, error) {
 	return New(provider, id)
 }
 
+func MustParse(s string) ProviderID {
+	pid, err := Parse(s)
+	if err != nil {
+		panic(err)
+	}
+	return pid
+}
+
 func (pid *ProviderID) IsValid() bool {
 	return pid.Provider != "" && pid.ID != ""
 }

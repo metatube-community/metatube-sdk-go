@@ -102,6 +102,7 @@ func TestDetectMainFacePosition(t *testing.T) {
 		//{filename: "ffe1f9b37d33bc9b7e0a4e400ffb64f7", position: 0.85, imgRatio: xRatio, advanced: true},
 		//{filename: "bad4c3bd1484a6e32873839f0a5ec77e", position: 0.25, imgRatio: xRatio, advanced: true},
 		//{filename: "5ee9fe74516c23d3633c22bb12c59869", position: 0.78, imgRatio: xRatio, advanced: true},
+		//{filename: "167031e9cf4bfe13afb627c22daf564a", position: 0.28, imgRatio: xRatio, advanced: true},
 	} {
 		t.Run(unit.filename, func(t *testing.T) {
 			data, err := fs.ReadFile("testdata/" + unit.filename)
