@@ -7,43 +7,15 @@ import (
 	"sync"
 	"time"
 
-	"gorm.io/gorm/clause"
-
 	"github.com/metatube-community/metatube-sdk-go/collection/sets"
 	"github.com/metatube-community/metatube-sdk-go/collection/slices"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
+	"github.com/metatube-community/metatube-sdk-go/engine/dbengine"
 	"github.com/metatube-community/metatube-sdk-go/engine/providerid"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
-
-func (e *Engine) searchMovieFromDB(keyword string, provider mt.MovieProvider, all bool) (results []*model.MovieSearchResult, err error) {
-	var infos []*model.MovieInfo
-	tx := e.db.
-		// Note: keyword might be an ID or just a regular number, so we should
-		// query both of them for best match. Also, case should not matter.
-		Where("number = ? COLLATE NOCASE", keyword).
-		Or("id = ? COLLATE NOCASE", keyword)
-	if all {
-		err = tx.Find(&infos).Error
-	} else {
-		err = e.db.
-			Where("provider = ?", provider.Name()).
-			Where(tx).
-			Find(&infos).Error
-	}
-	if err == nil {
-		for _, info := range infos {
-			if !info.IsValid() {
-				// normally it is valid, but just in case.
-				continue
-			}
-			results = append(results, info.ToSearchResult())
-		}
-	}
-	return
-}
 
 func (e *Engine) searchMovie(keyword string, provider mt.MovieProvider, fallback bool) (results []*model.MovieSearchResult, err error) {
 	// Regular keyword searching.
@@ -53,9 +25,12 @@ func (e *Engine) searchMovie(keyword string, provider mt.MovieProvider, fallback
 		}
 		if fallback {
 			defer func() {
-				if innerResults, innerErr := e.searchMovieFromDB(keyword, provider, false);
-				// ignore DB query error.
-				innerErr == nil && len(innerResults) > 0 {
+				if innerResults, innerErr := e.db.SearchMovie(
+					keyword,
+					dbengine.MovieSearchOptions{
+						Provider: provider.Name(),
+					},
+				); innerErr == nil /* ignore DB query error */ && len(innerResults) > 0 {
 					// overwrite error.
 					err = nil
 					// update results.
@@ -183,9 +158,10 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 
 	if fallback /* query database for missing results  */ {
 		defer func() {
-			if innerResults, innerErr := e.searchMovieFromDB(keyword, nil, true);
-			// ignore DB query error.
-			innerErr == nil && len(innerResults) > 0 {
+			if innerResults, innerErr := e.db.SearchMovie(
+				keyword,
+				dbengine.MovieSearchOptions{},
+			); innerErr == nil /* ignore DB query error */ && len(innerResults) > 0 {
 				// overwrite error.
 				err = nil
 				// append results.
@@ -198,15 +174,6 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 	return
 }
 
-func (e *Engine) getMovieInfoFromDB(provider mt.MovieProvider, id string) (*model.MovieInfo, error) {
-	info := &model.MovieInfo{}
-	err := e.db. // Exact match here.
-			Where("provider = ?", provider.Name()).
-			Where("id = ? COLLATE NOCASE", id).
-			First(info).Error
-	return info, err
-}
-
 func (e *Engine) getMovieInfoWithCallback(provider mt.MovieProvider, id string, lazy bool, callback func() (*model.MovieInfo, error)) (info *model.MovieInfo, err error) {
 	defer func() {
 		// metadata validation check.
@@ -216,16 +183,18 @@ func (e *Engine) getMovieInfoWithCallback(provider mt.MovieProvider, id string, 
 	}()
 	// Query DB first (by id).
 	if lazy {
-		if info, err = e.getMovieInfoFromDB(provider, id); err == nil && info.IsValid() {
+		if info, err = e.db.GetMovieInfo(
+			providerid.ProviderID{
+				Provider: provider.Name(),
+				ID:       id,
+			}); err == nil && info.IsValid() {
 			return // ignore DB query error.
 		}
 	}
 	// delayed info auto-save.
 	defer func() {
-		if err == nil && info.IsValid() {
-			e.db.Clauses(clause.OnConflict{
-				UpdateAll: true,
-			}).Create(info) // ignore error
+		if err == nil {
+			_ = e.db.SaveMovieInfo(info) // ignore error
 		}
 	}()
 	return callback()

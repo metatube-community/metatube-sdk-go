@@ -13,6 +13,7 @@ type DBEngine interface {
 	actorEngine
 	movieEngine
 	AutoMigrate() error
+	Type() string
 	Version() (string, error)
 }
 
