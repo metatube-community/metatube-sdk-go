@@ -157,8 +157,8 @@ func (e *Engine) DBAutoMigrate(v bool) error {
 	return e.db.AutoMigrate()
 }
 
-func (e *Engine) DBType() string {
-	return e.db.Type()
+func (e *Engine) DBDriver() string {
+	return e.db.Driver()
 }
 
 func (e *Engine) DBVersion() (string, error) {
