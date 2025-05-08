@@ -77,7 +77,7 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 	c.OnXML(`//div[@class="items_article_headerInfo"]`, func(e *colly.XMLElement) {
 		// Modified title extraction
 		rawTitle := e.ChildText(`./h3`) // Get all text content from h3 element
-		
+
 		// Process as HTML
 		doc, err := goquery.NewDocumentFromReader(strings.NewReader("<h3>" + rawTitle + "</h3>"))
 		if err == nil {
@@ -90,7 +90,7 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 					s.Remove()
 				}
 			})
-			
+
 			// Get clean text
 			info.Title = strings.TrimSpace(doc.Text())
 		} else {
