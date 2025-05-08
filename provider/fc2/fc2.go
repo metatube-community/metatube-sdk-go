@@ -9,13 +9,12 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly/v2"
-	"golang.org/x/text/language"
-
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/fc2/fc2util"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
+	"golang.org/x/text/language"
 )
 
 var _ provider.MovieProvider = (*FC2)(nil)
@@ -84,9 +83,9 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 			// Remove spam-like spans
 			doc.Find("span").Each(func(i int, s *goquery.Selection) {
 				style, exists := s.Attr("style")
-				if exists && (strings.Contains(style, "zoom:0.01") || 
-						strings.Contains(style, "display:none") || 
-						strings.Contains(style, "overflow:hidden")) {
+				if exists && (strings.Contains(style, "zoom:0.01") ||
+					strings.Contains(style, "display:none") ||
+					strings.Contains(style, "overflow:hidden")) {
 					s.Remove()
 				}
 			})
