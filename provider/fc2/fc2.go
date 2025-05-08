@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/text/language"
 
@@ -74,7 +75,30 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 
 	// Headers
 	c.OnXML(`//div[@class="items_article_headerInfo"]`, func(e *colly.XMLElement) {
-		info.Title = strings.Join(e.ChildTexts(`./h3/text()`), "")
+		// Modified title extraction
+		rawTitle := e.ChildText(`./h3`) // Get all text content from h3 element
+		
+		// Process as HTML
+		doc, err := goquery.NewDocumentFromReader(strings.NewReader("<h3>" + rawTitle + "</h3>"))
+		if err == nil {
+			// Remove spam-like spans
+			doc.Find("span").Each(func(i int, s *goquery.Selection) {
+				style, exists := s.Attr("style")
+				if exists && (strings.Contains(style, "zoom:0.01") || 
+						strings.Contains(style, "display:none") || 
+						strings.Contains(style, "overflow:hidden")) {
+					s.Remove()
+				}
+			})
+			
+			// Get clean text
+			info.Title = strings.TrimSpace(doc.Text())
+		} else {
+			// Fallback: Remove spam patterns using regex
+			pattern := regexp.MustCompile(`\*+[a-z0-9*]+\s*`)
+			cleanTitle := pattern.ReplaceAllString(rawTitle, "")
+			info.Title = strings.TrimSpace(cleanTitle)
+		}
 		info.Genres = e.ChildTexts(`.//section[@class="items_article_TagArea"]/div/a`)
 		info.Maker = e.ChildText(`.//ul/li[last()]/a`)
 		{ /* score */
