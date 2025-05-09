@@ -20,6 +20,7 @@ func TestMGS_SearchMovie(t *testing.T) {
 	testkit.Test(t, New, []string{
 		"ABP-177",
 		"200GANA-2701",
+		"ABF-228",
 	})
 }
 
