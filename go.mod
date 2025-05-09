@@ -3,6 +3,7 @@ module github.com/metatube-community/metatube-sdk-go
 go 1.23.4
 
 require (
+	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/adrg/strutil v0.3.1
 	github.com/antchfx/htmlquery v1.3.4
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
@@ -52,7 +53,6 @@ require (
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
-	github.com/PuerkitoBio/goquery v1.10.3 // indirect
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/antchfx/xmlquery v1.4.4 // indirect
 	github.com/antchfx/xpath v1.3.4 // indirect
@@ -122,7 +122,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.7 // indirect
 	gotest.tools v2.2.0+incompatible // indirect
-	modernc.org/libc v1.65.1 // indirect
+	modernc.org/libc v1.65.3 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.10.0 // indirect
 	modernc.org/sqlite v1.37.0 // indirect

@@ -214,15 +214,19 @@ func (mgs *MGS) NormalizeMovieKeyword(keyword string) string {
 func (mgs *MGS) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
 	c := mgs.ClonedCollector()
 
-	c.OnXML(`//*[@id="center_column"]/div[2]/div/ul/li`, func(e *colly.XMLElement) {
+	c.OnXML(`//*[@id="center_column"]//ul[@class="product_list"]/li`, func(e *colly.XMLElement) {
 		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//h5/a`, "href"))
 		id, _ := mgs.ParseMovieIDFromURL(homepage)
+		title := strings.TrimSpace(e.ChildText(`.//a[contains(@class,'title')]`))
+		if title == "" {
+			title = strings.TrimSpace(e.ChildText(`.//a/p`)) // fallback
+		}
 		results = append(results, &model.MovieSearchResult{
 			ID:       id,
 			Number:   id, /* same as ID */
 			Provider: mgs.Name(),
 			Homepage: homepage,
-			Title:    strings.TrimSpace(e.ChildText(`.//a/p`)),
+			Title:    title,
 			ThumbURL: e.Request.AbsoluteURL(imageSrc(e.ChildAttr(`.//h5/a/img`, "src"), true)),
 			CoverURL: e.Request.AbsoluteURL(imageSrc(e.ChildAttr(`.//h5/a/img`, "src"), false)),
 			Score:    parser.ParseScore(e.ChildText(`.//p[@class="review"]`)),
