@@ -7,33 +7,17 @@ import (
 	"sync"
 
 	"golang.org/x/text/language"
-	"gorm.io/gorm/clause"
 
 	"github.com/metatube-community/metatube-sdk-go/collection/sets"
 	"github.com/metatube-community/metatube-sdk-go/collection/slices"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
+	"github.com/metatube-community/metatube-sdk-go/engine/dbengine"
 	"github.com/metatube-community/metatube-sdk-go/engine/providerid"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/gfriends"
 )
-
-func (e *Engine) searchActorFromDB(keyword string, provider mt.Provider) (results []*model.ActorSearchResult, err error) {
-	var infos []*model.ActorInfo
-	if err = e.db.
-		Where("provider = ? AND name = ? COLLATE NOCASE",
-			provider.Name(), keyword).
-		Find(&infos).Error; err == nil {
-		for _, info := range infos {
-			if !info.IsValid() {
-				continue
-			}
-			results = append(results, info.ToSearchResult())
-		}
-	}
-	return
-}
 
 func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool) ([]*model.ActorSearchResult, error) {
 	innerSearch := func(keyword string) (results []*model.ActorSearchResult, err error) {
@@ -56,9 +40,12 @@ func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool
 			}()
 			if fallback {
 				defer func() {
-					if innerResults, innerErr := e.searchActorFromDB(keyword, provider);
-					// ignore DB query error.
-					innerErr == nil && len(innerResults) > 0 {
+					if innerResults, innerErr := e.db.SearchActor(
+						keyword,
+						dbengine.ActorSearchOptions{
+							Provider: provider.Name(),
+						},
+					); innerErr == nil /* ignore DB query error */ && len(innerResults) > 0 {
 						// overwrite error.
 						err = nil
 						// update results.
@@ -141,15 +128,6 @@ func (e *Engine) SearchActorAll(keyword string, fallback bool) (results []*model
 	return
 }
 
-func (e *Engine) getActorInfoFromDB(provider mt.ActorProvider, id string) (*model.ActorInfo, error) {
-	info := &model.ActorInfo{}
-	err := e.db. // Exact match here.
-			Where("provider = ?", provider.Name()).
-			Where("id = ? COLLATE NOCASE", id).
-			First(info).Error
-	return info, err
-}
-
 func (e *Engine) getActorInfoWithCallback(provider mt.ActorProvider, id string, lazy bool, callback func() (*model.ActorInfo, error)) (info *model.ActorInfo, err error) {
 	defer func() {
 		// metadata validation check.
@@ -170,17 +148,18 @@ func (e *Engine) getActorInfoWithCallback(provider mt.ActorProvider, id string, 
 	}()
 	// Query DB first (by id).
 	if lazy {
-		if info, err = e.getActorInfoFromDB(provider, id); err == nil && info.IsValid() {
+		if info, err = e.db.GetActorInfo(
+			providerid.ProviderID{
+				Provider: provider.Name(), ID: id,
+			}); err == nil && info.IsValid() {
 			return
 		}
 	}
 	// Delayed info auto-save.
 	defer func() {
-		if err == nil && info.IsValid() {
+		if err == nil {
 			// Make sure we save the original info here.
-			e.db.Clauses(clause.OnConflict{
-				UpdateAll: true,
-			}).Create(info) // ignore error
+			_ = e.db.SaveActorInfo(info) // ignore error
 		}
 	}()
 	return callback()

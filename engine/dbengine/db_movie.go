@@ -53,7 +53,7 @@ func (e *engine) SearchMovie(keyword string, opts MovieSearchOptions) ([]*model.
 
 	// Note: keyword can be an ID, a number, or a title, so we should
 	// query all of them for a better match. Also, it's case-insensitive.
-	if e.Type() == database.Postgres {
+	if e.Driver() == database.Postgres {
 		tx = tx.Where(
 			`(
 			  number COLLATE NOCASE = ?
