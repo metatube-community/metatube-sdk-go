@@ -29,7 +29,11 @@ require (
 	github.com/ory/dockertest v3.3.5+incompatible
 	github.com/peterbourgon/ff/v3 v3.4.0
 	github.com/projectbarks/cimap v0.1.1
+<<<<<<< HEAD
 	github.com/projectdiscovery/useragent v0.0.101
+=======
+	github.com/projectdiscovery/useragent v0.0.100
+>>>>>>> 18fabd7 (mod bump)
 	github.com/projectdiscovery/utils v0.4.19
 	github.com/robertkrimen/otto v0.5.1
 	github.com/sashabaranov/go-openai v1.40.1
@@ -122,7 +126,11 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.6.0 // indirect
 	gotest.tools v2.2.0+incompatible // indirect
+<<<<<<< HEAD
 	modernc.org/libc v1.65.10 // indirect
+=======
+	modernc.org/libc v1.65.6 // indirect
+>>>>>>> 18fabd7 (mod bump)
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
 	modernc.org/sqlite v1.37.1 // indirect
