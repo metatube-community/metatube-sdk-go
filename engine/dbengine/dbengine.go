@@ -101,7 +101,7 @@ func (e *engine) Version() (version string, err error) {
 	case database.Sqlite:
 		err = e.DB().Raw("SELECT sqlite_version();").Scan(&version).Error
 	default:
-		err = fmt.Errorf("unsupported DB type: %s", e.Driver())
+		err = fmt.Errorf("unsupported DB driver: %s", e.Driver())
 	}
 	return
 }
