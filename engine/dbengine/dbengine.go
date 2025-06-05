@@ -54,6 +54,7 @@ func (e *engine) AutoMigrate() error {
 		}
 	}
 
+	// Table auto migration.
 	if err := e.db.AutoMigrate(
 		&model.MovieInfo{},
 		&model.ActorInfo{},
