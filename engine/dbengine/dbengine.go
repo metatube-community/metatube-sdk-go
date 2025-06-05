@@ -64,12 +64,23 @@ func (e *engine) AutoMigrate() error {
 	}
 
 	if e.Driver() == database.Postgres {
-		// Create indexes for full-text search.
+		buildNocaseIndexSQL := func(table, column string) string {
+			const tmpl = `CREATE INDEX idx_%s_%s_nocase ON %s (%s COLLATE nocase);`
+			return fmt.Sprintf(tmpl, table, column, table, column)
+		}
 		buildTrgmIndexSQL := func(table, column string) string {
 			const tmpl = `CREATE INDEX IF NOT EXISTS idx_%s_%s_trgm ON %s USING gin (%s gin_trgm_ops)`
 			return fmt.Sprintf(tmpl, table, column, table, column)
 		}
 		sqlStmts := []string{
+			// Create indexes for nocase collation.
+			buildNocaseIndexSQL(model.ActorMetadataTableName, "provider"),
+			buildNocaseIndexSQL(model.ActorMetadataTableName, "id"),
+			buildNocaseIndexSQL(model.ActorMetadataTableName, "name"),
+			buildNocaseIndexSQL(model.ActorMetadataTableName, "provider"),
+			buildNocaseIndexSQL(model.ActorMetadataTableName, "id"),
+			buildNocaseIndexSQL(model.ActorMetadataTableName, "number"),
+			// Create indexes for full-text search.
 			buildTrgmIndexSQL(model.ActorMetadataTableName, "name"),
 			buildTrgmIndexSQL(model.MovieMetadataTableName, "number"),
 			buildTrgmIndexSQL(model.MovieMetadataTableName, "title"),
