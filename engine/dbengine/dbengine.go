@@ -9,14 +9,15 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/model"
 )
 
+var _ DBEngine = (*engine)(nil)
+
 type DBEngine interface {
 	actorEngine
 	movieEngine
 	AutoMigrate() error
+	Driver() string
 	Version() (string, error)
 }
-
-var _ DBEngine = (*engine)(nil)
 
 type engine struct {
 	db *gorm.DB
@@ -30,12 +31,12 @@ func (e *engine) DB() *gorm.DB {
 	return e.db.Session(&gorm.Session{})
 }
 
-func (e *engine) Type() string {
+func (e *engine) Driver() string {
 	return e.db.Config.Dialector.Name()
 }
 
 func (e *engine) AutoMigrate() error {
-	if e.Type() == database.Postgres {
+	if e.Driver() == database.Postgres {
 		sqlStmts := []string{
 			// Create case-insensitive collation.
 			`CREATE COLLATION IF NOT EXISTS nocase (
@@ -61,7 +62,7 @@ func (e *engine) AutoMigrate() error {
 		return err
 	}
 
-	if e.Type() == database.Postgres {
+	if e.Driver() == database.Postgres {
 		// Create indexes for full-text search.
 		buildTrgmIndexSQL := func(table, column string) string {
 			const tmpl = `CREATE INDEX IF NOT EXISTS idx_%s_%s_trgm ON %s USING gin (%s gin_trgm_ops)`
@@ -82,13 +83,13 @@ func (e *engine) AutoMigrate() error {
 }
 
 func (e *engine) Version() (version string, err error) {
-	switch e.Type() {
+	switch e.Driver() {
 	case database.Postgres:
 		err = e.DB().Raw("SELECT version();").Scan(&version).Error
 	case database.Sqlite:
 		err = e.DB().Raw("SELECT sqlite_version();").Scan(&version).Error
 	default:
-		err = fmt.Errorf("unsupported DB type: %s", e.Type())
+		err = fmt.Errorf("unsupported DB type: %s", e.Driver())
 	}
 	return
 }

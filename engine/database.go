@@ -12,7 +12,7 @@ func (e *Engine) DBAutoMigrate(v bool) error {
 		return nil
 	}
 	// Create Case-Insensitive Collation for Postgres.
-	if e.DBType() == database.Postgres {
+	if e.DBDriver() == database.Postgres {
 		e.db.Exec(`CREATE COLLATION IF NOT EXISTS NOCASE (
 		provider = icu,
 		locale = 'und-u-ks-level2',
@@ -25,12 +25,12 @@ func (e *Engine) DBAutoMigrate(v bool) error {
 	)
 }
 
-func (e *Engine) DBType() string {
+func (e *Engine) DBDriver() string {
 	return e.db.Config.Dialector.Name()
 }
 
 func (e *Engine) DBVersion() (version string, err error) {
-	switch dbType := e.DBType(); dbType {
+	switch dbType := e.DBDriver(); dbType {
 	case database.Postgres:
 		err = e.db.Raw("SELECT version();").Scan(&version).Error
 	case database.Sqlite:
