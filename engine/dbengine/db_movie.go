@@ -60,13 +60,12 @@ func (e *engine) SearchMovie(keyword string, opts MovieSearchOptions) ([]*model.
 			  number COLLATE NOCASE = ?
 			  OR id COLLATE NOCASE = ?
 			  OR number ILIKE ?
-			  OR id ILIKE ?
 			  OR title ILIKE ?
 			  OR similarity(number, ?) > ?
 			  OR similarity(title, ?) > ?
 			)`,
 			keyword, keyword,
-			pattern, pattern, pattern,
+			pattern, pattern,
 			keyword, opts.Thresholds.Number,
 			keyword, opts.Thresholds.Title,
 		)
