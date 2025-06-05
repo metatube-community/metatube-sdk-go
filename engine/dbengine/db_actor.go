@@ -49,7 +49,7 @@ func (e *engine) SearchActor(keyword string, opts ActorSearchOptions) ([]*model.
 	}
 
 	// keyword filter.
-	if e.Type() == database.Postgres {
+	if e.Driver() == database.Postgres {
 		tx = tx.Where(
 			`(name COLLATE NOCASE = ? OR similarity(name, ?) > ?)`,
 			keyword, keyword, opts.Threshold,
