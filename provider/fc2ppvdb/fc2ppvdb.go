@@ -117,7 +117,7 @@ func (fc2ppvdb *FC2PPVDB) GetMovieInfoByURL(rawURL string) (info *model.MovieInf
 			}
 		})
 
-	//根据喜欢, 点赞, 点踩人数来计算评分
+	// 根据喜欢, 点赞, 点踩人数来计算评分
 	var like, upvote, downvote int
 	// 点赞
 	c.OnXML(`//div[@id='unheart']/span[contains(@class, 'text-white')]`,
