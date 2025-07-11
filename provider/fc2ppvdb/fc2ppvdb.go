@@ -3,8 +3,10 @@ package fc2ppvdb
 import (
 	"fmt"
 	"math"
+	"net/http"
 	"net/url"
 	"path"
+	"regexp"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
@@ -25,8 +27,9 @@ const (
 )
 
 const (
-	baseURL  = "https://fc2ppvdb.com/"
-	movieURL = "https://fc2ppvdb.com/articles/%s/"
+	baseURL   = "https://fc2ppvdb.com/"
+	movieURL  = "https://fc2ppvdb.com/articles/%s/"
+	searchURL = "https://fc2ppvdb.com/search?stype=title&keyword=%s"
 )
 
 type FC2PPVDB struct {
@@ -159,6 +162,35 @@ func (fc2ppvdb *FC2PPVDB) GetMovieInfoByURL(rawURL string) (info *model.MovieInf
 	if vErr := c.Visit(info.Homepage); vErr != nil {
 		err = vErr
 	}
+	return
+}
+
+func (fc2ppvdb *FC2PPVDB) NormalizeMovieKeyword(keyword string) string {
+	return fc2util.ParseNumber(keyword)
+}
+
+func (fc2ppvdb *FC2PPVDB) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
+	c := fc2ppvdb.ClonedCollector()
+	c.ParseHTTPErrorResponse = true
+	c.SetRedirectHandler(func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	})
+
+	c.OnResponse(func(r *colly.Response) {
+		var loc *url.URL
+		if loc, err = url.Parse(r.Request.AbsoluteURL(r.Headers.Get("Location"))); err != nil {
+			return
+		}
+		if regexp.MustCompile(`/articles/\d+`).MatchString(loc.Path) {
+			var info *model.MovieInfo
+			if info, err = fc2ppvdb.GetMovieInfoByURL(loc.String()); err != nil {
+				return
+			}
+			results = append(results, info.ToSearchResult())
+		}
+	})
+
+	err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword)))
 	return
 }
 
