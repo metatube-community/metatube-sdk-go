@@ -21,7 +21,7 @@ var _ provider.MovieProvider = (*FC2PPVDB)(nil)
 
 const (
 	Name     = "FC2PPVDB"
-	Priority = 1001
+	Priority = 1000 - 2
 )
 
 const (
@@ -68,13 +68,8 @@ func (fc2ppvdb *FC2PPVDB) GetMovieInfoByURL(rawURL string) (info *model.MovieInf
 		PreviewImages: []string{},
 		Genres:        []string{},
 	}
-	//found := false
 
 	c := fc2ppvdb.ClonedCollector()
-	// 主容器
-	/*c.OnXML(`//div[@class="container lg:px-5 px-2 py-12 mx-auto"]`, func(e *colly.XMLElement) {
-		found = true
-	})*/
 
 	// 标题
 	c.OnXML(`//div[@class="container lg:px-5 px-2 py-12 mx-auto"]//h2/a`, func(e *colly.XMLElement) {
