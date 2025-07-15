@@ -1,3 +1,5 @@
+//go:build deprecated
+
 // Deprecated: X/sList is deprecated due to its outdated data and WAF.
 package xslist
 

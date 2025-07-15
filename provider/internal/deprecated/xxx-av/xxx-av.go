@@ -1,3 +1,6 @@
+//go:build deprecated
+
+// Deprecated: This provider is no longer available.
 package xxx_av
 
 import (

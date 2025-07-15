@@ -1,3 +1,5 @@
+//go:build deprecated
+
 // Deprecated: This provider is no longer supported.
 package prestige
 
