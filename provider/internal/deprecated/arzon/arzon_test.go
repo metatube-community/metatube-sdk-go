@@ -1,3 +1,5 @@
+//go:build deprecated
+
 package arzon
 
 import (
