@@ -13,7 +13,7 @@ import (
 
 	"github.com/metatube-community/metatube-sdk-go/collection/maps"
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
-	"github.com/metatube-community/metatube-sdk-go/database"
+	"github.com/metatube-community/metatube-sdk-go/engine/dbengine"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
 
@@ -23,10 +23,11 @@ const (
 )
 
 type Engine struct {
-	db      *gorm.DB
 	name    string
 	timeout time.Duration
 	fetcher *fetch.Fetcher
+	// DB Engine
+	db dbengine.DBEngine
 	// Engine Logger
 	logger *log.Logger
 	// Name:Config Case-Insensitive Map
@@ -46,9 +47,9 @@ type Engine struct {
 
 func New(db *gorm.DB, opts ...Option) *Engine {
 	engine := &Engine{
-		db:      db,
 		name:    DefaultEngineName,
 		timeout: DefaultRequestTimeout,
+		db:      dbengine.New(db),
 		// pre-initialize case-insensitive maps.
 		actorProviderConfigs: maps.NewCaseInsensitiveMap[mt.Config](),
 		movieProviderConfigs: maps.NewCaseInsensitiveMap[mt.Config](),
@@ -62,16 +63,6 @@ func New(db *gorm.DB, opts ...Option) *Engine {
 		opt(engine)
 	}
 	return engine.init()
-}
-
-func Default() *Engine {
-	db, _ := database.Open(&database.Config{
-		DSN:                  "",
-		DisableAutomaticPing: true,
-	})
-	engine := New(db)
-	defer engine.DBAutoMigrate(true)
-	return engine
 }
 
 func (e *Engine) IsActorProvider(name string) bool {
@@ -161,10 +152,5 @@ func (e *Engine) Fetch(url string, provider mt.Provider) (*http.Response, error)
 
 // String returns the name of the Engine instance.
 func (e *Engine) String() string { return e.name }
-
-var (
-	_ = New
-	_ = Default
-)
 
 var _ fmt.Stringer = (*Engine)(nil)

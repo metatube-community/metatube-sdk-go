@@ -4,23 +4,16 @@ import (
 	"fmt"
 
 	"gorm.io/datatypes"
-	"gorm.io/gorm/clause"
 
 	"github.com/metatube-community/metatube-sdk-go/engine/providerid"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
 
-func (e *Engine) getMovieReviewsFromDB(provider mt.MovieProvider, id string) (*model.MovieReviewInfo, error) {
-	info := &model.MovieReviewInfo{}
-	err := e.db. // Exact match here.
-			Where("provider = ?", provider.Name()).
-			Where("id = ? COLLATE NOCASE", id).
-			First(info).Error
-	return info, err
-}
-
-func (e *Engine) getMovieReviewsWithCallback(provider mt.MovieProvider, id string, lazy bool,
+func (e *Engine) getMovieReviewsWithCallback(
+	provider mt.MovieProvider,
+	id string,
+	lazy bool,
 	callback func() ([]*model.MovieReviewDetail, error),
 ) (info *model.MovieReviewInfo, err error) {
 	defer func() {
@@ -31,16 +24,18 @@ func (e *Engine) getMovieReviewsWithCallback(provider mt.MovieProvider, id strin
 	}()
 	// Query DB first (by id).
 	if lazy {
-		if info, err = e.getMovieReviewsFromDB(provider, id); err == nil && info.IsValid() {
+		if info, err = e.db.GetMovieReviewInfo(
+			providerid.ProviderID{
+				Provider: provider.Name(),
+				ID:       id,
+			}); err == nil && info.IsValid() {
 			return // ignore DB query error.
 		}
 	}
 	// delayed info auto-save.
 	defer func() {
-		if err == nil && info.IsValid() {
-			e.db.Clauses(clause.OnConflict{
-				UpdateAll: true,
-			}).Create(info) // ignore error
+		if err == nil {
+			_ = e.db.SaveMovieReviewInfo(info) // ignore error
 		}
 	}()
 
