@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"golang.org/x/text/language"
 	dt "gorm.io/datatypes"
 
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -38,7 +39,11 @@ type AVLeague struct {
 }
 
 func New() *AVLeague {
-	return &AVLeague{scraper.NewDefaultScraper(Name, baseURL, Priority, scraper.WithDisableCookies())}
+	return &AVLeague{scraper.NewDefaultScraper(
+		Name, baseURL, Priority,
+		language.Japanese,
+		scraper.WithDisableCookies(),
+	)}
 }
 
 func (avl *AVLeague) GetActorInfoByID(id string) (info *model.ActorInfo, err error) {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"go.uber.org/atomic"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/provider"
 )
@@ -15,16 +16,17 @@ var (
 	_ provider.RequestTimeoutSetter = (*Scraper)(nil)
 )
 
-// Scraper implements basic Provider interface.
+// Scraper implements the basic Provider interface.
 type Scraper struct {
 	name     string
 	baseURL  *url.URL
 	priority *atomic.Float64
+	language language.Tag
 	c        *colly.Collector
 }
 
 // NewScraper returns a *Scraper that implements provider.Provider .
-func NewScraper(name, base string, priority float64, opts ...Option) *Scraper {
+func NewScraper(name, base string, priority float64, lang language.Tag, opts ...Option) *Scraper {
 	baseURL, err := url.Parse(base)
 	if err != nil {
 		panic(err)
@@ -33,6 +35,7 @@ func NewScraper(name, base string, priority float64, opts ...Option) *Scraper {
 		name:     name,
 		baseURL:  baseURL,
 		priority: atomic.NewFloat64(priority),
+		language: lang,
 		c:        colly.NewCollector(),
 	}
 	for _, opt := range opts {
@@ -45,8 +48,8 @@ func NewScraper(name, base string, priority float64, opts ...Option) *Scraper {
 }
 
 // NewDefaultScraper returns a *Scraper with default options enabled.
-func NewDefaultScraper(name, baseURL string, priority float64, opts ...Option) *Scraper {
-	return NewScraper(name, baseURL, priority, append([]Option{
+func NewDefaultScraper(name, baseURL string, priority float64, lang language.Tag, opts ...Option) *Scraper {
+	return NewScraper(name, baseURL, priority, lang, append([]Option{
 		WithAllowURLRevisit(),
 		WithIgnoreRobotsTxt(),
 		WithRandomUserAgent(),
@@ -60,6 +63,8 @@ func (s *Scraper) URL() *url.URL { return s.baseURL }
 func (s *Scraper) Priority() float64 { return s.priority.Load() }
 
 func (s *Scraper) SetPriority(v float64) { s.priority.Store(v) }
+
+func (s *Scraper) Language() language.Tag { return s.language }
 
 func (s *Scraper) NormalizeMovieID(id string) string { return id /* AS IS */ }
 

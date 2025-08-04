@@ -12,8 +12,9 @@ import (
 	"github.com/antchfx/htmlquery"
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
+	"golang.org/x/text/language"
 
-	"github.com/metatube-community/metatube-sdk-go/collections"
+	"github.com/metatube-community/metatube-sdk-go/collection/sets"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
@@ -41,7 +42,9 @@ type TokyoHot struct {
 }
 
 func New() *TokyoHot {
-	return &TokyoHot{scraper.NewDefaultScraper(Name, baseURL, Priority,
+	return &TokyoHot{scraper.NewDefaultScraper(
+		Name, baseURL, Priority,
+		language.Japanese,
 		// Temporary workaround for unknown CA issue.
 		scraper.WithTransport(&http.Transport{
 			Proxy:                 http.DefaultTransport.(*http.Transport).Proxy,
@@ -52,7 +55,8 @@ func New() *TokyoHot {
 			TLSHandshakeTimeout:   http.DefaultTransport.(*http.Transport).TLSHandshakeTimeout,
 			ExpectContinueTimeout: http.DefaultTransport.(*http.Transport).ExpectContinueTimeout,
 			TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
-		}))}
+		}),
+	)}
 }
 
 func (tht *TokyoHot) NormalizeMovieID(id string) string {
@@ -183,11 +187,11 @@ func (tht *TokyoHot) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 
 	// Deduplicate Genres
 	c.OnScraped(func(_ *colly.Response) {
-		genres := collections.NewOrderedSet(func(v string) string { return v })
+		genres := sets.NewOrderedSet[string]()
 		for _, genre := range info.Genres {
 			genres.Add(genre)
 		}
-		info.Genres = genres.Slice()
+		info.Genres = genres.AsSlice()
 	})
 
 	// Fallbacks

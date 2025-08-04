@@ -6,11 +6,14 @@ import (
 	"sort"
 	"sync"
 
+	"golang.org/x/text/language"
 	"gorm.io/gorm/clause"
 
-	"github.com/metatube-community/metatube-sdk-go/collections"
+	"github.com/metatube-community/metatube-sdk-go/collection/sets"
+	"github.com/metatube-community/metatube-sdk-go/collection/slices"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
+	"github.com/metatube-community/metatube-sdk-go/engine/providerid"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/gfriends"
@@ -23,7 +26,7 @@ func (e *Engine) searchActorFromDB(keyword string, provider mt.Provider) (result
 			provider.Name(), keyword).
 		Find(&infos).Error; err == nil {
 		for _, info := range infos {
-			if !info.Valid() {
+			if !info.IsValid() {
 				continue
 			}
 			results = append(results, info.ToSearchResult())
@@ -43,13 +46,13 @@ func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool
 					return // ignore error or empty.
 				}
 				const minSimilarity = 0.3
-				ps := new(collections.WeightedSlice[float64, *model.ActorSearchResult])
+				ps := new(slices.WeightedSlice[*model.ActorSearchResult, float64])
 				for _, result := range results {
 					if similarity := comparer.Compare(result.Name, keyword); similarity >= minSimilarity {
-						ps.Append(similarity, result)
+						ps.Append(result, similarity)
 					}
 				}
-				results = ps.SortFunc(sort.Stable).Underlying() // replace results.
+				results = ps.SortFunc(sort.Stable).Slice() // replace results.
 			}()
 			if fallback {
 				defer func() {
@@ -59,18 +62,18 @@ func (e *Engine) searchActor(keyword string, provider mt.Provider, fallback bool
 						// overwrite error.
 						err = nil
 						// update results.
-						asr := collections.NewOrderedSet(func(v *model.ActorSearchResult) string { return v.Provider + v.ID })
+						asr := sets.NewOrderedSetWithHash(func(v *model.ActorSearchResult) string { return v.Provider + v.ID })
 						// unlike movie searching, we want search results go first
 						// than DB data here, so we add results later than DB results.
 						asr.Add(innerResults...)
 						asr.Add(results...)
-						results = asr.Slice()
+						results = asr.AsSlice()
 					}
 				}()
 			}
 			return searcher.SearchActor(keyword)
 		}
-		// All providers should implement ActorSearcher interface.
+		// All providers should implement the ActorSearcher interface.
 		return nil, mt.ErrInfoNotFound
 	}
 	names := parser.ParseActorNames(keyword)
@@ -114,13 +117,13 @@ func (e *Engine) SearchActorAll(keyword string, fallback bool) (results []*model
 		mu sync.Mutex
 		wg sync.WaitGroup
 	)
-	for _, provider := range e.actorProviders {
+	for _, provider := range e.actorProviders.Iterator() {
 		wg.Add(1)
 		go func(provider mt.ActorProvider) {
 			defer wg.Done()
 			if innerResults, innerErr := e.searchActor(keyword, provider, fallback); innerErr == nil {
 				for _, result := range innerResults {
-					if result.Valid() /* validation check */ {
+					if result.IsValid() /* validation check */ {
 						mu.Lock()
 						results = append(results, result)
 						mu.Unlock()
@@ -150,7 +153,7 @@ func (e *Engine) getActorInfoFromDB(provider mt.ActorProvider, id string) (*mode
 func (e *Engine) getActorInfoWithCallback(provider mt.ActorProvider, id string, lazy bool, callback func() (*model.ActorInfo, error)) (info *model.ActorInfo, err error) {
 	defer func() {
 		// metadata validation check.
-		if err == nil && (info == nil || !info.Valid()) {
+		if err == nil && (info == nil || !info.IsValid()) {
 			err = mt.ErrIncompleteMetadata
 		}
 	}()
@@ -158,8 +161,8 @@ func (e *Engine) getActorInfoWithCallback(provider mt.ActorProvider, id string, 
 		return provider.GetActorInfoByID(id)
 	}
 	defer func() {
-		// actor image injection.
-		if err == nil && info != nil {
+		// gfriends actor image injection for JAV actor providers.
+		if err == nil && info != nil && provider.Language() == language.Japanese {
 			if gInfo, gErr := e.MustGetActorProviderByName(gfriends.Name).GetActorInfoByID(info.Name); gErr == nil && len(gInfo.Images) > 0 {
 				info.Images = append(gInfo.Images, info.Images...)
 			}
@@ -167,13 +170,13 @@ func (e *Engine) getActorInfoWithCallback(provider mt.ActorProvider, id string, 
 	}()
 	// Query DB first (by id).
 	if lazy {
-		if info, err = e.getActorInfoFromDB(provider, id); err == nil && info.Valid() {
+		if info, err = e.getActorInfoFromDB(provider, id); err == nil && info.IsValid() {
 			return
 		}
 	}
 	// Delayed info auto-save.
 	defer func() {
-		if err == nil && info.Valid() {
+		if err == nil && info.IsValid() {
 			// Make sure we save the original info here.
 			e.db.Clauses(clause.OnConflict{
 				UpdateAll: true,
@@ -192,12 +195,12 @@ func (e *Engine) getActorInfoByProviderID(provider mt.ActorProvider, id string, 
 	})
 }
 
-func (e *Engine) GetActorInfoByProviderID(name, id string, lazy bool) (*model.ActorInfo, error) {
-	provider, err := e.GetActorProviderByName(name)
+func (e *Engine) GetActorInfoByProviderID(pid providerid.ProviderID, lazy bool) (*model.ActorInfo, error) {
+	provider, err := e.GetActorProviderByName(pid.Provider)
 	if err != nil {
 		return nil, err
 	}
-	return e.getActorInfoByProviderID(provider, id, lazy)
+	return e.getActorInfoByProviderID(provider, pid.ID, lazy)
 }
 
 func (e *Engine) getActorInfoByProviderURL(provider mt.ActorProvider, rawURL string, lazy bool) (*model.ActorInfo, error) {

@@ -66,6 +66,8 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 			return
 		}
 
+		// TODO: how to handle providers that implement
+		//   both actor and movie provider interfaces?
 		var isActorProvider bool
 		switch {
 		case app.IsActorProvider(uri.Provider):
@@ -96,7 +98,7 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 		} else if isActorProvider /* actor */ {
 			switch typ {
 			case primaryImageType:
-				img, err = app.GetActorPrimaryImage(uri.Provider, uri.ID)
+				img, err = app.GetActorPrimaryImage(uri.AsProviderID())
 			case thumbImageType, backdropImageType:
 				abortWithStatusMessage(c, http.StatusBadRequest, "unsupported image type")
 				return
@@ -104,11 +106,11 @@ func getImage(app *engine.Engine, typ imageType) gin.HandlerFunc {
 		} else /* movie */ {
 			switch typ {
 			case primaryImageType:
-				img, err = app.GetMoviePrimaryImage(uri.Provider, uri.ID, query.Ratio, query.Position)
+				img, err = app.GetMoviePrimaryImage(uri.AsProviderID(), query.Ratio, query.Position)
 			case thumbImageType:
-				img, err = app.GetMovieThumbImage(uri.Provider, uri.ID)
+				img, err = app.GetMovieThumbImage(uri.AsProviderID())
 			case backdropImageType:
-				img, err = app.GetMovieBackdropImage(uri.Provider, uri.ID)
+				img, err = app.GetMovieBackdropImage(uri.AsProviderID())
 			}
 		}
 		if err != nil {

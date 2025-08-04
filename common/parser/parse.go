@@ -6,11 +6,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unicode"
 
 	"github.com/araddon/dateparse"
 	"golang.org/x/net/html"
 	dt "gorm.io/datatypes"
+
+	"github.com/metatube-community/metatube-sdk-go/common/convertor"
 )
 
 // ParseInt parses string to int regardless.
@@ -20,7 +21,7 @@ func ParseInt(s string) int {
 	return n
 }
 
-// ParseTime parses a string with valid time format into time.Time.
+// ParseTime parses a string with a valid time format into time.Time.
 func ParseTime(s string) time.Time {
 	s = strings.TrimSpace(s)
 	if ss := regexp.MustCompile(`([\s\d]+)年([\s\d]+)月([\s\d]+)日`).
@@ -34,14 +35,14 @@ func ParseTime(s string) time.Time {
 	return t
 }
 
-// ParseDate parses a string with valid date format into Date.
+// ParseDate parses a string with a valid date format into Date.
 func ParseDate(s string) dt.Date {
 	return dt.Date(ParseTime(s))
 }
 
 // ParseDuration parses a string with valid duration format into time.Duration.
 func ParseDuration(s string) time.Duration {
-	s = ReplaceSpaceAll(s)
+	s = convertor.ReplaceSpaceAll(s)
 	s = strings.ToLower(s)
 	s = strings.ReplaceAll(s, "秒", "s")
 	s = strings.ReplaceAll(s, "分", "m")
@@ -51,6 +52,8 @@ func ParseDuration(s string) time.Duration {
 	s = strings.ReplaceAll(s, "min", "m")
 	if ss := regexp.MustCompile(`(?i)(\d+):(\d+):(\d+)`).FindStringSubmatch(s); len(ss) > 0 {
 		s = fmt.Sprintf("%02sh%02sm%02ss", ss[1], ss[2], ss[3])
+	} else if ss := regexp.MustCompile(`(?i)(\d+):(\d+)`).FindStringSubmatch(s); len(ss) > 0 {
+		s = fmt.Sprintf("%02sm%02ss", ss[1], ss[2])
 	} else if ss := regexp.MustCompile(`(?i)(\d+[mhs]?)`).FindAllStringSubmatch(s, -1); len(ss) > 0 {
 		ds := make([]string, 0, 3)
 		for _, d := range ss {
@@ -67,7 +70,7 @@ func ParseRuntime(s string) int {
 	return int(ParseDuration(s).Minutes())
 }
 
-// ParseScore parses a string into float-based score.
+// ParseScore parses a string into a float-based score.
 func ParseScore(s string) float64 {
 	s = strings.ReplaceAll(s, "点", "")
 	fields := strings.Fields(s)
@@ -115,18 +118,6 @@ func ParseActorNames(s string) (names []string) {
 	return
 }
 
-// ReplaceSpaceAll removes all spaces in string.
-func ReplaceSpaceAll(s string) string {
-	var b strings.Builder
-	b.Grow(len(s))
-	for _, c := range s {
-		if !unicode.IsSpace(c) {
-			b.WriteRune(c)
-		}
-	}
-	return b.String()
-}
-
 func ParseIDToNumber(s string) string {
 	s = strings.ToUpper(s)
 	if ss := regexp.MustCompile(`(\d*[A-Z]+)(\d+)`).FindStringSubmatch(s); len(ss) >= 3 {
@@ -135,6 +126,20 @@ func ParseIDToNumber(s string) string {
 	return s
 }
 
-func ParseProviderID(s string) string {
-	return regexp.MustCompile(`:[0|1](\.\d+)?$`).ReplaceAllString(s, "")
+func ParseBustCupSize(s string) (int, string, error) {
+	sizeRe := regexp.MustCompile(`^(\d+)\s?([A-Z])$`)
+	match := sizeRe.FindStringSubmatch(s)
+
+	if len(match) != 3 {
+		return 0, "", fmt.Errorf("invalid format: %s", s)
+	}
+
+	num := match[1]
+	unit := match[2]
+
+	value, err := strconv.Atoi(num)
+	if err != nil {
+		return 0, "", fmt.Errorf("failed to parse numeric part '%s': %w", num, err)
+	}
+	return value, unit, nil
 }

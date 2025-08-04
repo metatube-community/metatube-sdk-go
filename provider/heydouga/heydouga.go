@@ -12,6 +12,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/js"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -38,14 +39,16 @@ type HeyDouga struct {
 }
 
 func New() *HeyDouga {
-	return &HeyDouga{
-		scraper.NewDefaultScraper(Name, baseURL, Priority, scraper.WithCookies(baseURL, []*http.Cookie{
+	return &HeyDouga{scraper.NewDefaultScraper(
+		Name, baseURL, Priority,
+		language.Japanese,
+		scraper.WithCookies(baseURL, []*http.Cookie{
 			// feature_group=1; over18_ppv=1; lang=ja;
 			{Name: "lang", Value: "ja"},
 			{Name: "over18_ppv", Value: "1"},
 			{Name: "feature_group", Value: "1"},
-		})),
-	}
+		}),
+	)}
 }
 
 func (hey *HeyDouga) NormalizeMovieID(id string) string {
@@ -126,6 +129,10 @@ func (hey *HeyDouga) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 		switch e.ChildText(`.//span[1]`) {
 		case "配信日：":
 			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//span[2]`))
+		case "配信期間：":
+			dateRange := e.ChildText(`.//span[2]`)
+			startDate, _, _ := strings.Cut(dateRange, "～")
+			info.ReleaseDate = parser.ParseDate(startDate)
 		case "主演：":
 			// heydouga's actor info is sticky, but whatever...
 			info.Actors = strings.Fields(e.ChildText(`.//span[2]`))

@@ -6,6 +6,7 @@ import (
 	"gorm.io/datatypes"
 	"gorm.io/gorm/clause"
 
+	"github.com/metatube-community/metatube-sdk-go/engine/providerid"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
@@ -24,19 +25,19 @@ func (e *Engine) getMovieReviewsWithCallback(provider mt.MovieProvider, id strin
 ) (info *model.MovieReviewInfo, err error) {
 	defer func() {
 		// metadata validation check.
-		if err == nil && (info == nil || !info.Valid()) {
+		if err == nil && (info == nil || !info.IsValid()) {
 			err = mt.ErrIncompleteMetadata
 		}
 	}()
 	// Query DB first (by id).
 	if lazy {
-		if info, err = e.getMovieReviewsFromDB(provider, id); err == nil && info.Valid() {
+		if info, err = e.getMovieReviewsFromDB(provider, id); err == nil && info.IsValid() {
 			return // ignore DB query error.
 		}
 	}
 	// delayed info auto-save.
 	defer func() {
-		if err == nil && info.Valid() {
+		if err == nil && info.IsValid() {
 			e.db.Clauses(clause.OnConflict{
 				UpdateAll: true,
 			}).Create(info) // ignore error
@@ -71,12 +72,12 @@ func (e *Engine) getMovieReviewsByProviderID(provider mt.MovieProvider, id strin
 	})
 }
 
-func (e *Engine) GetMovieReviewsByProviderID(name, id string, lazy bool) (*model.MovieReviewInfo, error) {
-	provider, err := e.GetMovieProviderByName(name)
+func (e *Engine) GetMovieReviewsByProviderID(pid providerid.ProviderID, lazy bool) (*model.MovieReviewInfo, error) {
+	provider, err := e.GetMovieProviderByName(pid.Provider)
 	if err != nil {
 		return nil, err
 	}
-	return e.getMovieReviewsByProviderID(provider, id, lazy)
+	return e.getMovieReviewsByProviderID(provider, pid.ID, lazy)
 }
 
 func (e *Engine) getMovieReviewsByProviderURL(provider mt.MovieProvider, rawURL string, lazy bool) (*model.MovieReviewInfo, error) {
@@ -98,8 +99,8 @@ func (e *Engine) getMovieReviewsByProviderURL(provider mt.MovieProvider, rawURL 
 	})
 }
 
-func (e *Engine) GetMovieReviewsByProviderURL(name, rawURL string, lazy bool) (*model.MovieReviewInfo, error) {
-	provider, err := e.GetMovieProviderByName(name)
+func (e *Engine) GetMovieReviewsByProviderURL(rawURL string, lazy bool) (*model.MovieReviewInfo, error) {
+	provider, err := e.GetMovieProviderByURL(rawURL)
 	if err != nil {
 		return nil, err
 	}

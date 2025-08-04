@@ -17,9 +17,11 @@ type ActorSearchResult struct {
 	Images   pq.StringArray `json:"images"`
 }
 
-func (a *ActorSearchResult) Valid() bool {
-	return a.ID != "" && a.Name != "" &&
-		a.Provider != "" && a.Homepage != ""
+func (a *ActorSearchResult) IsValid() bool {
+	return a.ID != "" &&
+		a.Name != "" &&
+		a.Provider != "" &&
+		a.Homepage != ""
 }
 
 type ActorInfo struct {
@@ -46,8 +48,11 @@ func (*ActorInfo) TableName() string {
 	return ActorMetadataTableName
 }
 
-func (a *ActorInfo) Valid() bool {
-	return a.ID != "" && a.Name != "" && a.Provider != "" && a.Homepage != ""
+func (a *ActorInfo) IsValid() bool {
+	return a.ID != "" &&
+		a.Name != "" &&
+		a.Provider != "" &&
+		a.Homepage != ""
 }
 
 func (a *ActorInfo) ToSearchResult() *ActorSearchResult {

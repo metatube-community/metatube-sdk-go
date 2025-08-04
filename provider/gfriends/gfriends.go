@@ -8,7 +8,9 @@ import (
 	"slices"
 	"time"
 
-	"github.com/metatube-community/metatube-sdk-go/collections"
+	"golang.org/x/text/language"
+
+	"github.com/metatube-community/metatube-sdk-go/collection/maps"
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/singledo"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -39,7 +41,11 @@ type Gfriends struct {
 }
 
 func New() *Gfriends {
-	return &Gfriends{scraper.NewDefaultScraper(Name, baseURL, Priority, scraper.WithDisableCookies())}
+	return &Gfriends{scraper.NewDefaultScraper(
+		Name, baseURL, Priority,
+		language.Japanese,
+		scraper.WithDisableCookies(),
+	)}
 }
 
 func (gf *Gfriends) GetActorInfoByID(id string) (*model.ActorInfo, error) {
@@ -86,7 +92,7 @@ func (gf *Gfriends) GetActorInfoByURL(u string) (*model.ActorInfo, error) {
 
 func (gf *Gfriends) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
 	var info *model.ActorInfo
-	if info, err = gf.GetActorInfoByID(keyword); err == nil && info.Valid() {
+	if info, err = gf.GetActorInfoByID(keyword); err == nil && info.IsValid() {
 		results = []*model.ActorSearchResult{info.ToSearchResult()}
 	}
 	return
@@ -101,7 +107,7 @@ type fileTree struct {
 	single *singledo.Single
 
 	// `Content`
-	Content *collections.OrderedMap[string, *collections.OrderedMap[string, string]] `json:"Content"`
+	Content *maps.OrderedMap[string, *maps.OrderedMap[string, string]] `json:"Content"`
 
 	// `Information`
 	//Information struct {
@@ -114,7 +120,7 @@ type fileTree struct {
 func newFileTree(wait time.Duration) *fileTree {
 	return &fileTree{
 		single:  singledo.NewSingle(wait),
-		Content: collections.NewOrderedMap[string, *collections.OrderedMap[string, string]](),
+		Content: maps.NewOrderedMap[string, *maps.OrderedMap[string, string]](),
 	}
 }
 

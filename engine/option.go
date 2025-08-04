@@ -2,6 +2,8 @@ package engine
 
 import (
 	"time"
+
+	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
 
 type Option func(*Engine)
@@ -18,14 +20,14 @@ func WithRequestTimeout(timeout time.Duration) Option {
 	}
 }
 
-func WithActorProviderPriorities(priorities map[string]float64) Option {
+func WithActorProviderConfig(name string, config mt.Config) Option {
 	return func(e *Engine) {
-		e.actorPriorities = priorities
+		e.actorProviderConfigs.Set(name, config)
 	}
 }
 
-func WithMovieProviderPriorities(priorities map[string]float64) Option {
+func WithMovieProviderConfig(name string, config mt.Config) Option {
 	return func(e *Engine) {
-		e.moviePriorities = priorities
+		e.movieProviderConfigs.Set(name, config)
 	}
 }

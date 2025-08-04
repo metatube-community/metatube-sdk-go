@@ -9,9 +9,11 @@ import (
 
 	"gorm.io/gorm/clause"
 
-	"github.com/metatube-community/metatube-sdk-go/collections"
+	"github.com/metatube-community/metatube-sdk-go/collection/sets"
+	"github.com/metatube-community/metatube-sdk-go/collection/slices"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
+	"github.com/metatube-community/metatube-sdk-go/engine/providerid"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
@@ -33,7 +35,7 @@ func (e *Engine) searchMovieFromDB(keyword string, provider mt.MovieProvider, al
 	}
 	if err == nil {
 		for _, info := range infos {
-			if !info.Valid() {
+			if !info.IsValid() {
 				// normally it is valid, but just in case.
 				continue
 			}
@@ -57,10 +59,10 @@ func (e *Engine) searchMovie(keyword string, provider mt.MovieProvider, fallback
 					// overwrite error.
 					err = nil
 					// update results.
-					msr := collections.NewOrderedSet(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
+					msr := sets.NewOrderedSetWithHash(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
 					msr.Add(results...)
 					msr.Add(innerResults...)
-					results = msr.Slice()
+					results = msr.AsSlice()
 				}
 			}()
 		}
@@ -96,7 +98,7 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 	respCh := make(chan response)
 
 	var wg sync.WaitGroup
-	for _, provider := range e.movieProviders {
+	for _, provider := range e.movieProviders.Iterator() {
 		wg.Add(1)
 		// Goroutine started time.
 		startTime := time.Now()
@@ -119,7 +121,7 @@ func (e *Engine) searchMovieAll(keyword string) (results []*model.MovieSearchRes
 		close(respCh)
 	}()
 
-	ds := make([]string, 0, len(e.movieProviders))
+	ds := make([]string, 0, e.movieProviders.Len())
 	// response channel.
 	for resp := range respCh {
 		ds = append(ds, func(a, b, c any) string {
@@ -158,13 +160,13 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			return
 		}
 		// remove duplicate results, if any.
-		msr := collections.NewOrderedSet(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
+		msr := sets.NewOrderedSetWithHash(func(v *model.MovieSearchResult) string { return v.Provider + v.ID })
 		msr.Add(results...)
-		results = msr.Slice()
+		results = msr.AsSlice()
 		// post-processing
-		ps := new(collections.WeightedSlice[float64, *model.MovieSearchResult])
+		ps := new(slices.WeightedSlice[*model.MovieSearchResult, float64])
 		for _, result := range results {
-			if !result.Valid() /* validation check */ {
+			if !result.IsValid() /* validation check */ {
 				continue
 			}
 			if _, err := e.GetMovieProviderByName(result.Provider); err != nil {
@@ -173,10 +175,10 @@ func (e *Engine) SearchMovieAll(keyword string, fallback bool) (results []*model
 			}
 			priority := comparer.Compare(keyword, result.Number) *
 				e.MustGetMovieProviderByName(result.Provider).Priority()
-			ps.Append(priority, result)
+			ps.Append(result, priority)
 		}
-		// sort according to priority.
-		results = ps.SortFunc(sort.Stable).Underlying()
+		// sort by priority.
+		results = ps.SortFunc(sort.Stable).Slice()
 	}()
 
 	if fallback /* query database for missing results  */ {
@@ -208,19 +210,19 @@ func (e *Engine) getMovieInfoFromDB(provider mt.MovieProvider, id string) (*mode
 func (e *Engine) getMovieInfoWithCallback(provider mt.MovieProvider, id string, lazy bool, callback func() (*model.MovieInfo, error)) (info *model.MovieInfo, err error) {
 	defer func() {
 		// metadata validation check.
-		if err == nil && (info == nil || !info.Valid()) {
+		if err == nil && (info == nil || !info.IsValid()) {
 			err = mt.ErrIncompleteMetadata
 		}
 	}()
 	// Query DB first (by id).
 	if lazy {
-		if info, err = e.getMovieInfoFromDB(provider, id); err == nil && info.Valid() {
+		if info, err = e.getMovieInfoFromDB(provider, id); err == nil && info.IsValid() {
 			return // ignore DB query error.
 		}
 	}
 	// delayed info auto-save.
 	defer func() {
-		if err == nil && info.Valid() {
+		if err == nil && info.IsValid() {
 			e.db.Clauses(clause.OnConflict{
 				UpdateAll: true,
 			}).Create(info) // ignore error
@@ -238,12 +240,12 @@ func (e *Engine) getMovieInfoByProviderID(provider mt.MovieProvider, id string, 
 	})
 }
 
-func (e *Engine) GetMovieInfoByProviderID(name, id string, lazy bool) (*model.MovieInfo, error) {
-	provider, err := e.GetMovieProviderByName(name)
+func (e *Engine) GetMovieInfoByProviderID(pid providerid.ProviderID, lazy bool) (*model.MovieInfo, error) {
+	provider, err := e.GetMovieProviderByName(pid.Provider)
 	if err != nil {
 		return nil, err
 	}
-	return e.getMovieInfoByProviderID(provider, id, lazy)
+	return e.getMovieInfoByProviderID(provider, pid.ID, lazy)
 }
 
 func (e *Engine) getMovieInfoByProviderURL(provider mt.MovieProvider, rawURL string, lazy bool) (*model.MovieInfo, error) {

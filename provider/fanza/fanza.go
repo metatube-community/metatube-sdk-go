@@ -18,8 +18,9 @@ import (
 	"github.com/docker/go-units"
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
+	"golang.org/x/text/language"
 
-	"github.com/metatube-community/metatube-sdk-go/collections"
+	"github.com/metatube-community/metatube-sdk-go/collection/sets"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
 	"github.com/metatube-community/metatube-sdk-go/common/js"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
@@ -64,12 +65,12 @@ type FANZA struct {
 }
 
 func New() *FANZA {
-	return &FANZA{
-		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority,
-			scraper.WithCookies(baseURL, []*http.Cookie{
-				{Name: "age_check_done", Value: "1"},
-			})),
-	}
+	return &FANZA{scraper.NewDefaultScraper(
+		Name, baseURL, Priority, language.Japanese,
+		scraper.WithCookies(baseURL, []*http.Cookie{
+			{Name: "age_check_done", Value: "1"},
+		}),
+	)}
 }
 
 func (fz *FANZA) NormalizeMovieID(id string) string {
@@ -94,7 +95,7 @@ func (fz *FANZA) getHomepagesByID(id string) []string {
 
 func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
 	for _, homepage := range fz.getHomepagesByID(id) {
-		if info, err = fz.GetMovieInfoByURL(homepage); errors.Is(err, ErrRegionNotAvailable) || err == nil && info.Valid() {
+		if info, err = fz.GetMovieInfoByURL(homepage); errors.Is(err, ErrRegionNotAvailable) || err == nil && info.IsValid() {
 			return
 		}
 	}
@@ -348,7 +349,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	})
 
 	// In case of any duplication
-	previewImageSet := collections.NewOrderedSet(func(v string) string { return v })
+	previewImageSet := sets.NewOrderedSet[string]()
 	extractImageSrc := func(e *colly.XMLElement) string {
 		src := e.ChildAttr(`.//img`, "data-lazy")
 		if strings.TrimSpace(src) == "" {
@@ -372,7 +373,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 
 	// Final Preview Images
 	c.OnScraped(func(_ *colly.Response) {
-		info.PreviewImages = previewImageSet.Slice()
+		info.PreviewImages = previewImageSet.AsSlice()
 	})
 
 	// Final (images)
@@ -471,7 +472,7 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	})
 
 	c.OnScraped(func(r *colly.Response) {
-		if !info.Valid() && isRegionError(r) {
+		if !info.IsValid() && isRegionError(r) {
 			err = ErrRegionNotAvailable
 		}
 	})

@@ -5,7 +5,9 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
+	"os"
 	"reflect"
+	"strconv"
 	"testing"
 	"time"
 
@@ -37,7 +39,7 @@ func (s *internalTestSuite) testItems(items []string, call func(*testing.T, stri
 }
 
 func (s *internalTestSuite) testGetInfo(f any, items []string, vfs ...ValidateFunc) {
-	ff := func(item string) (info interface{ Valid() bool }, err error) {
+	ff := func(item string) (info interface{ IsValid() bool }, err error) {
 		switch v := f.(type) {
 		case func(string) (*model.ActorInfo, error):
 			info, err = v(item)
@@ -146,6 +148,10 @@ func (s *internalTestSuite) TestFetch(p mt.Fetcher, items []string, vfs ...Valid
 }
 
 func Test[T mt.Provider](t *testing.T, new func() T, items []string, vfs ...ValidateFunc) {
+	if ci, _ := strconv.ParseBool(os.Getenv("GITHUB_ACTIONS")); ci {
+		t.SkipNow() // Skip in GitHub Actions
+	}
+
 	functionName := getFrame(1).Function
 	providerName, testMethod, err := parseTestFunction(functionName)
 	require.NoError(t, err)

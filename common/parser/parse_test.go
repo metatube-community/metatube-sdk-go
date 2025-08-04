@@ -26,6 +26,12 @@ func TestParseDuration(t *testing.T) {
 		{"03s", time.Second * 3},
 		{"02m03s", time.Minute*2 + time.Second*3},
 		{"pt02m03s", time.Minute*2 + time.Second*3},
+		{"00:00", time.Minute*0 + time.Second*0},
+		{"4:00", time.Minute*4 + time.Second*0},
+		{"04:00", time.Minute*4 + time.Second*0},
+		{"104:00", time.Minute*104 + time.Second*0},
+		{"38:28", time.Minute*38 + time.Second*28},
+		{"01:19:51", time.Hour + time.Minute*19 + time.Second*51},
 		{"01:02:03", time.Hour + time.Minute*2 + time.Second*3},
 		{"PT1:2:03", time.Hour + time.Minute*2 + time.Second*3},
 		{"PT01:02:03", time.Hour + time.Minute*2 + time.Second*3},
@@ -64,21 +70,20 @@ func TestParseIDToNumber(t *testing.T) {
 	}
 }
 
-func TestParseProviderID(t *testing.T) {
+func TestParseBustCupSize(t *testing.T) {
 	for _, unit := range []struct {
-		id, want string
+		size string
+		bust int
+		cup  string
 	}{
-		{"FANZA:mdx0109", "FANZA:mdx0109"},
-		{"FANZA:mdx0109:0.9", "FANZA:mdx0109"},
-		{"FANZA:mdx0109:0", "FANZA:mdx0109"},
-		{"FANZA:mdx0109:1", "FANZA:mdx0109"},
-		{"FANZA:mdx0109:1.2", "FANZA:mdx0109"},
-		{"AVBASE:dmm:ssis899", "AVBASE:dmm:ssis899"},
-		{"AVBASE:dmm:ssis899:0.99", "AVBASE:dmm:ssis899"},
-		{"ARZON:2234", "ARZON:2234"},
-		{"ARZON:2234:0.55", "ARZON:2234"},
-		{"ARZON:2234:1233", "ARZON:2234:1233"},
+		{"32G", 32, "G"},
+		{"28F", 28, "F"},
+		{"28 F", 28, "F"},
 	} {
-		assert.Equal(t, unit.want, ParseProviderID(unit.id))
+		bust, cup, err := ParseBustCupSize(unit.size)
+		if assert.NoError(t, err) {
+			assert.Equal(t, unit.bust, bust)
+			assert.Equal(t, unit.cup, cup)
+		}
 	}
 }

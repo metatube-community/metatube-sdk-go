@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/sashabaranov/go-openai"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestOpenaiTranslate(t *testing.T) {
@@ -20,11 +21,10 @@ func TestOpenaiTranslate(t *testing.T) {
 		result, err := (&OpenAI{
 			APIKey: os.Getenv("OPENAI_API_KEY"),
 			APIUrl: os.Getenv("OPENAI_API_URL"),
-			Model:  openai.GPT4,
+			Model:  openai.GPT4o,
 		}).Translate(unit.text, unit.from, unit.to)
-		if err != nil {
-			t.Fatal(err)
+		if assert.NoError(t, err) {
+			t.Log(result)
 		}
-		t.Log(result)
 	}
 }

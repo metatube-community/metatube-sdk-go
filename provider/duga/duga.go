@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
@@ -40,7 +41,7 @@ type DUGA struct {
 
 func New() *DUGA {
 	return &DUGA{
-		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority),
+		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese),
 	}
 }
 
@@ -239,7 +240,7 @@ func (duga *DUGA) SearchMovie(keyword string) (results []*model.MovieSearchResul
 			wg.Add(1)
 			go func(i int) {
 				defer wg.Done()
-				if info, _ := duga.GetMovieInfoByID(ids[i]); info != nil && info.Valid() {
+				if info, _ := duga.GetMovieInfoByID(ids[i]); info != nil && info.IsValid() {
 					mu.Lock()
 					results = append(results, info.ToSearchResult())
 					mu.Unlock()

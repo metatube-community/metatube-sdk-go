@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	"github.com/metatube-community/metatube-sdk-go/engine"
@@ -17,6 +18,8 @@ import (
 func New(app *engine.Engine, v auth.Validator) *gin.Engine {
 	r := gin.New()
 	{
+		// support CORS
+		r.Use(cors.Default())
 		// register middleware
 		r.Use(logger(), recovery())
 		// fallback behavior

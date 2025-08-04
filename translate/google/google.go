@@ -18,16 +18,22 @@ const googleTranslateAPI = "https://translation.googleapis.com/language/translat
 
 type Google struct {
 	APIKey string `json:"google-api-key"`
+	APIUrl string `json:"google-api-url"`
 }
 
 func (gl *Google) Translate(q, source, target string) (result string, err error) {
+	apiURL := googleTranslateAPI
+	if gl.APIUrl != "" {
+		apiURL = gl.APIUrl
+	}
+
 	var resp *http.Response
 	if resp, err = fetch.Post(
-		googleTranslateAPI,
+		apiURL,
 		fetch.WithJSONBody(map[string]string{
 			"q":      q,
-			"source": parseToGoogleSupportedLanguage(source),
-			"target": parseToGoogleSupportedLanguage(target),
+			"source": parseToSupportedLanguage(source),
+			"target": parseToSupportedLanguage(target),
 			"format": "text",
 		}),
 		fetch.WithRaiseForStatus(false),
@@ -57,7 +63,7 @@ func (gl *Google) Translate(q, source, target string) (result string, err error)
 	return
 }
 
-func parseToGoogleSupportedLanguage(lang string) string {
+func parseToSupportedLanguage(lang string) string {
 	if lang = strings.ToLower(lang); lang == "" || lang == "auto" /* auto detect */ {
 		return ""
 	}

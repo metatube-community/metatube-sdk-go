@@ -14,6 +14,12 @@ jobs:
   go-test:
     name: Go Test
     runs-on: ubuntu-latest
+    services:
+      dind:
+        image: docker:dind-rootless
+        ports:
+          - 2375:2375
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,4 +33,4 @@ jobs:
       - name: Run test
         run: |
           go version
-          go test $(go list ./... | grep -Ev "github.com/metatube-community/metatube-sdk-go/(provider|translate)")
+          go test $(go list ./... | grep -Ev "github.com/metatube-community/metatube-sdk-go/translate")

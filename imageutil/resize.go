@@ -3,7 +3,7 @@ package imageutil
 import (
 	"image"
 
-	"golang.org/x/image/draw"
+	"github.com/disintegration/imaging"
 )
 
 // Resize provides a simple interface to resize image.
@@ -16,9 +16,5 @@ func Resize(src image.Image, width, height int) image.Image {
 	case height == 0:
 		height = int(float64(width) / float64(src.Bounds().Dx()) * float64(src.Bounds().Dy()))
 	}
-	rect := image.Rect(0, 0, width, height)
-	dst := image.NewRGBA(rect)
-	sc := draw.BiLinear /* default interpolator */
-	sc.Scale(dst, rect, src, src.Bounds(), draw.Over, nil)
-	return dst
+	return imaging.Resize(src, width, height, imaging.Lanczos)
 }

@@ -22,8 +22,8 @@ func logJSONContent() ValidateFunc {
 
 func assertIsValid() ValidateFunc {
 	return func(t *testing.T, a any) {
-		if v, ok := a.(interface{ Valid() bool }); ok {
-			assert.True(t, v.Valid())
+		if v, ok := a.(interface{ IsValid() bool }); ok {
+			assert.True(t, v.IsValid())
 			return
 		}
 		// must be a slice.
@@ -31,8 +31,8 @@ func assertIsValid() ValidateFunc {
 		s := reflect.ValueOf(a)
 		for i := 0; i < s.Len(); i++ {
 			x := s.Index(i).Interface()
-			require.Implements(t, (*interface{ Valid() bool })(nil), x)
-			assert.True(t, x.(interface{ Valid() bool }).Valid())
+			require.Implements(t, (*interface{ IsValid() bool })(nil), x)
+			assert.True(t, x.(interface{ IsValid() bool }).IsValid())
 		}
 	}
 }
