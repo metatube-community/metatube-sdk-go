@@ -1,4 +1,4 @@
-package internal
+package searchparse
 
 import (
 	"encoding/base64"

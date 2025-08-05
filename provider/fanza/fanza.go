@@ -27,8 +27,8 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
-	"github.com/metatube-community/metatube-sdk-go/provider/fanza/internal"
 	"github.com/metatube-community/metatube-sdk-go/provider/fanza/internal/graphql"
+	"github.com/metatube-community/metatube-sdk-go/provider/fanza/internal/searchparse"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/imcmp"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
@@ -578,7 +578,7 @@ func (fz *FANZA) searchMovieNext(keyword string) (results []*model.MovieSearchRe
 	}()
 
 	c := fz.ClonedCollector()
-	p := internal.NewSearchPageParser()
+	p := searchparse.NewSearchPageParser()
 
 	c.OnXML("//script", func(e *colly.XMLElement) {
 		_ = p.LoadJSCode(e.Text)
@@ -588,7 +588,7 @@ func (fz *FANZA) searchMovieNext(keyword string) (results []*model.MovieSearchRe
 		return
 	}
 
-	resp := &internal.ResponseWrapper{}
+	resp := &searchparse.ResponseWrapper{}
 	if err = p.Parse(resp); err != nil {
 		return
 	}
