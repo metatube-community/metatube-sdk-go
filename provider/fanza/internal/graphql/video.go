@@ -19,30 +19,21 @@ type Client struct {
 	c *graphql.Client
 }
 
-type QueryOption struct {
-	IsLoggedIn bool
-	IsAmateur  bool
-	IsAnime    bool
-	IsAv       bool
-	IsCinema   bool
-	IsSP       bool
-}
-
 func NewClient() *Client {
 	return &Client{
 		c: graphql.NewClient(graphqlURL),
 	}
 }
 
-func (c *Client) GetPPVContent(id string, opt QueryOption) (*PPVContent, error) {
+func (c *Client) GetPPVContent(id string, opts QueryOptions) (*PPVContent, error) {
 	req := graphql.NewRequest(videoQuery)
 	req.Var("id", id)
-	req.Var("isLoggedIn", opt.IsLoggedIn)
-	req.Var("isAmateur", opt.IsAmateur)
-	req.Var("isAnime", opt.IsAnime)
-	req.Var("isAv", opt.IsAv)
-	req.Var("isCinema", opt.IsCinema)
-	req.Var("isSP", opt.IsSP)
+	req.Var("isLoggedIn", opts.IsLoggedIn)
+	req.Var("isAmateur", opts.IsAmateur)
+	req.Var("isAnime", opts.IsAnime)
+	req.Var("isAv", opts.IsAv)
+	req.Var("isCinema", opts.IsCinema)
+	req.Var("isSP", opts.IsSP)
 
 	req.Header.Set("Referer", videoURL)
 	req.Header.Set("Cache-Control", "no-cache")

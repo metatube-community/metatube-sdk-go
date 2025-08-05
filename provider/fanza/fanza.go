@@ -28,6 +28,7 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/fanza/internal"
+	"github.com/metatube-community/metatube-sdk-go/provider/fanza/internal/graphql"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/imcmp"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
@@ -68,18 +69,22 @@ var (
 
 type FANZA struct {
 	*scraper.Scraper
+	client *graphql.Client
 }
 
 func New() *FANZA {
-	return &FANZA{scraper.NewDefaultScraper(
-		Name, baseURL, Priority, language.Japanese,
-		scraper.WithCookies(baseURL, []*http.Cookie{
-			{Name: "age_check_done", Value: "1"},
-		}),
-		scraper.WithCookies(videoURL, []*http.Cookie{
-			{Name: "age_check_done", Value: "1"},
-		}),
-	)}
+	return &FANZA{
+		client: graphql.NewClient(),
+		Scraper: scraper.NewDefaultScraper(
+			Name, baseURL, Priority, language.Japanese,
+			scraper.WithCookies(baseURL, []*http.Cookie{
+				{Name: "age_check_done", Value: "1"},
+			}),
+			scraper.WithCookies(videoURL, []*http.Cookie{
+				{Name: "age_check_done", Value: "1"},
+			}),
+		),
+	}
 }
 
 func (fz *FANZA) NormalizeMovieID(id string) string {
