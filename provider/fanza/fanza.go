@@ -19,6 +19,7 @@ import (
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
 	"golang.org/x/text/language"
+	dt "gorm.io/datatypes"
 
 	"github.com/metatube-community/metatube-sdk-go/collection/sets"
 	"github.com/metatube-community/metatube-sdk-go/common/comparer"
@@ -87,6 +88,11 @@ func New() *FANZA {
 	}
 }
 
+func (fz *FANZA) SetRequestTimeout(timeout time.Duration) {
+	fz.client.SetTimeout(timeout)
+	fz.Scraper.SetRequestTimeout(timeout)
+}
+
 func (fz *FANZA) NormalizeMovieID(id string) string {
 	return strings.ToLower(id) /* FANZA uses lowercase ID */
 }
@@ -147,23 +153,68 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (*model.MovieInfo, error) {
 	return fz.getLegacyMovieInfoByURL(rawURL)
 }
 
-func (fz *FANZA) getMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+func (fz *FANZA) getMovieInfoByURL(rawURL string) (*model.MovieInfo, error) {
 	id, err := fz.ParseMovieIDFromURL(rawURL)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	info = &model.MovieInfo{
+	data, err := fz.client.GetContentPageData(id, graphql.BuildContentPageDataQueryOptions(rawURL))
+	if err != nil {
+		return nil, err
+	}
+
+	info := &model.MovieInfo{
+		ID:            data.PPVContent.ID,
+		Number:        data.PPVContent.MakerContentID,
+		Title:         data.PPVContent.Title,
+		Summary:       data.PPVContent.Description,
 		Provider:      fz.Name(),
 		Homepage:      rawURL,
+		ThumbURL:      data.PPVContent.PackageImage.MediumURL,
+		CoverURL:      data.PPVContent.PackageImage.LargeURL,
+		Maker:         data.PPVContent.Maker.Name,
+		Label:         data.PPVContent.Label.Name,
+		Series:        data.PPVContent.Series.Name,
+		Runtime:       data.PPVContent.Duration / 60,
 		Actors:        []string{},
 		PreviewImages: []string{},
 		Genres:        []string{},
+		Score:         data.ReviewSummary.Average,
+		ReleaseDate:   dt.Date(data.PPVContent.DeliveryStartDate),
 	}
 
-	_ = id
+	// Director
+	for _, director := range data.PPVContent.Directors {
+		info.Director = director.Name
+	}
 
-	return nil, errors.New("bazaga")
+	// Actors
+	for _, actor := range data.PPVContent.Actresses {
+		info.Actors = append(info.Actors, actor.Name)
+	}
+
+	// Genres
+	for _, genre := range data.PPVContent.Genres {
+		info.Genres = append(info.Genres, genre.Name)
+	}
+
+	// Preview Images
+	for _, img := range data.PPVContent.SampleImages {
+		info.PreviewImages = append(info.PreviewImages, img.LargeImageURL)
+	}
+
+	// Number (fallback)
+	if info.Number == "" {
+		info.Number = ParseNumber(info.ID)
+	}
+
+	// Release Date (fallback)
+	if time.Time(info.ReleaseDate).IsZero() {
+		info.ReleaseDate = dt.Date(data.PPVContent.MakerReleasedAt)
+	}
+
+	return info, nil
 }
 
 func (fz *FANZA) getLegacyMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {

@@ -11,18 +11,18 @@ import (
 func TestBuildQueryOptions(t *testing.T) {
 	tests := []struct {
 		inputURL string
-		expected QueryOptions
+		expected ContentPageDataQueryOptions
 	}{
-		{"https://video.dmm.co.jp/anime/content/?abc=123", QueryOptions{IsAnime: true}},
-		{"https://video.dmm.co.jp/amateur/content/?id=smjx065", QueryOptions{IsAmateur: true}},
-		{"https://video.dmm.co.jp/cinema/content/", QueryOptions{IsCinema: true}},
-		{"https://video.dmm.co.jp/av/content/?abc=123", QueryOptions{IsAv: true}},
-		{"https://video.dmm.co.jp/vr/content/?abc=123", QueryOptions{IsAv: true}},
-		{"https://video.dmm.co.jp/unknown/content/?abc=123", QueryOptions{IsAv: true}}, // default case
+		{"https://video.dmm.co.jp/anime/content/?abc=123", ContentPageDataQueryOptions{IsAnime: true}},
+		{"https://video.dmm.co.jp/amateur/content/?id=smjx065", ContentPageDataQueryOptions{IsAmateur: true}},
+		{"https://video.dmm.co.jp/cinema/content/", ContentPageDataQueryOptions{IsCinema: true}},
+		{"https://video.dmm.co.jp/av/content/?abc=123", ContentPageDataQueryOptions{IsAv: true}},
+		{"https://video.dmm.co.jp/vr/content/?abc=123", ContentPageDataQueryOptions{IsAv: true}},
+		{"https://video.dmm.co.jp/unknown/content/?abc=123", ContentPageDataQueryOptions{IsAv: true}}, // default case
 	}
 
 	for _, tt := range tests {
-		opts := BuildQueryOptions(tt.inputURL)
+		opts := BuildContentPageDataQueryOptions(tt.inputURL)
 		assert.Equal(t, tt.expected, opts)
 	}
 }
@@ -31,7 +31,7 @@ func TestClient_GetContentPageData(t *testing.T) {
 	client := NewClient()
 	client.gc.Log = func(s string) { t.Log(s) }
 
-	content, err := client.GetContentPageData("1start00190", QueryOptions{IsAv: true})
+	content, err := client.GetContentPageData("1start00190", ContentPageDataQueryOptions{IsAv: true})
 	require.NoError(t, err)
 	require.NotNil(t, content)
 

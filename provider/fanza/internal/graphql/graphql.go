@@ -41,7 +41,7 @@ func (c *Client) SetTimeout(t time.Duration) {
 	c.hc.Timeout = t
 }
 
-func (c *Client) GetContentPageData(id string, opts QueryOptions) (*ContentPageDataResponse, error) {
+func (c *Client) GetContentPageData(id string, opts ContentPageDataQueryOptions) (*ContentPageDataResponse, error) {
 	req := graphql.NewRequest(contentPageDataQuery)
 	req.Var("id", id)
 	req.Var("isLoggedIn", opts.IsLoggedIn)

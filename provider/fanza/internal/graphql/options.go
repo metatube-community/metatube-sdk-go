@@ -4,7 +4,7 @@ import (
 	"regexp"
 )
 
-type QueryOptions struct {
+type ContentPageDataQueryOptions struct {
 	IsLoggedIn bool
 	IsAmateur  bool
 	IsAnime    bool
@@ -15,10 +15,10 @@ type QueryOptions struct {
 
 var videoTypePattern = regexp.MustCompile(`//video\.dmm\.co\.jp/(\w+)/content/`)
 
-func BuildQueryOptions(targetURL string) QueryOptions {
+func BuildContentPageDataQueryOptions(targetURL string) ContentPageDataQueryOptions {
 	var (
 		typ  string
-		opts QueryOptions
+		opts ContentPageDataQueryOptions
 	)
 	// E.g., https://video.dmm.co.jp/anime/content/
 	if ss := videoTypePattern.FindStringSubmatch(targetURL); len(ss) == 2 {
