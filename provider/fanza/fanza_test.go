@@ -23,6 +23,7 @@ func TestFANZA_GetMovieInfoByID(t *testing.T) {
 		"1stars00141",
 		"118abp906",
 		"196glod0325t",
+		"403jdxa057424",
 	},
 		testkit.FieldsNotEmpty("preview_images"),
 		testkit.FieldsNotEmptyAny("maker", "label", "series"),
@@ -31,23 +32,59 @@ func TestFANZA_GetMovieInfoByID(t *testing.T) {
 }
 
 func TestFANZA_GetMovieInfoByURL(t *testing.T) {
-	testkit.Test(t, New, []string{
-		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=1start00190/",
-		"https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=neki004/",
-		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=mdvr00344/",
-		"https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=k9sone740/",
-		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=ebwh00164/",
-		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=fpre00106/",
-		"https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=41hodv21810/",
-		"https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=h_346rebd655/",
-		"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=ipvr00231/",
-		"https://www.dmm.co.jp/mono/anime/-/detail/=/cid=196glod0323t/",
-		"https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=fuyu079/",
-	},
-		testkit.FieldsNotEmpty("preview_images", "actors"),
-		testkit.FieldsNotEmptyAny("maker", "label", "series"),
-		testkit.FieldsNotEmptyAny("preview_video_url", "preview_video_hls_url"),
-	)
+	t.Run("Legacy/Mono", func(t *testing.T) {
+		testkit.Test(t, New, []string{
+			"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=1start00190/",
+			"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=mdvr00346/",
+			"https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=neki004/",
+			"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=mdvr00344/",
+			"https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=k9sone740/",
+			"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=ebwh00164/",
+			"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=fpre00106/",
+			"https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=41hodv21810/",
+			"https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=h_346rebd655/",
+			"https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=ipvr00231/",
+			"https://www.dmm.co.jp/mono/anime/-/detail/=/cid=196glod0323t/",
+			"https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=fuyu079/",
+		},
+			testkit.FieldsNotEmpty("preview_images", "actors", "genres"),
+			testkit.FieldsNotEmptyAny("maker", "label", "series"),
+			testkit.FieldsNotEmptyAny("preview_video_url", "preview_video_hls_url"),
+		)
+	})
+
+	t.Run("Video:AV/VR", func(t *testing.T) {
+		testkit.Test(t, New, []string{
+			"https://video.dmm.co.jp/av/content/?id=jux00109",
+			"https://video.dmm.co.jp/av/content/?id=cawd00864",
+			"https://video.dmm.co.jp/av/content/?id=juvr00240",
+		},
+			testkit.FieldsNotEmpty("preview_images", "actors", "genres"),
+			testkit.FieldsNotEmptyAny("maker", "label", "series"),
+			testkit.FieldsNotEmptyAny("preview_video_url", "preview_video_hls_url"),
+		)
+	})
+
+	t.Run("Video:Anime/Amateur", func(t *testing.T) {
+		testkit.Test(t, New, []string{
+			"https://video.dmm.co.jp/anime/content/?id=196glod00359",
+			"https://video.dmm.co.jp/amateur/content/?id=smjx065",
+		},
+			testkit.FieldsNotEmpty("preview_images", "genres"),
+			testkit.FieldsNotEmptyAny("maker", "label", "series"),
+			testkit.FieldsNotEmptyAny("preview_video_url", "preview_video_hls_url"),
+		)
+	})
+
+	t.Run("Video:Cinema", func(t *testing.T) {
+		testkit.Test(t, New, []string{
+			"https://video.dmm.co.jp/cinema/content/?id=5421ksd00051",
+			"https://video.dmm.co.jp/cinema/content/?id=141nkt086",
+		},
+			testkit.FieldsNotEmpty("actors", "genres"),
+			testkit.FieldsNotEmptyAny("maker", "label", "series"),
+		)
+	})
 }
 
 func TestFANZA_SearchMovie(t *testing.T) {

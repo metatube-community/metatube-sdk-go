@@ -173,7 +173,7 @@ func Test[T mt.Provider](t *testing.T, new func() T, items []string, vfs ...Vali
 		args = append(args, reflect.ValueOf(vf))
 	}
 
-	// Make test function call.
+	// Make the test function call.
 	results := m.Call(args)
 	require.Empty(t, results)
 }

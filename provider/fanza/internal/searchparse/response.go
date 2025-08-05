@@ -1,4 +1,4 @@
-package internal
+package searchparse
 
 type ResponseWrapper struct {
 	BackendResponse BackendResponse `json:"backendResponse"`
