@@ -46,17 +46,17 @@ const (
 )
 
 const (
-	baseURL                 = "https://www.dmm.co.jp/"
-	videoURL                = "https://video.dmm.co.jp/"
-	baseDigitalURL          = "https://www.dmm.co.jp/digital/"
-	baseMonoURL             = "https://www.dmm.co.jp/mono/"
-	searchURL               = "https://www.dmm.co.jp/search/=/searchstr=%s/limit=120/sort=date/"
-	movieDigitalVideoAURL   = "https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=%s/"
-	movieDigitalVideoCURL   = "https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=%s/"
-	movieDigitalAnimeURL    = "https://www.dmm.co.jp/digital/anime/-/detail/=/cid=%s/"
-	movieDigitalNikkatsuURL = "https://www.dmm.co.jp/digital/nikkatsu/-/detail/=/cid=%s/"
-	movieMonoDVDURL         = "https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=%s/"
-	movieMonoAnimeURL       = "https://www.dmm.co.jp/mono/anime/-/detail/=/cid=%s/"
+	baseURL                = "https://www.dmm.co.jp/"
+	videoURL               = "https://video.dmm.co.jp/"
+	baseDigitalURL         = "https://www.dmm.co.jp/digital/" // deprecated
+	baseMonoURL            = "https://www.dmm.co.jp/mono/"
+	searchURL              = "https://www.dmm.co.jp/search/=/searchstr=%s/limit=120/sort=date/"
+	movieDigitalAVURL      = "https://video.dmm.co.jp/av/content/?id=%s"
+	movieDigitalAmateurURL = "https://video.dmm.co.jp/amateur/content/?id=%s"
+	movieDigitalAnimeURL   = "https://video.dmm.co.jp/anime/content/?id=%s"
+	movieDigitalCinemaURL  = "https://video.dmm.co.jp/cinema/content/?id=%s"
+	movieMonoDVDURL        = "https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=%s/"
+	movieMonoAnimeURL      = "https://www.dmm.co.jp/mono/anime/-/detail/=/cid=%s/"
 )
 
 const regionNotAvailable = "not-available-in-your-region"
@@ -70,12 +70,17 @@ var (
 
 type FANZA struct {
 	*scraper.Scraper
-	client *graphql.Client
+	httpClient *http.Client
+	videoAPI   *graphql.Client
 }
 
 func New() *FANZA {
+	httpClient := &http.Client{}
 	return &FANZA{
-		client: graphql.NewClient(),
+		httpClient: httpClient,
+		videoAPI: graphql.NewClient(
+			graphql.WithHTTPClient(httpClient),
+		),
 		Scraper: scraper.NewDefaultScraper(
 			Name, baseURL, Priority, language.Japanese,
 			scraper.WithCookies(baseURL, []*http.Cookie{
@@ -89,7 +94,7 @@ func New() *FANZA {
 }
 
 func (fz *FANZA) SetRequestTimeout(timeout time.Duration) {
-	fz.client.SetTimeout(timeout)
+	fz.httpClient.Timeout = timeout
 	fz.Scraper.SetRequestTimeout(timeout)
 }
 
@@ -100,14 +105,14 @@ func (fz *FANZA) NormalizeMovieID(id string) string {
 func (fz *FANZA) getHomepagesByID(id string) []string {
 	homepages := []string{
 		fmt.Sprintf(movieMonoDVDURL, id),
-		fmt.Sprintf(movieDigitalVideoAURL, id),
-		fmt.Sprintf(movieDigitalVideoCURL, id),
+		fmt.Sprintf(movieDigitalAVURL, id),
+		fmt.Sprintf(movieDigitalAmateurURL, id),
 		fmt.Sprintf(movieDigitalAnimeURL, id),
 		fmt.Sprintf(movieMonoAnimeURL, id),
-		fmt.Sprintf(movieDigitalNikkatsuURL, id),
+		fmt.Sprintf(movieDigitalCinemaURL, id),
 	}
 	if regexp.MustCompile(`(?i)[a-z]+00\d{3,}`).MatchString(id) {
-		// might be digital videoa url, try it first.
+		// might be digital av url, try it first.
 		homepages[0], homepages[1] = homepages[1], homepages[0]
 	}
 	return homepages
@@ -135,7 +140,7 @@ func (fz *FANZA) ParseMovieIDFromURL(rawURL string) (id string, err error) {
 	if err != nil {
 		return
 	}
-	if strings.HasPrefix(homepage.String(), videoURL) {
+	if IsDigitalVideoURL(homepage.String()) {
 		id = fz.NormalizeMovieID(
 			homepage.Query().Get("id"))
 	} else if sub := regexp.
@@ -147,19 +152,19 @@ func (fz *FANZA) ParseMovieIDFromURL(rawURL string) (id string, err error) {
 }
 
 func (fz *FANZA) GetMovieInfoByURL(rawURL string) (*model.MovieInfo, error) {
-	if strings.HasPrefix(rawURL, videoURL) {
-		return fz.getMovieInfoByURL(rawURL)
+	if IsDigitalVideoURL(rawURL) {
+		return fz.getDigitalMovieInfoByURL(rawURL)
 	}
-	return fz.getLegacyMovieInfoByURL(rawURL)
+	return fz.getMonoMovieInfoByURL(rawURL)
 }
 
-func (fz *FANZA) getMovieInfoByURL(rawURL string) (*model.MovieInfo, error) {
+func (fz *FANZA) getDigitalMovieInfoByURL(rawURL string) (*model.MovieInfo, error) {
 	id, err := fz.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := fz.client.GetContentPageData(id, graphql.BuildContentPageDataQueryOptions(rawURL))
+	data, err := fz.videoAPI.GetContentPageData(id, graphql.BuildContentPageDataQueryOptions(rawURL))
 	if err != nil {
 		return nil, err
 	}
@@ -214,10 +219,31 @@ func (fz *FANZA) getMovieInfoByURL(rawURL string) (*model.MovieInfo, error) {
 		info.ReleaseDate = dt.Date(data.PPVContent.MakerReleasedAt)
 	}
 
+	// Cover Image (fallback)
+	if info.CoverURL == "" {
+		info.CoverURL = info.ThumbURL
+	}
+
+	// Preview Video
+	if data.PPVContent.SampleMovie.Has2D {
+		info.PreviewVideoURL = fz.parsePreviewVideoURL(
+			fz.ClonedCollector(),
+			fmt.Sprintf("%sservice/digitalapi/-/html5_player/=/cid=%s/", baseURL, info.ID),
+		)
+	}
+
+	// Preview Video (VR)
+	if data.PPVContent.SampleMovie.HasVr {
+		info.PreviewVideoURL = fz.parseVRPreviewVideoURL(
+			fz.ClonedCollector(),
+			fmt.Sprintf("%sdigital/-/vr-sample-player/=/cid=%s/", baseURL, info.ID),
+		)
+	}
+
 	return info, nil
 }
 
-func (fz *FANZA) getLegacyMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+func (fz *FANZA) getMonoMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
 	id, err := fz.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
@@ -595,7 +621,7 @@ func (fz *FANZA) getLegacyMovieInfoByURL(rawURL string) (info *model.MovieInfo, 
 	if vErr != nil {
 		var urlErr *url.Error
 		if errors.As(vErr, &urlErr) && errors.Is(urlErr.Err, errRequireNewHandler) {
-			return fz.getMovieInfoByURL(urlErr.URL) // use new handler.
+			return fz.getDigitalMovieInfoByURL(urlErr.URL) // use the new handler.
 		}
 		err = vErr
 	}
@@ -839,25 +865,30 @@ func (fz *FANZA) parseScoreFromURL(s string) float64 {
 	return score
 }
 
-func (fz *FANZA) parsePreviewVideoURL(c *colly.Collector, iFrameURL string) (previewVideoURL string) {
+func (fz *FANZA) parsePreviewVideoURL(c *colly.Collector, videoURL string) (previewVideoURL string) {
 	d := c.Clone()
+	// In case it's an iframe page:
+	// E.g.: https://www.dmm.co.jp/digital/videoa/-/detail/ajax-movie/=/cid=1start00190/
 	d.OnXML(`//iframe`, func(e *colly.XMLElement) {
-		d.OnResponse(func(r *colly.Response) {
-			if resp := regexp.MustCompile(`const args = (\{.+});`).FindSubmatch(r.Body); len(resp) == 2 {
-				data := struct {
-					Bitrates []struct {
-						// Bitrate int    `json:"bitrate"`
-						Src string `json:"src"`
-					} `json:"bitrates"`
-				}{}
-				if json.Unmarshal(resp[1], &data) == nil && len(data.Bitrates) > 0 {
-					previewVideoURL = e.Request.AbsoluteURL(data.Bitrates[0].Src)
-				}
-			}
-		})
-		d.Visit(e.Request.AbsoluteURL(e.Attr("src")))
+		previewVideoURL = fz.parsePreviewVideoURL(
+			d, e.Request.AbsoluteURL(e.Attr("src")),
+		)
 	})
-	d.Visit(iFrameURL)
+	// E.g.: https://www.dmm.co.jp/service/digitalapi/-/html5_player/=/cid=1start00190/
+	d.OnResponse(func(r *colly.Response) {
+		if resp := regexp.MustCompile(`const args = (\{.+});`).FindSubmatch(r.Body); len(resp) == 2 {
+			data := struct {
+				Bitrates []struct {
+					// Bitrate int    `json:"bitrate"`
+					Src string `json:"src"`
+				} `json:"bitrates"`
+			}{}
+			if json.Unmarshal(resp[1], &data) == nil && len(data.Bitrates) > 0 {
+				previewVideoURL = r.Request.AbsoluteURL(data.Bitrates[0].Src)
+			}
+		}
+	})
+	d.Visit(videoURL)
 	return
 }
 
@@ -871,6 +902,10 @@ func (fz *FANZA) parseVRPreviewVideoURL(c *colly.Collector, vrVideoURL string) (
 	})
 	d.Visit(vrVideoURL)
 	return
+}
+
+func IsDigitalVideoURL(url string) bool {
+	return strings.HasPrefix(url, videoURL)
 }
 
 // ParseNumber parses FANZA-formatted id to general ID.
