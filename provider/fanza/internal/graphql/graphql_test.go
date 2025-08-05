@@ -2,14 +2,13 @@ package graphql
 
 import (
 	"encoding/json"
-	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestGenerateQueryOptions(t *testing.T) {
+func TestBuildQueryOptions(t *testing.T) {
 	tests := []struct {
 		inputURL string
 		expected QueryOptions
@@ -23,17 +22,28 @@ func TestGenerateQueryOptions(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		u, _ := url.Parse(tt.inputURL)
-		opts := GenerateQueryOptions(u)
+		opts := BuildQueryOptions(tt.inputURL)
 		assert.Equal(t, tt.expected, opts)
 	}
 }
 
-func TestGetPPVContent(t *testing.T) {
+func TestClient_GetContentPageData(t *testing.T) {
 	client := NewClient()
-	client.c.Log = func(s string) { t.Log(s) }
+	client.gc.Log = func(s string) { t.Log(s) }
 
-	content, err := client.GetPPVContent("1start00285v", QueryOptions{IsAv: true})
+	content, err := client.GetContentPageData("1start00190", QueryOptions{IsAv: true})
+	require.NoError(t, err)
+	require.NotNil(t, content)
+
+	text, _ := json.MarshalIndent(content, "", "\t")
+	t.Log(string(text))
+}
+
+func TestClient_GetUserReviews(t *testing.T) {
+	client := NewClient()
+	client.gc.Log = func(s string) { t.Log(s) }
+
+	content, err := client.GetUserReviews("1start00190", 0)
 	require.NoError(t, err)
 	require.NotNil(t, content)
 

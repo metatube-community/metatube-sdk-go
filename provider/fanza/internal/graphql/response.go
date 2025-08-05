@@ -175,8 +175,28 @@ type ReviewSummary struct {
 	Typename string `json:"__typename"`
 }
 
-type ResponseWrapper struct {
+type ContentPageDataResponse struct {
 	PPVContent    PPVContent    `json:"ppvContent"`
 	ReviewSummary ReviewSummary `json:"reviewSummary"`
 	Typename      string        `json:"__typename"`
+}
+
+type UserReviewsResponse struct {
+	Reviews struct {
+		Items []struct {
+			ID           string    `json:"id"`
+			Title        string    `json:"title"`
+			Rating       int       `json:"rating"`
+			ReviewerID   string    `json:"reviewerId"`
+			Nickname     string    `json:"nickname"`
+			IsPurchased  bool      `json:"isPurchased"`
+			Comment      string    `json:"comment"`
+			HelpfulCount int       `json:"helpfulCount"`
+			Service      string    `json:"service"`
+			IsExposure   bool      `json:"isExposure"`
+			PublishDate  time.Time `json:"publishDate"`
+			Typename     string    `json:"__typename"`
+		} `json:"items"`
+		Typename string `json:"__typename"`
+	} `json:"reviews"`
 }

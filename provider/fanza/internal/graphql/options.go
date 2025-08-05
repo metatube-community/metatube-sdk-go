@@ -1,8 +1,7 @@
 package graphql
 
 import (
-	"net/url"
-	"strings"
+	"regexp"
 )
 
 type QueryOptions struct {
@@ -14,13 +13,17 @@ type QueryOptions struct {
 	IsSP       bool
 }
 
-func GenerateQueryOptions(u *url.URL) QueryOptions {
+var videoTypePattern = regexp.MustCompile(`//video\.dmm\.co\.jp/(\w+)/content/`)
+
+func BuildQueryOptions(targetURL string) QueryOptions {
+	var (
+		typ  string
+		opts QueryOptions
+	)
 	// E.g., https://video.dmm.co.jp/anime/content/
-	typ := strings.SplitN(
-		strings.TrimPrefix(u.Path, "/"),
-		"/", 2,
-	)[0]
-	opts := QueryOptions{}
+	if ss := videoTypePattern.FindStringSubmatch(targetURL); len(ss) == 2 {
+		typ = ss[1]
+	}
 	switch typ {
 	case "anime":
 		opts.IsAnime = true

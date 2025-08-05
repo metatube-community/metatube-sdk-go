@@ -1,0 +1,86 @@
+package graphql
+
+import (
+	"context"
+	_ "embed"
+	"net/http"
+	"time"
+
+	"github.com/machinebox/graphql"
+)
+
+const (
+	videoURL   = "https://video.dmm.co.jp/"
+	graphqlURL = "https://api.video.dmm.co.jp/graphql"
+)
+
+var (
+	//go:embed query/ContentPageData.graphql
+	contentPageDataQuery string
+
+	//go:embed query/UserReviews.graphql
+	userReviewsQuery string
+)
+
+type Client struct {
+	hc *http.Client
+	gc *graphql.Client
+}
+
+func NewClient() *Client {
+	c := &Client{
+		hc: &http.Client{},
+	}
+	c.gc = graphql.NewClient(
+		graphqlURL,
+		graphql.WithHTTPClient(c.hc))
+	return c
+}
+
+func (c *Client) SetTimeout(t time.Duration) {
+	c.hc.Timeout = t
+}
+
+func (c *Client) GetContentPageData(id string, opts QueryOptions) (*ContentPageDataResponse, error) {
+	req := graphql.NewRequest(contentPageDataQuery)
+	req.Var("id", id)
+	req.Var("isLoggedIn", opts.IsLoggedIn)
+	req.Var("isAmateur", opts.IsAmateur)
+	req.Var("isAnime", opts.IsAnime)
+	req.Var("isAv", opts.IsAv)
+	req.Var("isCinema", opts.IsCinema)
+	req.Var("isSP", opts.IsSP)
+
+	req.Header.Set("Referer", videoURL)
+	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("Fanza-Device", "BROWSER")
+	req.Header.Set("User-Agent", "") // skip
+
+	var resp ContentPageDataResponse
+	if err := c.gc.Run(context.Background(), req, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (c *Client) GetUserReviews(id string, offset ...int) (*UserReviewsResponse, error) {
+	req := graphql.NewRequest(userReviewsQuery)
+	req.Var("id", id)
+	req.Var("sort", "HELPFUL_COUNT_DESC")
+	if len(offset) > 0 {
+		req.Var("offset", offset[0])
+	}
+
+	req.Header.Set("Referer", videoURL)
+	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("Fanza-Device", "BROWSER")
+	req.Header.Set("User-Agent", "") // skip
+
+	var resp UserReviewsResponse
+	if err := c.gc.Run(context.Background(), req, &resp); err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
