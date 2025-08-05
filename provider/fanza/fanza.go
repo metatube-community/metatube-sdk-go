@@ -657,7 +657,23 @@ func (fz *FANZA) searchMovieNext(keyword string) (results []*model.MovieSearchRe
 		return
 	}
 
+	filter := func(url string) bool {
+		for _, prefix := range []string{
+			baseDigitalURL,
+			baseMonoURL,
+			videoURL,
+		} {
+			if strings.HasPrefix(url, prefix) {
+				return true
+			}
+		}
+		return false
+	}
+
 	for _, product := range resp.BackendResponse.Contents.Data {
+		if !filter(product.DetailURL) {
+			continue // ignore non-digital/mono results, e.g.: 月額動画
+		}
 		var releaseDate string
 		if re := regexp.MustCompile(`(配信日|発売日|貸出日)：\s*`); re.MatchString(product.ReleaseAnnouncement) {
 			releaseDate = re.ReplaceAllString(product.ReleaseAnnouncement, "")
