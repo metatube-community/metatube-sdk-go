@@ -45,6 +45,7 @@ const (
 
 const (
 	baseURL                 = "https://www.dmm.co.jp/"
+	videoURL                = "https://video.dmm.co.jp/"
 	baseDigitalURL          = "https://www.dmm.co.jp/digital/"
 	baseMonoURL             = "https://www.dmm.co.jp/mono/"
 	searchURL               = "https://www.dmm.co.jp/search/=/searchstr=%s/limit=120/sort=date/"
@@ -58,7 +59,12 @@ const (
 
 const regionNotAvailable = "not-available-in-your-region"
 
-var ErrRegionNotAvailable = errors.New(regionNotAvailable)
+var (
+	errContentIDNotFound = errors.New("content-id-not-found")
+	errRequireNewHandler = errors.New("require-new-handler")
+
+	ErrRegionNotAvailable = errors.New(regionNotAvailable)
+)
 
 type FANZA struct {
 	*scraper.Scraper
@@ -68,6 +74,9 @@ func New() *FANZA {
 	return &FANZA{scraper.NewDefaultScraper(
 		Name, baseURL, Priority, language.Japanese,
 		scraper.WithCookies(baseURL, []*http.Cookie{
+			{Name: "age_check_done", Value: "1"},
+		}),
+		scraper.WithCookies(videoURL, []*http.Cookie{
 			{Name: "age_check_done", Value: "1"},
 		}),
 	)}
@@ -106,18 +115,53 @@ func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) 
 }
 
 func (fz *FANZA) ParseMovieIDFromURL(rawURL string) (id string, err error) {
+	defer func() {
+		if err == nil && id == "" {
+			err = errContentIDNotFound
+		}
+	}()
 	homepage, err := url.Parse(rawURL)
 	if err != nil {
 		return
 	}
-	if sub := regexp.MustCompile(`/cid=(.*?)/`).
+	if strings.HasPrefix(homepage.String(), videoURL) {
+		id = fz.NormalizeMovieID(
+			homepage.Query().Get("id"))
+	} else if sub := regexp.
+		MustCompile(`/cid=(.*?)/`).
 		FindStringSubmatch(homepage.Path); len(sub) == 2 {
 		id = fz.NormalizeMovieID(sub[1])
 	}
 	return
 }
 
-func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+func (fz *FANZA) GetMovieInfoByURL(rawURL string) (*model.MovieInfo, error) {
+	if strings.HasPrefix(rawURL, videoURL) {
+		return fz.getMovieInfoByURL(rawURL)
+	}
+	return fz.getLegacyMovieInfoByURL(rawURL)
+}
+
+func (fz *FANZA) getMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := fz.ParseMovieIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
+
+	info = &model.MovieInfo{
+		Provider:      fz.Name(),
+		Homepage:      rawURL,
+		Actors:        []string{},
+		PreviewImages: []string{},
+		Genres:        []string{},
+	}
+
+	_ = id
+
+	return nil, errors.New("bazaga")
+}
+
+func (fz *FANZA) getLegacyMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
 	id, err := fz.ParseMovieIDFromURL(rawURL)
 	if err != nil {
 		return
@@ -132,6 +176,20 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 	}
 
 	c := fz.ClonedCollector()
+	c.SetRedirectHandler(func(req *http.Request, via []*http.Request) error {
+		if strings.HasPrefix(req.URL.String(), videoURL) {
+			if !strings.HasSuffix(req.URL.Path, "/") {
+				// ensure trailing slash.
+				req.URL.Path += "/"
+			}
+			return &url.Error{
+				Op:  "redirect to",
+				URL: req.URL.String(),
+				Err: errRequireNewHandler,
+			}
+		}
+		return nil
+	})
 
 	// Homepage
 	c.OnRequest(func(r *colly.Request) {
@@ -477,7 +535,12 @@ func (fz *FANZA) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 		}
 	})
 
-	if vErr := c.Visit(info.Homepage); vErr != nil {
+	vErr := c.Visit(info.Homepage)
+	if vErr != nil {
+		var urlErr *url.Error
+		if errors.As(vErr, &urlErr) && errors.Is(urlErr.Err, errRequireNewHandler) {
+			return fz.getMovieInfoByURL(urlErr.URL) // use new handler.
+		}
 		err = vErr
 	}
 	return
@@ -558,7 +621,9 @@ func (fz *FANZA) searchMovie(keyword string) (results []*model.MovieSearchResult
 
 	c.OnXML(`//*[@id="list"]/li`, func(e *colly.XMLElement) {
 		homepage := e.Request.AbsoluteURL(e.ChildAttr(`.//p[@class="tmb"]/a`, "href"))
-		if !strings.HasPrefix(homepage, baseDigitalURL) && !strings.HasPrefix(homepage, baseMonoURL) {
+		if !strings.HasPrefix(homepage, baseDigitalURL) &&
+			!strings.HasPrefix(homepage, baseMonoURL) &&
+			!strings.HasPrefix(homepage, videoURL) {
 			return // ignore other contents.
 		}
 		id, _ := fz.ParseMovieIDFromURL(homepage) // ignore error.
