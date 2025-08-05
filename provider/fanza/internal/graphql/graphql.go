@@ -3,8 +3,6 @@ package graphql
 import (
 	"context"
 	_ "embed"
-	"net/http"
-	"time"
 
 	"github.com/machinebox/graphql"
 )
@@ -22,23 +20,21 @@ var (
 	userReviewsQuery string
 )
 
+type ClientOption = graphql.ClientOption
+
+var (
+	WithHTTPClient   = graphql.WithHTTPClient
+	UseMultipartForm = graphql.UseMultipartForm
+)
+
 type Client struct {
-	hc *http.Client
 	gc *graphql.Client
 }
 
-func NewClient() *Client {
-	c := &Client{
-		hc: &http.Client{},
+func NewClient(opts ...ClientOption) *Client {
+	return &Client{
+		gc: graphql.NewClient(graphqlURL, opts...),
 	}
-	c.gc = graphql.NewClient(
-		graphqlURL,
-		graphql.WithHTTPClient(c.hc))
-	return c
-}
-
-func (c *Client) SetTimeout(t time.Duration) {
-	c.hc.Timeout = t
 }
 
 func (c *Client) GetContentPageData(id string, opts ContentPageDataQueryOptions) (*ContentPageDataResponse, error) {

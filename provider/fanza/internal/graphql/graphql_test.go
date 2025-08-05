@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"encoding/json"
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -28,7 +29,7 @@ func TestBuildQueryOptions(t *testing.T) {
 }
 
 func TestClient_GetContentPageData(t *testing.T) {
-	client := NewClient()
+	client := NewClient(WithHTTPClient(http.DefaultClient))
 	client.gc.Log = func(s string) { t.Log(s) }
 
 	content, err := client.GetContentPageData("1start00190", ContentPageDataQueryOptions{IsAv: true})
@@ -40,7 +41,7 @@ func TestClient_GetContentPageData(t *testing.T) {
 }
 
 func TestClient_GetUserReviews(t *testing.T) {
-	client := NewClient()
+	client := NewClient(WithHTTPClient(http.DefaultClient))
 	client.gc.Log = func(s string) { t.Log(s) }
 
 	content, err := client.GetUserReviews("1start00190", 0)
