@@ -64,6 +64,7 @@ func (c *Client) GetUserReviews(id string, offset ...int) (*UserReviewsResponse,
 	req := graphql.NewRequest(userReviewsQuery)
 	req.Var("id", id)
 	req.Var("sort", "HELPFUL_COUNT_DESC")
+	req.Var("offset", 0) // default offset
 	if len(offset) > 0 {
 		req.Var("offset", offset[0])
 	}

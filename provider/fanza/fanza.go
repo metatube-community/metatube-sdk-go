@@ -258,20 +258,7 @@ func (fz *FANZA) getMonoMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 	}
 
 	c := fz.ClonedCollector()
-	c.SetRedirectHandler(func(req *http.Request, via []*http.Request) error {
-		if strings.HasPrefix(req.URL.String(), videoURL) {
-			if !strings.HasSuffix(req.URL.Path, "/") {
-				// ensure trailing slash.
-				req.URL.Path += "/"
-			}
-			return &url.Error{
-				Op:  "redirect to",
-				URL: req.URL.String(),
-				Err: errRequireNewHandler,
-			}
-		}
-		return nil
-	})
+	c.SetRedirectHandler(fz.digitalRedirectFunc)
 
 	// Homepage
 	c.OnRequest(func(r *colly.Request) {
@@ -774,7 +761,38 @@ func (fz *FANZA) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDet
 }
 
 func (fz *FANZA) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewDetail, err error) {
+	if IsDigitalVideoURL(rawURL) {
+		return fz.getDigitalMovieReviewsByURL(rawURL)
+	}
+	return fz.getMonoMovieReviewsByURL(rawURL)
+}
+
+func (fz *FANZA) getDigitalMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewDetail, err error) {
+	id, err := fz.ParseMovieIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
+
+	data, err := fz.videoAPI.GetUserReviews(id)
+	if err != nil {
+		return
+	}
+
+	for _, review := range data.Reviews.Items {
+		reviews = append(reviews, &model.MovieReviewDetail{
+			Title:   review.Title,
+			Author:  review.Nickname,
+			Comment: review.Comment,
+			Score:   float64(review.Rating),
+			Date:    dt.Date(review.PublishDate),
+		})
+	}
+	return
+}
+
+func (fz *FANZA) getMonoMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewDetail, err error) {
 	c := fz.ClonedCollector()
+	c.SetRedirectHandler(fz.digitalRedirectFunc)
 
 	c.OnXML(`//*[starts-with(@id, 'review')]//div[ends-with(@class, 'review__list')]/ul/li`, func(e *colly.XMLElement) {
 		comment := strings.TrimSpace(e.ChildText(`.//div[1]`))
@@ -813,7 +831,12 @@ func (fz *FANZA) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieRevi
 		})
 	})
 
-	err = c.Visit(rawURL)
+	if err = c.Visit(rawURL); err != nil {
+		var urlErr *url.Error
+		if errors.As(err, &urlErr) && errors.Is(urlErr.Err, errRequireNewHandler) {
+			return fz.getDigitalMovieReviewsByURL(urlErr.URL)
+		}
+	}
 	return
 }
 
@@ -902,6 +925,21 @@ func (fz *FANZA) parseVRPreviewVideoURL(c *colly.Collector, vrVideoURL string) (
 	})
 	d.Visit(vrVideoURL)
 	return
+}
+
+func (fz *FANZA) digitalRedirectFunc(req *http.Request, _ []*http.Request) error {
+	if strings.HasPrefix(req.URL.String(), videoURL) {
+		if !strings.HasSuffix(req.URL.Path, "/") {
+			// ensure trailing slash.
+			req.URL.Path += "/"
+		}
+		return &url.Error{
+			Op:  "redirect to",
+			URL: req.URL.String(),
+			Err: errRequireNewHandler,
+		}
+	}
+	return nil
 }
 
 func IsDigitalVideoURL(url string) bool {
