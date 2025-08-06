@@ -227,13 +227,24 @@ func (fz *FANZA) getDigitalMovieInfoByURL(rawURL string) (*model.MovieInfo, erro
 
 	// Cover Image (fallback)
 	if info.CoverURL == "" {
-		info.CoverURL = info.ThumbURL
+		info.CoverURL = data.PPVContent.PackageImage.MediumURL
+	}
+
+	// Big Thumb URL
+	if info.BigThumbURL == "" {
+		if fz.getImageSizeByURL(info.ThumbURL) > 100*units.KiB /* min big thumb size */ {
+			info.BigThumbURL = info.ThumbURL
+		}
+	}
+
+	// Big Thumb URL (fallback)
+	if info.BigThumbURL == "" {
+		fz.updateBigThumbURLFromPreviewImages(info)
 	}
 
 	// Preview Video
 	if data.PPVContent.SampleMovie.Has2D {
 		info.PreviewVideoURL = fz.parsePreviewVideoURL(
-			fz.ClonedCollector(),
 			fmt.Sprintf("%sservice/digitalapi/-/html5_player/=/cid=%s/", baseURL, info.ID),
 		)
 	}
@@ -241,7 +252,6 @@ func (fz *FANZA) getDigitalMovieInfoByURL(rawURL string) (*model.MovieInfo, erro
 	// Preview Video (VR)
 	if data.PPVContent.SampleMovie.HasVr {
 		info.PreviewVideoURL = fz.parseVRPreviewVideoURL(
-			fz.ClonedCollector(),
 			fmt.Sprintf("%sdigital/-/vr-sample-player/=/cid=%s/", baseURL, info.ID),
 		)
 	}
@@ -434,13 +444,13 @@ func (fz *FANZA) getMonoMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 		} else if v := e.Attr("onclick"); v != "" { // digital
 			videoPath = regexp.MustCompile(`/(.+)/`).FindString(v)
 		}
-		info.PreviewVideoURL = fz.parsePreviewVideoURL(c, e.Request.AbsoluteURL(videoPath))
+		info.PreviewVideoURL = fz.parsePreviewVideoURL(e.Request.AbsoluteURL(videoPath))
 	})
 
 	// Deprecated (?)
 	// Preview Video (VR)
 	c.OnXML(`//*[@id="detail-sample-vr-movie"]/div/a`, func(e *colly.XMLElement) {
-		info.PreviewVideoURL = fz.parseVRPreviewVideoURL(c,
+		info.PreviewVideoURL = fz.parseVRPreviewVideoURL(
 			e.Request.AbsoluteURL(
 				regexp.MustCompile(`/(.+)/`).FindString(e.Attr("onclick"))))
 	})
@@ -473,10 +483,10 @@ func (fz *FANZA) getMonoMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 			}
 			if autoPlayerMovieFlg {
 				sampleURL := e.Request.AbsoluteURL(fmt.Sprintf(`/digital/%s/-/detail/ajax-movie/=/cid=%s/`, autoPlayerFloor, info.ID))
-				info.PreviewVideoURL = fz.parsePreviewVideoURL(c, sampleURL)
+				info.PreviewVideoURL = fz.parsePreviewVideoURL(sampleURL)
 			} else {
 				vrSampleURL := e.Request.AbsoluteURL(fmt.Sprintf(`/digital/-/vr-sample-player/=/cid=%s/`, info.ID))
-				info.PreviewVideoURL = fz.parseVRPreviewVideoURL(c, vrSampleURL)
+				info.PreviewVideoURL = fz.parseVRPreviewVideoURL(vrSampleURL)
 			}
 		}
 	})
@@ -517,61 +527,9 @@ func (fz *FANZA) getMonoMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 		}
 	})
 
-	// Find big thumb/cover images (awsimgsrc.dmm.co.jp)
-	c.OnScraped(func(_ *colly.Response) {
-		start := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
-		if time.Time(info.ReleaseDate).Before(start) {
-			return // ignore movies released before this date.
-		}
-		if !strings.Contains(info.Homepage, "/digital/videoa") {
-			return // ignore non-digital/videoa typed movies.
-		}
-		d := c.Clone()
-		d.Async = true
-		d.ParseHTTPErrorResponse = false
-		d.OnResponseHeaders(func(r *colly.Response) {
-			if r.Headers.Get("Content-Type") != "image/jpeg" {
-				return // ignore non-image/jpeg contents.
-			}
-			length, _ := strconv.Atoi(r.Headers.Get("Content-Length"))
-			switch {
-			case strings.HasSuffix(info.ThumbURL, path.Base(r.Request.URL.Path)) && length > 100*units.KiB:
-				info.BigThumbURL = r.Request.URL.String()
-			case strings.HasSuffix(info.CoverURL, path.Base(r.Request.URL.Path)) && length > 500*units.KiB:
-				info.BigCoverURL = r.Request.URL.String()
-			}
-			// abort to prevent image content from being downloaded.
-			r.Request.Abort()
-		})
-		d.Visit(strings.ReplaceAll(info.ThumbURL,
-			"https://pics.dmm.co.jp/",
-			"https://awsimgsrc.dmm.co.jp/pics_dig/"))
-		d.Visit(strings.ReplaceAll(info.CoverURL,
-			"https://pics.dmm.co.jp/",
-			"https://awsimgsrc.dmm.co.jp/pics_dig/"))
-		d.Wait()
-	})
-
 	// Final (big thumb image)
 	c.OnScraped(func(_ *colly.Response) {
-		if info.BigThumbURL != "" /* big thumb already exist */ ||
-			info.ThumbURL == "" /* thumb url is empty */ ||
-			len(info.PreviewImages) == 0 /* no preview images */ {
-			return
-		}
-
-		if !strings.Contains(info.Homepage, "/digital/videoa") &&
-			!strings.Contains(info.Homepage, "/mono/dvd") {
-			// must be VideoA or DVD videos.
-			return
-		}
-
-		if imcmp.Similar(info.ThumbURL, info.PreviewImages[0], nil) {
-			// the first preview image is a big thumb image.
-			info.BigThumbURL = info.PreviewImages[0]
-			info.PreviewImages = info.PreviewImages[1:]
-			return
-		}
+		fz.updateBigThumbURLFromPreviewImages(info)
 	})
 
 	// Final (actors)
@@ -910,17 +868,84 @@ func (fz *FANZA) parseScoreFromURL(s string) float64 {
 	return score
 }
 
-func (fz *FANZA) parsePreviewVideoURL(c *colly.Collector, videoURL string) (previewVideoURL string) {
-	d := c.Clone()
+// Deprecated: this is unneeded.
+//
+//nolint:unused // ignore unused warning for this function.
+func (fz *FANZA) updateWithAWSImgSrc(info *model.MovieInfo) {
+	start := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+	if time.Time(info.ReleaseDate).Before(start) {
+		return // ignore movies released before this date.
+	}
+	if !strings.Contains(info.Homepage, "/digital/videoa") {
+		return // ignore non-digital/videoa typed movies.
+	}
+	c := fz.ClonedCollector()
+	c.Async = true
+	c.ParseHTTPErrorResponse = false
+	c.OnResponseHeaders(func(r *colly.Response) {
+		if r.Headers.Get("Content-Type") != "image/jpeg" {
+			return // ignore non-image/jpeg contents.
+		}
+		length, _ := strconv.Atoi(r.Headers.Get("Content-Length"))
+		switch {
+		case strings.HasSuffix(info.ThumbURL, path.Base(r.Request.URL.Path)) && length > 100*units.KiB:
+			info.BigThumbURL = r.Request.URL.String()
+		case strings.HasSuffix(info.CoverURL, path.Base(r.Request.URL.Path)) && length > 500*units.KiB:
+			info.BigCoverURL = r.Request.URL.String()
+		}
+		// abort to prevent image content from being downloaded.
+		r.Request.Abort()
+	})
+	c.Visit(strings.ReplaceAll(info.ThumbURL,
+		"https://pics.dmm.co.jp/",
+		"https://awsimgsrc.dmm.co.jp/pics_dig/"))
+	c.Visit(strings.ReplaceAll(info.CoverURL,
+		"https://pics.dmm.co.jp/",
+		"https://awsimgsrc.dmm.co.jp/pics_dig/"))
+	c.Wait()
+}
+
+// getImageSizeByURL retrieves the image size from the Content-Length header of a given URL.
+func (fz *FANZA) getImageSizeByURL(imgURL string) (size int) {
+	c := fz.ClonedCollector()
+	c.OnResponseHeaders(func(r *colly.Response) {
+		if !strings.HasPrefix(r.Headers.Get("Content-Type"), "image/") {
+			return // ignore non-image content.
+		}
+		size, _ = strconv.Atoi(r.Headers.Get("Content-Length"))
+	})
+	c.Visit(imgURL)
+	return
+}
+
+// updateBigThumbURLFromPreviewImages attempts to update the big thumb
+// image URL with the first preview image if the two images match.
+func (fz *FANZA) updateBigThumbURLFromPreviewImages(info *model.MovieInfo) {
+	if info.BigThumbURL != "" /* a big thumb already exists */ ||
+		info.ThumbURL == "" /* thumb url is empty */ ||
+		len(info.PreviewImages) == 0 /* no preview images */ {
+		return
+	}
+
+	if imcmp.Similar(info.ThumbURL, info.PreviewImages[0], nil) {
+		// populate the first preview image as a big thumb image.
+		info.BigThumbURL = info.PreviewImages[0]
+		info.PreviewImages = info.PreviewImages[1:]
+		return
+	}
+}
+
+func (fz *FANZA) parsePreviewVideoURL(videoURL string) (previewVideoURL string) {
+	c := fz.ClonedCollector()
 	// In case it's an iframe page:
 	// E.g.: https://www.dmm.co.jp/digital/videoa/-/detail/ajax-movie/=/cid=1start00190/
-	d.OnXML(`//iframe`, func(e *colly.XMLElement) {
+	c.OnXML(`//iframe`, func(e *colly.XMLElement) {
 		previewVideoURL = fz.parsePreviewVideoURL(
-			d, e.Request.AbsoluteURL(e.Attr("src")),
+			e.Request.AbsoluteURL(e.Attr("src")),
 		)
 	})
 	// E.g.: https://www.dmm.co.jp/service/digitalapi/-/html5_player/=/cid=1start00190/
-	d.OnResponse(func(r *colly.Response) {
+	c.OnResponse(func(r *colly.Response) {
 		if resp := regexp.MustCompile(`const args = (\{.+});`).FindSubmatch(r.Body); len(resp) == 2 {
 			data := struct {
 				Bitrates []struct {
@@ -933,19 +958,19 @@ func (fz *FANZA) parsePreviewVideoURL(c *colly.Collector, videoURL string) (prev
 			}
 		}
 	})
-	d.Visit(videoURL)
+	c.Visit(videoURL)
 	return
 }
 
-func (fz *FANZA) parseVRPreviewVideoURL(c *colly.Collector, vrVideoURL string) (previewVideoURL string) {
-	d := c.Clone()
-	d.OnResponse(func(r *colly.Response) {
+func (fz *FANZA) parseVRPreviewVideoURL(vrVideoURL string) (previewVideoURL string) {
+	c := fz.ClonedCollector()
+	c.OnResponse(func(r *colly.Response) {
 		sub := regexp.MustCompile(`var sampleUrl = "(.+?)";`).FindSubmatch(r.Body)
 		if len(sub) == 2 {
 			previewVideoURL = r.Request.AbsoluteURL(string(sub[1]))
 		}
 	})
-	d.Visit(vrVideoURL)
+	c.Visit(vrVideoURL)
 	return
 }
 
