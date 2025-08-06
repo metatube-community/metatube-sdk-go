@@ -227,7 +227,19 @@ func (fz *FANZA) getDigitalMovieInfoByURL(rawURL string) (*model.MovieInfo, erro
 
 	// Cover Image (fallback)
 	if info.CoverURL == "" {
-		info.CoverURL = info.ThumbURL
+		info.CoverURL = data.PPVContent.PackageImage.MediumURL
+	}
+
+	// Big Thumb URL
+	if info.BigThumbURL == "" {
+		if fz.getImageSizeByURL(info.ThumbURL) > 100*units.KiB /* min big thumb size */ {
+			info.BigThumbURL = info.ThumbURL
+		}
+	}
+
+	// Big Thumb URL (fallback)
+	if info.BigThumbURL == "" {
+		fz.updateBigThumbURLFromPreviewImages(info)
 	}
 
 	// Preview Video
@@ -517,24 +529,7 @@ func (fz *FANZA) getMonoMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 
 	// Final (big thumb image)
 	c.OnScraped(func(_ *colly.Response) {
-		if info.BigThumbURL != "" /* big thumb already exist */ ||
-			info.ThumbURL == "" /* thumb url is empty */ ||
-			len(info.PreviewImages) == 0 /* no preview images */ {
-			return
-		}
-
-		if !strings.Contains(info.Homepage, "/digital/videoa") &&
-			!strings.Contains(info.Homepage, "/mono/dvd") {
-			// must be VideoA or DVD videos.
-			return
-		}
-
-		if imcmp.Similar(info.ThumbURL, info.PreviewImages[0], nil) {
-			// the first preview image is a big thumb image.
-			info.BigThumbURL = info.PreviewImages[0]
-			info.PreviewImages = info.PreviewImages[1:]
-			return
-		}
+		fz.updateBigThumbURLFromPreviewImages(info)
 	})
 
 	// Final (actors)
@@ -884,10 +879,10 @@ func (fz *FANZA) updateWithAWSImgSrc(info *model.MovieInfo) {
 	if !strings.Contains(info.Homepage, "/digital/videoa") {
 		return // ignore non-digital/videoa typed movies.
 	}
-	d := fz.ClonedCollector()
-	d.Async = true
-	d.ParseHTTPErrorResponse = false
-	d.OnResponseHeaders(func(r *colly.Response) {
+	c := fz.ClonedCollector()
+	c.Async = true
+	c.ParseHTTPErrorResponse = false
+	c.OnResponseHeaders(func(r *colly.Response) {
 		if r.Headers.Get("Content-Type") != "image/jpeg" {
 			return // ignore non-image/jpeg contents.
 		}
@@ -901,13 +896,43 @@ func (fz *FANZA) updateWithAWSImgSrc(info *model.MovieInfo) {
 		// abort to prevent image content from being downloaded.
 		r.Request.Abort()
 	})
-	d.Visit(strings.ReplaceAll(info.ThumbURL,
+	c.Visit(strings.ReplaceAll(info.ThumbURL,
 		"https://pics.dmm.co.jp/",
 		"https://awsimgsrc.dmm.co.jp/pics_dig/"))
-	d.Visit(strings.ReplaceAll(info.CoverURL,
+	c.Visit(strings.ReplaceAll(info.CoverURL,
 		"https://pics.dmm.co.jp/",
 		"https://awsimgsrc.dmm.co.jp/pics_dig/"))
-	d.Wait()
+	c.Wait()
+}
+
+// getImageSizeByURL retrieves the image size from the Content-Length header of a given URL.
+func (fz *FANZA) getImageSizeByURL(imgURL string) (size int) {
+	c := fz.ClonedCollector()
+	c.OnResponseHeaders(func(r *colly.Response) {
+		if !strings.HasPrefix(r.Headers.Get("Content-Type"), "image/") {
+			return // ignore non-image content.
+		}
+		size, _ = strconv.Atoi(r.Headers.Get("Content-Length"))
+	})
+	c.Visit(imgURL)
+	return
+}
+
+// updateBigThumbURLFromPreviewImages attempts to update the big thumb
+// image URL with the first preview image if the two images match.
+func (fz *FANZA) updateBigThumbURLFromPreviewImages(info *model.MovieInfo) {
+	if info.BigThumbURL != "" /* a big thumb already exists */ ||
+		info.ThumbURL == "" /* thumb url is empty */ ||
+		len(info.PreviewImages) == 0 /* no preview images */ {
+		return
+	}
+
+	if imcmp.Similar(info.ThumbURL, info.PreviewImages[0], nil) {
+		// populate the first preview image as a big thumb image.
+		info.BigThumbURL = info.PreviewImages[0]
+		info.PreviewImages = info.PreviewImages[1:]
+		return
+	}
 }
 
 func (fz *FANZA) parsePreviewVideoURL(videoURL string) (previewVideoURL string) {
