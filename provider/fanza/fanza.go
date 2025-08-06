@@ -51,6 +51,7 @@ const (
 	baseDigitalURL         = "https://www.dmm.co.jp/digital/" // deprecated
 	baseMonoURL            = "https://www.dmm.co.jp/mono/"
 	searchURL              = "https://www.dmm.co.jp/search/=/searchstr=%s/limit=120/sort=date/"
+	movieDigitalURL        = "https://video.dmm.co.jp/%s/content/?id=%s"
 	movieDigitalAVURL      = "https://video.dmm.co.jp/av/content/?id=%s"
 	movieDigitalAmateurURL = "https://video.dmm.co.jp/amateur/content/?id=%s"
 	movieDigitalAnimeURL   = "https://video.dmm.co.jp/anime/content/?id=%s"
@@ -175,7 +176,7 @@ func (fz *FANZA) getDigitalMovieInfoByURL(rawURL string) (*model.MovieInfo, erro
 		Title:         data.PPVContent.Title,
 		Summary:       data.PPVContent.Description,
 		Provider:      fz.Name(),
-		Homepage:      rawURL,
+		Homepage:      fmt.Sprintf(movieDigitalURL, strings.ToLower(data.PPVContent.Floor), data.PPVContent.ID),
 		ThumbURL:      data.PPVContent.PackageImage.MediumURL,
 		CoverURL:      data.PPVContent.PackageImage.LargeURL,
 		Maker:         data.PPVContent.Maker.Name,
