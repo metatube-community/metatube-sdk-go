@@ -200,6 +200,11 @@ func (fz *FANZA) getDigitalMovieInfoByURL(rawURL string) (*model.MovieInfo, erro
 		info.Actors = append(info.Actors, actor.Name)
 	}
 
+	// Actors (amateur fallback)
+	if len(info.Actors) == 0 && data.PPVContent.AmateurActress.Name != "" {
+		info.Actors = append(info.Actors, data.PPVContent.AmateurActress.Name)
+	}
+
 	// Genres
 	for _, genre := range data.PPVContent.Genres {
 		info.Genres = append(info.Genres, genre.Name)
