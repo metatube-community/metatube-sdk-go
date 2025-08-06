@@ -3,6 +3,8 @@ package graphql
 import (
 	"context"
 	_ "embed"
+	"errors"
+	"reflect"
 
 	"github.com/machinebox/graphql"
 )
@@ -19,6 +21,8 @@ var (
 	//go:embed query/UserReviews.graphql
 	userReviewsQuery string
 )
+
+var ErrNullResponse = errors.New("response is null")
 
 type ClientOption = graphql.ClientOption
 
@@ -57,6 +61,10 @@ func (c *Client) GetContentPageData(id string, opts ContentPageDataQueryOptions)
 		return nil, err
 	}
 
+	if reflect.DeepEqual(resp, ContentPageDataResponse{Typename: resp.Typename}) {
+		return nil, ErrNullResponse
+	}
+
 	return &resp, nil
 }
 
@@ -77,6 +85,10 @@ func (c *Client) GetUserReviews(id string, offset ...int) (*UserReviewsResponse,
 	var resp UserReviewsResponse
 	if err := c.gc.Run(context.Background(), req, &resp); err != nil {
 		return nil, err
+	}
+
+	if reflect.DeepEqual(resp, UserReviewsResponse{}) {
+		return nil, ErrNullResponse
 	}
 
 	return &resp, nil

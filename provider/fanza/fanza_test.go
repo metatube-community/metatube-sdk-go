@@ -10,6 +10,9 @@ import (
 
 func TestFANZA_GetMovieInfoByID(t *testing.T) {
 	testkit.Test(t, New, []string{
+		"prst00022",
+		"196glod00359",
+		"smub037",
 		"1silk00113",
 		"adn00306",
 		"okax841",
@@ -89,6 +92,7 @@ func TestFANZA_GetMovieInfoByURL(t *testing.T) {
 
 func TestFANZA_SearchMovie(t *testing.T) {
 	testkit.Test(t, New, []string{
+		"PRST-022",
 		"OREC-062",
 		"T-28621",
 		"midv-003",

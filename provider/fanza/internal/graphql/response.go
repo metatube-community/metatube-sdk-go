@@ -96,6 +96,19 @@ type PPVContent struct {
 		ImageURL string `json:"imageUrl"`
 		Typename string `json:"__typename"`
 	} `json:"actresses"`
+	AmateurActress struct {
+		ID              string        `json:"id"`
+		Name            string        `json:"name"`
+		ImageURL        string        `json:"imageUrl"`
+		Age             interface{}   `json:"age"`
+		Waist           interface{}   `json:"waist"`
+		Bust            interface{}   `json:"bust"`
+		BustCup         interface{}   `json:"bustCup"`
+		Height          interface{}   `json:"height"`
+		Hip             interface{}   `json:"hip"`
+		RelatedContents []interface{} `json:"relatedContents"`
+		Typename        string        `json:"__typename"`
+	} `json:"amateurActress"`
 	Histrions []interface{} `json:"histrions"`
 	Directors []struct {
 		ID       string `json:"id"`

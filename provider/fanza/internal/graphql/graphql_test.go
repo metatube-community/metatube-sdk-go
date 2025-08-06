@@ -40,6 +40,14 @@ func TestClient_GetContentPageData(t *testing.T) {
 	t.Log(string(text))
 }
 
+func TestClient_GetContentPageData_Error(t *testing.T) {
+	client := NewClient(WithHTTPClient(http.DefaultClient))
+	client.gc.Log = func(s string) { t.Log(s) }
+
+	_, err := client.GetContentPageData("oj8k666", ContentPageDataQueryOptions{IsAv: true})
+	require.ErrorIs(t, err, ErrNullResponse)
+}
+
 func TestClient_GetUserReviews(t *testing.T) {
 	client := NewClient(WithHTTPClient(http.DefaultClient))
 	client.gc.Log = func(s string) { t.Log(s) }
@@ -50,4 +58,12 @@ func TestClient_GetUserReviews(t *testing.T) {
 
 	text, _ := json.MarshalIndent(content, "", "\t")
 	t.Log(string(text))
+}
+
+func TestClient_GetUserReviews_Error(t *testing.T) {
+	client := NewClient(WithHTTPClient(http.DefaultClient))
+	client.gc.Log = func(s string) { t.Log(s) }
+
+	_, err := client.GetUserReviews("oj8k666", 0)
+	require.ErrorIs(t, err, ErrNullResponse)
 }
