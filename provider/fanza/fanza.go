@@ -515,41 +515,6 @@ func (fz *FANZA) getMonoMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 		}
 	})
 
-	// Find big thumb/cover images (awsimgsrc.dmm.co.jp)
-	c.OnScraped(func(_ *colly.Response) {
-		start := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
-		if time.Time(info.ReleaseDate).Before(start) {
-			return // ignore movies released before this date.
-		}
-		if !strings.Contains(info.Homepage, "/digital/videoa") {
-			return // ignore non-digital/videoa typed movies.
-		}
-		d := c.Clone()
-		d.Async = true
-		d.ParseHTTPErrorResponse = false
-		d.OnResponseHeaders(func(r *colly.Response) {
-			if r.Headers.Get("Content-Type") != "image/jpeg" {
-				return // ignore non-image/jpeg contents.
-			}
-			length, _ := strconv.Atoi(r.Headers.Get("Content-Length"))
-			switch {
-			case strings.HasSuffix(info.ThumbURL, path.Base(r.Request.URL.Path)) && length > 100*units.KiB:
-				info.BigThumbURL = r.Request.URL.String()
-			case strings.HasSuffix(info.CoverURL, path.Base(r.Request.URL.Path)) && length > 500*units.KiB:
-				info.BigCoverURL = r.Request.URL.String()
-			}
-			// abort to prevent image content from being downloaded.
-			r.Request.Abort()
-		})
-		d.Visit(strings.ReplaceAll(info.ThumbURL,
-			"https://pics.dmm.co.jp/",
-			"https://awsimgsrc.dmm.co.jp/pics_dig/"))
-		d.Visit(strings.ReplaceAll(info.CoverURL,
-			"https://pics.dmm.co.jp/",
-			"https://awsimgsrc.dmm.co.jp/pics_dig/"))
-		d.Wait()
-	})
-
 	// Final (big thumb image)
 	c.OnScraped(func(_ *colly.Response) {
 		if info.BigThumbURL != "" /* big thumb already exist */ ||
@@ -906,6 +871,43 @@ func (fz *FANZA) parseScoreFromURL(s string) float64 {
 		score = score / 10.0
 	}
 	return score
+}
+
+// Deprecated
+// updateWithAWSImgSrc attempts to replace the current thumb
+// or cover URLs with big aws img sources, if available.
+func (fz *FANZA) updateWithAWSImgSrc(info *model.MovieInfo) {
+	start := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+	if time.Time(info.ReleaseDate).Before(start) {
+		return // ignore movies released before this date.
+	}
+	if !strings.Contains(info.Homepage, "/digital/videoa") {
+		return // ignore non-digital/videoa typed movies.
+	}
+	d := fz.ClonedCollector()
+	d.Async = true
+	d.ParseHTTPErrorResponse = false
+	d.OnResponseHeaders(func(r *colly.Response) {
+		if r.Headers.Get("Content-Type") != "image/jpeg" {
+			return // ignore non-image/jpeg contents.
+		}
+		length, _ := strconv.Atoi(r.Headers.Get("Content-Length"))
+		switch {
+		case strings.HasSuffix(info.ThumbURL, path.Base(r.Request.URL.Path)) && length > 100*units.KiB:
+			info.BigThumbURL = r.Request.URL.String()
+		case strings.HasSuffix(info.CoverURL, path.Base(r.Request.URL.Path)) && length > 500*units.KiB:
+			info.BigCoverURL = r.Request.URL.String()
+		}
+		// abort to prevent image content from being downloaded.
+		r.Request.Abort()
+	})
+	d.Visit(strings.ReplaceAll(info.ThumbURL,
+		"https://pics.dmm.co.jp/",
+		"https://awsimgsrc.dmm.co.jp/pics_dig/"))
+	d.Visit(strings.ReplaceAll(info.CoverURL,
+		"https://pics.dmm.co.jp/",
+		"https://awsimgsrc.dmm.co.jp/pics_dig/"))
+	d.Wait()
 }
 
 func (fz *FANZA) parsePreviewVideoURL(videoURL string) (previewVideoURL string) {
