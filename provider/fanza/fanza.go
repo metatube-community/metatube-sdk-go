@@ -233,7 +233,6 @@ func (fz *FANZA) getDigitalMovieInfoByURL(rawURL string) (*model.MovieInfo, erro
 	// Preview Video
 	if data.PPVContent.SampleMovie.Has2D {
 		info.PreviewVideoURL = fz.parsePreviewVideoURL(
-			fz.ClonedCollector(),
 			fmt.Sprintf("%sservice/digitalapi/-/html5_player/=/cid=%s/", baseURL, info.ID),
 		)
 	}
@@ -241,7 +240,6 @@ func (fz *FANZA) getDigitalMovieInfoByURL(rawURL string) (*model.MovieInfo, erro
 	// Preview Video (VR)
 	if data.PPVContent.SampleMovie.HasVr {
 		info.PreviewVideoURL = fz.parseVRPreviewVideoURL(
-			fz.ClonedCollector(),
 			fmt.Sprintf("%sdigital/-/vr-sample-player/=/cid=%s/", baseURL, info.ID),
 		)
 	}
@@ -434,13 +432,13 @@ func (fz *FANZA) getMonoMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 		} else if v := e.Attr("onclick"); v != "" { // digital
 			videoPath = regexp.MustCompile(`/(.+)/`).FindString(v)
 		}
-		info.PreviewVideoURL = fz.parsePreviewVideoURL(c, e.Request.AbsoluteURL(videoPath))
+		info.PreviewVideoURL = fz.parsePreviewVideoURL(e.Request.AbsoluteURL(videoPath))
 	})
 
 	// Deprecated (?)
 	// Preview Video (VR)
 	c.OnXML(`//*[@id="detail-sample-vr-movie"]/div/a`, func(e *colly.XMLElement) {
-		info.PreviewVideoURL = fz.parseVRPreviewVideoURL(c,
+		info.PreviewVideoURL = fz.parseVRPreviewVideoURL(
 			e.Request.AbsoluteURL(
 				regexp.MustCompile(`/(.+)/`).FindString(e.Attr("onclick"))))
 	})
@@ -473,10 +471,10 @@ func (fz *FANZA) getMonoMovieInfoByURL(rawURL string) (info *model.MovieInfo, er
 			}
 			if autoPlayerMovieFlg {
 				sampleURL := e.Request.AbsoluteURL(fmt.Sprintf(`/digital/%s/-/detail/ajax-movie/=/cid=%s/`, autoPlayerFloor, info.ID))
-				info.PreviewVideoURL = fz.parsePreviewVideoURL(c, sampleURL)
+				info.PreviewVideoURL = fz.parsePreviewVideoURL(sampleURL)
 			} else {
 				vrSampleURL := e.Request.AbsoluteURL(fmt.Sprintf(`/digital/-/vr-sample-player/=/cid=%s/`, info.ID))
-				info.PreviewVideoURL = fz.parseVRPreviewVideoURL(c, vrSampleURL)
+				info.PreviewVideoURL = fz.parseVRPreviewVideoURL(vrSampleURL)
 			}
 		}
 	})
@@ -910,17 +908,17 @@ func (fz *FANZA) parseScoreFromURL(s string) float64 {
 	return score
 }
 
-func (fz *FANZA) parsePreviewVideoURL(c *colly.Collector, videoURL string) (previewVideoURL string) {
-	d := c.Clone()
+func (fz *FANZA) parsePreviewVideoURL(videoURL string) (previewVideoURL string) {
+	c := fz.ClonedCollector()
 	// In case it's an iframe page:
 	// E.g.: https://www.dmm.co.jp/digital/videoa/-/detail/ajax-movie/=/cid=1start00190/
-	d.OnXML(`//iframe`, func(e *colly.XMLElement) {
+	c.OnXML(`//iframe`, func(e *colly.XMLElement) {
 		previewVideoURL = fz.parsePreviewVideoURL(
-			d, e.Request.AbsoluteURL(e.Attr("src")),
+			e.Request.AbsoluteURL(e.Attr("src")),
 		)
 	})
 	// E.g.: https://www.dmm.co.jp/service/digitalapi/-/html5_player/=/cid=1start00190/
-	d.OnResponse(func(r *colly.Response) {
+	c.OnResponse(func(r *colly.Response) {
 		if resp := regexp.MustCompile(`const args = (\{.+});`).FindSubmatch(r.Body); len(resp) == 2 {
 			data := struct {
 				Bitrates []struct {
@@ -933,19 +931,19 @@ func (fz *FANZA) parsePreviewVideoURL(c *colly.Collector, videoURL string) (prev
 			}
 		}
 	})
-	d.Visit(videoURL)
+	c.Visit(videoURL)
 	return
 }
 
-func (fz *FANZA) parseVRPreviewVideoURL(c *colly.Collector, vrVideoURL string) (previewVideoURL string) {
-	d := c.Clone()
-	d.OnResponse(func(r *colly.Response) {
+func (fz *FANZA) parseVRPreviewVideoURL(vrVideoURL string) (previewVideoURL string) {
+	c := fz.ClonedCollector()
+	c.OnResponse(func(r *colly.Response) {
 		sub := regexp.MustCompile(`var sampleUrl = "(.+?)";`).FindSubmatch(r.Body)
 		if len(sub) == 2 {
 			previewVideoURL = r.Request.AbsoluteURL(string(sub[1]))
 		}
 	})
-	d.Visit(vrVideoURL)
+	c.Visit(vrVideoURL)
 	return
 }
 
