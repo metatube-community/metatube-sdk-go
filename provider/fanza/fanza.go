@@ -868,9 +868,9 @@ func (fz *FANZA) parseScoreFromURL(s string) float64 {
 	return score
 }
 
-// Deprecated
-// updateWithAWSImgSrc attempts to replace the current thumb
-// or cover URLs with big aws img sources, if available.
+// Deprecated: this is unneeded.
+//
+//nolint:unused // ignore unused warning for this function.
 func (fz *FANZA) updateWithAWSImgSrc(info *model.MovieInfo) {
 	start := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	if time.Time(info.ReleaseDate).Before(start) {
