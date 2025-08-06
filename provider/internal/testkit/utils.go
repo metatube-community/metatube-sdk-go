@@ -53,7 +53,7 @@ func getStructFieldByName(s any, n string) (any, error) {
 	return nil, fmt.Errorf("%s: field '%s' doesn't exist", v.Type(), n)
 }
 
-var _functionParser = regexp.MustCompile(`\.Test([^\W_]+)_([^\W_]+)$`)
+var _functionParser = regexp.MustCompile(`\.Test([^\W_]+)_([^\W_]+)`)
 
 func parseTestFunction(function string) (string, string, error) {
 	results := _functionParser.FindStringSubmatch(function)

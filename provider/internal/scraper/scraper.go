@@ -25,7 +25,7 @@ type Scraper struct {
 	c        *colly.Collector
 }
 
-// NewScraper returns a *Scraper that implements provider.Provider .
+// NewScraper returns a *Scraper that implements provider.Provider.
 func NewScraper(name, base string, priority float64, lang language.Tag, opts ...Option) *Scraper {
 	baseURL, err := url.Parse(base)
 	if err != nil {

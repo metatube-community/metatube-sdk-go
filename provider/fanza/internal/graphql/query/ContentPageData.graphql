@@ -1,0 +1,362 @@
+query ContentPageData($id: ID!, $isLoggedIn: Boolean!, $isAmateur: Boolean!, $isAnime: Boolean!, $isAv: Boolean!, $isCinema: Boolean!, $isSP: Boolean!) {
+  ppvContent(id: $id) {
+    ...ContentData
+    __typename
+  }
+  reviewSummary(contentId: $id) {
+    ...ReviewSummary
+    __typename
+  }
+  ...basketCountFragment
+}
+fragment ContentData on PPVContent {
+  id
+  floor
+  title
+  isExclusiveDelivery
+  releaseStatus
+  description
+  notices
+  isNoIndex
+  isAllowForeign
+  announcements {
+    body
+    __typename
+  }
+  featureArticles {
+    link {
+      url
+      text
+      __typename
+    }
+    __typename
+  }
+  packageImage {
+    largeUrl
+    mediumUrl
+    __typename
+  }
+  sampleImages {
+    number
+    imageUrl
+    largeImageUrl
+    __typename
+  }
+  products {
+    ...ProductData
+    __typename
+  }
+  mostPopularContentImage {
+    ... on ContentSampleImage {
+      __typename
+      largeImageUrl
+      imageUrl
+    }
+    ... on PackageImage {
+      __typename
+      largeUrl
+      mediumUrl
+    }
+    __typename
+  }
+  priceSummary {
+    lowestSalePrice
+    lowestPrice
+    campaign {
+      title
+      id
+      endAt
+      __typename
+    }
+    __typename
+  }
+  weeklyRanking: ranking(term: Weekly)
+  monthlyRanking: ranking(term: Monthly)
+  wishlistCount
+  sample2DMovie {
+    fileID
+    __typename
+  }
+  sampleMovie {
+    has2d
+    hasVr
+    __typename
+  }
+  ...AmateurAdditionalContentData @include(if: $isAmateur)
+  ...AnimeAdditionalContentData @include(if: $isAnime)
+  ...AvAdditionalContentData @include(if: $isAv)
+  ...CinemaAdditionalContentData @include(if: $isCinema)
+  __typename
+}
+fragment ProductData on PPVProduct {
+  id
+  priority
+  deliveryUnit {
+    id
+    priority
+    streamMaxQualityGroup
+    downloadMaxQualityGroup
+    __typename
+  }
+  priceInclusiveTax
+  sale {
+    priceInclusiveTax
+    __typename
+  }
+  expireDays
+  utilization @include(if: $isLoggedIn) {
+    isTVODRentalPlayable
+    status
+    __typename
+  }
+  licenseType
+  shopName
+  availableCoupon {
+    name
+    expirationPolicy {
+      ... on ProductCouponExpirationAt {
+        expirationAt
+        __typename
+      }
+      ... on ProductCouponExpirationDay {
+        expirationDays
+        __typename
+      }
+      __typename
+    }
+    expirationAt
+    discountedPrice
+    minPayment
+    destinationUrl
+    __typename
+  }
+  __typename
+}
+fragment AmateurAdditionalContentData on PPVContent {
+  deliveryStartDate
+  duration
+  amateurActress {
+    id
+    name
+    imageUrl
+    age
+    waist
+    bust
+    bustCup
+    height
+    hip
+    relatedContents {
+      id
+      title
+      __typename
+    }
+    __typename
+  }
+  maker {
+    id
+    name
+    __typename
+  }
+  label {
+    id
+    name
+    __typename
+  }
+  genres {
+    id
+    name
+    __typename
+  }
+  makerContentId
+  playableInfo {
+    ...PlayableInfo
+    __typename
+  }
+  __typename
+}
+fragment PlayableInfo on PlayableInfo {
+  playableDevices {
+    deviceDeliveryUnits {
+      id
+      deviceDeliveryQualities {
+        isDownloadable
+        isStreamable
+        __typename
+      }
+      __typename
+    }
+    device
+    name
+    priority
+    __typename
+  }
+  deviceGroups {
+    id
+    devices {
+      deviceDeliveryUnits {
+        deviceDeliveryQualities {
+          isStreamable
+          isDownloadable
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  vrViewingType
+  __typename
+}
+fragment AnimeAdditionalContentData on PPVContent {
+  deliveryStartDate
+  duration
+  series {
+    id
+    name
+    __typename
+  }
+  maker {
+    id
+    name
+    __typename
+  }
+  label {
+    id
+    name
+    __typename
+  }
+  genres {
+    id
+    name
+    __typename
+  }
+  makerContentId
+  playableInfo {
+    ...PlayableInfo
+    __typename
+  }
+  __typename
+}
+fragment AvAdditionalContentData on PPVContent {
+  deliveryStartDate
+  makerReleasedAt
+  duration
+  actresses {
+    id
+    name
+    nameRuby
+    imageUrl
+    isBookmarked @include(if: $isLoggedIn)
+    __typename
+  }
+  histrions {
+    id
+    name
+    __typename
+  }
+  directors {
+    id
+    name
+    __typename
+  }
+  series {
+    id
+    name
+    __typename
+  }
+  maker {
+    id
+    name
+    __typename
+  }
+  label {
+    id
+    name
+    __typename
+  }
+  genres {
+    id
+    name
+    __typename
+  }
+  contentType
+  relatedWords
+  makerContentId
+  playableInfo {
+    ...PlayableInfo
+    __typename
+  }
+  __typename
+}
+fragment CinemaAdditionalContentData on PPVContent {
+  deliveryStartDate
+  duration
+  actresses {
+    id
+    name
+    nameRuby
+    imageUrl
+    __typename
+  }
+  histrions {
+    id
+    name
+    __typename
+  }
+  directors {
+    id
+    name
+    __typename
+  }
+  authors {
+    id
+    name
+    __typename
+  }
+  series {
+    id
+    name
+    __typename
+  }
+  maker {
+    id
+    name
+    __typename
+  }
+  label {
+    id
+    name
+    __typename
+  }
+  genres {
+    id
+    name
+    __typename
+  }
+  makerContentId
+  playableInfo {
+    ...PlayableInfo
+    __typename
+  }
+  __typename
+}
+fragment ReviewSummary on ReviewSummary {
+  average
+  total
+  withCommentTotal
+  distributions {
+    total
+    withCommentTotal
+    rating
+    __typename
+  }
+  __typename
+}
+fragment basketCountFragment on Query {
+  basketCount: legacyBasket @include(if: $isSP) {
+    total
+    __typename
+  }
+  __typename
+}

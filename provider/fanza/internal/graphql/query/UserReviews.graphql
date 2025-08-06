@@ -1,0 +1,19 @@
+query UserReviews($id: ID!, $sort: ReviewSort!, $offset: Int!) {
+  reviews(contentId: $id, sort: $sort, limit: 10, offset: $offset) {
+    items {
+      id
+      title
+      rating
+      reviewerId
+      nickname
+      isPurchased
+      comment
+      helpfulCount
+      service
+      isExposure
+      publishDate
+      __typename
+    }
+    __typename
+  }
+}
