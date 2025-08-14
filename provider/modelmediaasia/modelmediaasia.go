@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/url"
 	"path"
-	"strconv"
 	"strings"
 	"time"
 
@@ -13,27 +12,29 @@ import (
 	"golang.org/x/text/language"
 	"gorm.io/datatypes"
 
-	"github.com/metatube-community/metatube-sdk-go/collection/sets"
-	"github.com/metatube-community/metatube-sdk-go/common/convertor"
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
-	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
 
 var (
-	_ provider.ActorProvider = (*ModelMediaAsia)(nil)
-	_ provider.ActorSearcher = (*ModelMediaAsia)(nil)
+	_ provider.ActorProvider = (*ModelMediaAsiaActor)(nil)
+	_ provider.ActorSearcher = (*ModelMediaAsiaActor)(nil)
+	_ provider.Fetcher       = (*ModelMediaAsiaActor)(nil)
+
 	_ provider.MovieProvider = (*ModelMediaAsia)(nil)
 	_ provider.MovieSearcher = (*ModelMediaAsia)(nil)
 	_ provider.Fetcher       = (*ModelMediaAsia)(nil)
 )
 
 const (
-	Name     = "ModelMediaAsia"
-	Priority = 0 // Disabled by default, use `export MT_PROVIDER_MODELMEDIAASIA__PRIORITY=1000` to enable.
+	MovieProviderName = "ModelMediaAsia"
+	ActorProviderName = "ModelMediaAsiaActor"
+	// Disabled by default, use `export MT_PROVIDER_MODELMEDIAASIA__PRIORITY=1000` to enable.
+	// Disabled by default, use `export MT_PROVIDER_MODELMEDIAASIAACTOR__PRIORITY=1000` to enable.
+	Priority = 0
 )
 
 const (
@@ -50,10 +51,10 @@ type ModelMediaAsia struct {
 	*scraper.Scraper
 }
 
-func New() *ModelMediaAsia {
+func NewMovieProvider() *ModelMediaAsia {
 	return &ModelMediaAsia{
 		Fetcher: fetch.Default(&fetch.Config{Referer: baseURL}),
-		Scraper: scraper.NewDefaultScraper(Name, baseURL, Priority, language.Chinese),
+		Scraper: scraper.NewDefaultScraper(MovieProviderName, baseURL, Priority, language.Chinese),
 	}
 }
 
@@ -157,114 +158,7 @@ func (mma *ModelMediaAsia) SearchMovie(keyword string) (results []*model.MovieSe
 	return
 }
 
-// ParseActorIDFromURL impls ActorProvider.ParseActorIDFromURL.
-func (mma *ModelMediaAsia) ParseActorIDFromURL(rawURL string) (string, error) {
-	homepage, err := url.Parse(rawURL)
-	if err != nil {
-		return "", err
-	}
-	return path.Base(homepage.Path), nil
-}
-
-// GetActorInfoByID impls ActorProvider.GetActorInfoByID.
-func (mma *ModelMediaAsia) GetActorInfoByID(id string) (info *model.ActorInfo, err error) {
-	info = &model.ActorInfo{
-		ID:       id,
-		Provider: mma.Name(),
-		Homepage: fmt.Sprintf(actorURL, id),
-		Aliases:  []string{},
-		Images:   []string{},
-	}
-
-	c := mma.ClonedCollector()
-	c.OnResponse(func(r *colly.Response) {
-		resp := &actorInfoResponse{}
-		if err = json.Unmarshal(r.Body, resp); err != nil {
-			return
-		}
-
-		// Name & Aliases
-		info.Name = resp.Data.NameCn
-
-		if resp.Data.Name != "" /* English name */ {
-			info.Aliases = append(info.Aliases, resp.Data.Name)
-		}
-
-		// Images
-		imageSet := sets.NewOrderedSet[string]()
-		imageSet.Add(resp.Data.Avatar)
-		for _, photo := range resp.Data.Photos {
-			imageSet.Add(photo.Image)
-		}
-		info.Images = imageSet.AsSlice()
-
-		// Birthday
-		info.Birthday = parser.ParseDate(resp.Data.BirthDay)
-
-		// Height
-		if resp.Data.HeightCm > 0 {
-			info.Height = resp.Data.HeightCm
-		} else {
-			info.Height = convertor.ConvertToCentimeters(
-				resp.Data.HeightFt, resp.Data.HeightIn)
-		}
-
-		if size, cup, err := parser.ParseBustCupSize(resp.Data.MeasurementsChest); err == nil {
-			if size != 0 &&
-				resp.Data.MeasurementsWaist != 0 &&
-				resp.Data.MeasurementsHips != 0 {
-				info.Measurements = fmt.Sprintf("B:%d / W:%d / H:%d",
-					size, resp.Data.MeasurementsWaist, resp.Data.MeasurementsHips)
-			}
-			info.CupSize = cup
-		}
-	})
-
-	err = c.Visit(fmt.Sprintf(apiActorURL, id))
-	return
-}
-
-// GetActorInfoByURL impls ActorProvider.GetActorInfoByURL.
-func (mma *ModelMediaAsia) GetActorInfoByURL(rawURL string) (*model.ActorInfo, error) {
-	id, err := mma.ParseActorIDFromURL(rawURL)
-	if err != nil {
-		return nil, err
-	}
-
-	return mma.GetActorInfoByID(id)
-}
-
-// SearchActor impls ActorSearcher.SearchActor.
-func (mma *ModelMediaAsia) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
-	c := mma.ClonedCollector()
-
-	c.OnResponse(func(r *colly.Response) {
-		resp := &searchResponse{}
-		if err = json.Unmarshal(r.Body, resp); err != nil {
-			return
-		}
-		for _, actor := range resp.Data.Models {
-			actorID := strconv.Itoa(actor.ID)
-			res := &model.ActorSearchResult{
-				ID:       actorID,
-				Name:     actor.NameCn,
-				Provider: mma.Name(),
-				Homepage: fmt.Sprintf(actorURL, actorID),
-			}
-			if actor.Avatar != "" {
-				res.Images = append(res.Images, actor.Avatar)
-			}
-			if actor.Name != "" {
-				res.Aliases = append(res.Aliases, actor.Name)
-			}
-			results = append(results, res)
-		}
-	})
-
-	err = c.Visit(fmt.Sprintf(apiSearchURL, url.QueryEscape(keyword)))
-	return
-}
-
 func init() {
-	provider.Register(Name, New)
+	provider.Register(MovieProviderName, NewMovieProvider)
+	provider.Register(ActorProviderName, NewActorProvider)
 }
