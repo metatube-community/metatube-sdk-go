@@ -67,16 +67,16 @@ var sharedTransport = &http.Transport{
 	ForceAttemptHTTP2:     true,
 	MaxIdleConns:          128,
 	MaxIdleConnsPerHost:   64,
-	MaxConnsPerHost:       32, // limit concurrent connections per host
+	MaxConnsPerHost:       16, // limit concurrent connections per host
 	IdleConnTimeout:       90 * time.Second,
-	TLSHandshakeTimeout:   15 * time.Second,
+	TLSHandshakeTimeout:   20 * time.Second,
 	ExpectContinueTimeout: 1 * time.Second,
 }
 
 // sharedHTTPClient wraps the shared transport for direct JSON calls.
 var sharedHTTPClient = &http.Client{
 	Transport: sharedTransport,
-	Timeout:   20 * time.Second,
+	Timeout:   30 * time.Second,
 }
 
 /* =========================
@@ -608,11 +608,12 @@ func (d *DLsite) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err er
 
 	// ===== Label (作品形式, first item) =====
 	c.OnXML(`//table[@id="work_outline"]
-          //tr[.//th[contains(normalize-space(.),"作品形式")]]
-          //td//span[1]`, func(e *colly.XMLElement) {
-		label := strings.TrimSpace(e.Text)
+          //tr[.//th[contains(normalize-space(.),'作品形式')]]
+          //td//div[@id='category_type']//a[1]`, func(e *colly.XMLElement) {
+		// Prefer span@title, fallback to text.
+		label := strings.TrimSpace(e.ChildAttr(".//span[1]", "title"))
 		if label == "" {
-			label = strings.TrimSpace(e.Attr("title"))
+			label = strings.TrimSpace(e.Text)
 		}
 		if label != "" {
 			info.Label = label
