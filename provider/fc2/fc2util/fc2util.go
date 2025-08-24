@@ -9,18 +9,18 @@ import (
 	"strings"
 )
 
-var _fc2pattern = regexp.MustCompile(`^(?i)(?:FC2(?:[-_\s]?PPV)?[-_\s]?)?(\d+)$`)
+var fc2pattern = regexp.MustCompile(`^(?i)(?:FC2(?:[-_\s]?PPV)?[-_\s]?)?(\d+)$`)
 
 func ParseNumber(id string) string {
-	ss := _fc2pattern.FindStringSubmatch(id)
+	ss := fc2pattern.FindStringSubmatch(id)
 	if len(ss) != 2 {
 		return ""
 	}
 	return ss[1]
 }
 
-//go:embed no-image.png
-var noImageContent []byte
+//go:embed fc2-no-image.png
+var fc2NoImage []byte
 
 func FetchImage(url string) (*http.Response, error) {
 	resp, err := http.Get(url)
@@ -40,6 +40,6 @@ func FetchImage(url string) (*http.Response, error) {
 	// return no-image content.
 	return &http.Response{
 		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(bytes.NewReader(noImageContent)),
+		Body:       io.NopCloser(bytes.NewReader(fc2NoImage)),
 	}, nil
 }

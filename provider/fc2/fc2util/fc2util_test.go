@@ -38,7 +38,7 @@ func TestFetchImage(t *testing.T) {
 		url  string
 		want []byte
 	}{
-		{"https://storage89000.contents.fc2.com/file/392/39188234/1702896500.66.jpg", noImageContent},
+		{"https://storage89000.contents.fc2.com/file/392/39188234/1702896500.66.jpg", fc2NoImage},
 	} {
 		resp, err := FetchImage(unit.url)
 		if assert.NoError(t, err) {
