@@ -140,6 +140,10 @@ func (ab *AVBase) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 			if len(workInfo.Actors) > 0 {
 				info.Actors = workInfo.Actors
 			}
+			// prefer workID number.
+			if workInfo.Number != "" {
+				info.Number = workInfo.Number
+			}
 			// choose right ID for info.
 			if len(workInfo.ID) > len(id) && strings.Contains(workInfo.ID, ":") {
 				id = workInfo.ID
