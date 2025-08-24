@@ -2,7 +2,6 @@ package fc2
 
 import (
 	"fmt"
-	"net/http"
 	"net/url"
 	"path"
 	"regexp"
@@ -186,10 +185,6 @@ func (fc2 *FC2) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		err = vErr
 	}
 	return
-}
-
-func (fc2 *FC2) Fetch(url string) (*http.Response, error) {
-	return fc2util.FetchImage(url)
 }
 
 func init() {
