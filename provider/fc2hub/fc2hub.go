@@ -238,6 +238,10 @@ func (fc2hub *FC2HUB) SearchMovie(keyword string) (results []*model.MovieSearchR
 	return
 }
 
+func (fc2hub *FC2HUB) Fetch(url string) (*http.Response, error) {
+	return fc2util.FetchImage(url)
+}
+
 func removeEmpty(in []string) (out []string) {
 	if len(in) == 0 {
 		return in
