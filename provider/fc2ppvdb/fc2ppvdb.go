@@ -110,9 +110,7 @@ func (fc2ppvdb *FC2PPVDB) GetMovieInfoByURL(rawURL string) (info *model.MovieInf
 		}
 	})
 
-	if vErr := c.Visit(info.Homepage); vErr != nil {
-		err = vErr
-	}
+	err = c.Visit(info.Homepage)
 	return
 }
 
