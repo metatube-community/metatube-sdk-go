@@ -58,9 +58,9 @@ func IsSpecial(s string) bool {
 		MatchString(s)
 }
 
-// RequireFaceDetection returns true if the movie cover
+// RequiresFaceDetection returns true if the movie cover
 // requires face detection.
-func RequireFaceDetection(s string) bool {
+func RequiresFaceDetection(s string) bool {
 	if IsSpecial(s) {
 		return true
 	}
