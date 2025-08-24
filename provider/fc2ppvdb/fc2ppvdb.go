@@ -2,7 +2,6 @@ package fc2ppvdb
 
 import (
 	"fmt"
-	"net/http"
 	"net/url"
 	"path"
 	"strings"
@@ -112,10 +111,6 @@ func (fc2ppvdb *FC2PPVDB) GetMovieInfoByURL(rawURL string) (info *model.MovieInf
 
 	err = c.Visit(info.Homepage)
 	return
-}
-
-func (fc2ppvdb *FC2PPVDB) Fetch(url string) (*http.Response, error) {
-	return fc2util.FetchImage(url)
 }
 
 func init() {
