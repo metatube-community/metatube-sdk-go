@@ -72,6 +72,7 @@ func TestThePornDBVideo_SearchMovie(t *testing.T) {
 		"The Three Evil Dragon",
 		"6377406",
 		// search on slug and uuid does not work.
+		"digital-sin-sisterly-love-4",
 	})
 
 	testkit.Test(t, func() *ThePornDBVideo {

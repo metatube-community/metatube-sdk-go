@@ -1,0 +1,67 @@
+query getSearchResultsTour($query: String!, $site: Site!, $first: Int, $skip: Int) {
+  searchCategories(
+    input: {query: $query, site: $site}
+    shouldDisplayAsThumbnail: false
+  ) {
+    categoryId
+    slug
+    name
+    __typename
+  }
+  searchModels(input: {query: $query, site: $site, first: $first, skip: $skip}) {
+    name
+    slug
+    images {
+      listing {
+        ...ImageInfo
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  searchVideos(input: {query: $query, site: $site, first: $first, skip: $skip}) {
+    edges {
+      node {
+        description
+        title
+        slug
+        modelsSlugged: models {
+          name
+          slugged: slug
+          __typename
+        }
+        images {
+          listing {
+            ...ImageInfo
+            __typename
+          }
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+}
+
+fragment ImageInfo on Image {
+  src
+  placeholder
+  width
+  height
+  highdpi {
+    double
+    __typename
+  }
+  webp {
+    src
+    placeholder
+    highdpi {
+      double
+      __typename
+    }
+    __typename
+  }
+}

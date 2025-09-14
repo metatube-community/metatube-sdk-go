@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/url"
 	"path"
-	"strings"
 
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/text/language"
@@ -158,7 +157,7 @@ func (s *ThePornDBVideo) NormalizeMovieKeyword(keyword string) string {
 	if number.IsSpecial(keyword) {
 		return ""
 	}
-	return strings.ToUpper(keyword)
+	return number.NormalizeMovieKeyword(keyword, "")
 }
 
 // SearchMovie impls MovieSearcher.SearchMovie.

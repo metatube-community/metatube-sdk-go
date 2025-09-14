@@ -1,0 +1,19 @@
+query BatchFindAssetQuery($paths: [String!]!) {
+  asset {
+    batch(input: {paths: $paths}) {
+      result {
+        path
+        mime
+        size
+        serve {
+          type
+          uri
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+}

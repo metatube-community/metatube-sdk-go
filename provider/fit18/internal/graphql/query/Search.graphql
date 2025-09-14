@@ -1,0 +1,16 @@
+query Search($query: String!) {
+  search {
+    search(input: {query: $query}) {
+      result {
+        type
+        itemId
+        name
+        description
+        images
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+}

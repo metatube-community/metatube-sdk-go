@@ -72,3 +72,63 @@ func RequiresFaceDetection(s string) bool {
 	}
 	return false
 }
+
+func NormalizeMovieKeyword(keyword, siteName string) string {
+	// Work with original keyword to preserve case
+	result := keyword
+	
+	if siteName != "" {
+		// Handle both dash and dot separators for prefix removal
+		prefixDash := strings.ToLower(siteName) + "-"
+		prefixDot := strings.ToLower(siteName) + "."
+		lowerKeyword := strings.ToLower(result)
+		
+		if strings.HasPrefix(lowerKeyword, prefixDash) {
+			// Remove dash prefix while preserving case
+			result = result[len(prefixDash):]
+		} else if strings.HasPrefix(lowerKeyword, prefixDot) {
+			// Remove dot prefix while preserving case
+			result = result[len(prefixDot):]
+		}
+	} else {
+		// When siteName is empty, remove first part if there's a dash or dot
+		if strings.Contains(result, "-") {
+			parts := strings.SplitN(result, "-", 2)
+			if len(parts) > 1 {
+				result = parts[1]
+			}
+		} else if strings.Contains(result, ".") {
+			parts := strings.SplitN(result, ".", 2)
+			if len(parts) > 1 {
+				result = parts[1]
+			}
+		}
+	}
+
+	// Remove date formats (24.01.14 or 2024.01.14) - case insensitive
+	dateRegex := regexp.MustCompile(`(?i)\b(?:\d{2}[-.]\d{2}[-.]\d{2}|\d{4}[-.]\d{2}[-.]\d{2})\b`)
+	result = dateRegex.ReplaceAllString(result, "")
+
+	// Remove file extensions and quality tags - more specific regex
+	// This matches patterns like .XXX.1080p.HEVC.x265.PRT.mp4 but not standalone words
+	result = regexp.MustCompile(`(?i)(?:\.(?:xxx|hevc|x265|x264|prt))(?:\.[a-z0-9]+)+`).ReplaceAllString(result, "")
+	
+	// Remove resolution and format indicators
+	result = regexp.MustCompile(`(?i)\.(?:1080p|720p|480p|360p|hd|fhd|4k|2160p)`).ReplaceAllString(result, "")
+	
+	// Remove actual file extensions
+	result = regexp.MustCompile(`(?i)\.(?:mp4|avi|mkv|mov|wmv|flv|webm)$`).ReplaceAllString(result, "")
+
+	// Remove special characters except alphanumeric, spaces, dots, and dashes
+	result = regexp.MustCompile(`[^a-zA-Z0-9\s.\-]+`).ReplaceAllString(result, "")
+
+	// Replace dots and dashes with spaces
+	result = strings.ReplaceAll(result, ".", " ")
+	result = strings.ReplaceAll(result, "-", " ")
+
+	// Replace multiple spaces with single space
+	result = regexp.MustCompile(`\s+`).ReplaceAllString(result, " ")
+
+	// Trim leading and trailing spaces
+	return strings.TrimSpace(result)
+}

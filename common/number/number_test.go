@@ -294,3 +294,98 @@ func TestRequireFaceDetection(t *testing.T) {
 		assert.Equal(t, unit.want, RequiresFaceDetection(unit.orig), unit.orig)
 	}
 }
+
+func TestNormalizeMovieKeyword(t *testing.T) {
+	tests := []struct {
+		name     string
+		keyword  string
+		siteName string
+		expected string
+	}{
+		{
+			name:     "Keyword with site prefix and date",
+			keyword:  "blacked-2018-12-11-the-real-thing",
+			siteName: "Blacked",
+			expected: "the real thing",
+		},
+		{
+			name:     "Keyword with site prefix",
+			keyword:  "blacked-hot-vacation-adventures",
+			siteName: "Blacked",
+			expected: "hot vacation adventures",
+		},
+		{
+			name:     "Keyword without prefix",
+			keyword:  "test-scene",
+			siteName: "Blacked",
+			expected: "test scene",
+		},
+		{
+			name:     "Remove site prefix only",
+			keyword:  "blacked-some-title",
+			siteName: "Blacked",
+			expected: "some title",
+		},
+		{
+			name:     "Remove short date format",
+			keyword:  "blacked-24.01.14-title",
+			siteName: "Blacked",
+			expected: "title",
+		},
+		{
+			name:     "Remove long date format",
+			keyword:  "blacked-2024.01.14-title",
+			siteName: "Blacked",
+			expected: "title",
+		},
+		{
+			name:     "Remove file extension",
+			keyword:  "blacked-title.XXX.1080p.HEVC.x265.PRT.mp4",
+			siteName: "Blacked",
+			expected: "title",
+		},
+		{
+			name:     "Remove date and file extension",
+			keyword:  "blacked-24.01.14-title.720p.HEVC.x264.mp4",
+			siteName: "Blacked",
+			expected: "title",
+		},
+		{
+			name:     "Empty siteName with dash prefix",
+			keyword:  "-title",
+			siteName: "",
+			expected: "title",
+		},
+		{
+			name:     "Empty siteName with multiple dashes",
+			keyword:  "blacked-deep-title",
+			siteName: "",
+			expected: "deep title",
+		},
+		{
+			name:     "Replace dots with spaces",
+			keyword:  "blacked.title.with.dots",
+			siteName: "Blacked",
+			expected: "title with dots",
+		},
+		{
+			name:     "Complex case with all features",
+			keyword:  "blacked-24.01.14-title.with.dots.And-Dashes.XXX.1080p.HEVC.x265.PRT.mp4",
+			siteName: "Blacked",
+			expected: "title with dots And Dashes",
+		},
+		{
+			name:     "No siteName, remove first part",
+			keyword:  "first-part-title",
+			siteName: "",
+			expected: "part title",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := NormalizeMovieKeyword(tt.keyword, tt.siteName)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}

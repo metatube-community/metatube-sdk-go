@@ -1,0 +1,1 @@
+query FindVideo($videoId: ID!) { video { find(input: {videoId: $videoId}) { result { videoId title duration galleryCount description { short long __typename } talent { type talent { talentId name __typename } __typename } __typename } __typename } __typename } }
