@@ -1,6 +1,4 @@
-//go:build deprecated
-
-package xxx_av
+package fc2ppvdb
 
 import (
 	"testing"
@@ -8,10 +6,11 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/testkit"
 )
 
-func TestXXXAV_GetMovieInfoByID(t *testing.T) {
+func TestFC2PPVDB_GetMovieInfoByID(t *testing.T) {
 	testkit.Test(t, New, []string{
-		"24719",
-		"23395",
-		"19337",
+		"2812904",
+		"4669533",
+		"4745474",
+		"4137487",
 	})
 }

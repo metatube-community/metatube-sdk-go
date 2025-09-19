@@ -11,6 +11,7 @@ func TestAVBase_GetMovieInfoByID(t *testing.T) {
 		"prestige:ABP-588",
 		"tameike:MEYD-856",
 		"SSIS-354",
+		"glory:GVH-186",
 	})
 }
 

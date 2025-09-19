@@ -45,7 +45,7 @@ func (e *Engine) GetMoviePrimaryImage(pid providerid.ProviderID, ratio, pos floa
 	var auto bool
 	if pos < 0 /* manual position disabled */ {
 		pos = defaultMoviePrimaryImagePosition
-		auto = number.RequireFaceDetection(info.Number)
+		auto = number.RequiresFaceDetection(info.Number)
 	}
 	return e.GetImageByURL(
 		e.MustGetMovieProviderByName(pid.Provider),
