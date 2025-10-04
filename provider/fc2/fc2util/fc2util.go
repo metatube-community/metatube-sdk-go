@@ -1,14 +1,16 @@
 package fc2util
 
 import (
+	_ "embed"
 	"regexp"
 )
 
-var _fc2pattern = regexp.MustCompile(`^(?i)(?:FC2(?:[-_\s]?PPV)?[-_\s]?)?(\d+)$`)
+var fc2pattern = regexp.MustCompile(`^(?i)(?:FC2(?:[-_\s]?PPV)?[-_\s]?)?(\d+)$`)
 
-func ParseNumber(s string) (n string) {
-	if ss := _fc2pattern.FindStringSubmatch(s); len(ss) == 2 {
-		n = ss[1]
+func ParseNumber(id string) string {
+	ss := fc2pattern.FindStringSubmatch(id)
+	if len(ss) != 2 {
+		return ""
 	}
-	return
+	return ss[1]
 }
