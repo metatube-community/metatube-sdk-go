@@ -43,9 +43,11 @@ func NewThePornDBActor() *ThePornDBActor {
 	}
 }
 
-func (s *ThePornDBActor) SetConfig(config map[string]string) error {
-	if accessToken, ok := config["ACCESS_TOKEN"]; ok {
-		s.accessToken = accessToken
+func (s *ThePornDBActor) SetConfig(config provider.Config) error {
+	if config.Has("ACCESS_TOKEN") {
+		if accessToken, err := config.GetString("ACCESS_TOKEN"); err == nil {
+			s.accessToken = accessToken
+		}
 	}
 	return nil
 }

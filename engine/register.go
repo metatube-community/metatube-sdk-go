@@ -37,6 +37,7 @@ import (
 	_ "github.com/metatube-community/metatube-sdk-go/provider/pacopacomama"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/pcolle"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/sod"
+	_ "github.com/metatube-community/metatube-sdk-go/provider/strike3"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/theporndb"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/tokyo-hot"
 )

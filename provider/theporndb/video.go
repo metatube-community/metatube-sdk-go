@@ -69,10 +69,12 @@ func NewThePornDBMovie() *ThePornDBVideo {
 	return new(MovieProviderName, movieBaseURL, moviePageURL, apiGetMovieURL, apiSearchMovieURL)
 }
 
-func (s *ThePornDBVideo) SetConfig(config map[string]string) error {
-	if accessToken, ok := config["ACCESS_TOKEN"]; ok {
-		fmt.Println(s.Name(), "set token")
-		s.accessToken = accessToken
+func (s *ThePornDBVideo) SetConfig(config provider.Config) error {
+	if config.Has("ACCESS_TOKEN") {
+		if accessToken, err := config.GetString("ACCESS_TOKEN"); err == nil {
+			fmt.Println(s.Name(), "set token")
+			s.accessToken = accessToken
+		}
 	}
 	return nil
 }

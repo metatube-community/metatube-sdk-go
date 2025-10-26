@@ -260,29 +260,29 @@ func (f *Fit18) extractNumberFromID(id string) string {
 	return id
 }
 
-func (f *Fit18) getImageURL(talentID, sceneNumber string) string {
-	// Construct image path
-	imagePath := fmt.Sprintf("/members/models/%s/scenes/%s/videothumb.jpg", talentID, sceneNumber)
-
-	// Call GraphQL API to get asset URL
-	resp, err := f.graphQL.BatchFindAsset([]string{imagePath})
-	if err != nil {
-		return ""
-	}
-
-	// Check if response is valid
-	if resp == nil || len(resp.Asset.Batch.Result) == 0 {
-		return ""
-	}
-
-	// Return image URL
-	asset := resp.Asset.Batch.Result[0]
-	if asset.Serve.URI != "" {
-		return asset.Serve.URI
-	}
-
-	return ""
-}
+//func (f *Fit18) getImageURL(talentID, sceneNumber string) string {
+//	// Construct image path
+//	imagePath := fmt.Sprintf("/members/models/%s/scenes/%s/videothumb.jpg", talentID, sceneNumber)
+//
+//	// Call GraphQL API to get asset URL
+//	resp, err := f.graphQL.BatchFindAsset([]string{imagePath})
+//	if err != nil {
+//		return ""
+//	}
+//
+//	// Check if response is valid
+//	if resp == nil || len(resp.Asset.Batch.Result) == 0 {
+//		return ""
+//	}
+//
+//	// Return image URL
+//	asset := resp.Asset.Batch.Result[0]
+//	if asset.Serve.URI != "" {
+//		return asset.Serve.URI
+//	}
+//
+//	return ""
+//}
 
 func (f *Fit18) NormalizeMovieKeyword(keyword string) string {
 	return strings.TrimSpace(keyword)
