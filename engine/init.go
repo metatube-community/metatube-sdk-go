@@ -61,7 +61,7 @@ func (e *Engine) initMovieProviders() {
 			s.SetRequestTimeout(e.timeout /* global timeout */)
 		}
 
-		if config, hasConfig := e.actorProviderConfigs.Get(name); hasConfig {
+		if config, hasConfig := e.movieProviderConfigs.Get(name); hasConfig {
 			e.applyProviderConfig("movie", provider, config)
 		}
 
