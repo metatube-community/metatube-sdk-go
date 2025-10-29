@@ -92,6 +92,11 @@ type RequestTimeoutSetter interface {
 	SetRequestTimeout(timeout time.Duration)
 }
 
+type ProxySetter interface {
+	// SetProxy sets http or socks5 proxy for HTTP requests.
+	SetProxy(proxyURL string) error
+}
+
 type Config interface {
 	Has(string) bool
 	GetString(string) (string, error)

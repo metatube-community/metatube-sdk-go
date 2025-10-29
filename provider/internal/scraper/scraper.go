@@ -64,6 +64,8 @@ func (s *Scraper) Priority() float64 { return s.priority.Load() }
 
 func (s *Scraper) SetPriority(v float64) { s.priority.Store(v) }
 
+func (s *Scraper) SetProxy(proxyURL string) error { return s.c.SetProxy(proxyURL) }
+
 func (s *Scraper) Language() language.Tag { return s.language }
 
 func (s *Scraper) NormalizeMovieID(id string) string { return id /* AS IS */ }
