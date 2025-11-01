@@ -26,7 +26,7 @@ func (e *Engine) DBAutoMigrate(v bool) error {
 }
 
 func (e *Engine) DBDriver() string {
-	return e.db.Config.Dialector.Name()
+	return e.db.Name()
 }
 
 func (e *Engine) DBVersion() (version string, err error) {

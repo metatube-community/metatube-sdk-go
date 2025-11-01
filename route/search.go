@@ -39,10 +39,8 @@ func getSearch(app *engine.Engine, typ searchType) gin.HandlerFunc {
 			isValidURL = false
 		}
 
-		searchAll := true
-		if query.Provider != "" {
-			searchAll = false
-		}
+		// if provider is not specified, search with all providers.
+		searchAll := query.Provider == ""
 
 		var (
 			results any

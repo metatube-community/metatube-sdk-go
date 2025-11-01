@@ -32,7 +32,7 @@ func (e *engine) DB() *gorm.DB {
 }
 
 func (e *engine) Driver() string {
-	return e.db.Config.Dialector.Name()
+	return e.db.Name()
 }
 
 func (e *engine) AutoMigrate() error {
