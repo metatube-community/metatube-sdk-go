@@ -61,7 +61,7 @@ func (e *Engine) initMovieProviders() {
 			s.SetRequestTimeout(e.timeout /* global timeout */)
 		}
 
-		if config, hasConfig := e.actorProviderConfigs.Get(name); hasConfig {
+		if config, hasConfig := e.movieProviderConfigs.Get(name); hasConfig {
 			e.applyProviderConfig("movie", provider, config)
 		}
 
@@ -82,6 +82,7 @@ func (e *Engine) initMovieProviders() {
 
 func (e *Engine) applyProviderConfig(providerType string, provider mt.Provider, config mt.Config) {
 	const (
+		proxyConfigKey    = "proxy"
 		priorityConfigKey = "priority"
 		timeoutConfigKey  = "timeout"
 	)
@@ -91,6 +92,16 @@ func (e *Engine) applyProviderConfig(providerType string, provider mt.Provider, 
 		if v, err := config.GetFloat64(priorityConfigKey); err == nil {
 			e.logger.Printf("Override %s provider priority: %s=%.2f", providerType, provider.Name(), v)
 			provider.SetPriority(v)
+		}
+	}
+
+	// Apply overridden proxy.
+	if s, ok := provider.(mt.ProxySetter); ok && config.Has(proxyConfigKey) {
+		if v, err := config.GetString(proxyConfigKey); err == nil {
+			if err := s.SetProxy(v); err != nil {
+				e.logger.Fatalf("Set proxy for %s provider '%s' error: %v", providerType, provider.Name(), v)
+			}
+			e.logger.Printf("Override %s provider proxy: %s=%s", providerType, provider.Name(), v)
 		}
 	}
 
