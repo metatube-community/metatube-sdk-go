@@ -1,6 +1,6 @@
 module github.com/metatube-community/metatube-sdk-go
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/PuerkitoBio/goquery v1.10.3
@@ -30,7 +30,7 @@ require (
 	github.com/ory/dockertest v3.3.5+incompatible
 	github.com/peterbourgon/ff/v3 v3.4.0
 	github.com/projectbarks/cimap v0.1.1
-	github.com/projectdiscovery/useragent v0.0.101
+	github.com/projectdiscovery/useragent v0.0.102
 	github.com/projectdiscovery/utils v0.6.0
 	github.com/robertkrimen/otto v0.5.1
 	github.com/sashabaranov/go-openai v1.41.2
@@ -60,15 +60,15 @@ require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/bits-and-blooms/bitset v1.24.3 // indirect
 	github.com/bytedance/gopkg v0.1.3 // indirect
-	github.com/bytedance/sonic v1.14.1 // indirect
-	github.com/bytedance/sonic/loader v0.3.0 // indirect
+	github.com/bytedance/sonic v1.14.2 // indirect
+	github.com/bytedance/sonic/loader v0.4.0 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/containerd/continuity v0.4.5 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/gabriel-vasile/mimetype v1.4.10 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.11 // indirect
 	github.com/gin-contrib/sse v1.1.0 // indirect
 	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
@@ -116,7 +116,7 @@ require (
 	github.com/temoto/robotstxt v1.1.2 // indirect
 	github.com/tetratelabs/wazero v1.9.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
-	github.com/ugorji/go/codec v1.3.0 // indirect
+	github.com/ugorji/go/codec v1.3.1 // indirect
 	go.uber.org/mock v0.6.0 // indirect
 	golang.org/x/arch v0.22.0 // indirect
 	golang.org/x/crypto v0.43.0 // indirect
