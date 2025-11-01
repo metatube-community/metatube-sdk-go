@@ -16,7 +16,7 @@ require (
 	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.11.0
 	github.com/glebarez/sqlite v1.11.0
-	github.com/gocolly/colly/v2 v2.2.0
+	github.com/gocolly/colly/v2 v2.2.1-0.20251021095705-a088c7dbc290
 	github.com/gorilla/schema v1.4.1
 	github.com/grafov/m3u8 v0.12.1
 	github.com/hashicorp/go-cleanhttp v0.5.2
@@ -58,7 +58,7 @@ require (
 	github.com/antchfx/xmlquery v1.5.0 // indirect
 	github.com/antchfx/xpath v1.3.5 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
-	github.com/bits-and-blooms/bitset v1.24.1 // indirect
+	github.com/bits-and-blooms/bitset v1.24.3 // indirect
 	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/bytedance/sonic v1.14.1 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
