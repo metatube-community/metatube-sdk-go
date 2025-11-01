@@ -44,7 +44,7 @@ func (*MovieReviewInfo) TableName() string {
 }
 
 func (m *MovieReviewInfo) IsValid() bool {
-	if !(m.ID != "" && m.Provider != "") {
+	if m.ID == "" || m.Provider == "" {
 		return false
 	}
 	// reviews can be empty.
