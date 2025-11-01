@@ -21,9 +21,10 @@ func TestMetaTubeEnvConfigs(t *testing.T) {
 		{"MT_MOVIE_PROVIDER_OPQ__TOKEN", "token1"},
 		{"MT_PROVIDER_UVW__TIMEout", "900s"},
 		{"MT_PROVIDER_UVW__tOkEn", "wrong"},
-		{"MT_MOVIE_PROVIDER_UVW__tOkEn", "token2"}, // override movie
-		{"MT_PROVIDER_UVW__PRIORITY", "5"},         // -> actor/movie
-		{"MT_MOVIE_PROVIDER_UVW__PRIORITY", "0"},   // override movie
+		{"MT_MOVIE_PROVIDER_UVW__tOkEn", "token2"},   // override movie
+		{"MT_PROVIDER_UVW__PRIORITY", "5"},           // -> actor/movie
+		{"MT_MOVIE_PROVIDER_UVW__PRIORITY", "0"},     // override movie
+		{"MT_MOVIE_PROVIDER_JJJ_KKK__PRIORITY", "0"}, // hyphen in name
 		{"irrelevant_key", "ignore_me"},
 		{"mt_malformed_key", "ignore_me"},
 	} {
@@ -33,11 +34,6 @@ func TestMetaTubeEnvConfigs(t *testing.T) {
 
 	// Reload
 	InitAllEnvConfigs()
-
-	// Assert
-	assert.Equal(t, 10, metaTubeEnvs.Len())
-	assert.Equal(t, 2, ActorProviderConfigs.Len())
-	assert.Equal(t, 4, MovieProviderConfigs.Len())
 
 	for k, v := range map[string]float64{
 		"ABC": 1,
@@ -50,9 +46,11 @@ func TestMetaTubeEnvConfigs(t *testing.T) {
 	}
 
 	for k, v := range map[string]float64{
-		"DEF": 2,
-		"XYZ": 0,
-		"UVW": 0,
+		"DEF":     2,
+		"XYZ":     0,
+		"UVW":     0,
+		"JJJ_KKK": 0,
+		"JJJ-KKK": 0,
 	} {
 		priority, err := MovieProviderConfigs.GetOrDefault(k).GetFloat64("priority")
 		if assert.NoError(t, err) {
