@@ -13,6 +13,7 @@ import (
 
 var (
 	_ provider.Provider             = (*Scraper)(nil)
+	_ provider.ProxySetter          = (*Scraper)(nil)
 	_ provider.RequestTimeoutSetter = (*Scraper)(nil)
 )
 
@@ -64,8 +65,6 @@ func (s *Scraper) Priority() float64 { return s.priority.Load() }
 
 func (s *Scraper) SetPriority(v float64) { s.priority.Store(v) }
 
-func (s *Scraper) SetProxy(proxyURL string) error { return s.c.SetProxy(proxyURL) }
-
 func (s *Scraper) Language() language.Tag { return s.language }
 
 func (s *Scraper) NormalizeMovieID(id string) string { return id /* AS IS */ }
@@ -78,6 +77,9 @@ func (s *Scraper) ParseActorIDFromURL(string) (string, error) { panic("unimpleme
 
 // ClonedCollector returns cloned internal collector.
 func (s *Scraper) ClonedCollector() *colly.Collector { return s.c.Clone() }
+
+// SetProxy sets http or socks5 proxy for HTTP requests.
+func (s *Scraper) SetProxy(proxyURL string) error { return s.c.SetProxy(proxyURL) }
 
 // SetRequestTimeout sets timeout for HTTP requests.
 func (s *Scraper) SetRequestTimeout(timeout time.Duration) { s.c.SetRequestTimeout(timeout) }
