@@ -43,7 +43,11 @@ WINDOWS_ARCH_LIST = \
 	windows-amd64-v3 \
 	windows-arm64
 
-all: server
+all: experimental
+
+experimental: BUILD_TAGS += experimental
+experimental:
+	$(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME) $(SERVER_CODE)
 
 server:
 	$(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME) $(SERVER_CODE)
