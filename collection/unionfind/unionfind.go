@@ -2,7 +2,7 @@
 // It supports union and find queries.
 //
 // The union-find (a.k.a. disjoint-sets) data type is collection of n elements.
-// Intially, each element belongs to exactly one set (n sets initially).
+// Initially, each element belongs to exactly one set (n sets initially).
 // Each set is represented by one element (canonical element, root, identifier, leader, or set representative).
 // The union operation merges the set containing the element p with the set containing the element q.
 // The find operation returns the canonical element of the set containing the element p.
