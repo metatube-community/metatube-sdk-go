@@ -40,9 +40,9 @@ const (
 	baseURL      = "https://modelmediaasia.com/"
 	movieURL     = "https://modelmediaasia.com/zh-CN/videos/%s"
 	actorURL     = "https://modelmediaasia.com/zh-CN/models/%s"
-	apiMovieURL  = "https://api.modelmediaasia.com/api/v2/videos/%s"
-	apiActorURL  = "https://api.modelmediaasia.com/api/v2/models/%s"
-	apiSearchURL = "https://api.modelmediaasia.com/api/v2/search?keyword=%s"
+	apiMovieURL  = "https://model-api.bvncmsldo.com/api/v2/videos/%s"
+	apiActorURL  = "https://model-api.bvncmsldo.com/api/v2/models/%s"
+	apiSearchURL = "https://model-api.bvncmsldo.com/api/v2/search?keyword=%s"
 )
 
 type ModelMediaAsia struct {
