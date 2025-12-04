@@ -73,6 +73,17 @@ func parseProviderEnvsWithPrefix(prefix string) *maps.CaseInsensitiveMap[*Config
 			result.Set(provider, NewConfig())
 		}
 		result.GetOrDefault(provider).Set(configKey, value)
+
+		// For providers with underscores or hyphens in their names,
+		// duplicate this config using a hyphen-separated name to ensure
+		// compatibility, since environment vars cannot contain hyphens.
+		if strings.Contains(provider, "_") {
+			provider := strings.ReplaceAll(provider, "_", "-")
+			if !result.Has(provider) {
+				result.Set(provider, NewConfig())
+			}
+			result.GetOrDefault(provider).Set(configKey, value)
+		}
 	}
 	return result
 }
