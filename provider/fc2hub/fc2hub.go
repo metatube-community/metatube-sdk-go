@@ -79,6 +79,10 @@ func (fc2hub *FC2HUB) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, e
 	}
 
 	c := fc2hub.ClonedCollector()
+	// Allow redirecting, for cases like http -> https
+	c.SetRedirectHandler(func(req *http.Request, via []*http.Request) error {
+		return nil
+	})
 
 	// Title
 	c.OnXML(`//*[@id="content"]/div/div[2]/div[1]/div[1]/div[2]/h1`, func(e *colly.XMLElement) {
