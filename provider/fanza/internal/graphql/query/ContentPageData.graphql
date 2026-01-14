@@ -104,11 +104,7 @@ fragment ProductData on PPVProduct {
     __typename
   }
   expireDays
-  utilization @include(if: $isLoggedIn) {
-    isTVODRentalPlayable
-    status
-    __typename
-  }
+  utilizationStatus @include(if: $isLoggedIn)
   licenseType
   shopName
   availableCoupon {
