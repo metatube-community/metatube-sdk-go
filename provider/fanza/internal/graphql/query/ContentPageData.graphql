@@ -1,4 +1,4 @@
-query ContentPageData($id: ID!, $isLoggedIn: Boolean!, $isAmateur: Boolean!, $isAnime: Boolean!, $isAv: Boolean!, $isCinema: Boolean!, $isSP: Boolean!) {
+query ContentPageData($id: ID!, $isLoggedIn: Boolean!, $isAmateur: Boolean!, $isAnime: Boolean!, $isAv: Boolean!, $isCinema: Boolean!, $isSP: Boolean!, $shouldFetchRelatedTags: Boolean = false) {
   ppvContent(id: $id) {
     ...ContentData
     __typename
@@ -7,7 +7,7 @@ query ContentPageData($id: ID!, $isLoggedIn: Boolean!, $isAmateur: Boolean!, $is
     ...ReviewSummary
     __typename
   }
-  ...basketCountFragment
+  ...basketCountFragment @include(if: $isSP)
 }
 fragment ContentData on PPVContent {
   id
@@ -59,13 +59,21 @@ fragment ContentData on PPVContent {
     }
     __typename
   }
-  priceSummary {
-    lowestSalePrice
-    lowestPrice
-    campaign {
-      title
+  pricing {
+    lowestEffectivePriceInclusiveTax
+    lowestRegularPriceInclusiveTax
+    sale {
+      name
       id
       endAt
+      __typename
+    }
+    pointRewardCampaign {
+      name
+      id
+      endAt
+      promotionId
+      rate
       __typename
     }
     __typename
@@ -74,12 +82,12 @@ fragment ContentData on PPVContent {
   monthlyRanking: ranking(term: Monthly)
   wishlistCount
   sample2DMovie {
-    fileID
+    highestMovieUrl
+    hlsMovieUrl
     __typename
   }
-  sampleMovie {
-    has2d
-    hasVr
+  sampleVRMovie {
+    highestMovieUrl
     __typename
   }
   ...AmateurAdditionalContentData @include(if: $isAmateur)
@@ -98,36 +106,35 @@ fragment ProductData on PPVProduct {
     downloadMaxQualityGroup
     __typename
   }
-  priceInclusiveTax
-  sale {
-    priceInclusiveTax
+  pricing {
+    regularPriceInclusiveTax
+    effectivePriceInclusiveTax
     __typename
   }
   expireDays
-  utilization @include(if: $isLoggedIn) {
-    isTVODRentalPlayable
-    status
-    __typename
-  }
+  utilizationStatus @include(if: $isLoggedIn)
   licenseType
   shopName
-  availableCoupon {
-    name
-    expirationPolicy {
-      ... on ProductCouponExpirationAt {
-        expirationAt
+  couponDiscount {
+    coupon {
+      name
+      expirationPolicy {
+        ... on CouponExpirationAt {
+          expirationAt
+          __typename
+        }
+        ... on CouponExpirationDay {
+          expirationDays
+          __typename
+        }
         __typename
       }
-      ... on ProductCouponExpirationDay {
-        expirationDays
-        __typename
-      }
+      expirationAt
+      minPayment
+      destinationUrl
       __typename
     }
-    expirationAt
-    discountedPrice
-    minPayment
-    destinationUrl
+    discountedPriceInclusiveTax
     __typename
   }
   __typename
@@ -188,12 +195,14 @@ fragment PlayableInfo on PlayableInfo {
     device
     name
     priority
+    isSupported
     __typename
   }
   deviceGroups {
     id
     devices {
       deviceDeliveryUnits {
+        id
         deviceDeliveryQualities {
           isStreamable
           isDownloadable
@@ -201,6 +210,7 @@ fragment PlayableInfo on PlayableInfo {
         }
         __typename
       }
+      isSupported
       __typename
     }
     __typename
@@ -281,7 +291,23 @@ fragment AvAdditionalContentData on PPVContent {
     __typename
   }
   contentType
-  relatedWords
+  relatedWords @skip(if: $shouldFetchRelatedTags)
+  relatedTags(limit: 16) @include(if: $shouldFetchRelatedTags) {
+    ... on ContentTagGroup {
+      tags {
+        id
+        name
+        __typename
+      }
+      __typename
+    }
+    ... on ContentTag {
+      id
+      name
+      __typename
+    }
+    __typename
+  }
   makerContentId
   playableInfo {
     ...PlayableInfo
@@ -354,8 +380,15 @@ fragment ReviewSummary on ReviewSummary {
   __typename
 }
 fragment basketCountFragment on Query {
-  basketCount: legacyBasket @include(if: $isSP) {
+  legacyBasket @skip(if: $isLoggedIn) {
     total
+    __typename
+  }
+  basketCount: user @include(if: $isLoggedIn) {
+    ... on Member {
+      ppvBasketItemCount
+      __typename
+    }
     __typename
   }
   __typename
