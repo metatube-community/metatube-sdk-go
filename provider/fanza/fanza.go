@@ -243,17 +243,13 @@ func (fz *FANZA) getDigitalMovieInfoByURL(rawURL string) (*model.MovieInfo, erro
 	}
 
 	// Preview Video
-	if data.PPVContent.SampleMovie.Has2D {
-		info.PreviewVideoURL = fz.parsePreviewVideoURL(
-			fmt.Sprintf("%sservice/digitalapi/-/html5_player/=/cid=%s/", baseURL, info.ID),
-		)
+	if data.PPVContent.Sample2DMovie.HighestMovieURL != "" {
+		info.PreviewVideoURL = data.PPVContent.Sample2DMovie.HighestMovieURL
 	}
 
 	// Preview Video (VR)
-	if data.PPVContent.SampleMovie.HasVr {
-		info.PreviewVideoURL = fz.parseVRPreviewVideoURL(
-			fmt.Sprintf("%sdigital/-/vr-sample-player/=/cid=%s/", baseURL, info.ID),
-		)
+	if data.PPVContent.SampleVRMovie.HighestMovieURL != "" {
+		info.PreviewVideoURL = data.PPVContent.SampleVRMovie.HighestMovieURL
 	}
 
 	return info, nil

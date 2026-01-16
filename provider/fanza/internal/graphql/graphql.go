@@ -50,6 +50,7 @@ func (c *Client) GetContentPageData(id string, opts ContentPageDataQueryOptions)
 	req.Var("isAv", opts.IsAv)
 	req.Var("isCinema", opts.IsCinema)
 	req.Var("isSP", opts.IsSP)
+	req.Var("shouldFetchRelatedTags", true)
 
 	req.Header.Set("Referer", videoURL)
 	req.Header.Set("Cache-Control", "no-cache")

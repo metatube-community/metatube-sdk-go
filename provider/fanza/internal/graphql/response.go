@@ -14,8 +14,11 @@ type PPVContent struct {
 	Notices             []interface{} `json:"notices"`
 	IsNoIndex           bool          `json:"isNoIndex"`
 	IsAllowForeign      bool          `json:"isAllowForeign"`
-	Announcements       []interface{} `json:"announcements"`
-	FeatureArticles     []struct {
+	Announcements       []struct {
+		Body     string `json:"body"`
+		Typename string `json:"__typename"`
+	} `json:"announcements"`
+	FeatureArticles []struct {
 		Link struct {
 			URL      string `json:"url"`
 			Text     string `json:"text"`
@@ -44,23 +47,29 @@ type PPVContent struct {
 			DownloadMaxQualityGroup string `json:"downloadMaxQualityGroup"`
 			Typename                string `json:"__typename"`
 		} `json:"deliveryUnit"`
-		PriceInclusiveTax int         `json:"priceInclusiveTax"`
-		Sale              interface{} `json:"sale"`
-		ExpireDays        interface{} `json:"expireDays"`
-		LicenseType       string      `json:"licenseType"`
-		ShopName          string      `json:"shopName"`
-		AvailableCoupon   struct {
-			Name             string `json:"name"`
-			ExpirationPolicy struct {
-				ExpirationDays int    `json:"expirationDays"`
-				Typename       string `json:"__typename"`
-			} `json:"expirationPolicy"`
-			ExpirationAt    interface{} `json:"expirationAt"`
-			DiscountedPrice int         `json:"discountedPrice"`
-			MinPayment      int         `json:"minPayment"`
-			DestinationURL  string      `json:"destinationUrl"`
-			Typename        string      `json:"__typename"`
-		} `json:"availableCoupon"`
+		Pricing struct {
+			RegularPriceInclusiveTax   int         `json:"regularPriceInclusiveTax"`
+			EffectivePriceInclusiveTax interface{} `json:"effectivePriceInclusiveTax"`
+			Typename                   string      `json:"__typename"`
+		} `json:"pricing"`
+		ExpireDays     interface{} `json:"expireDays"`
+		LicenseType    string      `json:"licenseType"`
+		ShopName       string      `json:"shopName"`
+		CouponDiscount struct {
+			Coupon struct {
+				Name             string `json:"name"`
+				ExpirationPolicy struct {
+					ExpirationDays int    `json:"expirationDays"`
+					Typename       string `json:"__typename"`
+				} `json:"expirationPolicy"`
+				ExpirationAt   interface{} `json:"expirationAt"`
+				MinPayment     int         `json:"minPayment"`
+				DestinationURL string      `json:"destinationUrl"`
+				Typename       string      `json:"__typename"`
+			} `json:"coupon"`
+			DiscountedPriceInclusiveTax int    `json:"discountedPriceInclusiveTax"`
+			Typename                    string `json:"__typename"`
+		} `json:"couponDiscount"`
 		Typename string `json:"__typename"`
 	} `json:"products"`
 	MostPopularContentImage struct {
@@ -68,24 +77,25 @@ type PPVContent struct {
 		LargeImageURL string `json:"largeImageUrl"`
 		ImageURL      string `json:"imageUrl"`
 	} `json:"mostPopularContentImage"`
-	PriceSummary struct {
-		LowestSalePrice int         `json:"lowestSalePrice"`
-		LowestPrice     int         `json:"lowestPrice"`
-		Campaign        interface{} `json:"campaign"`
-		Typename        string      `json:"__typename"`
-	} `json:"priceSummary"`
+	Pricing struct {
+		LowestEffectivePriceInclusiveTax int         `json:"lowestEffectivePriceInclusiveTax"`
+		LowestRegularPriceInclusiveTax   int         `json:"lowestRegularPriceInclusiveTax"`
+		Sale                             interface{} `json:"sale"`
+		PointRewardCampaign              interface{} `json:"pointRewardCampaign"`
+		Typename                         string      `json:"__typename"`
+	} `json:"pricing"`
 	WeeklyRanking  interface{} `json:"weeklyRanking"`
 	MonthlyRanking interface{} `json:"monthlyRanking"`
 	WishlistCount  int         `json:"wishlistCount"`
 	Sample2DMovie  struct {
-		FileID   string `json:"fileID"`
-		Typename string `json:"__typename"`
+		HighestMovieURL string `json:"highestMovieUrl"`
+		HlsMovieURL     string `json:"hlsMovieUrl"`
+		Typename        string `json:"__typename"`
 	} `json:"sample2DMovie"`
-	SampleMovie struct {
-		Has2D    bool   `json:"has2d"`
-		HasVr    bool   `json:"hasVr"`
-		Typename string `json:"__typename"`
-	} `json:"sampleMovie"`
+	SampleVRMovie struct {
+		HighestMovieURL string `json:"highestMovieUrl"`
+		Typename        string `json:"__typename"`
+	} `json:"sampleVRMovie"`
 	DeliveryStartDate time.Time `json:"deliveryStartDate"`
 	MakerReleasedAt   time.Time `json:"makerReleasedAt"`
 	Duration          int       `json:"duration"`
@@ -100,12 +110,12 @@ type PPVContent struct {
 		ID              string        `json:"id"`
 		Name            string        `json:"name"`
 		ImageURL        string        `json:"imageUrl"`
-		Age             interface{}   `json:"age"`
-		Waist           interface{}   `json:"waist"`
-		Bust            interface{}   `json:"bust"`
-		BustCup         interface{}   `json:"bustCup"`
-		Height          interface{}   `json:"height"`
-		Hip             interface{}   `json:"hip"`
+		Age             int           `json:"age"`
+		Waist           int           `json:"waist"`
+		Bust            int           `json:"bust"`
+		BustCup         string        `json:"bustCup"`
+		Height          int           `json:"height"`
+		Hip             int           `json:"hip"`
 		RelatedContents []interface{} `json:"relatedContents"`
 		Typename        string        `json:"__typename"`
 	} `json:"amateurActress"`
@@ -135,9 +145,18 @@ type PPVContent struct {
 		Name     string `json:"name"`
 		Typename string `json:"__typename"`
 	} `json:"genres"`
-	ContentType    string   `json:"contentType"`
-	RelatedWords   []string `json:"relatedWords"`
-	MakerContentID string   `json:"makerContentId"`
+	ContentType string `json:"contentType"`
+	RelatedTags []struct {
+		Tags []struct {
+			ID       string `json:"id"`
+			Name     string `json:"name"`
+			Typename string `json:"__typename"`
+		} `json:"tags,omitempty"`
+		Typename string `json:"__typename"`
+		ID       string `json:"id,omitempty"`
+		Name     string `json:"name,omitempty"`
+	} `json:"relatedTags"`
+	MakerContentID string `json:"makerContentId"`
 	PlayableInfo   struct {
 		PlayableDevices []struct {
 			DeviceDeliveryUnits []struct {
@@ -149,15 +168,17 @@ type PPVContent struct {
 				} `json:"deviceDeliveryQualities"`
 				Typename string `json:"__typename"`
 			} `json:"deviceDeliveryUnits"`
-			Device   string `json:"device"`
-			Name     string `json:"name"`
-			Priority int    `json:"priority"`
-			Typename string `json:"__typename"`
+			Device      string `json:"device"`
+			Name        string `json:"name"`
+			Priority    int    `json:"priority"`
+			IsSupported bool   `json:"isSupported"`
+			Typename    string `json:"__typename"`
 		} `json:"playableDevices"`
 		DeviceGroups []struct {
 			ID      string `json:"id"`
 			Devices []struct {
 				DeviceDeliveryUnits []struct {
+					ID                      string `json:"id"`
 					DeviceDeliveryQualities []struct {
 						IsStreamable   bool   `json:"isStreamable"`
 						IsDownloadable bool   `json:"isDownloadable"`
@@ -165,7 +186,8 @@ type PPVContent struct {
 					} `json:"deviceDeliveryQualities"`
 					Typename string `json:"__typename"`
 				} `json:"deviceDeliveryUnits"`
-				Typename string `json:"__typename"`
+				IsSupported bool   `json:"isSupported"`
+				Typename    string `json:"__typename"`
 			} `json:"devices"`
 			Typename string `json:"__typename"`
 		} `json:"deviceGroups"`

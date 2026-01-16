@@ -27,6 +27,7 @@ func TestFANZA_GetMovieInfoByID(t *testing.T) {
 		"118abp906",
 		"196glod0325t",
 		"403jdxa057424",
+		"xvsr00845",
 	},
 		testkit.FieldsNotEmpty("preview_images"),
 		testkit.FieldsNotEmptyAny("maker", "label", "series"),
