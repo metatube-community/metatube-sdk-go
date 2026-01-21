@@ -38,7 +38,7 @@ Metadata Tube SDK in Golang.
 
 ## Installation
 
-To install this package, you first need [Go](https://golang.org/) installed (**go1.23+ is required**), then you can use
+To install this package, you first need [Go](https://golang.org/) installed (**go1.25+ is required**), then you can use
 the below Go command to install SDK.
 
 ```sh
