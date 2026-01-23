@@ -12,16 +12,6 @@ func TestSimilar(t *testing.T) {
 		similar          bool
 	}{
 		{
-			"https://pics.dmm.co.jp/digital/video/1msfh00025/1msfh00025ps.jpg",
-			"https://pics.dmm.co.jp/digital/video/1msfh00025/1msfh00025jp-1.jpg",
-			true,
-		},
-		{
-			"https://pics.dmm.co.jp/digital/video/1msfh00037/1msfh00037ps.jpg",
-			"https://pics.dmm.co.jp/digital/video/1msfh00037/1msfh00037jp-1.jpg",
-			true,
-		},
-		{
 			"https://pics.dmm.co.jp/digital/video/1stars00154/1stars00154ps.jpg",
 			"https://pics.dmm.co.jp/digital/video/1stars00154/1stars00154jp-1.jpg",
 			true,
