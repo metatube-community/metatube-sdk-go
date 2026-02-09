@@ -52,7 +52,7 @@ func (e *Engine) getMovieReviewsWithCallback(provider mt.MovieProvider, id strin
 	info = &model.MovieReviewInfo{
 		ID:       id,
 		Provider: provider.Name(),
-		Reviews:  datatypes.NewJSONType(reviews),
+		Reviews:  datatypes.NewJSONSlice(reviews),
 	}
 	return
 }
