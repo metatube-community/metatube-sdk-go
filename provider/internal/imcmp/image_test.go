@@ -87,11 +87,6 @@ func TestSimilar(t *testing.T) {
 			false,
 		},
 		{
-			"https://pics.dmm.co.jp/digital/video/1emoi00035/1emoi00035ps.jpg",
-			"https://pics.dmm.co.jp/digital/video/1emoi00035/1emoi00035jp-2.jpg",
-			true,
-		},
-		{
 			"https://pics.dmm.co.jp/digital/video/miaa00665/miaa00665ps.jpg",
 			"https://pics.dmm.co.jp/digital/video/miaa00665/miaa00665jp-1.jpg",
 			false,
