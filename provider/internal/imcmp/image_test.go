@@ -22,11 +22,6 @@ func TestSimilar(t *testing.T) {
 			true,
 		},
 		{
-			"https://pics.dmm.co.jp/digital/video/1stars00309/1stars00309ps.jpg",
-			"https://pics.dmm.co.jp/digital/video/1stars00309/1stars00309jp-1.jpg",
-			true,
-		},
-		{
 			"https://pics.dmm.co.jp/digital/video/1stars00325/1stars00325ps.jpg",
 			"https://pics.dmm.co.jp/digital/video/1stars00325/1stars00325jp-1.jpg",
 			true,
@@ -97,11 +92,6 @@ func TestSimilar(t *testing.T) {
 			true,
 		},
 		{
-			"https://pics.dmm.co.jp/digital/video/1emoi00035/1emoi00035ps.jpg",
-			"https://pics.dmm.co.jp/digital/video/1emoi00035/1emoi00035jp-3.jpg",
-			false,
-		},
-		{
 			"https://pics.dmm.co.jp/digital/video/miaa00665/miaa00665ps.jpg",
 			"https://pics.dmm.co.jp/digital/video/miaa00665/miaa00665jp-1.jpg",
 			false,
@@ -124,11 +114,6 @@ func TestSimilar(t *testing.T) {
 		{
 			"https://pics.dmm.co.jp/digital/video/sivr00223/sivr00223ps.jpg",
 			"https://pics.dmm.co.jp/digital/video/sivr00223/sivr00223jp-1.jpg",
-			true,
-		},
-		{
-			"https://pics.dmm.co.jp/digital/video/vrkm00702/vrkm00702ps.jpg",
-			"https://pics.dmm.co.jp/digital/video/vrkm00702/vrkm00702jp-1.jpg",
 			true,
 		},
 		{

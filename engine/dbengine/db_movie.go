@@ -120,7 +120,7 @@ func (e *engine) SaveMovieReviewInfo(info *model.MovieReviewInfo) error {
 	if !info.IsValid() {
 		return fmt.Errorf("invalid %T", info)
 	}
-	if len(info.Reviews.Data()) == 0 {
+	if len(info.Reviews) == 0 {
 		return errors.New("reviews cannot be empty")
 	}
 	return e.DB().Clauses(clause.OnConflict{
