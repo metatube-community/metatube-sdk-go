@@ -54,6 +54,6 @@ func getReview(app *engine.Engine) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, &responseMessage{Data: reviews.Reviews.Data()})
+		c.JSON(http.StatusOK, &responseMessage{Data: reviews.Reviews})
 	}
 }
