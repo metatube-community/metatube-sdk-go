@@ -294,7 +294,7 @@ func (s *DBEngineTestSuite) TestMovie_Reviews() {
 		err = s.eng.SaveMovieReviewInfo(&model.MovieReviewInfo{
 			ID:       data.ID,
 			Provider: data.Provider,
-			Reviews: datatypes.NewJSONType(
+			Reviews: datatypes.NewJSONSlice(
 				slices.Collect(func(yield func(detail *model.MovieReviewDetail) bool) {
 					for _, review := range data.Reviews {
 						if !yield(&model.MovieReviewDetail{
