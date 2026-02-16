@@ -248,8 +248,8 @@ github.com/ugorji/go/codec v1.3.1 h1:waO7eEiFDwidsBN6agj1vJQ4AG7lh2yqXyOXqhgQuyY
 github.com/ugorji/go/codec v1.3.1/go.mod h1:pRBVtBSKl77K30Bv8R2P+cLSGaTtex6fsA2Wjqmfxj4=
 github.com/xjasonlyu/deeplx-translator v0.1.0 h1:omnyEs5bz2+1Y5swfJ7+Qu3c2YKtFhwp+GtyfLqWups=
 github.com/xjasonlyu/deeplx-translator v0.1.0/go.mod h1:Ta0oEAUKhFpbhkEqM5fW897ZBrj3hmLdVSLVto12N1E=
-github.com/xjasonlyu/openai-translator v0.2.1 h1:ekBoIe9oxt5ZXY7lvy3iKJVYKY3t3UBaTbEkmQYFCOE=
-github.com/xjasonlyu/openai-translator v0.2.1/go.mod h1:WblVKXkWwPK6i0iBnyuw+Vw0YHPoAIaOMAupnKhW1no=
+github.com/xjasonlyu/openai-translator v0.2.2 h1:x7Lo6kUqz6Q92Z8o1Nc9Ly9l5u643lp8vKjGk6FgnZQ=
+github.com/xjasonlyu/openai-translator v0.2.2/go.mod h1:cvfnIx20bxFHiUg6Pn63vBfWRpd9MRUrS4tz8w6cmHc=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/zijiren233/google-translator v1.0.1 h1:pQESPiTteOrk3gKxs/wXYHgqZR4sB0Q7QcwOAkF+IyI=
 github.com/zijiren233/google-translator v1.0.1/go.mod h1:Cto5Y9lA6Gn3i0IA1s5MsZJgDpb/71kBhao2yOv1zK4=

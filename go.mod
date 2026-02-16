@@ -35,7 +35,7 @@ require (
 	github.com/sashabaranov/go-openai v1.41.2
 	github.com/stretchr/testify v1.11.1
 	github.com/xjasonlyu/deeplx-translator v0.1.0
-	github.com/xjasonlyu/openai-translator v0.2.1
+	github.com/xjasonlyu/openai-translator v0.2.2
 	github.com/zijiren233/google-translator v1.0.1
 	go.eigsys.de/gin-cachecontrol/v2 v2.4.1
 	go.uber.org/atomic v1.11.0
