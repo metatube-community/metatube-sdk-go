@@ -30,8 +30,8 @@ const (
 
 const (
 	baseURL   = "https://www.aventertainments.com/"
-	movieURL  = "https://www.aventertainments.com/%s/2/29/product_lists"
-	searchURL = "https://www.aventertainments.com/search_Products.aspx?languageID=2&dept_id=29&keyword=%s&searchby=keyword"
+	movieURL  = "https://www.aventertainments.com/dvd/detail?pro=%s&lang=2&culture=ja-JP&cat=29"
+	searchURL = "https://www.aventertainments.com/dvd/search?lang=2&cat=29&culture=ja-JP&keyword=%s&searchby=keyword"
 )
 
 type AVE struct {
@@ -55,9 +55,13 @@ func (ave *AVE) ParseMovieIDFromURL(rawURL string) (string, error) {
 	if productID := homepage.Query().Get("product_id"); productID != "" {
 		return productID, nil
 	}
-	// new url format.
-	if ss := regexp.MustCompile(`^/(\d+)/\d+/\d+`).FindStringSubmatch(homepage.Path); len(ss) == 2 {
+	if ss := regexp.MustCompile(`^/(\d+)/\d+/\d+/product_lists`).
+		FindStringSubmatch(homepage.Path); len(ss) == 2 {
 		return ss[1], nil
+	}
+	// new url format.
+	if productID := homepage.Query().Get("pro"); productID != "" {
+		return productID, nil
 	}
 	return "", fmt.Errorf("parse id failed: %s", rawURL)
 }

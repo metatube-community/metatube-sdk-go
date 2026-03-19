@@ -26,5 +26,6 @@ func TestAVE_SearchMovie(t *testing.T) {
 		"mcbd-25",
 		"MKBD-S03",
 		"FDD2002",
+		"GSAM-001",
 	})
 }
