@@ -40,7 +40,7 @@ require (
 	go.eigsys.de/gin-cachecontrol/v2 v2.4.1
 	go.uber.org/atomic v1.11.0
 	go.uber.org/automaxprocs v1.6.0
-	golang.org/x/image v0.37.0
+	golang.org/x/image v0.38.0
 	golang.org/x/net v0.52.0
 	golang.org/x/text v0.35.0
 	gorm.io/datatypes v1.2.7
