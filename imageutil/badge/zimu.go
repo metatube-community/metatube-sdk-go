@@ -12,7 +12,22 @@ import (
 //go:embed zimu.png
 var zimu []byte
 
+//go:embed u.png
+var u []byte
+
+//go:embed uc.png
+var uc []byte
+
 func init() {
-	badge, _, _ := imageutil.Decode(bytes.NewReader(zimu))
-	badgeCache.Set("zimu.png", badge, ttlcache.NoTTL)
+	registerEmbeddedBadge("zimu.png", zimu)
+	registerEmbeddedBadge("u.png", u)
+	registerEmbeddedBadge("uc.png", uc)
+}
+
+func registerEmbeddedBadge(name string, raw []byte) {
+	badge, _, err := imageutil.Decode(bytes.NewReader(raw))
+	if err != nil || badge == nil {
+		return
+	}
+	badgeCache.Set(name, badge, ttlcache.NoTTL)
 }
