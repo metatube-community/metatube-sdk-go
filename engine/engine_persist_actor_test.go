@@ -9,9 +9,8 @@ import (
 	"golang.org/x/text/language"
 	"gorm.io/datatypes"
 
-	mt "github.com/metatube-community/metatube-sdk-go/provider"
-
 	"github.com/metatube-community/metatube-sdk-go/model"
+	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
 
 // fakeActorProvider implements mt.ActorProvider for tests. Language is set to
@@ -26,18 +25,20 @@ type fakeActorProvider struct {
 	err  error
 }
 
-func (f *fakeActorProvider) Name() string                              { return f.name }
-func (f *fakeActorProvider) Priority() float64                         { return 1 }
-func (f *fakeActorProvider) SetPriority(v float64)                     {}
-func (f *fakeActorProvider) Language() language.Tag                    { return f.lang }
-func (f *fakeActorProvider) URL() *url.URL                             { return f.url }
-func (f *fakeActorProvider) NormalizeActorID(id string) string         { return id }
+func (f *fakeActorProvider) Name() string                      { return f.name }
+func (f *fakeActorProvider) Priority() float64                 { return 1 }
+func (f *fakeActorProvider) SetPriority(v float64)             {}
+func (f *fakeActorProvider) Language() language.Tag            { return f.lang }
+func (f *fakeActorProvider) URL() *url.URL                     { return f.url }
+func (f *fakeActorProvider) NormalizeActorID(id string) string { return id }
 func (f *fakeActorProvider) ParseActorIDFromURL(string) (string, error) {
 	return "", nil
 }
+
 func (f *fakeActorProvider) GetActorInfoByID(id string) (*model.ActorInfo, error) {
 	return f.next, f.err
 }
+
 func (f *fakeActorProvider) GetActorInfoByURL(string) (*model.ActorInfo, error) {
 	return f.next, f.err
 }

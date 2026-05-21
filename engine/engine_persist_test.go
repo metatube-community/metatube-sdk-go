@@ -10,9 +10,8 @@ import (
 	"gorm.io/datatypes"
 
 	"github.com/metatube-community/metatube-sdk-go/database"
-	mt "github.com/metatube-community/metatube-sdk-go/provider"
-
 	"github.com/metatube-community/metatube-sdk-go/model"
+	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
 
 // newTestEngine builds an Engine backed by a fresh in-memory SQLite, with all
@@ -43,18 +42,20 @@ type fakeMovieProvider struct {
 	err  error
 }
 
-func (f *fakeMovieProvider) Name() string                            { return f.name }
-func (f *fakeMovieProvider) Priority() float64                       { return 1 }
-func (f *fakeMovieProvider) SetPriority(v float64)                   {}
-func (f *fakeMovieProvider) Language() language.Tag                  { return language.Japanese }
-func (f *fakeMovieProvider) URL() *url.URL                           { return f.url }
-func (f *fakeMovieProvider) NormalizeMovieID(id string) string       { return id }
+func (f *fakeMovieProvider) Name() string                      { return f.name }
+func (f *fakeMovieProvider) Priority() float64                 { return 1 }
+func (f *fakeMovieProvider) SetPriority(v float64)             {}
+func (f *fakeMovieProvider) Language() language.Tag            { return language.Japanese }
+func (f *fakeMovieProvider) URL() *url.URL                     { return f.url }
+func (f *fakeMovieProvider) NormalizeMovieID(id string) string { return id }
 func (f *fakeMovieProvider) ParseMovieIDFromURL(string) (string, error) {
 	return "", nil
 }
+
 func (f *fakeMovieProvider) GetMovieInfoByID(id string) (*model.MovieInfo, error) {
 	return f.next, f.err
 }
+
 func (f *fakeMovieProvider) GetMovieInfoByURL(string) (*model.MovieInfo, error) {
 	return f.next, f.err
 }
