@@ -223,6 +223,13 @@ func (e *Engine) getMovieInfoWithCallback(provider mt.MovieProvider, id string, 
 	// delayed info auto-save.
 	defer func() {
 		if err == nil && info.IsValid() {
+			// Preserve any non-empty fields from the existing DB record, so a
+			// fresh fetch that returned empty optional fields doesn't clobber
+			// previously-stored good data. IsValid() already guarantees the
+			// required (primary key) fields are populated on info.
+			if existing, dbErr := e.getMovieInfoFromDB(provider, id); dbErr == nil {
+				info.PreserveFrom(existing)
+			}
 			e.db.Clauses(clause.OnConflict{
 				UpdateAll: true,
 			}).Create(info) // ignore error
