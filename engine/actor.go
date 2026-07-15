@@ -177,6 +177,13 @@ func (e *Engine) getActorInfoWithCallback(provider mt.ActorProvider, id string, 
 	// Delayed info auto-save.
 	defer func() {
 		if err == nil && info.IsValid() {
+			// Preserve any non-empty fields from the existing DB record, so a
+			// fresh fetch that returned empty optional fields doesn't clobber
+			// previously-stored good data. IsValid() already guarantees the
+			// required (primary key) fields are populated on info.
+			if existing, dbErr := e.getActorInfoFromDB(provider, id); dbErr == nil {
+				info.PreserveFrom(existing)
+			}
 			// Make sure we save the original info here.
 			e.db.Clauses(clause.OnConflict{
 				UpdateAll: true,

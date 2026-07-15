@@ -1,6 +1,8 @@
 package model
 
 import (
+	"time"
+
 	"github.com/lib/pq"
 	"gorm.io/datatypes"
 )
@@ -63,5 +65,65 @@ func (a *ActorInfo) ToSearchResult() *ActorSearchResult {
 		Homepage: a.Homepage,
 		Aliases:  a.Aliases,
 		Images:   a.Images,
+	}
+}
+
+// PreserveFrom fills in zero-value fields of a using non-zero values from
+// existing. It implements "non-empty wins" semantics: if a has a non-zero
+// value for a field, a keeps it; if a has the zero value for a field, a takes
+// existing's value.
+//
+// This is meant to be called immediately before upserting a freshly-fetched
+// ActorInfo, so that a provider response with missing optional fields does
+// not clobber previously-stored good data when GORM's clause.OnConflict
+// {UpdateAll: true} writes every column.
+//
+// Required (IsValid) fields - ID, Name, Provider, Homepage - are NOT touched:
+// IsValid() gates the call and guarantees a has them all populated.
+// TimeTracker fields (CreatedAt, UpdatedAt) are managed by GORM and likewise
+// not touched here.
+func (a *ActorInfo) PreserveFrom(existing *ActorInfo) {
+	if existing == nil {
+		return
+	}
+	// Optional string fields.
+	if a.Summary == "" {
+		a.Summary = existing.Summary
+	}
+	if a.Hobby == "" {
+		a.Hobby = existing.Hobby
+	}
+	if a.Skill == "" {
+		a.Skill = existing.Skill
+	}
+	if a.BloodType == "" {
+		a.BloodType = existing.BloodType
+	}
+	if a.CupSize == "" {
+		a.CupSize = existing.CupSize
+	}
+	if a.Measurements == "" {
+		a.Measurements = existing.Measurements
+	}
+	if a.Nationality == "" {
+		a.Nationality = existing.Nationality
+	}
+	// Numeric field.
+	if a.Height == 0 {
+		a.Height = existing.Height
+	}
+	// Array fields (pq.StringArray).
+	if len(a.Aliases) == 0 {
+		a.Aliases = existing.Aliases
+	}
+	if len(a.Images) == 0 {
+		a.Images = existing.Images
+	}
+	// Date fields.
+	if time.Time(a.Birthday).IsZero() {
+		a.Birthday = existing.Birthday
+	}
+	if time.Time(a.DebutDate).IsZero() {
+		a.DebutDate = existing.DebutDate
 	}
 }
