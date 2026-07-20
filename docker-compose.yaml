@@ -10,6 +10,7 @@ services:
     environment:
       - HTTP_PROXY=
       - HTTPS_PROXY=
+      # - FANTIA_SESSION_ID =
     volumes:
       - run:/var/run
     command: -dsn "postgres://metatube:metatube@/metatube?host=/var/run/postgresql" -port 8080 -db-auto-migrate -db-prepared-stmt
