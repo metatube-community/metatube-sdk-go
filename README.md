@@ -14,6 +14,7 @@ Metadata Tube SDK in Golang.
     - [Contents](#contents)
     - [Features](#features)
     - [Installation](#installation)
+    - [JavDB](#javdb)
     - [Credits](#credits)
     - [License](#license)
 
@@ -44,6 +45,17 @@ the below Go command to install SDK.
 ```sh
 go get -u github.com/metatube-community/metatube-sdk-go
 ```
+
+## JavDB
+
+JavDB provider is disabled until a session Cookie is configured. Do not commit this value or put it in a shared configuration file.
+
+```sh
+export MT_MOVIE_PROVIDER_JAVDB__COOKIE='your JavDB Cookie header value'
+export MT_MOVIE_PROVIDER_JAVDB__USER_AGENT='the browser User-Agent that created the Cookie'
+```
+
+Optionally configure `MT_MOVIE_PROVIDER_JAVDB__PROXY` with an HTTP or HTTPS proxy when the SDK server requires a proxy to reach JavDB. Set `USER_AGENT` to the User-Agent that created the Cookie when JavDB rejects the default request profile. A missing, expired, or rejected Cookie keeps the provider disabled or returns an authentication error; it is never logged.
 
 ## Credits
 
