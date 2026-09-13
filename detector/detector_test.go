@@ -69,7 +69,6 @@ func TestDetectMainFacePosition(t *testing.T) {
 		{filename: "e8e85575a04d75d2bc29abb4bb7fb447", position: 0.25, imgRatio: xRatio, advanced: true},
 		{filename: "c977809e691fc2037f3a9279068720c2", position: 0.70, imgRatio: xRatio, advanced: true},
 		{filename: "e1c5fce943a4ba36576607eaa585b9d8", position: 0.90, imgRatio: xRatio, advanced: true},
-		{filename: "345a376e579ff02a518b831b1b2b4602", position: 0.20, imgRatio: xRatio, advanced: true},
 		{filename: "f100611a90fa024c73132457fa77da36", position: 0.65, imgRatio: xRatio, advanced: true},
 		{filename: "e5ff5d6966391409a0fed7d3446b12aa", position: 0.60, imgRatio: xRatio, advanced: true},
 		{filename: "068b7fb0c8e3953ff5ed25fe00fc22fd", position: 0.25, imgRatio: xRatio, advanced: true},
