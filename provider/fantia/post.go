@@ -28,8 +28,10 @@ const (
 
 var postNumericID = regexp.MustCompile(`^[1-9]\d*$`)
 
-var _ provider.MovieProvider = (*Post)(nil)
-var _ provider.ConfigSetter = (*Post)(nil)
+var (
+	_ provider.MovieProvider = (*Post)(nil)
+	_ provider.ConfigSetter  = (*Post)(nil)
+)
 
 type Post struct {
 	*scraper.Scraper
