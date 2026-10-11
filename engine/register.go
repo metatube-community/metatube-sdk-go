@@ -24,6 +24,7 @@ import (
 	_ "github.com/metatube-community/metatube-sdk-go/provider/heydouga"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/heyzo"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/javbus"
+	_ "github.com/metatube-community/metatube-sdk-go/provider/javdb"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/javfree"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/kin8tengoku"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/mgstage"
