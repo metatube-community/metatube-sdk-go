@@ -8,16 +8,14 @@ import (
 
 func TestKIN8_GetMovieInfoByID(t *testing.T) {
 	testkit.Test(t, New, []string{
-		"3604",
-		"3556",
-		"3580",
-		"3521",
-		"3587",
-		"1045",
-		"3591",
-		"3421",
-		"3600",
-		"2508",
-		"1662",
+		// After the site was revamped into a Next.js app, the following IDs are
+		// real, verified ones.
+		"4057",
+		"4052",
+		"4015",
+		"4003",
+		"3995",
+		"3605",
+		"3489",
 	})
 }

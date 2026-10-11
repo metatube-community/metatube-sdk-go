@@ -51,15 +51,30 @@ func New() *HeyDouga {
 	)}
 }
 
+// Real site IDs are {studio#}-{slug}; slug shapes vary (stats over 168 homepage samples):
+//
+//	pure digits   124, e.g. 450, 2489
+//	ppv-date 15, e.g. ppv-010325-001 (hyphen)
+//	ppv-date 18, e.g. ppv-010324_001 (underscore)
+//	letter-mixed, e.g. ppv-gol056, ppv-hitozuma1183, r019
+//
+// So slug is relaxed to [alnum plus hyphen/underscore], excluding only path separators.
+// Note studio# and slug are strictly paired; cross-studio concatenation 404s.
+var (
+	reHeyID     = regexp.MustCompile(`^(?i)(?:heydouga[-_])?(\d+)-([a-z\d][a-z\d_-]*)$`)
+	reHeyPathID = regexp.MustCompile(`/moviepages/(\d+)/([a-z\d][a-z\d_-]*)/index\.html`)
+	reHeyOldID  = regexp.MustCompile(`/(\d+)/(\d+)/index\.html`)
+)
+
 func (hey *HeyDouga) NormalizeMovieID(id string) string {
-	if ss := regexp.MustCompile(`^(?i)(?:heydouga[-_])?(\d{4}-[a-z\d]+)$`).FindStringSubmatch(id); len(ss) == 2 {
-		return ss[1]
+	if ss := reHeyID.FindStringSubmatch(strings.TrimSpace(id)); len(ss) == 3 {
+		return strings.ToLower(ss[1] + "-" + ss[2])
 	}
 	return ""
 }
 
 func (hey *HeyDouga) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	if ss := strings.SplitN(id, "-", 2); len(ss) == 2 {
+	if ss := strings.SplitN(id, "-", 2); len(ss) == 2 && ss[0] != "" && ss[1] != "" {
 		return hey.GetMovieInfoByURL(fmt.Sprintf(movieURL, ss[0], ss[1]))
 	}
 	return nil, provider.ErrInvalidID
@@ -70,11 +85,14 @@ func (hey *HeyDouga) ParseMovieIDFromURL(rawURL string) (id string, err error) {
 	if err != nil {
 		return
 	}
-	if ss := regexp.MustCompile(`/(\d+)/(\d+)/index\.html`).
-		FindStringSubmatch(homepage.Path); len(ss) == 3 {
-		id = fmt.Sprintf("%s-%s", ss[1], ss[2])
+	// Prefer the real path with /moviepages/ prefix; fall back to the old /{studio}/{id}/ form
+	if ss := reHeyPathID.FindStringSubmatch(homepage.Path); len(ss) == 3 {
+		return strings.ToLower(ss[1] + "-" + ss[2]), nil
 	}
-	return
+	if ss := reHeyOldID.FindStringSubmatch(homepage.Path); len(ss) == 3 {
+		return fmt.Sprintf("%s-%s", ss[1], ss[2]), nil
+	}
+	return "", provider.ErrInvalidURL
 }
 
 func (hey *HeyDouga) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
