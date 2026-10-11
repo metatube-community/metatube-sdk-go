@@ -8,12 +8,16 @@ import (
 
 func TestHeyDouga_GetMovieInfoByID(t *testing.T) {
 	testkit.Test(t, New, []string{
-		"4037-479",
-		"4030-1938",
-		"4229-771",
-		"4229-759",
-		"4030-2000",
-		"4037-478",
-		"4226-032",
+		// The IDs below are real ones observed on the site's homepage, covering
+		// three slug shapes:
+		//   plain number   {brand}-{number}        e.g. 4382-450
+		//   hyphen         {brand}-ppv-date-number  e.g. 3001-ppv-010325-001
+		//   underscore     {brand}-ppv-date_number  e.g. 3002-ppv-010324_001
+		//   alpha-mixed    {brand}-r019
+		"4382-450",
+		"4080-2489",
+		"3001-ppv-010325-001",
+		"3002-ppv-010324_001",
+		"4198-r019",
 	})
 }

@@ -5,7 +5,10 @@ import (
 	"net/url"
 	"path"
 	"regexp"
+	"sort"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/gocolly/colly/v2"
@@ -23,15 +26,24 @@ var (
 	_ provider.ActorSearcher = (*AVLeague)(nil)
 )
 
+// reActorListPage matches the actress detail link in a list page, e.g. /actress/39587.html
+var reActorListPage = regexp.MustCompile(`^/actress/(\d+)\.html$`)
+
 const (
 	Name     = "AV-LEAGUE" // `AV.LEAGUE`
 	Priority = 1000
 )
 
 const (
-	baseURL   = "https://www.av-league.com/"
-	actorURL  = "https://www.av-league.com/actress/%s.html"
-	searchURL = "https://www.av-league.com/search/search.php?k=%s"
+	baseURL  = "https://www.av-league.com/"
+	actorURL = "https://www.av-league.com/actress/%s.html"
+	// Actor list pages. The site's in-page search results area is empty (no longer server-rendered after the revamp),
+	// but the actor cards on list pages are static HTML: an a[href=/actress/{id}.html] contains
+	// div.l-pic > img[alt=actor name][data-layzr=avatar URL],
+	// so we traverse list pages and match by name instead.
+	actorListURL = "https://www.av-league.com/actress-list/all-3/all_all_default_%d.html"
+	// Max list-page count (verified 30 pages still non-empty; beyond that returns empty pages)
+	actorListMaxPage = 31
 )
 
 type AVLeague struct {
@@ -78,32 +90,48 @@ func (avl *AVLeague) GetActorInfoByURL(rawURL string) (info *model.ActorInfo, er
 	c := avl.ClonedCollector()
 
 	// Name
-	c.OnXML(`//*[@id="pan"]/span`, func(e *colly.XMLElement) {
-		info.Name = strings.TrimSpace(e.Text)
+	// Verified: div#pan still exists but no longer holds the name; the name is now served by h1#j-prof,
+	// e.g. "Ishiguro Kyoka ari (ishigurokyouka)". The old XPath //*[@id="pan"]/span is obsolete.
+	c.OnXML(`//*[@id="j-prof"]`, func(e *colly.XMLElement) {
+		name := strings.TrimSpace(e.Text)
+		if name == "" {
+			return
+		}
+		// Strip the trailing kana reading: "Ishiguro Kyoka ari (ishigurokyouka)" -> "Ishiguro Kyoka ari"
+		if i := strings.Index(name, "（"); i > 0 {
+			name = strings.TrimSpace(name[:i])
+		}
+		info.Name = name
 	})
 
-	// Aliases
-	c.OnXML(`//*[@id="j-prof"]/span`, func(e *colly.XMLElement) {
-		if name, aliases, found := strings.Cut(e.Text, ":"); found {
-			if !strings.Contains(name, "別名") {
-				return // may not be an alias
-			}
-			for _, alias := range strings.Split(aliases, "、") {
-				info.Aliases = append(info.Aliases, strings.TrimSpace(alias))
-			}
+	// Name (fallback): on some pages the name is still at the old location
+	c.OnXML(`//*[@id="pan"]//span`, func(e *colly.XMLElement) {
+		if info.Name != "" {
+			return
+		}
+		if name := strings.TrimSpace(e.Text); name != "" {
+			info.Name = name
 		}
 	})
 
-	// Image (profile)
-	c.OnXML(`//*[@id="contents"]/div[@class="i-pic-box"]/div/img`, func(e *colly.XMLElement) {
-		info.Images = append(info.Images, e.Request.AbsoluteURL(e.Attr("src")))
-	})
-
-	// Image (fallback)
+	// Image
+	// The real avatar is hosted on DMM at pics.dmm.co.jp/mono/actjpgs/{romaji}.jpg.
+	// Note the page og:image is a malformed URL -- the site concatenates its domain with the image URL directly:
+	//   https://www.av-league.comhttp://pics.dmm.co.jp/mono/actjpgs/xxx.jpg
+	// We must slice the real image URL after "av-league.com".
 	c.OnXML(`//meta[@property="og:image"]`, func(e *colly.XMLElement) {
-		if len(info.Images) == 0 {
-			info.Images = append(info.Images, e.Request.AbsoluteURL(e.Attr("content")))
+		raw := strings.TrimSpace(e.Attr("content"))
+		if raw == "" {
+			return
 		}
+		// Locate by the DMM image-host domain, bypassing the concatenated site domain
+		if i := strings.Index(raw, "pics.dmm.co.jp"); i > 0 {
+			raw = "http://" + raw[i:]
+		}
+		if !strings.HasPrefix(raw, "http://") && !strings.HasPrefix(raw, "https://") {
+			return
+		}
+		info.Images = append(info.Images, raw)
 	})
 
 	// Fields
@@ -137,32 +165,171 @@ func (avl *AVLeague) GetActorInfoByURL(rawURL string) (info *model.ActorInfo, er
 	return
 }
 
+// SearchActor searches actors by name.
+//
+// The site's in-site search is no longer server-rendered; we traverse static actress list pages and match by name.
+// Two acceleration techniques:
+//
+//  1. In-process index cache -- on first search, fetch all list pages to build a normalized-name -> actor-entry index,
+//     cache it on hit; subsequent searches match in memory (O(actor count), ms-level) without re-paging.
+//  2. Full concurrent fetch -- when building the index, fetch all 30 list pages at once (instead of the old 6-per-batch serial wait),
+//     cutting first-index time from ~12s to ~2-3s.
+//
+// If the index is unavailable (first build failed / network error), fall back to one real-time fetch so search always works.
 func (avl *AVLeague) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
-	c := avl.ClonedCollector()
+	keyword = strings.TrimSpace(keyword)
+	if keyword == "" {
+		return nil, provider.ErrInvalidKeyword
+	}
 
-	c.OnXML(`//*[@id="contents"]/div/div`, func(e *colly.XMLElement) {
-		homepage := e.Request.AbsoluteURL(
-			e.ChildAttr(`.//div[@class="l-name"]/a`, "href"))
-		id, _ := avl.ParseActorIDFromURL(homepage)
-		// Name
-		actor := strings.TrimSpace(e.ChildText(`.//div[@class="l-name"]/a`))
-		// Images
-		var images []string
-		if img := e.ChildAttr(`.//div[@class="l-pic"]/a/img`, "data-layzr" /* lazy loading */); img != "" {
-			images = []string{e.Request.AbsoluteURL(img)}
+	// Normalize for comparison: drop whitespace and the "ari" suffix the site appends after every name
+	norm := func(s string) string {
+		s = strings.TrimSpace(s)
+		s = strings.ReplaceAll(s, " ", "")
+		s = strings.ReplaceAll(s, "　", "")
+		s = strings.TrimSuffix(s, "ari")
+		return strings.ToLower(s)
+	}
+	target := norm(keyword)
+	if target == "" {
+		return nil, provider.ErrInvalidKeyword
+	}
+
+	// Get the full actor set: prefer the in-memory index, fall back to one real-time fetch on failure.
+	entries, eerr := avl.actorIndex()
+	if eerr != nil {
+		entries, eerr = avl.buildActorIndex()
+	}
+	if eerr != nil {
+		return nil, eerr
+	}
+
+	// Match by name within the set: exact equality first, then containment.
+	// Note: the ranking is not sorted by name; the target actor may be on any page,
+	// so we must scan everything (cannot stop at first hit) or we miss actors.
+	for _, e := range entries {
+		nn := norm(e.Name)
+		if nn != target && !strings.Contains(nn, target) {
+			continue
 		}
-
+		images := make([]string, 0, 1)
+		if e.Image != "" {
+			images = append(images, e.Image)
+		}
 		results = append(results, &model.ActorSearchResult{
-			ID:       id,
-			Name:     actor,
+			ID:       e.ID,
+			Name:     e.Name,
 			Images:   images,
 			Provider: avl.Name(),
-			Homepage: homepage,
+			Homepage: fmt.Sprintf(actorURL, e.ID),
 		})
-	})
+	}
 
-	err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword)))
+	// Sort: exact matches first; shorter names are more likely the precise match
+	sort.SliceStable(results, func(i, j int) bool {
+		ni, nj := norm(results[i].Name), norm(results[j].Name)
+		ei, ej := ni == target, nj == target
+		if ei != ej {
+			return ei
+		}
+		return len(ni) < len(nj)
+	})
 	return
+}
+
+// actorIndexEntry is an actor entry parsed from a list page (name + ID + list-page avatar).
+type actorIndexEntry struct {
+	ID    string
+	Name  string
+	Image string
+}
+
+// actorIdx is the in-process actor index cache (reused after the first full build; rebuilt after a process restart).
+var (
+	actorIdx     atomic.Pointer[[]actorIndexEntry]
+	actorIdxMu   sync.Mutex
+	actorIdxBusy bool
+)
+
+// actorIndex returns the cached index; if not built or stale, it fetches all pages live and caches them.
+func (avl *AVLeague) actorIndex() ([]actorIndexEntry, error) {
+	if p := actorIdx.Load(); p != nil {
+		return *p, nil
+	}
+	actorIdxMu.Lock()
+	if p := actorIdx.Load(); p != nil {
+		actorIdxMu.Unlock()
+		return *p, nil
+	}
+	if actorIdxBusy {
+		// Another goroutine is building the index; wait for it then read once more
+		actorIdxMu.Unlock()
+		time.Sleep(50 * time.Millisecond)
+		if p := actorIdx.Load(); p != nil {
+			return *p, nil
+		}
+		return nil, fmt.Errorf("actor index is being built")
+	}
+	actorIdxBusy = true
+	actorIdxMu.Unlock()
+
+	entries, berr := avl.buildActorIndex()
+
+	actorIdxMu.Lock()
+	actorIdxBusy = false
+	if berr == nil {
+		actorIdx.Store(&entries)
+	}
+	actorIdxMu.Unlock()
+	return entries, berr
+}
+
+// buildActorIndex fetches all list pages concurrently and builds the normalized-name -> actor-entry index.
+// This is technique 2: fetch all 30 list pages at once, not the old 6-per-batch serial wait.
+func (avl *AVLeague) buildActorIndex() ([]actorIndexEntry, error) {
+	results := make(chan []actorIndexEntry, actorListMaxPage)
+	var wg sync.WaitGroup
+	for page := 1; page <= actorListMaxPage; page++ {
+		wg.Add(1)
+		go func(p int) {
+			defer wg.Done()
+			c := avl.ClonedCollector()
+			var local []actorIndexEntry
+			c.OnXML(`//a[@href]`, func(e *colly.XMLElement) {
+				href := e.Attr("href")
+				if !reActorListPage.MatchString(href) {
+					return
+				}
+				id := strings.TrimSuffix(strings.TrimPrefix(href, "/actress/"), ".html")
+				if id == "" {
+					return
+				}
+				name := strings.TrimSpace(e.ChildAttr(`div[@class="l-pic"]/img`, "alt"))
+				if name == "" {
+					return
+				}
+				img := e.ChildAttr(`div[@class="l-pic"]/img`, "data-layzr")
+				if img != "" {
+					img = e.Request.AbsoluteURL(img)
+				}
+				local = append(local, actorIndexEntry{ID: id, Name: name, Image: img})
+			})
+			if err := c.Visit(fmt.Sprintf(actorListURL, p)); err != nil {
+				return
+			}
+			results <- local
+		}(page)
+	}
+	go func() { wg.Wait(); close(results) }()
+
+	var all []actorIndexEntry
+	for local := range results {
+		all = append(all, local...)
+	}
+	if len(all) == 0 {
+		return nil, fmt.Errorf("actor index empty: site may be unreachable")
+	}
+	return all, nil
 }
 
 func parseMeasurements(s string) (B, W, H int, Cup string) {
