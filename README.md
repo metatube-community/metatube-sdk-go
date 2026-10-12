@@ -45,6 +45,24 @@ the below Go command to install SDK.
 go get -u github.com/metatube-community/metatube-sdk-go
 ```
 
+## Fantia providers
+
+`Fantia` handles `https://fantia.jp/products/<id>` and keeps the existing
+`FANTIA-<id>` numbering. `FantiaPost` handles
+`https://fantia.jp/posts/<id>` with `FANTIA-POST-<id>` numbering. Product
+descriptions prefer the full page text; post descriptions include visible blog
+content alongside the post introduction.
+
+Public pages work without a login. For content that requires a session, set the
+`_session_id` cookie value in `FANTIA_SESSION_ID` to share it between both
+providers. You can override it for each provider using
+`MT_MOVIE_PROVIDER_FANTIA__SESSION_ID` or
+`MT_MOVIE_PROVIDER_FANTIAPOST__SESSION_ID` (or the `session_id` movie-provider
+config key when embedding the SDK). Keep the value in your deployment's secret
+store; do not put it in source code or commit it to the repository. Requests
+use canonical HTTPS Fantia URLs, and the session cookie is scoped to
+`fantia.jp` and marked Secure.
+
 ## Credits
 
 | Library														                                           | Description																						                                                                    |
