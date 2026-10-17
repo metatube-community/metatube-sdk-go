@@ -57,12 +57,19 @@ func New() *JavBus {
 				// existmag=all
 				{Name: "dv", Value: "1"},
 				{Name: "existmag", Value: "all"},
+				// age verification
+				{Name: "age", Value: "verified"},
 			})),
 	}
 }
 
+// labelNumberRe matches a number without the dash between the label and
+// the number, e.g. ssis277.
+var labelNumberRe = regexp.MustCompile(`(?i)^([a-z]{2,})(\d+)$`)
+
 func (bus *JavBus) NormalizeMovieID(id string) string {
-	return strings.ToUpper(id)
+	// JavBus page URLs always contain the dashed number form.
+	return strings.ToUpper(labelNumberRe.ReplaceAllString(id, "${1}-${2}"))
 }
 
 func (bus *JavBus) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -167,10 +174,13 @@ func (bus *JavBus) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 }
 
 func (bus *JavBus) NormalizeMovieKeyword(keyword string) string {
-	if number.IsSpecial(keyword) && !regexp.MustCompile(`^(?i)([\d-_]{4,}|[a-z]{1,4}\d{2,4}|heyzo[-_].+)$`).MatchString(keyword) {
-		return "" // JavBus has no those special contents.
+	if number.IsSpecial(keyword) {
+		if !regexp.MustCompile(`^(?i)([\d-_]{4,}|[a-z]{1,4}\d{2,4}|heyzo[-_].+)$`).MatchString(keyword) {
+			return "" // JavBus has no those special contents.
+		}
+		return strings.ToUpper(keyword)
 	}
-	return strings.ToUpper(keyword)
+	return bus.NormalizeMovieID(keyword)
 }
 
 func (bus *JavBus) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
@@ -211,6 +221,17 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.MovieSearchResu
 		}
 	}
 	c.Wait()
+
+	// JavBus search sometimes omits movies whose detail pages are still
+	// accessible by number. Fall back to the detail page directly, but
+	// only for keywords that JavBus may possibly have.
+	if len(results) == 0 {
+		if id := bus.NormalizeMovieKeyword(keyword); id != "" {
+			if info, infoErr := bus.GetMovieInfoByID(id); infoErr == nil && info.IsValid() {
+				results = append(results, info.ToSearchResult())
+			}
+		}
+	}
 	return
 }
 
