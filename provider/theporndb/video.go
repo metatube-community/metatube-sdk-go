@@ -72,7 +72,6 @@ func NewThePornDBMovie() *ThePornDBVideo {
 
 func (s *ThePornDBVideo) SetConfig(config map[string]string) error {
 	if accessToken, ok := config["ACCESS_TOKEN"]; ok {
-		fmt.Println(s.Name(), "set token")
 		s.accessToken = accessToken
 	}
 	return nil
