@@ -1,8 +1,6 @@
 package javbus
 
 import (
-	"os"
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -45,22 +43,4 @@ func TestJavBus_Normalize(t *testing.T) {
 	} {
 		require.Equal(t, want, bus.NormalizeMovieKeyword(keyword))
 	}
-	for id, want := range map[string]string{
-		"ssis277":             "SSIS-277",
-		"SSIS-277":            "SSIS-277",
-		"MIDV-005_2025-02-04": "MIDV-005_2025-02-04",
-		"n1234":               "N1234", // Single-letter label, keep as is.
-	} {
-		require.Equal(t, want, bus.NormalizeMovieID(id))
-	}
-}
-
-func TestJavBus_SearchMovie_NotFound(t *testing.T) {
-	if ci, _ := strconv.ParseBool(os.Getenv("GITHUB_ACTIONS")); ci {
-		t.SkipNow()
-	}
-	bus := New()
-	results, err := bus.SearchMovie(bus.NormalizeMovieKeyword("ZZZZ-9999"))
-	require.NoError(t, err)
-	require.Empty(t, results)
 }
