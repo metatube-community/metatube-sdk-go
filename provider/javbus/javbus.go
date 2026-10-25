@@ -63,13 +63,8 @@ func New() *JavBus {
 	}
 }
 
-// labelNumberRe matches a number without the dash between the label and
-// the number, e.g. ssis277.
-var labelNumberRe = regexp.MustCompile(`(?i)^([a-z]{2,})(\d+)$`)
-
 func (bus *JavBus) NormalizeMovieID(id string) string {
-	// JavBus page URLs always contain the dashed number form.
-	return strings.ToUpper(labelNumberRe.ReplaceAllString(id, "${1}-${2}"))
+	return strings.ToUpper(id)
 }
 
 func (bus *JavBus) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -180,7 +175,10 @@ func (bus *JavBus) NormalizeMovieKeyword(keyword string) string {
 		}
 		return strings.ToUpper(keyword)
 	}
-	return bus.NormalizeMovieID(keyword)
+	// JavBus page URLs always contain the dashed number form.
+	return strings.ToUpper(regexp.
+		MustCompile(`(?i)^([a-z]{2,})(\d+)$`).
+		ReplaceAllString(keyword, "${1}-${2}"))
 }
 
 func (bus *JavBus) SearchMovie(keyword string) (results []*model.MovieSearchResult, err error) {
@@ -223,8 +221,8 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.MovieSearchResu
 	c.Wait()
 
 	// JavBus search sometimes omits movies whose detail pages are still
-	// accessible by number. Fall back to the detail page directly, but
-	// only for keywords that JavBus may possibly have.
+	// accessible by number. Fallback to the detail page directly, but
+	// only for keywords that JavBus may have.
 	if len(results) == 0 {
 		if id := bus.NormalizeMovieKeyword(keyword); id != "" {
 			if info, infoErr := bus.GetMovieInfoByID(id); infoErr == nil && info.IsValid() {
