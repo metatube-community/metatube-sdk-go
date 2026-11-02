@@ -14,6 +14,7 @@ import (
 	_ "github.com/metatube-community/metatube-sdk-go/provider/faleno"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/fanza"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/fc2"
+	_ "github.com/metatube-community/metatube-sdk-go/provider/fc2db"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/fc2hub"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/fc2ppvdb"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/gcolle"
