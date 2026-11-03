@@ -36,6 +36,13 @@ Metadata Tube SDK in Golang.
 - 20+ providers
 - Text translation
 
+`JavDB` provides basic FC2 metadata from public search results as a lower-priority
+alternative to `FC2`, `fc2hub`, and `FC2PPVDB`. It matches the exact FC2 number and
+provides the title, cover, release date, and rating without requiring a login.
+Actor names and other detail-page fields are not available through this provider.
+Its IDs are numeric FC2 IDs; supported URLs are public search URLs such as
+`https://javdb.com/search?q=FC2-3119569&f=all`.
+
 ## Installation
 
 To install this package, you first need [Go](https://golang.org/) installed (**go1.25+ is required**), then you can use
