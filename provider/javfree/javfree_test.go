@@ -8,13 +8,12 @@ import (
 
 func TestJAVFREE_GetMovieInfoByID(t *testing.T) {
 	testkit.Test(t, New, []string{
-		"243452-1151912",
-		"402171-4608186",
+		"IPX-001",
 	})
 }
 
 func TestJAVFREE_SearchMovie(t *testing.T) {
 	testkit.Test(t, New, []string{
-		"FC2-PPV-1151912",
+		"IPX-001",
 	})
 }
