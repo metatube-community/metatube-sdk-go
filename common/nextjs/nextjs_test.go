@@ -2,43 +2,62 @@ package nextjs
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-const testHTML = `<html><body>
-<script>self.__next_f.push([0])</script>
+const testHTML = `<html><head>
+<script src="/_next/static/chunks/main.js" async=""></script>
+</head><body>
+<script>document.write("not a flight data script")</script>
+<script>(self.__next_f=self.__next_f||[]).push([0])</script>
 <script>self.__next_f.push([1,"1:\"$Sreact.fragment\"\n2:I[123,[],\"default\"]\n"])</script>
 <script>self.__next_f.push([1,"6:[\"$\",\"main\",null,{\"children\":[[\"$\",\"$L2\",null,{\"src\":\"https://example.com/a.m3u8\","])</script>
 <script>self.__next_f.push([1,"\"poster\":\"https://example.com/a.jpg\",\"movieSeq\":1}]]}]\n"])</script>
 <script>self.__next_f.push([2,"ignored"])</script>
 </body></html>`
 
+const testPayload = "1:\"$Sreact.fragment\"\n" +
+	"2:I[123,[],\"default\"]\n" +
+	"6:[\"$\",\"main\",null,{\"children\":[[\"$\",\"$L2\",null,{\"src\":\"https://example.com/a.m3u8\"," +
+	"\"poster\":\"https://example.com/a.jpg\",\"movieSeq\":1}]]}]\n"
+
 func TestExtractPayload(t *testing.T) {
-	assert.Equal(t,
-		"1:\"$Sreact.fragment\"\n"+
-			"2:I[123,[],\"default\"]\n"+
-			"6:[\"$\",\"main\",null,{\"children\":[[\"$\",\"$L2\",null,{\"src\":\"https://example.com/a.m3u8\","+
-			"\"poster\":\"https://example.com/a.jpg\",\"movieSeq\":1}]]}]\n",
-		ExtractPayload([]byte(testHTML)))
-	assert.Empty(t, ExtractPayload([]byte(`<html></html>`)))
+	payload, err := ExtractPayload([]byte(testHTML))
+	require.NoError(t, err)
+	assert.Equal(t, testPayload, payload)
+
+	payload, err = ExtractPayload([]byte(`<html></html>`))
+	require.NoError(t, err)
+	assert.Empty(t, payload)
+
+	_, err = ExtractPayload([]byte(`<script>self.__next_f.push(</script>`))
+	assert.Error(t, err)
+}
+
+func TestExtractPayloadTimeout(t *testing.T) {
+	defer func(d time.Duration) { scriptTimeout = d }(scriptTimeout)
+	scriptTimeout = 100 * time.Millisecond
+
+	_, err := ExtractPayload([]byte(`<script>self.__next_f; while (true) {}</script>`))
+	assert.ErrorIs(t, err, errScriptTimeout)
 }
 
 func TestFindObject(t *testing.T) {
-	payload := ExtractPayload([]byte(testHTML))
-
 	var props struct {
 		Src      string `json:"src"`
 		Poster   string `json:"poster"`
 		MovieSeq int    `json:"movieSeq"`
 	}
-	if assert.True(t, FindObject(payload, &props, "src", "poster")) {
+	if assert.True(t, FindObject(testPayload, &props, "src", "poster")) {
 		assert.Equal(t, "https://example.com/a.m3u8", props.Src)
 		assert.Equal(t, "https://example.com/a.jpg", props.Poster)
 		assert.Equal(t, 1, props.MovieSeq)
 	}
 
 	var v map[string]any
-	assert.False(t, FindObject(payload, &v, "src", "missing"))
-	assert.False(t, FindObject(payload, &v))
+	assert.False(t, FindObject(testPayload, &v, "src", "missing"))
+	assert.False(t, FindObject(testPayload, &v))
 }
