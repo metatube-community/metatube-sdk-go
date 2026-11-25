@@ -4,10 +4,6 @@ RUN apk add --update --no-cache --no-progress make git
 
 WORKDIR /src
 
-COPY go.mod go.sum ./
-RUN --mount=type=cache,target=/go/pkg/mod \
-    go mod download
-
 COPY . /src
 
 ARG TARGETOS TARGETARCH
