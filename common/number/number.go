@@ -6,6 +6,13 @@ import (
 	"strings"
 )
 
+// restoreTags are suffixes appended by AI mosaic-restoration tools, which
+// are not a part of the movie number. For instance, Jasna appends "-LTX"
+// when the LTX restoration model is used (e.g. "ABP-030-LTX"), and such
+// numbers must be trimmed to "ABP-030" before searching, otherwise they
+// cannot be matched by any provider.
+const restoreTags = `ltx|basicvsr(?:\+\+)?`
+
 func Trim(s string) string {
 	const maxExtLength = 7
 	if ext := path.Ext(s); len(ext) < maxExtLength {
@@ -26,7 +33,7 @@ func Trim(s string) string {
 		ReplaceAllString(s, "${pattern}") // trim makers
 	s = regexp.MustCompile(`^(?i)\s*(FC2[-_]?PPV)[-_]`).
 		ReplaceAllString(s, "FC2-") // normalize fc2 prefixes
-	for re := regexp.MustCompile(`(?i)([-_](c|uc|ch|cd\d{1,2})|hhb\d*|ch|A|B|C|D)\s*$`); re.MatchString(s); {
+	for re := regexp.MustCompile(`(?i)([-_](c|uc|ch|cd\d{1,2}|` + restoreTags + `)|hhb\d*|ch|A|B|C|D)\s*$`); re.MatchString(s); {
 		s = re.ReplaceAllString(s, "") // repeatedly trim suffixes
 	}
 	return strings.TrimSpace(s)

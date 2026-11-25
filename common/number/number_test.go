@@ -193,6 +193,17 @@ func TestTrim(t *testing.T) {
 		{"hhd800.com@midv00905hhb1", "midv00905"},
 		{"hhd800.com@1fcdss00072hhb2", "1fcdss00072"},
 		{"hhd800.com@jums00150hhb", "jums00150"},
+		// AI mosaic-restoration suffixes (e.g. Jasna's LTX model).
+		{"ABP-030-LTX", "ABP-030"},
+		{"ABP-030-ltx", "ABP-030"},
+		{"ABP-030_LTX.mp4", "ABP-030"},
+		{"ABP-030-LTX.mkv", "ABP-030"},
+		{"ABP-030-LTX-LTX", "ABP-030"},
+		{"SSIS-329-LTX-C.mp4", "SSIS-329"},
+		{"hhd800.com@SSIS-329-LTX-4K.mp4", "SSIS-329"},
+		{"FC2-PPV-123456-LTX.mp4", "FC2-123456"},
+		{"ABP-030-BasicVSR++", "ABP-030"},
+		{"LTX-030", "LTX-030"}, // prefix must be kept.
 	} {
 		assert.Equal(t, unit.want, Trim(unit.orig), unit.orig)
 	}
