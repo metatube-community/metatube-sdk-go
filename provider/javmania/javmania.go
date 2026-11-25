@@ -68,21 +68,21 @@ var (
 )
 
 var sites = []site{
-	{"caribbeancom", []string{"caribbeancom", "carib"}, regexp.MustCompile(d6 + sep + `(\d{3})`), dash, plain, regexp.MustCompile(`^\d{6}-\d{3}$`)},
-	{"caribbeanpremium", []string{"caribbeancompr", "caribbeanpremium", "carib-pr", "carib_pr", "caribpr"}, regexp.MustCompile(d6 + sep + `(\d{3})`), under, plain, regexp.MustCompile(`^\d{6}_\d{3}$`)},
-	{"1pondo", []string{"1pondo", "1pon"}, regexp.MustCompile(d6 + sep + `(\d{3})`), under, plain, regexp.MustCompile(`^\d{6}_\d{3}$`)},
+	{"caribbeancom", []string{"caribbeancom", "carib"}, regexp.MustCompile(d6 + sep + `(\d{3})`), dash, plain, regexp.MustCompile(`^(?:\d{6}-[0-9a-z]{3}|vip_\d{3})$`)},
+	{"caribbeanpremium", []string{"caribbeancompr", "caribbeanpremium", "carib-pr", "carib_pr", "caribpr"}, regexp.MustCompile(d6 + sep + `(\d{3})`), under, plain, regexp.MustCompile(`^(?:\d{6}[-_]\d{3}|(?:sky|red)-\d{3}-\d{2})$`)},
+	{"1pondo", []string{"1pondo", "1pon"}, regexp.MustCompile(d6 + sep + `(\d{3})`), under, plain, regexp.MustCompile(`^\d{6}_\d{2}[0-9a-z]$`)},
 	{"pacopacomama", []string{"pacopacomama", "paco"}, regexp.MustCompile(d6 + sep + `(\d{3})`), under, plain, regexp.MustCompile(`^\d{6}_\d{3}$`)},
 	{"10musume", []string{"10musume", "10mu"}, regexp.MustCompile(d6 + sep + `(\d{2})`), under, plain, regexp.MustCompile(`^\d{6}_\d{2}$`)},
 	{"muramura", []string{"muramura"}, regexp.MustCompile(d6 + sep + `(\d{3,4})`), under, plain, regexp.MustCompile(`^\d{6}_\d{3,4}$`)},
 	{"heyzo", []string{"heyzo"}, regexp.MustCompile(`(?:hd` + sep + `?)?(\d{4})`), asIs, prefix("HEYZO-"), regexp.MustCompile(`^\d{4}$`)},
 	{"kin8", []string{"kin8tengoku", "kin8"}, regexp.MustCompile(`(\d{4})`), asIs, prefix("KIN8-"), regexp.MustCompile(`^\d{4}$`)},
-	{"nyoshin", []string{"nyoshin"}, regexp.MustCompile(`(n\d{3,5})`), asIs, plain, regexp.MustCompile(`^n\d{3,5}$`)},
+	{"nyoshin", []string{"nyoshin"}, regexp.MustCompile(`((?:n|les)\d{3,4})`), asIs, plain, regexp.MustCompile(`^(?:n|les)\d{3,4}$`)},
 	{"hgmo", []string{"heydouga", "hgmo"}, regexp.MustCompile(`(\d{4})`), asIs, prefix("HGMO-"), regexp.MustCompile(`^\d{4}$`)},
-	{"h4610", []string{"h4610"}, regexp.MustCompile(`([a-z]{2,6}\d{5,6})`), asIs, plain, regexp.MustCompile(`^[a-z]{2,6}\d{5,6}$`)},
-	{"c0930", []string{"c0930"}, regexp.MustCompile(`([a-z]{2,6}\d{5,6})`), asIs, plain, regexp.MustCompile(`^[a-z]{2,6}\d{5,6}$`)},
-	{"h0930", []string{"h0930"}, regexp.MustCompile(`([a-z]{2,6}\d{5,6})`), asIs, plain, regexp.MustCompile(`^[a-z]{2,6}\d{5,6}$`)},
+	{"h4610", []string{"h4610"}, regexp.MustCompile(`([a-z]{2,3}\d{3,6})`), asIs, plain, regexp.MustCompile(`^[a-z]{2,3}\d{3,6}$`)},
+	{"c0930", []string{"c0930"}, regexp.MustCompile(`([a-z]{2,8}\d{4,6})`), asIs, plain, regexp.MustCompile(`^[a-z]{2,8}\d{4,6}$`)},
+	{"h0930", []string{"h0930"}, regexp.MustCompile(`([a-z]{2,3}\d{3,6})`), asIs, plain, regexp.MustCompile(`^[a-z]{2,3}\d{3,6}$`)},
 	{"pikkur", []string{"pikkur"}, regexp.MustCompile(`(\d{5})`), asIs, prefix("PIKKUR-"), regexp.MustCompile(`^\d{5}$`)},
-	{"av9898", []string{"av9898"}, regexp.MustCompile(`(\d{4})`), asIs, prefix("AV9898-"), regexp.MustCompile(`^\d{4}$`)},
+	{"av9898", []string{"av9898"}, regexp.MustCompile(`(\d{2,4})`), asIs, prefix("AV9898-"), regexp.MustCompile(`^\d{2,4}$`)},
 }
 
 // aliasOrder lists every studio alias, longest first, so "carib-pr" wins over "carib".
@@ -170,7 +170,13 @@ func splitID(id string) (slug, rest string, ok bool) {
 	}
 	for _, s := range sites {
 		if cid, found := strings.CutPrefix(id, s.slug+"-"); found {
-			return s.slug, cid, s.valid.MatchString(cid)
+			if !s.valid.MatchString(cid) {
+				return "", "", false
+			}
+			if s.slug == "caribbeanpremium" && (strings.HasPrefix(cid, "sky-") || strings.HasPrefix(cid, "red-")) {
+				cid = strings.ToUpper(cid) // the site serves these IDs in upper case only
+			}
+			return s.slug, cid, true
 		}
 	}
 	return "", "", false
@@ -206,10 +212,11 @@ func (jm *JAVMania) ParseMovieIDFromURL(rawURL string) (string, error) {
 		}
 		id = m[1] + "-" + m[2]
 	}
-	if _, _, ok := splitID(id); !ok {
+	slug, rest, ok := splitID(id)
+	if !ok {
 		return "", fmt.Errorf("javmania: unsupported work page: %s", rawURL)
 	}
-	return strings.ToLower(id), nil
+	return slug + "-" + rest, nil
 }
 
 func movieURLFor(id string) (string, error) {

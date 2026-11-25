@@ -15,6 +15,10 @@ func TestJAVMania_GetMovieInfoByID(t *testing.T) {
 		"heyzo-3970",
 		"av9898-2716",
 		"jav-jusd-813",
+		"caribbeanpremium-SKY-039-01",
+		"av9898-100",
+		"c0930-hitozuma0051",
+		"nyoshin-les001",
 	})
 }
 
