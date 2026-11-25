@@ -36,8 +36,17 @@ const (
 	movieURL       = "https://www.heyzo.com/movie/%04s"
 	movieAPIURL    = "https://www.heyzo.com/api/v1/movie?movieId=%04s"
 	reviewAPIURL   = "https://www.heyzo.com/api/v1/movie/%d/review?page=%d&limit=%d"
-	sampleURL      = "https://www.heyzo.com/contents/%s/%s/%s"
 	reviewPageSize = 100
+)
+
+// Media URLs, built from the movie ID the same way as the official site
+// frontend does, where `3000` is the HEYZO site ID.
+const (
+	coverURL     = "https://www.heyzo.com/contents/3000/%s/images/player_thumbnail.jpg"
+	galleryURL   = "https://www.heyzo.com/contents/3000/%s/gallery/%03d.jpg"
+	sampleHLSURL = "https://hls.heyzo.com/sample/3000/%s/mb.m3u8"
+	sampleURL    = "https://www.heyzo.com/contents/%s/%s/%s"
+	galleryCount = 21 // fixed gallery size of every movie.
 )
 
 // Category levels used by HEYZO.
@@ -78,7 +87,7 @@ func (hzo *Heyzo) ParseMovieIDFromURL(rawURL string) (string, error) {
 	if ss := regexp.MustCompile(`/movie(?:pages)?/(\d+)`).FindStringSubmatch(homepage.Path); len(ss) == 2 {
 		return ss[1], nil
 	}
-	return "", fmt.Errorf("invalid HEYZO movie URL: %s", rawURL)
+	return "", fmt.Errorf("invalid %s movie URL: %s", Name, rawURL)
 }
 
 func (hzo *Heyzo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
@@ -151,9 +160,7 @@ func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 				addGenre(keyword)
 			}
 		case attributeDuration:
-			duration := struct {
-				Full string `json:"full"`
-			}{}
+			duration := movieDuration{}
 			if json.Unmarshal([]byte(attr.AttributeValue), &duration) == nil {
 				info.Runtime = parser.ParseRuntime(duration.Full)
 			}
@@ -169,70 +176,38 @@ func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		}
 	}
 
-	// Cover+Thumb+Preview Images+Preview Video
-	if err = hzo.scrapeMoviePage(info); err != nil {
-		return
+	// Cover+Thumb
+	info.CoverURL = fmt.Sprintf(coverURL, data.MovieID)
+	info.ThumbURL = info.CoverURL /* use cover as thumb */
+
+	// Preview Images (the site shows no gallery for bonus/limited movies)
+	if !data.IsBonus && !data.IsLimited && len(data.Actors) > 0 {
+		for i := 1; i <= galleryCount; i++ {
+			info.PreviewImages = append(info.PreviewImages, fmt.Sprintf(galleryURL, data.MovieID, i))
+		}
 	}
+
+	// Preview Video
+	hzo.fetchPreviewVideo(info)
 	return
 }
 
-// scrapeMoviePage fetches the movie web page for media that is not
-// provided by the JSON API, e.g., cover image, gallery and sample video.
-func (hzo *Heyzo) scrapeMoviePage(info *model.MovieInfo) (err error) {
+// fetchPreviewVideo resolves the sample video URLs from the HLS playlist.
+// It is best-effort, as not every movie provides a sample video.
+func (hzo *Heyzo) fetchPreviewVideo(info *model.MovieInfo) {
 	c := hzo.ClonedCollector()
 
-	c.OnRequest(func(r *colly.Request) {
-		// The server responds 404 Not Found for non-HTML requests.
-		r.Headers.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-	})
-
-	// Cover+Thumb
-	c.OnXML(`//meta[@property="og:image"]`, func(e *colly.XMLElement) {
-		if info.CoverURL == "" {
-			info.CoverURL = e.Request.AbsoluteURL(e.Attr("content"))
-			info.ThumbURL = info.CoverURL /* use cover as thumb */
-		}
-	})
-
-	// Preview Video
-	c.OnXML(`//meta[@property="og:video"]`, func(e *colly.XMLElement) {
-		hlsURL := e.Request.AbsoluteURL(e.Attr("content"))
-		if hlsURL == "" || info.PreviewVideoHLSURL != "" {
-			return
-		}
-		info.PreviewVideoHLSURL = hlsURL
-
-		d := c.Clone()
-		d.OnResponse(func(r *colly.Response) {
-			if uri, _, err := m3u8.ParseBestMediaURI(bytes.NewReader(r.Body)); err == nil {
-				if ss := regexp.MustCompile(`/sample/(\d+)/(\d+)/ts\.(.+?)\.m3u8`).
-					FindStringSubmatch(uri); len(ss) == 4 {
-					info.PreviewVideoURL = fmt.Sprintf(sampleURL, ss[1], ss[2], ss[3])
-				}
-			}
-		})
-		d.Visit(hlsURL)
-	})
-
-	// Preview Images
-	c.OnXML(`//div[contains(@class, "galleryContainer")]//img`, func(e *colly.XMLElement) {
-		src := e.Attr("src")
-		// Unwrap Next.js image optimization URL, e.g., `/_next/image?url=...&w=256&q=75`.
-		if u, err := url.Parse(src); err == nil && strings.HasPrefix(u.Path, "/_next/image") {
-			if raw := u.Query().Get("url"); raw != "" {
-				src = raw
+	c.OnResponse(func(r *colly.Response) {
+		info.PreviewVideoHLSURL = r.Request.URL.String()
+		if uri, _, err := m3u8.ParseBestMediaURI(bytes.NewReader(r.Body)); err == nil {
+			if ss := regexp.MustCompile(`/sample/(\d+)/(\d+)/ts\.(.+?)\.m3u8`).
+				FindStringSubmatch(uri); len(ss) == 4 {
+				info.PreviewVideoURL = fmt.Sprintf(sampleURL, ss[1], ss[2], ss[3])
 			}
 		}
-		if src == "" {
-			return
-		}
-		// Use full-size image instead of thumbnail.
-		src = strings.Replace(src, "/thumbnail_", "/", 1)
-		info.PreviewImages = append(info.PreviewImages, e.Request.AbsoluteURL(src))
 	})
 
-	err = c.Visit(info.Homepage)
-	return
+	c.Visit(fmt.Sprintf(sampleHLSURL, info.ID))
 }
 
 func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {
@@ -248,15 +223,7 @@ func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDe
 		count int
 	)
 	c.OnResponse(func(r *colly.Response) {
-		resp := struct {
-			Items []struct {
-				Username string  `json:"username"`
-				Score    float64 `json:"score"`
-				Comment  string  `json:"comment"`
-				Created  string  `json:"created"`
-			} `json:"items"`
-			TotalCount int `json:"totalCount"`
-		}{}
+		resp := reviewResponse{}
 		if err = json.Unmarshal(r.Body, &resp); err != nil {
 			return
 		}
@@ -300,38 +267,11 @@ func (hzo *Heyzo) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieRev
 	return hzo.GetMovieReviewsByID(id)
 }
 
-type movieData struct {
-	MovieSeq         int    `json:"movie_seq"`
-	MovieID          string `json:"movie_id"`
-	Name             string `json:"name"`
-	MonthlyStartDate string `json:"monthly_start_date"`
-	Detail           struct {
-		Memo    string  `json:"memo"`
-		RvScore float64 `json:"rv_score"`
-	} `json:"detail"`
-	Actors []struct {
-		ActorName string `json:"actor_name"`
-	} `json:"actors"`
-	Categories []struct {
-		CategoryName string `json:"category_name"`
-		Level        int    `json:"LEVEL"`
-	} `json:"categories"`
-	Attributes []struct {
-		AttributeID    int    `json:"attribute_id"`
-		AttributeValue string `json:"attribute_value"`
-	} `json:"attributes"`
-	Download struct {
-		Whole []struct {
-			Duration string `json:"duration"`
-		} `json:"whole"`
-	} `json:"download"`
-}
-
-func (hzo *Heyzo) fetchMovie(id string) (data *movieData, err error) {
+func (hzo *Heyzo) fetchMovie(id string) (data *movieResponse, err error) {
 	c := hzo.ClonedCollector()
 
 	c.OnResponse(func(r *colly.Response) {
-		data = &movieData{}
+		data = &movieResponse{}
 		if err = json.Unmarshal(r.Body, data); err != nil {
 			return
 		}
