@@ -35,7 +35,7 @@ type movieDuration struct {
 	Full string `json:"full"`
 }
 
-// reviewResponse is the response of the paginated review API.
+// reviewResponse is the response of the review API.
 type reviewResponse struct {
 	Items []struct {
 		Username string  `json:"username"`
@@ -43,5 +43,4 @@ type reviewResponse struct {
 		Comment  string  `json:"comment"`
 		Created  string  `json:"created"`
 	} `json:"items"`
-	TotalCount int `json:"totalCount"`
 }

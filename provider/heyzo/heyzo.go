@@ -32,11 +32,11 @@ const (
 )
 
 const (
-	baseURL        = "https://www.heyzo.com/"
-	movieURL       = "https://www.heyzo.com/movie/%04s"
-	movieAPIURL    = "https://www.heyzo.com/api/v1/movie?movieId=%04s"
-	reviewAPIURL   = "https://www.heyzo.com/api/v1/movie/%d/review?page=%d&limit=%d"
-	reviewPageSize = 100
+	baseURL      = "https://www.heyzo.com/"
+	movieURL     = "https://www.heyzo.com/movie/%04s"
+	movieAPIURL  = "https://www.heyzo.com/api/v1/movie?movieId=%04s"
+	reviewAPIURL = "https://www.heyzo.com/api/v1/movie/%d/review?page=1&limit=%d"
+	maxReviews   = 100
 )
 
 // Media URLs, built from the movie ID the same way as the official site
@@ -218,17 +218,11 @@ func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDe
 
 	c := hzo.ClonedCollector()
 
-	var (
-		total int
-		count int
-	)
 	c.OnResponse(func(r *colly.Response) {
 		resp := reviewResponse{}
 		if err = json.Unmarshal(r.Body, &resp); err != nil {
 			return
 		}
-		total = resp.TotalCount
-		count = len(resp.Items)
 		for _, item := range resp.Items {
 			comment := convertor.NormalizeNewlines(item.Comment)
 			if item.Username == "" || comment == "" {
@@ -243,18 +237,10 @@ func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDe
 		}
 	})
 
-	for page, fetched := 1, 0; ; page++ {
-		count = 0
-		if vErr := c.Visit(fmt.Sprintf(reviewAPIURL, data.MovieSeq, page, reviewPageSize)); vErr != nil {
-			err = vErr
-			return
-		}
-		if err != nil {
-			return
-		}
-		if fetched += count; count == 0 || fetched >= total {
-			break
-		}
+	// Only the first page of at most `maxReviews` (latest) reviews is fetched,
+	// as fetching every review of popular movies would be too large.
+	if vErr := c.Visit(fmt.Sprintf(reviewAPIURL, data.MovieSeq, maxReviews)); vErr != nil {
+		err = vErr
 	}
 	return
 }
