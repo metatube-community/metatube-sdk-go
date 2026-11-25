@@ -13,6 +13,7 @@ import (
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/text/language"
 
+	"github.com/metatube-community/metatube-sdk-go/common/convertor"
 	"github.com/metatube-community/metatube-sdk-go/common/m3u8"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -99,7 +100,7 @@ func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		ID:            data.MovieID,
 		Number:        fmt.Sprintf("HEYZO-%s", data.MovieID),
 		Title:         data.Name,
-		Summary:       normalizeText(data.Detail.Memo),
+		Summary:       convertor.NormalizeNewlines(data.Detail.Memo),
 		Provider:      hzo.Name(),
 		Homepage:      fmt.Sprintf(movieURL, data.MovieID),
 		Maker:         "HEYZO",
@@ -262,7 +263,7 @@ func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDe
 		total = resp.TotalCount
 		count = len(resp.Items)
 		for _, item := range resp.Items {
-			comment := normalizeText(item.Comment)
+			comment := convertor.NormalizeNewlines(item.Comment)
 			if item.Username == "" || comment == "" {
 				continue
 			}
@@ -350,10 +351,6 @@ func (hzo *Heyzo) fetchMovie(id string) (data *movieData, err error) {
 		return nil, provider.ErrInfoNotFound
 	}
 	return
-}
-
-func normalizeText(s string) string {
-	return strings.TrimSpace(strings.ReplaceAll(s, "\r\n", "\n"))
 }
 
 func init() {
