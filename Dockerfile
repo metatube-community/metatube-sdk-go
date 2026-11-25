@@ -1,10 +1,23 @@
-FROM golang:alpine AS builder
+# syntax=docker/dockerfile:1
+
+# Run the builder on the native build platform and cross-compile for the
+# target platform, instead of compiling under QEMU emulation.
+FROM --platform=$BUILDPLATFORM golang:alpine AS builder
+
+RUN apk add --update --no-cache --no-progress make git
 
 WORKDIR /src
+
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
+
 COPY . /src
 
-RUN apk add --update --no-cache --no-progress make git \
-    && make server
+ARG TARGETOS TARGETARCH
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    GOOS=$TARGETOS GOARCH=$TARGETARCH make server
 
 FROM alpine:latest
 LABEL org.opencontainers.image.licenses=Apache-2.0

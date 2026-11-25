@@ -10,6 +10,10 @@ on:
       - 'main'
     tags:
       - '*'
+  pull_request:
+    paths:
+      - 'Dockerfile'
+      - '.github/workflows/docker.yml'
 
 jobs:
 
@@ -34,6 +38,7 @@ jobs:
           version: latest
 
       - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
@@ -44,6 +49,16 @@ jobs:
         id: shell
         run: |
           echo "version=$(git describe --abbrev=0 --tags HEAD | cut -d'v' -f 2)" >> $GITHUB_OUTPUT
+
+      - name: Build (pull request)
+        if: github.event_name == 'pull_request'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
 
       - name: Build and Push (dev)
         if: github.ref == 'refs/heads/main'
