@@ -17,17 +17,8 @@ func TestFC2DB_GetMovieInfoByID(t *testing.T) {
 }
 
 func TestFC2DB_SearchMovie(t *testing.T) {
-	p := New()
-	results, err := p.SearchMovie("あまね")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(results) == 0 {
-		t.Fatal("no results returned")
-	}
-	for _, r := range results {
-		if r.ID == "" || r.Title == "" || r.Provider != Name {
-			t.Errorf("incomplete result: %+v", r)
-		}
-	}
+	testkit.Test(t, New, []string{
+		"FC2-PPV-4573362",
+		"fc2-4922101",
+	})
 }
