@@ -6,6 +6,9 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "Chore(actions)"
+    labels:
+      - "dependencies"
+      - "actions"
     groups:
       actions:
         patterns:
