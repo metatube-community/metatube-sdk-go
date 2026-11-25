@@ -1,9 +1,9 @@
 module github.com/metatube-community/metatube-sdk-go
 
-go 1.26.0
+go 1.26.10
 
 require (
-	github.com/PuerkitoBio/goquery v1.13.0
+	github.com/PuerkitoBio/goquery v1.14.0
 	github.com/adrg/strutil v0.3.1
 	github.com/antchfx/htmlquery v1.3.7
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
@@ -13,7 +13,7 @@ require (
 	github.com/elliotchance/orderedmap/v3 v3.1.1
 	github.com/esimov/pigo v1.4.7-0.20240801095032-7465ed14de47
 	github.com/gen2brain/jpegli v0.4.2
-	github.com/gin-contrib/cors v1.7.9
+	github.com/gin-contrib/cors v1.7.11
 	github.com/gin-gonic/gin v1.12.0
 	github.com/glebarez/sqlite v1.11.0
 	github.com/gocolly/colly/v2 v2.3.0
@@ -30,7 +30,7 @@ require (
 	github.com/peterbourgon/ff/v3 v3.4.0
 	github.com/projectbarks/cimap v0.1.1
 	github.com/projectdiscovery/useragent v0.0.110
-	github.com/projectdiscovery/utils v0.11.11
+	github.com/projectdiscovery/utils v0.11.16
 	github.com/robertkrimen/otto v0.5.1
 	github.com/sashabaranov/go-openai v1.43.0
 	github.com/stretchr/testify v1.12.1
@@ -40,9 +40,9 @@ require (
 	go.eigsys.de/gin-cachecontrol/v2 v2.6.0
 	go.uber.org/atomic v1.12.0
 	go.uber.org/automaxprocs v1.6.0
-	golang.org/x/image v0.47.0
-	golang.org/x/net v0.61.0
-	golang.org/x/text v0.43.0
+	golang.org/x/image v0.48.0
+	golang.org/x/net v0.62.0
+	golang.org/x/text v0.44.0
 	gorm.io/datatypes v1.2.7
 	gorm.io/driver/postgres v1.6.3
 	gorm.io/gorm v1.31.2
@@ -117,8 +117,8 @@ require (
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/arch v0.32.0 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
-	golang.org/x/sync v0.24.0 // indirect
-	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/sync v0.25.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect
