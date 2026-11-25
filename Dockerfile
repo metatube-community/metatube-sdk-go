@@ -1,7 +1,3 @@
-# syntax=docker/dockerfile:1
-
-# Run the builder on the native build platform and cross-compile for the
-# target platform, instead of compiling under QEMU emulation.
 FROM --platform=$BUILDPLATFORM golang:alpine AS builder
 
 RUN apk add --update --no-cache --no-progress make git
