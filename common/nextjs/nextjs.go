@@ -84,7 +84,7 @@ func FindObject(payload string, v any, keys ...string) bool {
 	if len(keys) == 0 {
 		return false
 	}
-	for _, line := range strings.Split(payload, "\n") {
+	for line := range strings.SplitSeq(payload, "\n") {
 		sub := jsonRowRe.FindStringSubmatch(line)
 		if sub == nil {
 			continue
