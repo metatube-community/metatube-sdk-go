@@ -8,8 +8,8 @@ import (
 	"encoding/json"
 	"errors"
 	"maps"
+	"regexp"
 	"slices"
-	"strconv"
 	"strings"
 	"time"
 
@@ -21,6 +21,10 @@ import (
 var scriptTimeout = 3 * time.Second
 
 var errScriptTimeout = errors.New("nextjs: script execution timed out")
+
+// jsonRowRe matches a payload row in `<hex id>:<data>` format whose data is
+// a JSON array or object, e.g., `6:["$","main",null,{...}]`.
+var jsonRowRe = regexp.MustCompile(`^[0-9a-f]+:([\[{].*)$`)
 
 // ExtractPayload extracts the RSC payload from a Next.js App Router HTML
 // page. It runs the inline flight data scripts of the page in a JS VM with
@@ -81,12 +85,12 @@ func FindObject(payload string, v any, keys ...string) bool {
 		return false
 	}
 	for _, line := range strings.Split(payload, "\n") {
-		data, ok := parseRow(line)
-		if !ok {
+		sub := jsonRowRe.FindStringSubmatch(line)
+		if sub == nil {
 			continue
 		}
 		var row any
-		if json.Unmarshal([]byte(data), &row) != nil {
+		if json.Unmarshal([]byte(sub[1]), &row) != nil {
 			continue
 		}
 		if obj := findObject(row, keys); obj != nil {
@@ -96,19 +100,6 @@ func FindObject(payload string, v any, keys ...string) bool {
 		}
 	}
 	return false
-}
-
-// parseRow parses a payload row in `<hex id>:<data>` format and returns its
-// data if it is a JSON array or object, e.g., `6:["$","main",null,{...}]`.
-func parseRow(line string) (string, bool) {
-	id, data, ok := strings.Cut(line, ":")
-	if !ok || (!strings.HasPrefix(data, "[") && !strings.HasPrefix(data, "{")) {
-		return "", false
-	}
-	if _, err := strconv.ParseUint(id, 16, 64); err != nil {
-		return "", false
-	}
-	return data, true
 }
 
 func findObject(node any, keys []string) map[string]any {
