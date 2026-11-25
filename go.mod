@@ -41,7 +41,7 @@ require (
 	go.uber.org/atomic v1.12.0
 	go.uber.org/automaxprocs v1.6.0
 	golang.org/x/image v0.48.0
-	golang.org/x/net v0.62.0
+	golang.org/x/net v0.63.0
 	golang.org/x/text v0.44.0
 	gorm.io/datatypes v1.2.7
 	gorm.io/driver/postgres v1.6.3
@@ -116,7 +116,7 @@ require (
 	go.mongodb.org/mongo-driver/v2 v2.9.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/arch v0.32.0 // indirect
-	golang.org/x/crypto v0.58.0 // indirect
+	golang.org/x/crypto v0.59.0 // indirect
 	golang.org/x/sync v0.25.0 // indirect
 	golang.org/x/sys v0.50.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
