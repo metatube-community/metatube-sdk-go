@@ -15,6 +15,7 @@ import (
 
 	"github.com/metatube-community/metatube-sdk-go/common/convertor"
 	"github.com/metatube-community/metatube-sdk-go/common/m3u8"
+	"github.com/metatube-community/metatube-sdk-go/common/nextjs"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
@@ -36,17 +37,8 @@ const (
 	movieURL     = "https://www.heyzo.com/movie/%04s"
 	movieAPIURL  = "https://www.heyzo.com/api/v1/movie?movieId=%04s"
 	reviewAPIURL = "https://www.heyzo.com/api/v1/movie/%d/review?page=1&limit=%d"
-	maxReviews   = 100
-)
-
-// Media URLs, built from the movie ID the same way as the official site
-// frontend does, where `3000` is the HEYZO site ID.
-const (
-	coverURL     = "https://www.heyzo.com/contents/3000/%s/images/player_thumbnail.jpg"
-	galleryURL   = "https://www.heyzo.com/contents/3000/%s/gallery/%03d.jpg"
-	sampleHLSURL = "https://hls.heyzo.com/sample/3000/%s/mb.m3u8"
 	sampleURL    = "https://www.heyzo.com/contents/%s/%s/%s"
-	galleryCount = 21 // fixed gallery size of every movie.
+	maxReviews   = 100
 )
 
 // Category levels used by HEYZO.
@@ -176,25 +168,66 @@ func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		}
 	}
 
-	// Cover+Thumb
-	info.CoverURL = fmt.Sprintf(coverURL, data.MovieID)
-	info.ThumbURL = info.CoverURL /* use cover as thumb */
+	// Cover+Thumb+Preview Images+Preview Video
+	err = hzo.scrapeMoviePage(info)
+	return
+}
 
-	// Preview Images (the site shows no gallery for bonus/limited movies)
-	if !data.IsBonus && !data.IsLimited && len(data.Actors) > 0 {
-		for i := 1; i <= galleryCount; i++ {
-			info.PreviewImages = append(info.PreviewImages, fmt.Sprintf(galleryURL, data.MovieID, i))
+// scrapeMoviePage scrapes the media that is not provided by the movie API
+// from the movie page, e.g., cover image, gallery and sample video.
+func (hzo *Heyzo) scrapeMoviePage(info *model.MovieInfo) (err error) {
+	c := hzo.ClonedCollector()
+
+	c.OnRequest(func(r *colly.Request) {
+		// The server responds 404 Not Found for non-HTML requests.
+		r.Headers.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+	})
+
+	// Cover+Thumb+Preview Video (from the RSC payload of the video player)
+	c.OnResponse(func(r *colly.Response) {
+		var payload string
+		if payload, err = nextjs.ExtractPayload(r.Body); err != nil {
+			return
 		}
-	}
+		props := playerProps{}
+		// Require the poster key, so other objects with a `src` or `type`
+		// field, e.g., images, are not mistaken for the video player.
+		if !nextjs.FindObject(payload, &props, "poster") {
+			return
+		}
+		if props.Poster != "" {
+			info.CoverURL = r.Request.AbsoluteURL(props.Poster)
+			info.ThumbURL = info.CoverURL /* use cover as thumb */
+		}
+		if props.Src != "" && strings.Contains(props.Type, "mpegURL") {
+			hzo.fetchPreviewVideo(info, r.Request.AbsoluteURL(props.Src))
+		}
+	})
 
-	// Preview Video
-	hzo.fetchPreviewVideo(info)
+	// Preview Images
+	c.OnXML(`//div[contains(@class, "galleryContainer")]//img`, func(e *colly.XMLElement) {
+		src := e.Attr("src")
+		// Unwrap Next.js image optimization URL, e.g., `/_next/image?url=...&w=256&q=75`.
+		if u, err := url.Parse(src); err == nil && strings.HasPrefix(u.Path, "/_next/image") {
+			src = u.Query().Get("url")
+		}
+		if src == "" {
+			return
+		}
+		// Use the full-size image instead of the thumbnail.
+		src = strings.Replace(src, "/thumbnail_", "/", 1)
+		info.PreviewImages = append(info.PreviewImages, e.Request.AbsoluteURL(src))
+	})
+
+	if vErr := c.Visit(info.Homepage); vErr != nil {
+		err = vErr
+	}
 	return
 }
 
 // fetchPreviewVideo resolves the sample video URLs from the HLS playlist.
 // It is best-effort, as not every movie provides a sample video.
-func (hzo *Heyzo) fetchPreviewVideo(info *model.MovieInfo) {
+func (hzo *Heyzo) fetchPreviewVideo(info *model.MovieInfo, hlsURL string) {
 	c := hzo.ClonedCollector()
 
 	c.OnResponse(func(r *colly.Response) {
@@ -207,7 +240,7 @@ func (hzo *Heyzo) fetchPreviewVideo(info *model.MovieInfo) {
 		}
 	})
 
-	c.Visit(fmt.Sprintf(sampleHLSURL, info.ID))
+	c.Visit(hlsURL)
 }
 
 func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {

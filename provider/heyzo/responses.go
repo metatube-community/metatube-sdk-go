@@ -6,8 +6,6 @@ type movieResponse struct {
 	MovieID          string `json:"movie_id"`
 	Name             string `json:"name"`
 	MonthlyStartDate string `json:"monthly_start_date"`
-	IsBonus          bool   `json:"isBonus"`
-	IsLimited        bool   `json:"isLimited"`
 	Detail           struct {
 		Memo    string  `json:"memo"`
 		RvScore float64 `json:"rv_score"`
@@ -43,4 +41,12 @@ type reviewResponse struct {
 		Comment  string  `json:"comment"`
 		Created  string  `json:"created"`
 	} `json:"items"`
+}
+
+// playerProps is the props of the video player in the RSC payload of the
+// movie page.
+type playerProps struct {
+	Src    string `json:"src"`
+	Type   string `json:"type"`
+	Poster string `json:"poster"`
 }
