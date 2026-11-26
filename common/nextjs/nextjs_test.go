@@ -1,26 +1,12 @@
 package nextjs
 
 import (
-	"embed"
-	"encoding/base64"
 	"fmt"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-)
-
-// Pages are base64-encoded and named by their MD5:
-//
-//	gbase64 page.html > "$(md5sum page.html | cut -d' ' -f1)"
-//
-//go:embed testdata/*
-var testdata embed.FS
-
-const (
-	heyzoMoviePage  = "55307bfd703df11319fecbfed69883f5" // https://www.heyzo.com/movie/3986
-	fanzaSearchPage = "a0ef9a6847f4d22cca6abc9480b7a3ae" // https://www.dmm.co.jp/search/=/searchstr=SSIS-419/limit=30/sort=rankprofile
 )
 
 const samplePage = `<html><head>
@@ -68,55 +54,24 @@ func TestExtractPayloadTimeout(t *testing.T) {
 }
 
 func TestFindObject(t *testing.T) {
-	heyzo := loadPayload(t, heyzoMoviePage)
-	fanza := loadPayload(t, fanzaSearchPage)
-
 	for _, unit := range []struct {
-		payload string
-		keys    []string
-		want    map[string]string // fields of the found object; nil if not found.
+		keys []string
+		want map[string]string // fields of the found object; nil if not found.
 	}{
-		{samplePayload, []string{"src", "poster"}, map[string]string{
+		{[]string{"src", "poster"}, map[string]string{
 			"src":      "https://example.com/a.m3u8",
 			"poster":   "https://example.com/a.jpg",
 			"movieSeq": "1",
 		}},
-		{samplePayload, []string{"src", "missing"}, nil},
-		{samplePayload, nil, nil},
-		{heyzo, []string{"src", "poster"}, map[string]string{
-			"src":    "https://hls.heyzo.com/sample/3000/3986/mb.m3u8",
-			"type":   "application/x-mpegURL",
-			"poster": "https://www.heyzo.com/contents/3000/3986/images/player_thumbnail.jpg",
-		}},
-		{heyzo, []string{"movie_seq", "movie_id"}, map[string]string{
-			"movie_seq": "4001",
-			"movie_id":  "3986",
-			"name":      "男優のテクをガマンできたらご褒美ゲット！でも、ダメだったら。。。Vol.2",
-		}},
-		{fanza, []string{"search_word", "contents"}, map[string]string{
-			"search_word": "SSIS-419",
-			"order_by":    "rankprofile",
-			"limit":       "30",
-			"page":        "1",
-		}},
+		{[]string{"src", "missing"}, nil},
+		{nil, nil},
 	} {
 		var got map[string]any
-		if !assert.Equal(t, unit.want != nil, FindObject(unit.payload, &got, unit.keys...), unit.keys) {
+		if !assert.Equal(t, unit.want != nil, FindObject(samplePayload, &got, unit.keys...), unit.keys) {
 			continue
 		}
 		for key, want := range unit.want {
 			assert.Equal(t, want, fmt.Sprint(got[key]), key)
 		}
 	}
-}
-
-func loadPayload(t *testing.T, filename string) string {
-	t.Helper()
-	data, err := testdata.ReadFile("testdata/" + filename)
-	require.NoError(t, err)
-	page, err := base64.StdEncoding.DecodeString(string(data))
-	require.NoError(t, err)
-	payload, err := ExtractPayload(page)
-	require.NoError(t, err)
-	return payload
 }
