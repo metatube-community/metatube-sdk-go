@@ -6,8 +6,9 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"iter"
-	"maps"
 	"reflect"
 	"regexp"
 	"slices"
@@ -85,57 +86,84 @@ func ExtractNextPayload(page []byte) (string, error) {
 	return b.String(), nil
 }
 
-// FindObject unmarshals the object in the RSC payload that matches the most
-// fields of v into v. Objects must have all the given keys, which are required
-// if v is not a struct.
-func FindObject(payload string, v any, keys ...string) bool {
-	fields := jsonFieldNames(v)
+var (
+	ErrNotFound  = errors.New("rsc: object not found")
+	ErrAmbiguous = errors.New("rsc: multiple objects match")
+)
 
-	bestScore := 0
-	if len(fields) == 0 {
-		if len(keys) == 0 {
-			return false
-		}
-		bestScore = -1
+// Option configures FindObject.
+type Option func(*options)
+
+type options struct {
+	keys []string
+}
+
+// RequireKeys only matches objects that have all the keys.
+func RequireKeys(keys ...string) Option {
+	return func(o *options) { o.keys = append(o.keys, keys...) }
+}
+
+// FindObject unmarshals the object in the RSC payload that matches the most
+// fields of v into v. Distinct objects tied for the most are ambiguous.
+func FindObject(payload string, v any, opts ...Option) error {
+	rv := reflect.ValueOf(v)
+	if rv.Kind() != reflect.Pointer || rv.IsNil() {
+		return fmt.Errorf("rsc: FindObject(non-pointer or nil %T)", v)
 	}
 
-	var best map[string]any
+	var o options
+	for _, opt := range opts {
+		opt(&o)
+	}
+
+	fields := jsonFieldNames(v)
+	// Struct objects must match at least one field.
+	bestScore := 1
+	if len(fields) == 0 {
+		if len(o.keys) == 0 {
+			return errors.New("rsc: no fields or keys to match")
+		}
+		bestScore = 0
+	}
+
+	var candidates []map[string]any
 	for data := range jsonRows(payload) {
 		var row any
 		if json.Unmarshal([]byte(data), &row) != nil {
 			continue
 		}
-		if walkObjects(row, func(obj map[string]any) bool {
-			if !hasKeys(obj, keys) {
-				return false
+		walkObjects(row, func(obj map[string]any) {
+			if !hasKeys(obj, o.keys) {
+				return
 			}
-			score := matchFields(obj, fields)
-			if score <= bestScore {
-				return false
+			switch score := matchFields(obj, fields); {
+			case score < bestScore:
+			case score > bestScore:
+				candidates, bestScore = []map[string]any{obj}, score
+			case !slices.ContainsFunc(candidates, func(c map[string]any) bool {
+				return reflect.DeepEqual(c, obj)
+			}):
+				candidates = append(candidates, obj)
 			}
-			best, bestScore = obj, score
-			// A perfect match cannot be beaten.
-			return score == len(fields)
-		}) {
-			break
-		}
+		})
 	}
-	if best == nil {
-		return false
+	switch len(candidates) {
+	case 0:
+		return ErrNotFound
+	case 1:
+	default:
+		return ErrAmbiguous
 	}
-	b, err := json.Marshal(decodeValue(best))
+
+	b, err := json.Marshal(decodeValue(candidates[0]))
 	if err != nil {
-		return false
-	}
-	rv := reflect.ValueOf(v)
-	if rv.Kind() != reflect.Pointer || rv.IsNil() {
-		return false
+		return err
 	}
 	// Unmarshal into a zero value first to leave v untouched on failure.
-	if json.Unmarshal(b, reflect.New(rv.Elem().Type()).Interface()) != nil {
-		return false
+	if err = json.Unmarshal(b, reflect.New(rv.Elem().Type()).Interface()); err != nil {
+		return err
 	}
-	return json.Unmarshal(b, v) == nil
+	return json.Unmarshal(b, v)
 }
 
 // jsonRows yields the data of the JSON rows in the payload.
@@ -200,26 +228,19 @@ func decodeValue(v any) any {
 	return v
 }
 
-// walkObjects calls visit for every object in node until it returns true.
-func walkObjects(node any, visit func(map[string]any) bool) bool {
-	var children []any
+// walkObjects calls visit for every object in node.
+func walkObjects(node any, visit func(map[string]any)) {
 	switch n := node.(type) {
 	case map[string]any:
-		if visit(n) {
-			return true
-		}
-		for _, key := range slices.Sorted(maps.Keys(n)) {
-			children = append(children, n[key])
+		visit(n)
+		for _, child := range n {
+			walkObjects(child, visit)
 		}
 	case []any:
-		children = n
-	}
-	for _, child := range children {
-		if walkObjects(child, visit) {
-			return true
+		for _, child := range n {
+			walkObjects(child, visit)
 		}
 	}
-	return false
 }
 
 func hasKeys(obj map[string]any, keys []string) bool {
