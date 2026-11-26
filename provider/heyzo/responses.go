@@ -6,6 +6,8 @@ type movieResponse struct {
 	MovieID          string `json:"movie_id"`
 	Name             string `json:"name"`
 	MonthlyStartDate string `json:"monthly_start_date"`
+	IsBonus          bool   `json:"isBonus"`
+	IsLimited        bool   `json:"isLimited"`
 	Detail           struct {
 		Memo    string  `json:"memo"`
 		RvScore float64 `json:"rv_score"`

@@ -1,7 +1,6 @@
 package heyzo
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,7 +13,6 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/metatube-community/metatube-sdk-go/common/convertor"
-	"github.com/metatube-community/metatube-sdk-go/common/m3u8"
 	"github.com/metatube-community/metatube-sdk-go/common/nextjs"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -33,11 +31,23 @@ const (
 )
 
 const (
-	baseURL      = "https://www.heyzo.com/"
-	movieURL     = "https://www.heyzo.com/movie/%04s"
-	movieAPIURL  = "https://www.heyzo.com/api/v1/movie?movieId=%04s"
+	baseURL  = "https://www.heyzo.com/"
+	movieURL = "https://www.heyzo.com/movie/%04s"
+	// movieAPIURL is called by the site when it renders the movie page on
+	// the server, so the call itself is not in the client bundles. Its
+	// response is the `movie` object the client code reads, e.g., `isBonus`,
+	// `isLimited` and `actors` in the gallery code of galleryImages.
+	movieAPIURL = "https://www.heyzo.com/api/v1/movie?movieId=%04s"
+	// reviewAPIURL is the review API called by the movie page.
+	// Ref: https://www.heyzo.com/_next/static/chunks/5150-60135bf3446d597b.js
+	// (loaded by https://www.heyzo.com/movie/3986, where `g` is
+	// `https://www.heyzo.com/api/v1/movie`)
+	// JS Code:
+	// y=e=>{let{movieSeq:t,page:a,limit:n,locale:r}=e,i=new URLSearchParams;
+	// a&&i.set("page",a.toString()),n&&i.set("limit",n.toString()),r&&i.set("locale",r);
+	// let o=i.toString(),l="".concat(g,"/").concat(t,"/review");
+	// return o?"".concat(l,"?").concat(o):l}
 	reviewAPIURL = "https://www.heyzo.com/api/v1/movie/%d/review?page=1&limit=%d"
-	sampleURL    = "https://www.heyzo.com/contents/%s/%s/%s"
 	maxReviews   = 100
 )
 
@@ -168,13 +178,17 @@ func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		}
 	}
 
-	// Cover+Thumb+Preview Images+Preview Video
+	// Preview Images
+	info.PreviewImages = append(info.PreviewImages, galleryImages(data)...)
+
+	// Cover+Thumb+Preview Video
 	err = hzo.scrapeMoviePage(info)
 	return
 }
 
-// scrapeMoviePage scrapes the media that is not provided by the movie API
-// from the movie page, e.g., cover image, gallery and sample video.
+// scrapeMoviePage scrapes the cover image and the sample video, which are
+// not provided by the movie API, from the video player props in the RSC
+// payload of the movie page.
 func (hzo *Heyzo) scrapeMoviePage(info *model.MovieInfo) (err error) {
 	c := hzo.ClonedCollector()
 
@@ -183,7 +197,6 @@ func (hzo *Heyzo) scrapeMoviePage(info *model.MovieInfo) (err error) {
 		r.Headers.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 	})
 
-	// Cover+Thumb+Preview Video (from the RSC payload of the video player)
 	c.OnResponse(func(r *colly.Response) {
 		var payload string
 		if payload, err = nextjs.ExtractPayload(r.Body); err != nil {
@@ -199,24 +212,11 @@ func (hzo *Heyzo) scrapeMoviePage(info *model.MovieInfo) (err error) {
 			info.CoverURL = r.Request.AbsoluteURL(props.Poster)
 			info.ThumbURL = info.CoverURL /* use cover as thumb */
 		}
+		// The player streams the sample video with HLS only, so there is no
+		// MP4 URL to return.
 		if props.Src != "" && strings.Contains(props.Type, "mpegURL") {
-			hzo.fetchPreviewVideo(info, r.Request.AbsoluteURL(props.Src))
+			info.PreviewVideoHLSURL = r.Request.AbsoluteURL(props.Src)
 		}
-	})
-
-	// Preview Images
-	c.OnXML(`//div[contains(@class, "galleryContainer")]//img`, func(e *colly.XMLElement) {
-		src := e.Attr("src")
-		// Unwrap Next.js image optimization URL, e.g., `/_next/image?url=...&w=256&q=75`.
-		if u, err := url.Parse(src); err == nil && strings.HasPrefix(u.Path, "/_next/image") {
-			src = u.Query().Get("url")
-		}
-		if src == "" {
-			return
-		}
-		// Use the full-size image instead of the thumbnail.
-		src = strings.Replace(src, "/thumbnail_", "/", 1)
-		info.PreviewImages = append(info.PreviewImages, e.Request.AbsoluteURL(src))
 	})
 
 	if vErr := c.Visit(info.Homepage); vErr != nil {
@@ -225,22 +225,70 @@ func (hzo *Heyzo) scrapeMoviePage(info *model.MovieInfo) (err error) {
 	return
 }
 
-// fetchPreviewVideo resolves the sample video URLs from the HLS playlist.
-// It is best-effort, as not every movie provides a sample video.
-func (hzo *Heyzo) fetchPreviewVideo(info *model.MovieInfo, hlsURL string) {
-	c := hzo.ClonedCollector()
+// Gallery settings of the movie page, see galleryImages.
+const (
+	galleryImageCount      = 21
+	guestGalleryImageCount = 3
+	// isHeyzoMember is always false, as the provider browses as a guest.
+	isHeyzoMember = false
+)
 
-	c.OnResponse(func(r *colly.Response) {
-		info.PreviewVideoHLSURL = r.Request.URL.String()
-		if uri, _, err := m3u8.ParseBestMediaURI(bytes.NewReader(r.Body)); err == nil {
-			if ss := regexp.MustCompile(`/sample/(\d+)/(\d+)/ts\.(.+?)\.m3u8`).
-				FindStringSubmatch(uri); len(ss) == 4 {
-				info.PreviewVideoURL = fmt.Sprintf(sampleURL, ss[1], ss[2], ss[3])
-			}
+// galleryImages returns the gallery images shown on the movie page to
+// guests: the full-size images of the lightbox slides, which are only the
+// first 3 for guests, followed by the thumbnails of the locked rest.
+// Ref: https://www.heyzo.com/_next/static/chunks/app/%5Blocale%5D/movie/%5BmovieId%5D/page-d1ca22c68e26fb5c.js
+// (loaded by https://www.heyzo.com/movie/3986, module 73603)
+// JS Code:
+// let v=e=>{let{movie:t,userPermissions:l}=e,c=(0,s.useLocale)(),[v,h]=(0,r.useState)(-1),f=t.actors[0];
+// if(t.isBonus||t.isLimited||!f)return null;
+// let _=l.isHeyzoMember,
+// ...
+// g=Array.from({length:21},(e,t)=>String(t+1).padStart(3,"0")),
+// b=(_?g:g.slice(0,3)).map((e,l)=>({src:(0,m.bl)(t.movie_id,e,c,_),alt:...}));
+// return ... g.map((e,l)=>{let a=_||l<3,s=!a;
+// return ... className:s?u().guestLockedThumbnail:void 0,onClick:a?()=>h(l):void 0,
+// children:(0,i.jsx)(o.default,{src:(0,m.GH)(t.movie_id,e,c,_),...})
+// ... (0,i.jsx)(d.Ay,{open:v>=0,close:()=>h(-1),index:v,slides:b})
+func galleryImages(data *movieResponse) []string {
+	if data.IsBonus || data.IsLimited || len(data.Actors) == 0 {
+		return nil
+	}
+	images := make([]string, 0, galleryImageCount)
+	for i := range galleryImageCount {
+		n := fmt.Sprintf("%03d", i+1)
+		if isHeyzoMember || i < guestGalleryImageCount {
+			images = append(images, galleryImageURL(data.MovieID, n, isHeyzoMember))
+		} else {
+			images = append(images, galleryThumbnailURL(data.MovieID, n, isHeyzoMember))
 		}
-	})
+	}
+	return images
+}
 
-	c.Visit(hlsURL)
+// galleryThumbnailURL and galleryImageURL return the URLs of the gallery
+// thumbnail and full-size image, for the `ja` locale.
+// Ref: https://www.heyzo.com/_next/static/chunks/4067-9cce700d8142bc71.js
+// (loaded by https://www.heyzo.com/movie/3986, module 52858 exports them as
+// `GH` and `bl`, and module 93013 exports the host function as `Ib`)
+// JS Code:
+// let n=e=>{switch(e){case"ja":default:return"www.heyzo.com";case"en":return"en.heyzo.com"}}
+// ...
+// i=e=>"".concat(e?"member/contents":"contents","/").concat(3e3),
+// s=(e,t,a,o)=>{let r=(0,n.Ib)(a);return"https://".concat(r,"/").concat(i(o),"/").concat(e,"/gallery/thumbnail_").concat(t,".jpg")},
+// d=(e,t,a,o)=>{let r=(0,n.Ib)(a);return"https://".concat(r,"/").concat(i(o),"/").concat(e,"/gallery/").concat(t,".jpg")},
+func galleryThumbnailURL(movieID, n string, member bool) string {
+	return fmt.Sprintf("https://www.heyzo.com/%s/%s/gallery/thumbnail_%s.jpg", contentsPath(member), movieID, n)
+}
+
+func galleryImageURL(movieID, n string, member bool) string {
+	return fmt.Sprintf("https://www.heyzo.com/%s/%s/gallery/%s.jpg", contentsPath(member), movieID, n)
+}
+
+func contentsPath(member bool) string {
+	if member {
+		return "member/contents/3000"
+	}
+	return "contents/3000"
 }
 
 func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {
