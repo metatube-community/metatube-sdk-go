@@ -163,8 +163,9 @@ func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 		}
 	}
 
-	// Preview Images
-	info.PreviewImages = append(info.PreviewImages, galleryImages(data)...)
+	// Preview Images (full-size only)
+	images, _ := galleryImages(data)
+	info.PreviewImages = append(info.PreviewImages, images...)
 
 	// Cover+Thumb+Preview Video
 	err = hzo.scrapeMoviePage(info)
@@ -207,60 +208,6 @@ func (hzo *Heyzo) scrapeMoviePage(info *model.MovieInfo) (err error) {
 		err = vErr
 	}
 	return
-}
-
-// Gallery settings of the movie page, see galleryImages.
-const (
-	galleryImageCount      = 21
-	guestGalleryImageCount = 3
-	// isHeyzoMember is always false, as the provider browses as a guest.
-	isHeyzoMember = false
-)
-
-// galleryImages returns the gallery images shown to guests: the full-size
-// images of the first 3 lightbox slides, followed by the locked thumbnails.
-// Ref: https://www.heyzo.com/_next/static/chunks/app/%5Blocale%5D/movie/%5BmovieId%5D/page-d1ca22c68e26fb5c.js
-// JS Code:
-// if(t.isBonus||t.isLimited||!f)return null;
-// g=Array.from({length:21},(e,t)=>String(t+1).padStart(3,"0")),
-// b=(_?g:g.slice(0,3)).map((e,l)=>({src:(0,m.bl)(t.movie_id,e,c,_)})); // lightbox slides
-// g.map((e,l)=>({src:(0,m.GH)(t.movie_id,e,c,_)})) // thumbnails
-func galleryImages(data *movieResponse) []string {
-	if data.IsBonus || data.IsLimited || len(data.Actors) == 0 {
-		return nil
-	}
-	images := make([]string, 0, galleryImageCount)
-	for i := range galleryImageCount {
-		n := fmt.Sprintf("%03d", i+1)
-		if isHeyzoMember || i < guestGalleryImageCount {
-			images = append(images, galleryImageURL(data.MovieID, n, isHeyzoMember))
-		} else {
-			images = append(images, galleryThumbnailURL(data.MovieID, n, isHeyzoMember))
-		}
-	}
-	return images
-}
-
-// galleryThumbnailURL (GH) and galleryImageURL (bl) port the gallery URL
-// builders of the movie page.
-// Ref: https://www.heyzo.com/_next/static/chunks/4067-9cce700d8142bc71.js
-// JS Code:
-// i=e=>"".concat(e?"member/contents":"contents","/").concat(3e3),
-// s=(e,t,a,o)=>{let r=(0,n.Ib)(a);return"https://".concat(r,"/").concat(i(o),"/").concat(e,"/gallery/thumbnail_").concat(t,".jpg")},
-// d=(e,t,a,o)=>{let r=(0,n.Ib)(a);return"https://".concat(r,"/").concat(i(o),"/").concat(e,"/gallery/").concat(t,".jpg")},
-func galleryThumbnailURL(movieID, n string, member bool) string {
-	return fmt.Sprintf("https://www.heyzo.com/%s/%s/gallery/thumbnail_%s.jpg", contentsPath(member), movieID, n)
-}
-
-func galleryImageURL(movieID, n string, member bool) string {
-	return fmt.Sprintf("https://www.heyzo.com/%s/%s/gallery/%s.jpg", contentsPath(member), movieID, n)
-}
-
-func contentsPath(member bool) string {
-	if member {
-		return "member/contents/3000"
-	}
-	return "contents/3000"
 }
 
 func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {
@@ -330,6 +277,59 @@ func (hzo *Heyzo) fetchMovie(id string) (data *movieResponse, err error) {
 		return nil, provider.ErrInfoNotFound
 	}
 	return
+}
+
+// Gallery settings of the movie page, see galleryImages.
+const (
+	galleryImageCount      = 21
+	guestGalleryImageCount = 3
+	// isHeyzoMember is always false, as the provider browses as a guest.
+	isHeyzoMember = false
+)
+
+// galleryImages returns the gallery images shown to guests: the full-size
+// images of the first 3 lightbox slides, and the thumbnails of the locked rest.
+// Ref: https://www.heyzo.com/_next/static/chunks/app/%5Blocale%5D/movie/%5BmovieId%5D/page-d1ca22c68e26fb5c.js
+// JS Code:
+// if(t.isBonus||t.isLimited||!f)return null;
+// g=Array.from({length:21},(e,t)=>String(t+1).padStart(3,"0")),
+// b=(_?g:g.slice(0,3)).map((e,l)=>({src:(0,m.bl)(t.movie_id,e,c,_)})); // lightbox slides
+// g.map((e,l)=>({src:(0,m.GH)(t.movie_id,e,c,_)})) // thumbnails
+func galleryImages(data *movieResponse) (images, thumbnails []string) {
+	if data.IsBonus || data.IsLimited || len(data.Actors) == 0 {
+		return
+	}
+	for i := range galleryImageCount {
+		n := fmt.Sprintf("%03d", i+1)
+		if isHeyzoMember || i < guestGalleryImageCount {
+			images = append(images, galleryImageURL(data.MovieID, n, isHeyzoMember))
+		} else {
+			thumbnails = append(thumbnails, galleryThumbnailURL(data.MovieID, n, isHeyzoMember))
+		}
+	}
+	return
+}
+
+// galleryThumbnailURL (GH) and galleryImageURL (bl) port the gallery URL
+// builders of the movie page.
+// Ref: https://www.heyzo.com/_next/static/chunks/4067-9cce700d8142bc71.js
+// JS Code:
+// i=e=>"".concat(e?"member/contents":"contents","/").concat(3e3),
+// s=(e,t,a,o)=>{let r=(0,n.Ib)(a);return"https://".concat(r,"/").concat(i(o),"/").concat(e,"/gallery/thumbnail_").concat(t,".jpg")},
+// d=(e,t,a,o)=>{let r=(0,n.Ib)(a);return"https://".concat(r,"/").concat(i(o),"/").concat(e,"/gallery/").concat(t,".jpg")},
+func galleryThumbnailURL(movieID, n string, member bool) string {
+	return fmt.Sprintf("https://www.heyzo.com/%s/%s/gallery/thumbnail_%s.jpg", contentsPath(member), movieID, n)
+}
+
+func galleryImageURL(movieID, n string, member bool) string {
+	return fmt.Sprintf("https://www.heyzo.com/%s/%s/gallery/%s.jpg", contentsPath(member), movieID, n)
+}
+
+func contentsPath(member bool) string {
+	if member {
+		return "member/contents/3000"
+	}
+	return "contents/3000"
 }
 
 func init() {
