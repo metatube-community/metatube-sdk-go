@@ -1038,10 +1038,8 @@ func PreviewSrc(s string) string {
 	hasQuery := len(parts) > 1
 	if isAwsImageHost && hasQuery {
 		if strings.Contains(parts[0], "awsimgsrc.dmm.co.jp/pics_dig/") {
-			replaced := parts[0]
-			if loc := regexp.MustCompile(`https?://awsimgsrc\.dmm\.co\.jp/pics_dig/`).FindStringIndex(parts[0]); loc != nil {
-				replaced = parts[0][:loc[0]] + "https://pics.dmm.co.jp/" + parts[0][loc[1]:]
-			}
+			// JS replaces only the first match, but a URL has at most one.
+			replaced := regexp.MustCompile(`https?://awsimgsrc\.dmm\.co\.jp/pics_dig/`).ReplaceAllString(parts[0], "https://pics.dmm.co.jp/")
 			parts[0] = replaced
 		}
 		return parts[0]
