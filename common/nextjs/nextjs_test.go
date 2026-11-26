@@ -1,7 +1,6 @@
 package nextjs
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -47,24 +46,17 @@ func TestExtractPayloadTimeout(t *testing.T) {
 }
 
 func TestFindObject(t *testing.T) {
-	for _, unit := range []struct {
-		keys []string
-		want map[string]string // fields of the found object; nil if not found.
-	}{
-		{[]string{"src", "poster"}, map[string]string{
-			"src":      "https://example.com/a.m3u8",
-			"poster":   "https://example.com/a.jpg",
-			"movieSeq": "1",
-		}},
-		{[]string{"src", "missing"}, nil},
-		{nil, nil},
-	} {
-		var got map[string]any
-		if !assert.Equal(t, unit.want != nil, FindObject(samplePayload, &got, unit.keys...), unit.keys) {
-			continue
-		}
-		for key, want := range unit.want {
-			assert.Equal(t, want, fmt.Sprint(got[key]), key)
-		}
+	var props struct {
+		Src      string `json:"src"`
+		Poster   string `json:"poster"`
+		MovieSeq int    `json:"movieSeq"`
 	}
+	require.True(t, FindObject(samplePayload, &props, "src", "poster"))
+	assert.Equal(t, "https://example.com/a.m3u8", props.Src)
+	assert.Equal(t, "https://example.com/a.jpg", props.Poster)
+	assert.Equal(t, 1, props.MovieSeq)
+
+	var v map[string]any
+	assert.False(t, FindObject(samplePayload, &v, "src", "missing"))
+	assert.False(t, FindObject(samplePayload, &v))
 }
