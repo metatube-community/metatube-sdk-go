@@ -1,6 +1,4 @@
-// Package rsc provides helpers to extract and query the React Server
-// Components (RSC) payload, a.k.a. the React Flight data, of pages rendered
-// by RSC frameworks, e.g., the Next.js App Router.
+// Package rsc provides helpers for the React Server Components (RSC) payload.
 package rsc
 
 import (
@@ -22,19 +20,12 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/common/js"
 )
 
-// scriptTimeout limits the total execution time of the page scripts.
 var scriptTimeout = 3 * time.Second
 
-// rowHeaderRe matches the header of a payload row: its hex id, followed by
-// the tag and the hex byte length if the row data is length-prefixed instead
-// of newline-terminated, e.g., `5:T1a,` for text rows.
+// rowHeaderRe matches a row header, capturing the length of length-prefixed rows.
 var rowHeaderRe = regexp.MustCompile(`^[0-9a-f]+:(?:[TAOoUSsLlGgMmVb]([0-9a-f]+),)?`)
 
-// ExtractNextPayload extracts the RSC payload from a Next.js App Router HTML
-// page, which streams it to the browser via `self.__next_f.push([1, "..."])`
-// scripts. It runs the inline flight data scripts of the page in a JS VM with
-// a predefined `self.__next_f` array, then concatenates the pushed payload
-// chunks.
+// ExtractNextPayload extracts the RSC payload from a Next.js App Router page.
 func ExtractNextPayload(page []byte) (string, error) {
 	doc, err := htmlquery.Parse(bytes.NewReader(page))
 	if err != nil {
@@ -46,8 +37,7 @@ func ExtractNextPayload(page []byte) (string, error) {
 		if _, err := vm.Run(`var self = { __next_f: [] };`); err != nil {
 			return err
 		}
-		// Only run the inline flight data scripts, other scripts may depend
-		// on browser APIs that are not available in the VM.
+		// Other scripts may depend on browser APIs.
 		for _, script := range htmlquery.Find(doc, `//script[not(@src)][contains(., "self.__next_f")]`) {
 			if _, err := vm.Run(htmlquery.InnerText(script)); err != nil {
 				return err
@@ -68,8 +58,7 @@ func ExtractNextPayload(page []byte) (string, error) {
 		return "", err
 	}
 
-	// Only text (`[1, "..."]`) and binary (`[3, "<base64>"]`) chunks carry
-	// the payload data.
+	// Only text and binary chunks carry the payload.
 	var b strings.Builder
 	for _, chunk := range chunks {
 		c, ok := chunk.([]any)
@@ -94,22 +83,12 @@ func ExtractNextPayload(page []byte) (string, error) {
 	return b.String(), nil
 }
 
-// FindObject unmarshals the object in the RSC payload that best matches v
-// into v. Objects score one point for each field of v they have, by its JSON
-// name and case-insensitively; the highest score wins, and ties go to the
-// first one found. Objects must also have all the given keys, matched
-// exactly, which are required when v has no struct fields, e.g., a map.
-//
-// The object is merged into v like json.Unmarshal does, keeping what v has
-// that the object does not. It returns false if no object matches, or if the
-// best one cannot be unmarshaled into v, which is then left untouched.
-// References to other rows are kept as `$<id>` strings, so fields that may
-// hold them should be typed as string or any.
+// FindObject unmarshals the object in the RSC payload that matches the most
+// fields of v into v. Objects must have all the given keys, which are required
+// if v is not a struct.
 func FindObject(payload string, v any, keys ...string) bool {
 	fields := jsonFieldNames(v)
 
-	// The score to beat: a struct needs at least one matching field, while
-	// a map, which has no fields, needs keys.
 	bestScore := 0
 	if len(fields) == 0 {
 		if len(keys) == 0 {
@@ -133,7 +112,6 @@ func FindObject(payload string, v any, keys ...string) bool {
 				return false
 			}
 			best, bestScore = obj, score
-			// A perfect match cannot be beaten.
 			return score == len(fields)
 		}) {
 			break
@@ -150,31 +128,26 @@ func FindObject(payload string, v any, keys ...string) bool {
 	if rv.Kind() != reflect.Pointer || rv.IsNil() {
 		return false
 	}
-	// Check that the object fits v's type on a zero value first, so v is left
-	// untouched on failure, then unmarshal into v itself to merge like
-	// json.Unmarshal.
+	// Unmarshal into a zero value first to leave v untouched on failure.
 	if json.Unmarshal(b, reflect.New(rv.Elem().Type()).Interface()) != nil {
 		return false
 	}
 	return json.Unmarshal(b, v) == nil
 }
 
-// jsonRows yields the data of the payload rows that are JSON arrays or
-// objects, e.g., `["$","main",null,{...}]` of the row `6:["$","main",...]`.
+// jsonRows yields the data of the JSON rows in the payload.
 func jsonRows(payload string) iter.Seq[string] {
 	return func(yield func(string) bool) {
 		for payload != "" {
 			m := rowHeaderRe.FindStringSubmatchIndex(payload)
 			if m == nil {
-				// Skip a malformed line.
 				_, payload, _ = strings.Cut(payload, "\n")
 				continue
 			}
 			if m[2] >= 0 {
-				// Skip length-prefixed data, which may contain newlines.
 				n, err := strconv.ParseUint(payload[m[2]:m[3]], 16, 64)
 				if err != nil || n > uint64(len(payload)-m[1]) {
-					return // truncated payload
+					return
 				}
 				payload = payload[uint64(m[1])+n:]
 				continue
@@ -190,9 +163,7 @@ func jsonRows(payload string) iter.Seq[string] {
 	}
 }
 
-// decodeValue returns a copy of v with the simple `$`-prefixed values of the
-// RSC payload decoded: escaped strings, undefined and special numbers, dates
-// and bigints. Other values, e.g., references to other rows, are kept as is.
+// decodeValue returns a copy of v with the `$`-prefixed special values decoded.
 func decodeValue(v any) any {
 	switch v := v.(type) {
 	case map[string]any:
@@ -224,8 +195,7 @@ func decodeValue(v any) any {
 	return v
 }
 
-// walkObjects calls visit for every object in node, depth-first, until visit
-// returns true. It reports whether visit returned true.
+// walkObjects calls visit for every object in node until it returns true.
 func walkObjects(node any, visit func(map[string]any) bool) bool {
 	var children []any
 	switch n := node.(type) {
@@ -256,8 +226,7 @@ func hasKeys(obj map[string]any, keys []string) bool {
 	return true
 }
 
-// matchFields counts the fields that obj has, case-insensitively. Keys that
-// differ only in case count once.
+// matchFields counts the fields that obj has, case-insensitively.
 func matchFields(obj map[string]any, fields map[string]struct{}) int {
 	matched := make(map[string]struct{})
 	for key := range obj {
@@ -269,8 +238,7 @@ func matchFields(obj map[string]any, fields map[string]struct{}) int {
 	return len(matched)
 }
 
-// jsonFieldNames returns the lowercased JSON names of the fields of v if it
-// is a struct or a pointer to one, following the `encoding/json` rules.
+// jsonFieldNames returns the lowercased JSON field names of v.
 func jsonFieldNames(v any) map[string]struct{} {
 	t := reflect.TypeOf(v)
 	for t != nil && t.Kind() == reflect.Pointer {

@@ -9,16 +9,13 @@ import (
 	"github.com/robertkrimen/otto"
 )
 
-// ErrTimeout is returned by RunVM if the scripts run longer than its timeout.
+// ErrTimeout is returned by RunVM when the timeout expires.
 var ErrTimeout = errors.New("js: script execution timed out")
 
-// unmarshalTimeout limits the execution time of the UnmarshalObject scripts.
 var unmarshalTimeout = 3 * time.Second
 
 // RunVM calls fn with a new VM, interrupting the scripts it runs once the
-// timeout expires. Since scripts usually come from untrusted pages, any panic
-// in fn, e.g., of the VM, is recovered and returned as an error, which is
-// ErrTimeout for the timeout.
+// timeout expires.
 func RunVM(timeout time.Duration, fn func(vm *otto.Otto) error) (err error) {
 	vm := otto.New()
 	vm.Interrupt = make(chan func(), 1)
