@@ -1,6 +1,7 @@
 package nextjs
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -33,8 +34,19 @@ func TestExtractPayload(t *testing.T) {
 	require.NoError(t, err)
 	assert.Empty(t, payload)
 
-	_, err = ExtractPayload([]byte(`<script>self.__next_f.push(</script>`))
-	assert.Error(t, err)
+	// Failing scripts are skipped.
+	payload, err = ExtractPayload([]byte(`<script>self.__next_f.push(</script>` +
+		`<script>self.__next_f.push([1,"0:{}\n"]); document.body</script>` +
+		`<script>self.__next_f.push([1,"1:[]\n"])</script>`))
+	require.NoError(t, err)
+	assert.Equal(t, "0:{}\n1:[]\n", payload)
+
+	// Binary chunks are base64-decoded.
+	payload, err = ExtractPayload([]byte(`<script>self.__next_f.push([1,"0:[\"a"])</script>` +
+		`<script>self.__next_f.push([3,"YmM="])</script>` +
+		`<script>self.__next_f.push([1,"\"]\n"])</script>`))
+	require.NoError(t, err)
+	assert.Equal(t, "0:[\"abc\"]\n", payload)
 }
 
 func TestExtractPayloadTimeout(t *testing.T) {
@@ -82,4 +94,51 @@ func TestFindObject(t *testing.T) {
 	assert.False(t, FindObject(payload, &m))
 	require.True(t, FindObject(payload, &m, "poster"))
 	assert.Equal(t, "b.m3u8", m["src"])
+
+	// v must be a non-nil pointer.
+	assert.False(t, FindObject(payload, player{}))
+	assert.False(t, FindObject(payload, (*player)(nil)))
+
+	// Fields of embedded structs are matched too.
+	type media struct {
+		Src string `json:"src"`
+	}
+	var embedded struct {
+		media
+		Poster string `json:"poster"`
+	}
+	require.True(t, FindObject(payload, &embedded))
+	assert.Equal(t, "b.m3u8", embedded.Src)
+	assert.Equal(t, "b.jpg", embedded.Poster)
+
+	// Keys with the same name in different cases count once.
+	assert.Equal(t, player{Src: "b", Poster: "b"},
+		find(`0:[{"src":"a","SRC":"a"},{"src":"b","poster":"b"}]`+"\n"))
+
+	// Objects that cannot be unmarshaled are skipped, and v is left untouched
+	// if none can.
+	assert.Equal(t, player{Src: "b"},
+		find(`0:[{"src":"a","poster":"a","movieseq":"bad"},{"src":"b"}]`+"\n"))
+	p := player{Title: "untouched"}
+	assert.False(t, FindObject(`0:{"src":"a","movieseq":"bad"}`+"\n", &p))
+	assert.Equal(t, player{Title: "untouched"}, p)
+
+	// Text rows are skipped by their length, even if they contain newlines.
+	const text = "a\n7:{\"src\":\"fake\"}\n"
+	assert.Equal(t, player{Src: "real"},
+		find(fmt.Sprintf("5:T%x,%s6:{\"src\":\"real\"}\n", len(text), text)))
+}
+
+func TestFindObjectDecodeValues(t *testing.T) {
+	var v struct {
+		Src   string    `json:"src"`
+		Price string    `json:"price"`
+		Date  time.Time `json:"date"`
+		Size  int64     `json:"size"`
+	}
+	require.True(t, FindObject(`0:{"src":"$undefined","price":"$$5","date":"$D2026-11-23T00:00:00.000Z","size":"$n123"}`+"\n", &v))
+	assert.Empty(t, v.Src)
+	assert.Equal(t, "$5", v.Price)
+	assert.Equal(t, time.Date(2026, 11, 23, 0, 0, 0, 0, time.UTC), v.Date)
+	assert.Equal(t, int64(123), v.Size)
 }

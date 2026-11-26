@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -66,13 +67,15 @@ func (s *TestdataTestSuite) TestFindObject() {
 			// https://www.heyzo.com/movie/3986
 			filename: "55307bfd703df11319fecbfed69883f5",
 			want: struct {
-				MovieSeq int    `json:"movie_seq"`
-				MovieID  string `json:"movie_id"`
-				Name     string `json:"name"`
+				MovieSeq         int       `json:"movie_seq"`
+				MovieID          string    `json:"movie_id"`
+				Name             string    `json:"name"`
+				MonthlyStartDate time.Time `json:"monthly_start_date"`
 			}{
-				MovieSeq: 4001,
-				MovieID:  "3986",
-				Name:     "男優のテクをガマンできたらご褒美ゲット！でも、ダメだったら。。。Vol.2",
+				MovieSeq:         4001,
+				MovieID:          "3986",
+				Name:             "男優のテクをガマンできたらご褒美ゲット！でも、ダメだったら。。。Vol.2",
+				MonthlyStartDate: time.Date(2026, 11, 23, 0, 0, 0, 0, time.UTC),
 			},
 		},
 		{
