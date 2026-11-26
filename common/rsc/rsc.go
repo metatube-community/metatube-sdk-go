@@ -21,8 +21,6 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/common/js"
 )
 
-const scriptTimeout = 3 * time.Second
-
 // rowHeaderRe matches a row header, capturing the length of length-prefixed rows.
 var rowHeaderRe = regexp.MustCompile(`^[0-9a-f]+:(?:[TAOoUSsLlGgMmVb]([0-9a-f]+),)?`)
 
@@ -33,7 +31,7 @@ func ExtractNextPayload(page []byte) (string, error) {
 		return "", err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), scriptTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	var data string

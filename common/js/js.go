@@ -34,14 +34,12 @@ func RunVM(ctx context.Context, fn func(vm *otto.Otto) error) (err error) {
 	return fn(vm)
 }
 
-const unmarshalTimeout = 3 * time.Second
-
 func UnmarshalObject[T ~string | ~[]byte](jsCode T, objName string, i any) error {
 	if len(jsCode) == 0 {
 		return errors.New("empty JS code snippet")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), unmarshalTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	return RunVM(ctx, func(vm *otto.Otto) error {
