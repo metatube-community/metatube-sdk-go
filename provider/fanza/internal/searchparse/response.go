@@ -1,5 +1,9 @@
 package searchparse
 
+type ResponseWrapper struct {
+	BackendResponse BackendResponse `json:"backendResponse"`
+}
+
 type BackendResponse struct {
 	CategoryLinks []any      `json:"category_links"`
 	Contents      Contents   `json:"contents"`

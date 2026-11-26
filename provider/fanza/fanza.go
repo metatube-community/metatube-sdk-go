@@ -604,13 +604,13 @@ func (fz *FANZA) searchMovieNext(keyword string) (results []*model.MovieSearchRe
 
 	c := fz.ClonedCollector()
 
-	resp := &searchparse.BackendResponse{}
+	resp := &searchparse.ResponseWrapper{}
 	c.OnResponse(func(r *colly.Response) {
 		var payload string
 		if payload, err = rsc.ExtractNextPayload(r.Body); err != nil {
 			return
 		}
-		if !rsc.FindObject(payload, resp, "search_word", "contents") {
+		if !rsc.FindObject(payload, resp) {
 			err = provider.ErrInfoNotFound
 		}
 	})
@@ -635,7 +635,7 @@ func (fz *FANZA) searchMovieNext(keyword string) (results []*model.MovieSearchRe
 		return false
 	}
 
-	for _, product := range resp.Contents.Data {
+	for _, product := range resp.BackendResponse.Contents.Data {
 		if !filter(product.DetailURL) {
 			continue // ignore non-digital/mono results, e.g.: 月額動画
 		}
