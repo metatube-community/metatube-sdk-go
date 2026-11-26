@@ -2,6 +2,7 @@ package nextjs
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -200,4 +201,51 @@ func TestFindObjectReferences(t *testing.T) {
 	require.True(t, FindObject(`8:"$8"`+"\n"+`9:{"missing":"$ff","cyclic":"$8"}`+"\n", &v))
 	assert.Equal(t, "$ff", v.Missing)
 	assert.Equal(t, "$8", v.Cyclic)
+
+	// Path steps only follow `$` references, not plain strings.
+	var p struct {
+		Src  string `json:"src"`
+		Name string `json:"name"`
+	}
+	require.True(t, FindObject(`a:{"name":"x"}`+"\n"+`1:{"ref":"a"}`+"\n"+`2:{"src":"s","name":"$1:ref:name"}`+"\n", &p))
+	assert.Equal(t, "$1:ref:name", p.Name)
+
+	// Paths longer than the reference hop limit still resolve.
+	path := strings.Repeat(":0", maxRefHops+1)
+	nested := strings.Repeat("[", maxRefHops+1) + `"deep"` + strings.Repeat("]", maxRefHops+1)
+	require.True(t, FindObject("1:"+nested+"\n"+`2:{"src":"s","name":"$1`+path+`"}`+"\n", &p))
+	assert.Equal(t, "deep", p.Name)
+}
+
+func TestFindObjectSharedReferences(t *testing.T) {
+	// Each row references the next one twice, and the last one references
+	// the candidate itself twice, so a naive expansion never finishes.
+	var b strings.Builder
+	for i := range 40 {
+		fmt.Fprintf(&b, "%x:{\"a\":\"$%x\",\"b\":\"$%x\"}\n", i, i+1, i+1)
+	}
+	b.WriteString(`28:{"src":"x","tree":"$0","self":"$28","again":"$28"}` + "\n")
+
+	done := make(chan bool, 1)
+	go func() {
+		var v struct {
+			Src  string `json:"src"`
+			Tree any    `json:"tree"`
+			Self any    `json:"self"`
+		}
+		done <- FindObject(b.String(), &v) && v.Src == "x"
+	}()
+	select {
+	case ok := <-done:
+		assert.True(t, ok)
+	case <-time.After(5 * time.Second):
+		t.Fatal("FindObject did not finish")
+	}
+}
+
+func TestFindObjectRecursivePointer(t *testing.T) {
+	type P *P
+	var p P
+	assert.False(t, FindObject(`0:{"src":"a"}`+"\n", &p))
+	assert.False(t, FindObject(`0:{"src":"a"}`+"\n", &p, "src"))
 }

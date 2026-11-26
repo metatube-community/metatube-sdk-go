@@ -129,7 +129,11 @@ func FindObject(payload string, v any, keys ...string) bool {
 	if rv.Kind() != reflect.Pointer || rv.IsNil() {
 		return false
 	}
-	fields := jsonFieldNames(rv.Type().Elem())
+	t, ok := indirectType(rv.Type().Elem())
+	if !ok {
+		return false
+	}
+	fields := jsonFieldNames(t)
 
 	// A struct needs at least one matching field, while a map, which has no
 	// fields, needs keys.
@@ -278,82 +282,139 @@ func matchFields(obj map[string]any, fields map[string]struct{}) int {
 // numbers, or into strings if v needs them to be strings.
 func decodeObject(obj map[string]any, rows map[string]any, rv reflect.Value) bool {
 	for _, bigintAsString := range []bool{false, true} {
-		d := decoder{rows: rows, bigintAsString: bigintAsString}
-		b, err := json.Marshal(d.decode(obj, 0))
-		if err != nil {
-			continue
+		d := newDecoder(rows, bigintAsString)
+		decoded, _ := d.decode(obj)
+		b, err := json.Marshal(decoded)
+		if err == nil {
+			v := reflect.New(rv.Elem().Type())
+			if json.Unmarshal(b, v.Interface()) == nil {
+				rv.Elem().Set(v.Elem())
+				return true
+			}
 		}
-		v := reflect.New(rv.Elem().Type())
-		if json.Unmarshal(b, v.Interface()) == nil {
-			rv.Elem().Set(v.Elem())
-			return true
+		if !d.sawBigint {
+			break // retrying with string bigints would not change anything
 		}
 	}
 	return false
 }
 
-// maxRefDepth limits nested references, which may be cyclic.
-const maxRefDepth = 32
+// maxRefHops limits how many references are followed to reach a value.
+const maxRefHops = 32
+
+// maxDecodedSize limits the size of a decoded value, counted in JSON values.
+// Shared references are expanded into copies, which could otherwise grow
+// exponentially; references beyond the limit are kept as they are.
+const maxDecodedSize = 1 << 18
 
 // decoder decodes the special `$`-prefixed values of an RSC payload.
 type decoder struct {
 	rows           map[string]any
 	bigintAsString bool
+	sawBigint      bool
+
+	// Each reference is decoded once, and references that are still being
+	// decoded, i.e., cyclic ones, are kept as they are.
+	decoded   map[string]decodedValue
+	resolving map[string]bool
 }
 
-// decode returns a copy of v with the special values decoded.
-func (d decoder) decode(v any, depth int) any {
+type decodedValue struct {
+	value any
+	size  int // number of JSON values once expanded
+}
+
+func newDecoder(rows map[string]any, bigintAsString bool) *decoder {
+	return &decoder{
+		rows:           rows,
+		bigintAsString: bigintAsString,
+		decoded:        make(map[string]decodedValue),
+		resolving:      make(map[string]bool),
+	}
+}
+
+// decode returns a copy of v with the special values decoded, and its size.
+func (d *decoder) decode(v any) (any, int) {
 	switch v := v.(type) {
 	case map[string]any:
 		m := make(map[string]any, len(v))
-		for key, value := range v {
-			m[key] = d.decode(value, depth)
+		size := 1
+		for _, key := range slices.Sorted(maps.Keys(v)) {
+			var n int
+			m[key], n = d.decodeChild(v[key], size)
+			size += n
 		}
-		return m
+		return m, size
 	case []any:
 		s := make([]any, len(v))
+		size := 1
 		for i, value := range v {
-			s[i] = d.decode(value, depth)
+			var n int
+			s[i], n = d.decodeChild(value, size)
+			size += n
 		}
-		return s
+		return s, size
 	case string:
-		return d.decodeString(v, depth)
+		return d.decodeString(v)
 	}
-	return v
+	return v, 1
 }
 
-func (d decoder) decodeString(s string, depth int) any {
+// decodeChild decodes a child of a value whose size is size so far, keeping
+// a reference as it is if expanding it would exceed maxDecodedSize.
+func (d *decoder) decodeChild(v any, size int) (any, int) {
+	decoded, n := d.decode(v)
+	if s, isString := v.(string); isString && size+n > maxDecodedSize {
+		return s, 1
+	}
+	return decoded, n
+}
+
+func (d *decoder) decodeString(s string) (any, int) {
 	switch {
 	case !strings.HasPrefix(s, "$"):
-		return s
+		return s, 1
 	case strings.HasPrefix(s, "$$"): // escaped `$`
-		return s[1:]
+		return s[1:], 1
 	case s == "$undefined", s == "$NaN", s == "$Infinity", s == "$-Infinity":
-		return nil
+		return nil, 1
 	case s == "$-0":
-		return 0
+		return 0, 1
 	case strings.HasPrefix(s, "$D"): // date
-		return s[2:]
+		return s[2:], 1
 	case strings.HasPrefix(s, "$n"): // bigint
+		d.sawBigint = true
 		if d.bigintAsString {
-			return s[2:]
+			return s[2:], 1
 		}
-		return json.Number(s[2:])
+		return json.Number(s[2:]), 1
 	}
-	if value, ok := d.resolve(s, depth); ok {
-		return d.decode(value, depth+1)
+
+	if v, ok := d.decoded[s]; ok {
+		return v.value, v.size
 	}
-	return s
+	if d.resolving[s] {
+		return s, 1
+	}
+	value, ok := d.resolve(s, 0)
+	if !ok {
+		return s, 1
+	}
+	d.resolving[s] = true
+	value, size := d.decode(value)
+	delete(d.resolving, s)
+	d.decoded[s] = decodedValue{value, size}
+	return value, size
 }
 
 // resolve resolves a reference to a row, `$<hex id>[:path]`, also as a
 // promise (`$@`) or a lazy value (`$L`). The path walks into the row value,
-// e.g., `$6:props:children:0`.
-func (d decoder) resolve(ref string, depth int) (any, bool) {
-	if depth >= maxRefDepth {
+// e.g., `$6:props:children:0`, following references on the way.
+func (d *decoder) resolve(ref string, hops int) (any, bool) {
+	ref, ok := strings.CutPrefix(ref, "$")
+	if !ok || hops >= maxRefHops {
 		return nil, false
 	}
-	ref = strings.TrimPrefix(ref, "$")
 	ref = strings.TrimPrefix(strings.TrimPrefix(ref, "@"), "L")
 	if ref == "" || !isHexDigit(ref[0]) {
 		return nil, false
@@ -366,8 +427,13 @@ func (d decoder) resolve(ref string, depth int) (any, bool) {
 	}
 	for key := range strings.SplitSeq(path, ":") {
 		// Path steps may go through other references.
-		if s, isString := value.(string); isString {
-			if value, ok = d.resolve(s, depth+1); !ok {
+		for {
+			s, isString := value.(string)
+			if !isString {
+				break
+			}
+			hops++
+			if value, ok = d.resolve(s, hops); !ok {
 				return nil, false
 			}
 		}
@@ -407,13 +473,23 @@ func isHexDigit(c byte) bool {
 	return '0' <= c && c <= '9' || 'a' <= c && c <= 'f'
 }
 
-// jsonFieldNames returns the lowercased JSON names of the fields of t if it
-// is a struct or a pointer to one, following the `encoding/json` naming
-// rules.
-func jsonFieldNames(t reflect.Type) map[string]struct{} {
+// indirectType returns the type t points to through any pointers, or false
+// if the pointers never end, e.g., for `type P *P`.
+func indirectType(t reflect.Type) (reflect.Type, bool) {
+	seen := make(map[reflect.Type]bool)
 	for t.Kind() == reflect.Pointer {
+		if seen[t] {
+			return nil, false
+		}
+		seen[t] = true
 		t = t.Elem()
 	}
+	return t, true
+}
+
+// jsonFieldNames returns the lowercased JSON names of the fields of t if it
+// is a struct, following the `encoding/json` naming rules.
+func jsonFieldNames(t reflect.Type) map[string]struct{} {
 	if t.Kind() != reflect.Struct {
 		return nil
 	}
