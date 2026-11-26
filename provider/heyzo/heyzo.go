@@ -1,20 +1,20 @@
 package heyzo
 
 import (
-	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"math/rand"
+	"net/http"
 	"net/url"
-	"path"
 	"regexp"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/text/language"
 
-	"github.com/metatube-community/metatube-sdk-go/common/js"
-	"github.com/metatube-community/metatube-sdk-go/common/m3u8"
+	"github.com/metatube-community/metatube-sdk-go/collection/sets"
+	"github.com/metatube-community/metatube-sdk-go/common/convertor"
+	"github.com/metatube-community/metatube-sdk-go/common/nextjs"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
@@ -32,12 +32,26 @@ const (
 )
 
 const (
-	baseURL          = "https://www.heyzo.com/"
-	movieURL         = "https://www.heyzo.com/moviepages/%04s/index.html"
-	sampleURL        = "https://www.heyzo.com/contents/%s/%s/%s"
-	reviewPageURL    = "https://www.heyzo.com/app_v2/review_getjs/?id=%s&page=%d&r=%f&lang=%s"
-	reviewShowAllURL = "https://www.heyzo.com/app_v2/review_getjs/?id=%s&showall=1&r=%f&lang=%s"
+	baseURL      = "https://www.heyzo.com/"
+	movieURL     = "https://www.heyzo.com/movie/%04s"
+	movieAPIURL  = "https://www.heyzo.com/api/v1/movie?movieId=%04s"
+	reviewAPIURL = "https://www.heyzo.com/api/v1/movie/%d/review?page=1&limit=%d"
+	maxReviews   = 100
 )
+
+// Category levels used by HEYZO.
+const (
+	categoryLevelFlag   = 3  // internal site flags, e.g., `60p`, `release preview`.
+	categoryLevelSeries = 10 // series.
+)
+
+// Movie attribute IDs used by HEYZO.
+const (
+	attributeKeywords = 1  // space separated keywords.
+	attributeDuration = 19 // JSON encoded durations, e.g., {"full":"01:01:30"}.
+)
+
+var errMovieNotFound = errors.New("movie not found")
 
 type Heyzo struct {
 	*scraper.Scraper
@@ -47,70 +61,185 @@ func New() *Heyzo {
 	return &Heyzo{scraper.NewDefaultScraper(Name, baseURL, Priority, language.Japanese)}
 }
 
-func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {
+func (hzo *Heyzo) NormalizeMovieID(id string) string {
+	if ss := regexp.MustCompile(`^(?i)(?:heyzo[-_])?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
+		return ss[1]
+	}
+	return ""
+}
+
+func (hzo *Heyzo) ParseMovieIDFromURL(rawURL string) (string, error) {
+	homepage, err := url.Parse(rawURL)
+	if err != nil {
+		return "", err
+	}
+	// Supports both new `/movie/0841` and legacy `/moviepages/0841/index.html` URLs.
+	if ss := regexp.MustCompile(`/movie(?:pages)?/(\d+)`).FindStringSubmatch(homepage.Path); len(ss) == 2 {
+		return ss[1], nil
+	}
+	return "", fmt.Errorf("invalid %s movie URL: %s", Name, rawURL)
+}
+
+func (hzo *Heyzo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	return hzo.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
+}
+
+func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
+	id, err := hzo.ParseMovieIDFromURL(rawURL)
+	if err != nil {
+		return
+	}
+
+	data, err := hzo.fetchMovie(id)
+	if err != nil {
+		return
+	}
+
+	info = &model.MovieInfo{
+		ID:            data.MovieID,
+		Number:        fmt.Sprintf("HEYZO-%s", data.MovieID),
+		Title:         data.Name,
+		Summary:       convertor.NormalizeNewlines(data.Detail.Memo),
+		Provider:      hzo.Name(),
+		Homepage:      fmt.Sprintf(movieURL, data.MovieID),
+		Maker:         "HEYZO",
+		Score:         data.Detail.RvScore,
+		ReleaseDate:   parser.ParseDate(data.MonthlyStartDate),
+		Actors:        []string{},
+		PreviewImages: []string{},
+		Genres:        []string{},
+	}
+
+	// Actors
+	for _, actor := range data.Actors {
+		if name := strings.TrimSpace(actor.ActorName); name != "" {
+			info.Actors = append(info.Actors, name)
+		}
+	}
+
+	// Genres+Series
+	genres := sets.NewOrderedSet[string]()
+	addGenre := func(genre string) {
+		if genre = strings.TrimSpace(genre); genre != "" {
+			genres.Add(genre)
+		}
+	}
+	for _, category := range data.Categories {
+		switch category.Level {
+		case categoryLevelFlag:
+			// skip internal flags.
+		case categoryLevelSeries:
+			if info.Series == "" {
+				info.Series = strings.TrimSpace(category.CategoryName)
+			}
+		default:
+			addGenre(category.CategoryName)
+		}
+	}
+
+	// Attributes
+	for _, attr := range data.Attributes {
+		switch attr.AttributeID {
+		case attributeKeywords:
+			for keyword := range strings.FieldsSeq(attr.AttributeValue) {
+				addGenre(keyword)
+			}
+		case attributeDuration:
+			duration := movieDuration{}
+			if json.Unmarshal([]byte(attr.AttributeValue), &duration) == nil {
+				info.Runtime = parser.ParseRuntime(duration.Full)
+			}
+		}
+	}
+	info.Genres = append(info.Genres, genres.AsSlice()...)
+
+	// Runtime (fallback)
+	if info.Runtime == 0 {
+		for _, file := range data.Download.Whole {
+			if runtime := parser.ParseRuntime(file.Duration); runtime > 0 {
+				info.Runtime = runtime
+				break
+			}
+		}
+	}
+
+	// Preview Images (full-size only)
+	images, _ := galleryImages(data)
+	info.PreviewImages = append(info.PreviewImages, images...)
+
+	// Cover+Thumb+Preview Video
+	err = hzo.scrapeMoviePage(info)
+	return
+}
+
+// scrapeMoviePage scrapes the cover image and the sample video, which are
+// not provided by the movie API, from the video player props in the RSC
+// payload of the movie page.
+func (hzo *Heyzo) scrapeMoviePage(info *model.MovieInfo) (err error) {
 	c := hzo.ClonedCollector()
 
-	c.OnXML(`//script`, func(e *colly.XMLElement) {
-		if !strings.Contains(e.Text, "reviews_get") {
+	c.OnRequest(func(r *colly.Request) {
+		// The server responds 404 Not Found for non-HTML requests.
+		r.Headers.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+	})
+
+	c.OnResponse(func(r *colly.Response) {
+		var payload string
+		if payload, err = nextjs.ExtractPayload(r.Body); err != nil {
 			return
 		}
-
-		obj := struct {
-			MovieSeq     string `json:"movie_seq"`
-			Page         int    `json:"page"`
-			Lang         string `json:"lang"`
-			ProviderName string `json:"provider_name"`
-		}{}
-		if err = js.UnmarshalObject(e.Text, "object", &obj); err != nil {
+		props := playerProps{}
+		// Require the poster key, so other objects with a `src` or `type`
+		// field, e.g., images, are not mistaken for the video player.
+		if !nextjs.FindObject(payload, &props, "poster") {
 			return
 		}
-		if obj.MovieSeq == "" {
-			err = fmt.Errorf("no movie seq found on `%s`", e.Text)
-			return
+		if props.Poster != "" {
+			info.CoverURL = r.Request.AbsoluteURL(props.Poster)
+			info.ThumbURL = info.CoverURL /* use cover as thumb */
 		}
-
-		// Get reviews
-		d := c.Clone()
-
-		d.OnResponse(func(r *colly.Response) {
-			data := struct {
-				Comments []struct {
-					Username string `json:"user_name"`
-					Date     string `json:"date"`
-					Comment  string `json:"comment"`
-					Eng      string `json:"eng"`
-					Score    struct {
-						Overall string `json:"overall"`
-					} `json:"score"`
-				} `json:"comments"`
-			}{}
-			if err = js.UnmarshalObject(r.Body, "reviews", &data); err == nil {
-				for _, row := range data.Comments {
-					if row.Username == "" || row.Comment == "" {
-						continue
-					}
-					reviews = append(reviews, &model.MovieReviewDetail{
-						Author:  row.Username,
-						Comment: row.Comment,
-						Score:   parser.ParseScore(row.Score.Overall),
-						Date:    parser.ParseDate(row.Date),
-					})
-				}
-			}
-		})
-
-		var reviewURL string
-		if obj.Page > 0 {
-			reviewURL = fmt.Sprintf(reviewPageURL, obj.MovieSeq, obj.Page, rand.Float64(), obj.Lang)
-		} else {
-			reviewURL = fmt.Sprintf(reviewShowAllURL, obj.MovieSeq, rand.Float64(), obj.Lang)
-		}
-		if vErr := d.Visit(reviewURL); vErr != nil {
-			err = vErr
+		// The player only streams HLS, there is no MP4 sample video.
+		if props.Src != "" && strings.Contains(props.Type, "mpegURL") {
+			info.PreviewVideoHLSURL = r.Request.AbsoluteURL(props.Src)
 		}
 	})
 
-	if vErr := c.Visit(fmt.Sprintf(movieURL, id)); vErr != nil {
+	if vErr := c.Visit(info.Homepage); vErr != nil {
+		err = vErr
+	}
+	return
+}
+
+func (hzo *Heyzo) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {
+	data, err := hzo.fetchMovie(id)
+	if err != nil {
+		return
+	}
+
+	c := hzo.ClonedCollector()
+
+	c.OnResponse(func(r *colly.Response) {
+		resp := reviewResponse{}
+		if err = json.Unmarshal(r.Body, &resp); err != nil {
+			return
+		}
+		for _, item := range resp.Items {
+			comment := convertor.NormalizeNewlines(item.Comment)
+			if item.Username == "" || comment == "" {
+				continue
+			}
+			reviews = append(reviews, &model.MovieReviewDetail{
+				Author:  item.Username,
+				Comment: comment,
+				Score:   item.Score,
+				Date:    parser.ParseDate(item.Created),
+			})
+		}
+	})
+
+	// Only the first page of at most `maxReviews` (latest) reviews is fetched,
+	// as fetching every review of popular movies would be too large.
+	if vErr := c.Visit(fmt.Sprintf(reviewAPIURL, data.MovieSeq, maxReviews)); vErr != nil {
 		err = vErr
 	}
 	return
@@ -124,185 +253,83 @@ func (hzo *Heyzo) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieRev
 	return hzo.GetMovieReviewsByID(id)
 }
 
-func (hzo *Heyzo) NormalizeMovieID(id string) string {
-	if ss := regexp.MustCompile(`^(?i)(?:heyzo[-_])?(\d+)$`).FindStringSubmatch(id); len(ss) == 2 {
-		return ss[1]
-	}
-	return ""
-}
-
-func (hzo *Heyzo) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
-	return hzo.GetMovieInfoByURL(fmt.Sprintf(movieURL, id))
-}
-
-func (hzo *Heyzo) ParseMovieIDFromURL(rawURL string) (string, error) {
-	homepage, err := url.Parse(rawURL)
-	if err != nil {
-		return "", err
-	}
-	return path.Base(path.Dir(homepage.Path)), nil
-}
-
-func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
-	id, err := hzo.ParseMovieIDFromURL(rawURL)
-	if err != nil {
-		return
-	}
-
-	info = &model.MovieInfo{
-		ID:            id,
-		Number:        fmt.Sprintf("HEYZO-%s", id),
-		Provider:      hzo.Name(),
-		Homepage:      rawURL,
-		Maker:         "HEYZO",
-		Actors:        []string{},
-		PreviewImages: []string{},
-		Genres:        []string{},
-	}
-
+func (hzo *Heyzo) fetchMovie(id string) (data *movieResponse, err error) {
 	c := hzo.ClonedCollector()
 
-	// JSON
-	c.OnXML(`//script[@type="application/ld+json"]`, func(e *colly.XMLElement) {
-		data := struct {
-			Name          string `json:"name"`
-			Image         string `json:"image"`
-			Description   string `json:"description"`
-			ReleasedEvent struct {
-				StartDate string `json:"startDate"`
-			} `json:"releasedEvent"`
-			Video struct {
-				Duration string `json:"duration"`
-				Actor    string `json:"actor"`
-				Provider string `json:"provider"`
-			} `json:"video"`
-			AggregateRating struct {
-				RatingValue string `json:"ratingValue"`
-			} `json:"aggregateRating"`
-		}{}
-		if json.Unmarshal([]byte(e.Text), &data) == nil {
-			info.Title = data.Name
-			info.Summary = data.Description
-			info.CoverURL = e.Request.AbsoluteURL(data.Image)
-			info.ThumbURL = info.CoverURL /* use cover as thumb */
-			info.ReleaseDate = parser.ParseDate(data.ReleasedEvent.StartDate)
-			info.Runtime = parser.ParseRuntime(data.Video.Duration)
-			info.Score = parser.ParseScore(data.AggregateRating.RatingValue)
-			if data.Video.Provider != "" {
-				info.Maker = data.Video.Provider
-			}
-			if data.Video.Actor != "" {
-				info.Actors = []string{data.Video.Actor}
-			}
-		}
-	})
-
-	// Title
-	c.OnXML(`//*[@id="movie"]/h1`, func(e *colly.XMLElement) {
-		if info.Title == "" {
-			info.Title = strings.Fields(e.Text)[0]
-		}
-	})
-
-	// Summary
-	c.OnXML(`//p[@class="memo"]`, func(e *colly.XMLElement) {
-		if info.Summary == "" {
-			info.Summary = strings.TrimSpace(e.Text)
-		}
-	})
-
-	// Thumb+Cover (fallback)
-	c.OnXML(`//meta[@property="og:image"]`, func(e *colly.XMLElement) {
-		if info.CoverURL == "" {
-			info.CoverURL = e.Request.AbsoluteURL(e.Attr("content"))
-			info.ThumbURL = info.CoverURL
-		}
-	})
-
-	// Fields
-	c.OnXML(`//table[@class="movieInfo"]/tbody/tr`, func(e *colly.XMLElement) {
-		switch e.ChildText(`.//td[1]`) {
-		case "公開日":
-			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td[2]`))
-		case "出演":
-			info.Actors = e.ChildTexts(`.//td[2]/a/span`)
-		case "シリーズ":
-			info.Series = strings.Trim(e.ChildText(`.//td[2]`), "-")
-		case "評価":
-			info.Score = parser.ParseScore(e.ChildText(`.//span[@itemprop="ratingValue"]`))
-		}
-	})
-
-	// Genres
-	c.OnXML(`//ul[@class="tag-keyword-list"]`, func(e *colly.XMLElement) {
-		info.Genres = e.ChildTexts(`.//li/a`)
-	})
-
-	// Video+Runtime
-	c.OnXML(`//script[@type="text/javascript"]`, func(e *colly.XMLElement) {
-		// Sample Video
-		if strings.Contains(e.Text, "emvideo") {
-			if sub := regexp.MustCompile(`emvideo = "(.+?)";`).FindStringSubmatch(e.Text); len(sub) == 2 {
-				info.PreviewVideoURL = e.Request.AbsoluteURL(sub[1])
-			}
-		}
-		// Runtime
-		if strings.Contains(e.Text, "o = {") {
-			if sub := regexp.MustCompile(`o = (\{.+?});`).FindStringSubmatch(e.Text); len(sub) == 2 {
-				data := struct {
-					Full string `json:"full"`
-				}{}
-				if json.Unmarshal([]byte(sub[1]), &data) == nil {
-					info.Runtime = parser.ParseRuntime(data.Full)
-				}
-			}
-		}
-	})
-
-	// Preview Video
-	c.OnXML(`//*[@id="playerContainer"]/script`, func(e *colly.XMLElement) {
-		if !strings.Contains(e.Text, "movieId") {
+	c.OnResponse(func(r *colly.Response) {
+		data = &movieResponse{}
+		if err = json.Unmarshal(r.Body, data); err != nil {
 			return
 		}
-		var movieID, siteID string
-		if sub := regexp.MustCompile(`movieId\s*=\s*'(\d+?)';`).FindStringSubmatch(e.Text); len(sub) == 2 {
-			movieID = sub[1]
-		}
-		if sub := regexp.MustCompile(`siteID\s*=\s*'(\d+?)';`).FindStringSubmatch(e.Text); len(sub) == 2 {
-			siteID = sub[1]
-		}
-		if movieID == "" || siteID == "" {
-			return
-		}
-		if sub := regexp.MustCompile(`stream\s*=\s*'(.+?)'\+siteID\+'(.+?)'\+movieId\+'(.+?)';`).
-			FindStringSubmatch(e.Text); len(sub) == 4 {
-			d := c.Clone()
-			d.OnResponse(func(r *colly.Response) {
-				defer func() {
-					// Sample HLS URL
-					info.PreviewVideoHLSURL = r.Request.URL.String()
-				}()
-				if uri, _, err := m3u8.ParseBestMediaURI(bytes.NewReader(r.Body)); err == nil {
-					if ss := regexp.MustCompile(`/sample/(\d+)/(\d+)/ts\.(.+?)\.m3u8`).
-						FindStringSubmatch(uri); len(ss) == 4 {
-						info.PreviewVideoURL = fmt.Sprintf(sampleURL, ss[1], ss[2], ss[3])
-					}
-				}
-			})
-			m3u8Link := e.Request.AbsoluteURL(fmt.Sprintf("%s%s%s%s%s", sub[1], siteID, sub[2], movieID, sub[3]))
-			d.Visit(m3u8Link)
+		if data.MovieSeq == 0 || data.MovieID == "" {
+			err = errMovieNotFound
 		}
 	})
 
-	// Preview Images
-	c.OnXML(`//div[@class="sample-images yoxview"]/script`, func(e *colly.XMLElement) {
-		for _, sub := range regexp.MustCompile(`"(/contents/.+/\d+?\.\w+?)"`).FindAllStringSubmatch(e.Text, -1) {
-			info.PreviewImages = append(info.PreviewImages, e.Request.AbsoluteURL(sub[1]))
+	if vErr := c.Visit(fmt.Sprintf(movieAPIURL, url.QueryEscape(id))); vErr != nil {
+		if strings.Contains(vErr.Error(), http.StatusText(http.StatusNotFound)) {
+			// API responds 404 with {"error":"Movie not found"}.
+			return nil, provider.ErrInfoNotFound
 		}
-	})
-
-	err = c.Visit(info.Homepage)
+		return nil, vErr
+	}
+	if errors.Is(err, errMovieNotFound) {
+		return nil, provider.ErrInfoNotFound
+	}
 	return
+}
+
+// galleryImages returns the gallery images shown to guests: the full-size
+// images of the first 3 lightbox slides, and the thumbnails of the locked rest.
+// Ref: https://www.heyzo.com/_next/static/chunks/app/%5Blocale%5D/movie/%5BmovieId%5D/page-d1ca22c68e26fb5c.js
+// JS Code:
+// if(t.isBonus||t.isLimited||!f)return null;
+// g=Array.from({length:21},(e,t)=>String(t+1).padStart(3,"0")),
+// b=(_?g:g.slice(0,3)).map((e,l)=>({src:(0,m.bl)(t.movie_id,e,c,_)})); // lightbox slides
+// g.map((e,l)=>({src:(0,m.GH)(t.movie_id,e,c,_)})) // thumbnails
+func galleryImages(data *movieResponse) (images, thumbnails []string) {
+	// Gallery settings of the movie page, see galleryImages.
+	const (
+		galleryImageCount      = 21
+		guestGalleryImageCount = 3
+		// isHeyzoMember is always false, as the provider browses as a guest.
+		isHeyzoMember = false
+	)
+
+	if data.IsBonus || data.IsLimited || len(data.Actors) == 0 {
+		return
+	}
+	for i := range galleryImageCount {
+		n := fmt.Sprintf("%03d", i+1)
+		if isHeyzoMember || i < guestGalleryImageCount {
+			images = append(images, galleryImageURL(data.MovieID, n, isHeyzoMember))
+		} else {
+			thumbnails = append(thumbnails, galleryThumbnailURL(data.MovieID, n, isHeyzoMember))
+		}
+	}
+	return
+}
+
+// galleryThumbnailURL (GH) and galleryImageURL (bl) port the gallery URL
+// builders of the movie page.
+// Ref: https://www.heyzo.com/_next/static/chunks/4067-9cce700d8142bc71.js
+// JS Code:
+// i=e=>"".concat(e?"member/contents":"contents","/").concat(3e3),
+// s=(e,t,a,o)=>{let r=(0,n.Ib)(a);return"https://".concat(r,"/").concat(i(o),"/").concat(e,"/gallery/thumbnail_").concat(t,".jpg")},
+// d=(e,t,a,o)=>{let r=(0,n.Ib)(a);return"https://".concat(r,"/").concat(i(o),"/").concat(e,"/gallery/").concat(t,".jpg")},
+func galleryThumbnailURL(movieID, n string, member bool) string {
+	return fmt.Sprintf("https://www.heyzo.com/%s/%s/gallery/thumbnail_%s.jpg", contentsPath(member), movieID, n)
+}
+
+func galleryImageURL(movieID, n string, member bool) string {
+	return fmt.Sprintf("https://www.heyzo.com/%s/%s/gallery/%s.jpg", contentsPath(member), movieID, n)
+}
+
+func contentsPath(member bool) string {
+	if member {
+		return "member/contents/3000"
+	}
+	return "contents/3000"
 }
 
 func init() {

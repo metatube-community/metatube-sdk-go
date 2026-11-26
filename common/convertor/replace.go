@@ -16,3 +16,11 @@ func ReplaceSpaceAll(s string) string {
 	}
 	return b.String()
 }
+
+var newlineReplacer = strings.NewReplacer("\r\n", "\n", "\r", "\n")
+
+// NormalizeNewlines converts CRLF and CR line endings to LF and
+// trims leading and trailing spaces.
+func NormalizeNewlines(s string) string {
+	return strings.TrimSpace(newlineReplacer.Replace(s))
+}
