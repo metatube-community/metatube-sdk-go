@@ -39,7 +39,7 @@ func UnmarshalObject[T ~string | ~[]byte](jsCode T, objName string, i any) error
 		return errors.New("empty JS code snippet")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	return RunVM(ctx, func(vm *otto.Otto) error {
