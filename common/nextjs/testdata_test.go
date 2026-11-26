@@ -3,7 +3,7 @@ package nextjs
 import (
 	"embed"
 	"encoding/base64"
-	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -47,49 +47,56 @@ func (s *TestdataTestSuite) SetupSuite() {
 func (s *TestdataTestSuite) TestFindObject() {
 	for _, unit := range []struct {
 		filename string
-		keys     []string
-		want     map[string]string
+		want     any // struct value to find, matched by its fields.
 	}{
 		{
 			// https://www.heyzo.com/movie/3986
 			filename: "55307bfd703df11319fecbfed69883f5",
-			keys:     []string{"src", "poster"},
-			want: map[string]string{
-				"src":    "https://hls.heyzo.com/sample/3000/3986/mb.m3u8",
-				"type":   "application/x-mpegURL",
-				"poster": "https://www.heyzo.com/contents/3000/3986/images/player_thumbnail.jpg",
+			want: struct {
+				Src    string `json:"src"`
+				Type   string `json:"type"`
+				Poster string `json:"poster"`
+			}{
+				Src:    "https://hls.heyzo.com/sample/3000/3986/mb.m3u8",
+				Type:   "application/x-mpegURL",
+				Poster: "https://www.heyzo.com/contents/3000/3986/images/player_thumbnail.jpg",
 			},
 		},
 		{
 			// https://www.heyzo.com/movie/3986
 			filename: "55307bfd703df11319fecbfed69883f5",
-			keys:     []string{"movie_seq", "movie_id"},
-			want: map[string]string{
-				"movie_seq": "4001",
-				"movie_id":  "3986",
-				"name":      "男優のテクをガマンできたらご褒美ゲット！でも、ダメだったら。。。Vol.2",
+			want: struct {
+				MovieSeq int    `json:"movie_seq"`
+				MovieID  string `json:"movie_id"`
+				Name     string `json:"name"`
+			}{
+				MovieSeq: 4001,
+				MovieID:  "3986",
+				Name:     "男優のテクをガマンできたらご褒美ゲット！でも、ダメだったら。。。Vol.2",
 			},
 		},
 		{
 			// https://www.dmm.co.jp/search/=/searchstr=SSIS-419/limit=30/sort=rankprofile
 			filename: "a0ef9a6847f4d22cca6abc9480b7a3ae",
-			keys:     []string{"search_word", "contents"},
-			want: map[string]string{
-				"search_word": "SSIS-419",
-				"order_by":    "rankprofile",
-				"limit":       "30",
-				"page":        "1",
+			want: struct {
+				SearchWord string `json:"search_word"`
+				OrderBy    string `json:"order_by"`
+				Limit      int    `json:"limit"`
+				Page       int    `json:"page"`
+			}{
+				SearchWord: "SSIS-419",
+				OrderBy:    "rankprofile",
+				Limit:      30,
+				Page:       1,
 			},
 		},
 	} {
-		s.Run(fmt.Sprintf("%s %v", unit.filename, unit.keys), func() {
+		s.Run(unit.filename, func() {
 			s.Require().Contains(s.payloads, unit.filename)
 
-			var got map[string]any
-			s.Require().True(FindObject(s.payloads[unit.filename], &got, unit.keys...))
-			for key, want := range unit.want {
-				s.Equal(want, fmt.Sprint(got[key]), key)
-			}
+			got := reflect.New(reflect.TypeOf(unit.want))
+			s.Require().True(FindObject(s.payloads[unit.filename], got.Interface()))
+			s.Equal(unit.want, got.Elem().Interface())
 		})
 	}
 }
