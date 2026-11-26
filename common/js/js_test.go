@@ -51,9 +51,6 @@ func TestUnmarshalObject(t *testing.T) {
 }
 
 func TestUnmarshalObjectTimeout(t *testing.T) {
-	defer func(d time.Duration) { unmarshalTimeout = d }(unmarshalTimeout)
-	unmarshalTimeout = 100 * time.Millisecond
-
 	var v any
 	assert.ErrorIs(t, UnmarshalObject(`while (true) {}`, "", &v), ErrTimeout)
 }

@@ -48,9 +48,6 @@ func TestExtractNextPayload(t *testing.T) {
 }
 
 func TestExtractNextPayloadTimeout(t *testing.T) {
-	defer func(d time.Duration) { scriptTimeout = d }(scriptTimeout)
-	scriptTimeout = 100 * time.Millisecond
-
 	_, err := ExtractNextPayload([]byte(`<script>self.__next_f; while (true) {}</script>`))
 	assert.ErrorIs(t, err, js.ErrTimeout)
 }

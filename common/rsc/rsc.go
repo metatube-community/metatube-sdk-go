@@ -20,7 +20,7 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/common/js"
 )
 
-var scriptTimeout = 3 * time.Second
+const scriptTimeout = 3 * time.Second
 
 // rowHeaderRe matches a row header, capturing the length of length-prefixed rows.
 var rowHeaderRe = regexp.MustCompile(`^[0-9a-f]+:(?:[TAOoUSsLlGgMmVb]([0-9a-f]+),)?`)

@@ -12,7 +12,7 @@ import (
 // ErrTimeout is returned by RunVM when the timeout expires.
 var ErrTimeout = errors.New("js: script execution timed out")
 
-var unmarshalTimeout = 3 * time.Second
+const unmarshalTimeout = 3 * time.Second
 
 // RunVM calls fn with a new VM, interrupting the scripts it runs once the
 // timeout expires.
