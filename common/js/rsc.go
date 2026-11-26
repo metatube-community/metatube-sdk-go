@@ -1,7 +1,8 @@
-// Package nextjs provides helpers to extract data from pages rendered by
-// the Next.js App Router, which streams the React Server Components (RSC)
+package js
+
+// This file provides helpers to extract data from pages rendered by the
+// Next.js App Router, which streams the React Server Components (RSC)
 // payload to the browser via `self.__next_f.push([1, "..."])` scripts.
-package nextjs
 
 import (
 	"bytes"
@@ -22,21 +23,21 @@ import (
 	"github.com/robertkrimen/otto"
 )
 
-// scriptTimeout limits the total execution time of the page scripts.
-var scriptTimeout = 3 * time.Second
+// rscScriptTimeout limits the total execution time of the page scripts.
+var rscScriptTimeout = 3 * time.Second
 
-var errScriptTimeout = errors.New("nextjs: script execution timed out")
+var errRSCScriptTimeout = errors.New("rsc: script execution timed out")
 
-// rowHeaderRe matches the header of a payload row: its hex id, followed by
+// rscRowHeaderRe matches the header of a payload row: its hex id, followed by
 // the tag and the hex byte length if the row data is length-prefixed instead
 // of newline-terminated, e.g., `5:T1a,` for text rows.
-var rowHeaderRe = regexp.MustCompile(`^[0-9a-f]+:(?:[TAOoUSsLlGgMmVb]([0-9a-f]+),)?`)
+var rscRowHeaderRe = regexp.MustCompile(`^[0-9a-f]+:(?:[TAOoUSsLlGgMmVb]([0-9a-f]+),)?`)
 
-// ExtractPayload extracts the RSC payload from a Next.js App Router HTML
+// ExtractRSCPayload extracts the RSC payload from a Next.js App Router HTML
 // page. It runs the inline flight data scripts of the page in a JS VM with
 // a predefined `self.__next_f` array, then concatenates the pushed payload
 // chunks.
-func ExtractPayload(page []byte) (payload string, err error) {
+func ExtractRSCPayload(page []byte) (payload string, err error) {
 	doc, err := htmlquery.Parse(bytes.NewReader(page))
 	if err != nil {
 		return "", err
@@ -45,8 +46,8 @@ func ExtractPayload(page []byte) (payload string, err error) {
 	vm := otto.New()
 	vm.Interrupt = make(chan func(), 1)
 
-	timer := time.AfterFunc(scriptTimeout, func() {
-		vm.Interrupt <- func() { panic(errScriptTimeout) }
+	timer := time.AfterFunc(rscScriptTimeout, func() {
+		vm.Interrupt <- func() { panic(errRSCScriptTimeout) }
 	})
 	defer timer.Stop()
 
@@ -55,10 +56,10 @@ func ExtractPayload(page []byte) (payload string, err error) {
 		// VM as an error, not only the timeout.
 		if r := recover(); r != nil {
 			payload = ""
-			if r == errScriptTimeout {
-				err = errScriptTimeout
+			if r == errRSCScriptTimeout {
+				err = errRSCScriptTimeout
 			} else {
-				err = fmt.Errorf("nextjs: script panicked: %v", r)
+				err = fmt.Errorf("rsc: script panicked: %v", r)
 			}
 		}
 	}()
@@ -109,7 +110,7 @@ func ExtractPayload(page []byte) (payload string, err error) {
 	return b.String(), nil
 }
 
-// FindObject unmarshals the object in the RSC payload that best matches v
+// FindRSCObject unmarshals the object in the RSC payload that best matches v
 // into v. Objects score one point for each field of v they have, by its JSON
 // name and case-insensitively; the highest score wins, and ties go to the
 // first one found. Objects must also have all the given keys, matched
@@ -120,7 +121,7 @@ func ExtractPayload(page []byte) (payload string, err error) {
 // best one cannot be unmarshaled into v, which is then left untouched.
 // References to other rows are kept as `$<id>` strings, so fields that may
 // hold them should be typed as string or any.
-func FindObject(payload string, v any, keys ...string) bool {
+func FindRSCObject(payload string, v any, keys ...string) bool {
 	fields := jsonFieldNames(v)
 
 	// The score to beat: a struct needs at least one matching field, while
@@ -134,7 +135,7 @@ func FindObject(payload string, v any, keys ...string) bool {
 	}
 
 	var best map[string]any
-	for data := range jsonRows(payload) {
+	for data := range rscJSONRows(payload) {
 		var row any
 		if json.Unmarshal([]byte(data), &row) != nil {
 			continue
@@ -157,7 +158,7 @@ func FindObject(payload string, v any, keys ...string) bool {
 	if best == nil {
 		return false
 	}
-	b, err := json.Marshal(decodeValue(best))
+	b, err := json.Marshal(decodeRSCValue(best))
 	if err != nil {
 		return false
 	}
@@ -174,12 +175,12 @@ func FindObject(payload string, v any, keys ...string) bool {
 	return json.Unmarshal(b, v) == nil
 }
 
-// jsonRows yields the data of the payload rows that are JSON arrays or
+// rscJSONRows yields the data of the payload rows that are JSON arrays or
 // objects, e.g., `["$","main",null,{...}]` of the row `6:["$","main",...]`.
-func jsonRows(payload string) iter.Seq[string] {
+func rscJSONRows(payload string) iter.Seq[string] {
 	return func(yield func(string) bool) {
 		for payload != "" {
-			m := rowHeaderRe.FindStringSubmatchIndex(payload)
+			m := rscRowHeaderRe.FindStringSubmatchIndex(payload)
 			if m == nil {
 				// Skip a malformed line.
 				_, payload, _ = strings.Cut(payload, "\n")
@@ -205,21 +206,21 @@ func jsonRows(payload string) iter.Seq[string] {
 	}
 }
 
-// decodeValue returns a copy of v with the simple `$`-prefixed values of the
+// decodeRSCValue returns a copy of v with the simple `$`-prefixed values of the
 // RSC payload decoded: escaped strings, undefined and special numbers, dates
 // and bigints. Other values, e.g., references to other rows, are kept as is.
-func decodeValue(v any) any {
+func decodeRSCValue(v any) any {
 	switch v := v.(type) {
 	case map[string]any:
 		m := make(map[string]any, len(v))
 		for key, value := range v {
-			m[key] = decodeValue(value)
+			m[key] = decodeRSCValue(value)
 		}
 		return m
 	case []any:
 		s := make([]any, len(v))
 		for i, value := range v {
-			s[i] = decodeValue(value)
+			s[i] = decodeRSCValue(value)
 		}
 		return s
 	case string:

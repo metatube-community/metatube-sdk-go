@@ -14,7 +14,7 @@ import (
 
 	"github.com/metatube-community/metatube-sdk-go/collection/sets"
 	"github.com/metatube-community/metatube-sdk-go/common/convertor"
-	"github.com/metatube-community/metatube-sdk-go/common/nextjs"
+	"github.com/metatube-community/metatube-sdk-go/common/js"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
@@ -185,13 +185,13 @@ func (hzo *Heyzo) scrapeMoviePage(info *model.MovieInfo) (err error) {
 
 	c.OnResponse(func(r *colly.Response) {
 		var payload string
-		if payload, err = nextjs.ExtractPayload(r.Body); err != nil {
+		if payload, err = js.ExtractRSCPayload(r.Body); err != nil {
 			return
 		}
 		props := playerProps{}
 		// Require the poster key, so other objects with a `src` or `type`
 		// field, e.g., images, are not mistaken for the video player.
-		if !nextjs.FindObject(payload, &props, "poster") {
+		if !js.FindRSCObject(payload, &props, "poster") {
 			return
 		}
 		if props.Poster != "" {
