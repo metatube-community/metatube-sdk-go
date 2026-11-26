@@ -26,23 +26,16 @@ const samplePayload = "1:\"$Sreact.fragment\"\n" +
 	"\"poster\":\"https://example.com/a.jpg\",\"movieSeq\":1}]]}]\n"
 
 func TestExtractPayload(t *testing.T) {
-	for _, unit := range []struct {
-		page    string
-		want    string
-		wantErr bool
-	}{
-		{page: samplePage, want: samplePayload},
-		{page: `<html></html>`, want: ""},
-		{page: `<script>self.__next_f.push(</script>`, wantErr: true},
-	} {
-		payload, err := ExtractPayload([]byte(unit.page))
-		if unit.wantErr {
-			assert.Error(t, err, unit.page)
-			continue
-		}
-		require.NoError(t, err, unit.page)
-		assert.Equal(t, unit.want, payload)
-	}
+	payload, err := ExtractPayload([]byte(samplePage))
+	require.NoError(t, err)
+	assert.Equal(t, samplePayload, payload)
+
+	payload, err = ExtractPayload([]byte(`<html></html>`))
+	require.NoError(t, err)
+	assert.Empty(t, payload)
+
+	_, err = ExtractPayload([]byte(`<script>self.__next_f.push(</script>`))
+	assert.Error(t, err)
 }
 
 func TestExtractPayloadTimeout(t *testing.T) {
