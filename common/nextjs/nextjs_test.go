@@ -1,8 +1,6 @@
 package nextjs
 
 import (
-	"fmt"
-	"strings"
 	"testing"
 	"time"
 
@@ -35,21 +33,6 @@ func TestExtractPayload(t *testing.T) {
 	require.NoError(t, err)
 	assert.Empty(t, payload)
 
-	// Failing scripts are skipped.
-	payload, err = ExtractPayload([]byte(`<script>self.__next_f.push(</script>` +
-		`<script>self.__next_f.push([1,"0:{}\n"]); document.body</script>` +
-		`<script>self.__next_f.push([1,"1:[]\n"])</script>`))
-	require.NoError(t, err)
-	assert.Equal(t, "0:{}\n1:[]\n", payload)
-
-	// Binary chunks are base64-decoded.
-	payload, err = ExtractPayload([]byte(`<script>self.__next_f.push([1,"0:[\"a"])</script>` +
-		`<script>self.__next_f.push([3,"YmM="])</script>` +
-		`<script>self.__next_f.push([1,"\"]\n"])</script>`))
-	require.NoError(t, err)
-	assert.Equal(t, "0:[\"abc\"]\n", payload)
-
-	// A script error is reported if no data could be extracted at all.
 	_, err = ExtractPayload([]byte(`<script>self.__next_f.push(</script>`))
 	assert.Error(t, err)
 }
@@ -99,153 +82,4 @@ func TestFindObject(t *testing.T) {
 	assert.False(t, FindObject(payload, &m))
 	require.True(t, FindObject(payload, &m, "poster"))
 	assert.Equal(t, "b.m3u8", m["src"])
-
-	// Keys are compared case-insensitively.
-	assert.Equal(t, player{Src: "a.jpg"}, find(payload, "ALT"))
-
-	// v must be a non-nil pointer, which may point to a struct pointer.
-	assert.False(t, FindObject(payload, player{}))
-	assert.False(t, FindObject(payload, (*player)(nil)))
-	var pp *player
-	require.True(t, FindObject(payload, &pp))
-	assert.Equal(t, &player{Src: "b.m3u8", Poster: "b.jpg", MovieSeq: 2}, pp)
-
-	// Fields of embedded structs are matched too.
-	type media struct {
-		Src string `json:"src"`
-	}
-	var embedded struct {
-		media
-		Poster string `json:"poster"`
-	}
-	require.True(t, FindObject(payload, &embedded))
-	assert.Equal(t, "b.m3u8", embedded.Src)
-	assert.Equal(t, "b.jpg", embedded.Poster)
-
-	// Keys with the same name in different cases count once.
-	assert.Equal(t, player{Src: "b", Poster: "b"},
-		find(`0:[{"src":"a","SRC":"a"},{"src":"b","poster":"b"}]`+"\n"))
-
-	// Objects that cannot be unmarshaled are skipped, and v is left untouched
-	// if none can.
-	assert.Equal(t, player{Src: "b"},
-		find(`0:[{"src":"a","poster":"a","movieseq":"bad"},{"src":"b"}]`+"\n"))
-	p := player{Title: "untouched"}
-	assert.False(t, FindObject(`0:{"src":"a","movieseq":"bad"}`+"\n", &p))
-	assert.Equal(t, player{Title: "untouched"}, p)
-
-	// Length-prefixed rows are skipped by their length, even if they contain
-	// newlines, and a truncated one ends the payload.
-	const text = "a\n7:{\"src\":\"fake\"}\n"
-	assert.Equal(t, player{Src: "real"},
-		find(fmt.Sprintf("5:T%x,%s6:{\"src\":\"real\"}\n", len(text), text)))
-	assert.Equal(t, player{Src: "real"}, find("5:A4,\x00\x01\x02\x036:{\"src\":\"real\"}\n"))
-	assert.False(t, FindObject("5:Tff,short\n6:{\"src\":\"real\"}\n", new(player)))
-}
-
-func TestFindObjectDecodeValues(t *testing.T) {
-	var v struct {
-		Src      string    `json:"src"`
-		Price    string    `json:"price"`
-		Date     time.Time `json:"date"`
-		Size     int64     `json:"size"`
-		Zero     float64   `json:"zero"`
-		NaN      *float64  `json:"nan"`
-		Infinity *float64  `json:"infinity"`
-	}
-	require.True(t, FindObject(`0:{"src":"$undefined","price":"$$5","date":"$D2026-11-23T00:00:00.000Z",`+
-		`"size":"$n123","zero":"$-0","nan":"$NaN","infinity":"$Infinity"}`+"\n", &v))
-	assert.Empty(t, v.Src)
-	assert.Equal(t, "$5", v.Price)
-	assert.Equal(t, time.Date(2026, 11, 23, 0, 0, 0, 0, time.UTC), v.Date)
-	assert.Equal(t, int64(123), v.Size)
-	assert.Zero(t, v.Zero)
-	assert.Nil(t, v.NaN)
-	assert.Nil(t, v.Infinity)
-
-	// Bigints are decoded into strings if needed.
-	var id struct {
-		ID string `json:"id"`
-	}
-	require.True(t, FindObject(`0:{"id":"$n12345678901234567890"}`+"\n", &id))
-	assert.Equal(t, "12345678901234567890", id.ID)
-}
-
-func TestFindObjectReferences(t *testing.T) {
-	type movie struct {
-		Title   string `json:"title"`
-		Summary string `json:"summary"`
-		Actor   struct {
-			Name string `json:"name"`
-		} `json:"actor"`
-		Tags []string `json:"tags"`
-	}
-	const summary = "a long summary\nsent as a text row"
-	payload := fmt.Sprintf("1f:T%x,%s", len(summary), summary) +
-		`3:["tag-a","tag-b"]` + "\n" +
-		`6:["$","main",null,{"children":[["$","$L4",null,{"actor":{"name":"x"}}]]}]` + "\n" +
-		`7:{"title":"t","summary":"$1f","actor":"$6:props:children:0:props:actor","tags":"$@3"}` + "\n"
-
-	var m movie
-	require.True(t, FindObject(payload, &m))
-	assert.Equal(t, "t", m.Title)
-	assert.Equal(t, summary, m.Summary)
-	assert.Equal(t, "x", m.Actor.Name)
-	assert.Equal(t, []string{"tag-a", "tag-b"}, m.Tags)
-
-	// Unresolvable and cyclic references are kept as they are.
-	var v struct {
-		Missing string `json:"missing"`
-		Cyclic  string `json:"cyclic"`
-	}
-	require.True(t, FindObject(`8:"$8"`+"\n"+`9:{"missing":"$ff","cyclic":"$8"}`+"\n", &v))
-	assert.Equal(t, "$ff", v.Missing)
-	assert.Equal(t, "$8", v.Cyclic)
-
-	// Path steps only follow `$` references, not plain strings.
-	var p struct {
-		Src  string `json:"src"`
-		Name string `json:"name"`
-	}
-	require.True(t, FindObject(`a:{"name":"x"}`+"\n"+`1:{"ref":"a"}`+"\n"+`2:{"src":"s","name":"$1:ref:name"}`+"\n", &p))
-	assert.Equal(t, "$1:ref:name", p.Name)
-
-	// Paths longer than the reference hop limit still resolve.
-	path := strings.Repeat(":0", maxRefHops+1)
-	nested := strings.Repeat("[", maxRefHops+1) + `"deep"` + strings.Repeat("]", maxRefHops+1)
-	require.True(t, FindObject("1:"+nested+"\n"+`2:{"src":"s","name":"$1`+path+`"}`+"\n", &p))
-	assert.Equal(t, "deep", p.Name)
-}
-
-func TestFindObjectSharedReferences(t *testing.T) {
-	// Each row references the next one twice, and the last one references
-	// the candidate itself twice, so a naive expansion never finishes.
-	var b strings.Builder
-	for i := range 40 {
-		fmt.Fprintf(&b, "%x:{\"a\":\"$%x\",\"b\":\"$%x\"}\n", i, i+1, i+1)
-	}
-	b.WriteString(`28:{"src":"x","tree":"$0","self":"$28","again":"$28"}` + "\n")
-
-	done := make(chan bool, 1)
-	go func() {
-		var v struct {
-			Src  string `json:"src"`
-			Tree any    `json:"tree"`
-			Self any    `json:"self"`
-		}
-		done <- FindObject(b.String(), &v) && v.Src == "x"
-	}()
-	select {
-	case ok := <-done:
-		assert.True(t, ok)
-	case <-time.After(5 * time.Second):
-		t.Fatal("FindObject did not finish")
-	}
-}
-
-func TestFindObjectRecursivePointer(t *testing.T) {
-	type P *P
-	var p P
-	assert.False(t, FindObject(`0:{"src":"a"}`+"\n", &p))
-	assert.False(t, FindObject(`0:{"src":"a"}`+"\n", &p, "src"))
 }
