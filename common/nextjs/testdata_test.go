@@ -83,11 +83,10 @@ func (s *TestdataTestSuite) TestFindObject() {
 		},
 	} {
 		s.Run(fmt.Sprintf("%s %v", unit.filename, unit.keys), func() {
-			payload, ok := s.payloads[unit.filename]
-			s.Require().True(ok, "page not found in testdata")
+			s.Require().Contains(s.payloads, unit.filename)
 
 			var got map[string]any
-			s.Require().True(FindObject(payload, &got, unit.keys...))
+			s.Require().True(FindObject(s.payloads[unit.filename], &got, unit.keys...))
 			for key, want := range unit.want {
 				s.Equal(want, fmt.Sprint(got[key]), key)
 			}

@@ -77,31 +77,26 @@ func ExtractPayload(page []byte) (payload string, err error) {
 	return v.ToString()
 }
 
-// FindObject finds the object in the JSON rows of the RSC payload that best
-// matches v, and unmarshals it into v.
-//
-// If v points to a struct, an object scores one point for each struct field
-// it has, named as `encoding/json` decodes it: the `json` tag name, or else
-// the field name, compared case-insensitively. The object with the highest
-// score wins, so it does not need to have every field; ties go to the object
-// found first. Objects are visited row by row, depth-first, with map values
-// in sorted key order, so the result is deterministic.
-//
-// The optional keys narrow down the candidates: an object must have all of
-// them. They are required when v has no struct fields to match against,
-// e.g., a map[string]any.
-//
-// It returns false if no object matches.
+// FindObject unmarshals the object in the RSC payload that best matches v
+// into v. Objects score one point for each field of v they have, by its JSON
+// name and case-insensitively; the highest score wins, and ties go to the
+// first one found. Objects must also have all the given keys, which are
+// required when v has no struct fields, e.g., a map. It returns false if no
+// object matches.
 func FindObject(payload string, v any, keys ...string) bool {
 	fields := jsonFieldNames(v)
-	if len(fields) == 0 && len(keys) == 0 {
-		return false
+
+	// The score to beat: a struct needs at least one matching field, while
+	// a map, which has no fields, needs keys.
+	bestScore := 0
+	if len(fields) == 0 {
+		if len(keys) == 0 {
+			return false
+		}
+		bestScore = -1
 	}
 
-	var (
-		best      map[string]any
-		bestScore int
-	)
+	var best map[string]any
 	for line := range strings.SplitSeq(payload, "\n") {
 		sub := jsonRowRe.FindStringSubmatch(line)
 		if sub == nil {
@@ -111,21 +106,18 @@ func FindObject(payload string, v any, keys ...string) bool {
 		if json.Unmarshal([]byte(sub[1]), &row) != nil {
 			continue
 		}
-		done := walkObjects(row, func(obj map[string]any) bool {
+		if walkObjects(row, func(obj map[string]any) bool {
 			if !hasKeys(obj, keys) {
 				return false
 			}
 			score := matchFields(obj, fields)
-			if score == 0 && len(keys) == 0 {
+			if score <= bestScore {
 				return false
 			}
-			if best == nil || score > bestScore {
-				best, bestScore = obj, score
-			}
+			best, bestScore = obj, score
 			// A perfect match cannot be beaten.
-			return bestScore == len(fields)
-		})
-		if done {
+			return score == len(fields)
+		}) {
 			break
 		}
 	}

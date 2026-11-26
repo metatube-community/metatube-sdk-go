@@ -53,29 +53,29 @@ func TestFindObject(t *testing.T) {
 		Title    string `json:"title"` // not in the payloads.
 	}
 
-	var p player
-	require.True(t, FindObject(samplePayload, &p))
+	find := func(payload string, keys ...string) (p player) {
+		require.True(t, FindObject(payload, &p, keys...))
+		return
+	}
+
 	assert.Equal(t, player{
 		Src:      "https://example.com/a.m3u8",
 		Poster:   "https://example.com/a.jpg",
 		MovieSeq: 1,
-	}, p)
+	}, find(samplePayload))
 
+	// Objects without any field of the struct never match, even with keys.
 	var unknown struct{ Foo string }
 	assert.False(t, FindObject(samplePayload, &unknown))
+	assert.False(t, FindObject(samplePayload, &unknown, "src"))
 
 	// The second object matches more fields than the first one.
 	const payload = `0:[{"src":"a.jpg","alt":"a"},{"src":"b.m3u8","poster":"b.jpg","movieseq":2}]` + "\n"
-
-	p = player{}
-	require.True(t, FindObject(payload, &p))
-	assert.Equal(t, player{Src: "b.m3u8", Poster: "b.jpg", MovieSeq: 2}, p)
+	assert.Equal(t, player{Src: "b.m3u8", Poster: "b.jpg", MovieSeq: 2}, find(payload))
 
 	// Keys narrow down the candidates.
-	p = player{}
-	require.True(t, FindObject(payload, &p, "alt"))
-	assert.Equal(t, player{Src: "a.jpg"}, p)
-	assert.False(t, FindObject(payload, &p, "missing"))
+	assert.Equal(t, player{Src: "a.jpg"}, find(payload, "alt"))
+	assert.False(t, FindObject(payload, new(player), "missing"))
 
 	// A map has no fields to match, so keys are required.
 	var m map[string]any
