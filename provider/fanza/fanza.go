@@ -1033,14 +1033,18 @@ func ParseNumber(s string) string {
 //	    }
 //	}
 func PreviewSrc(s string) string {
-	if base, _, hasQuery := strings.Cut(s, "?"); strings.Contains(s, "awsimgsrc.dmm.co.jp") && hasQuery {
-		if strings.Contains(base, "awsimgsrc.dmm.co.jp/pics_dig/") {
-			re := regexp.MustCompile(`https?://awsimgsrc\.dmm\.co\.jp/pics_dig/`)
-			if loc := re.FindStringIndex(base); loc != nil {
-				base = base[:loc[0]] + "https://pics.dmm.co.jp/" + base[loc[1]:]
+	isAwsImageHost := strings.Contains(s, "awsimgsrc.dmm.co.jp")
+	parts := strings.Split(s, "?")
+	hasQuery := len(parts) > 1
+	if isAwsImageHost && hasQuery {
+		if strings.Contains(parts[0], "awsimgsrc.dmm.co.jp/pics_dig/") {
+			replaced := parts[0]
+			if loc := regexp.MustCompile(`https?://awsimgsrc\.dmm\.co\.jp/pics_dig/`).FindStringIndex(parts[0]); loc != nil {
+				replaced = parts[0][:loc[0]] + "https://pics.dmm.co.jp/" + parts[0][loc[1]:]
 			}
+			parts[0] = replaced
 		}
-		return base
+		return parts[0]
 	}
 
 	if m := regexp.MustCompile(`(p[a-z]\.)jpg`).FindStringSubmatch(s); m != nil {
