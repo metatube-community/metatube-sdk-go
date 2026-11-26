@@ -1,7 +1,7 @@
-// Package nextjs provides helpers to extract data from pages rendered by
-// the Next.js App Router, which streams the React Server Components (RSC)
-// payload to the browser via `self.__next_f.push([1, "..."])` scripts.
-package nextjs
+// Package rsc provides helpers to extract and query the React Server
+// Components (RSC) payload, a.k.a. the React Flight data, of pages rendered
+// by RSC frameworks, e.g., the Next.js App Router.
+package rsc
 
 import (
 	"bytes"
@@ -25,18 +25,19 @@ import (
 // scriptTimeout limits the total execution time of the page scripts.
 var scriptTimeout = 3 * time.Second
 
-var errScriptTimeout = errors.New("nextjs: script execution timed out")
+var errScriptTimeout = errors.New("rsc: script execution timed out")
 
 // rowHeaderRe matches the header of a payload row: its hex id, followed by
 // the tag and the hex byte length if the row data is length-prefixed instead
 // of newline-terminated, e.g., `5:T1a,` for text rows.
 var rowHeaderRe = regexp.MustCompile(`^[0-9a-f]+:(?:[TAOoUSsLlGgMmVb]([0-9a-f]+),)?`)
 
-// ExtractPayload extracts the RSC payload from a Next.js App Router HTML
-// page. It runs the inline flight data scripts of the page in a JS VM with
+// ExtractNextPayload extracts the RSC payload from a Next.js App Router HTML
+// page, which streams it to the browser via `self.__next_f.push([1, "..."])`
+// scripts. It runs the inline flight data scripts of the page in a JS VM with
 // a predefined `self.__next_f` array, then concatenates the pushed payload
 // chunks.
-func ExtractPayload(page []byte) (payload string, err error) {
+func ExtractNextPayload(page []byte) (payload string, err error) {
 	doc, err := htmlquery.Parse(bytes.NewReader(page))
 	if err != nil {
 		return "", err
@@ -58,7 +59,7 @@ func ExtractPayload(page []byte) (payload string, err error) {
 			if r == errScriptTimeout {
 				err = errScriptTimeout
 			} else {
-				err = fmt.Errorf("nextjs: script panicked: %v", r)
+				err = fmt.Errorf("rsc: script panicked: %v", r)
 			}
 		}
 	}()

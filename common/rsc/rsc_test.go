@@ -1,4 +1,4 @@
-package nextjs
+package rsc
 
 import (
 	"fmt"
@@ -25,31 +25,31 @@ const samplePayload = "1:\"$Sreact.fragment\"\n" +
 	"6:[\"$\",\"main\",null,{\"children\":[[\"$\",\"$L2\",null,{\"src\":\"https://example.com/a.m3u8\"," +
 	"\"poster\":\"https://example.com/a.jpg\",\"movieSeq\":1}]]}]\n"
 
-func TestExtractPayload(t *testing.T) {
-	payload, err := ExtractPayload([]byte(samplePage))
+func TestExtractNextPayload(t *testing.T) {
+	payload, err := ExtractNextPayload([]byte(samplePage))
 	require.NoError(t, err)
 	assert.Equal(t, samplePayload, payload)
 
-	payload, err = ExtractPayload([]byte(`<html></html>`))
+	payload, err = ExtractNextPayload([]byte(`<html></html>`))
 	require.NoError(t, err)
 	assert.Empty(t, payload)
 
-	_, err = ExtractPayload([]byte(`<script>self.__next_f.push(</script>`))
+	_, err = ExtractNextPayload([]byte(`<script>self.__next_f.push(</script>`))
 	assert.Error(t, err)
 
 	// Binary chunks are base64-decoded.
-	payload, err = ExtractPayload([]byte(`<script>self.__next_f.push([1,"0:[\"a"])</script>` +
+	payload, err = ExtractNextPayload([]byte(`<script>self.__next_f.push([1,"0:[\"a"])</script>` +
 		`<script>self.__next_f.push([3,"YmM="])</script>` +
 		`<script>self.__next_f.push([1,"\"]\n"])</script>`))
 	require.NoError(t, err)
 	assert.Equal(t, "0:[\"abc\"]\n", payload)
 }
 
-func TestExtractPayloadTimeout(t *testing.T) {
+func TestExtractNextPayloadTimeout(t *testing.T) {
 	defer func(d time.Duration) { scriptTimeout = d }(scriptTimeout)
 	scriptTimeout = 100 * time.Millisecond
 
-	_, err := ExtractPayload([]byte(`<script>self.__next_f; while (true) {}</script>`))
+	_, err := ExtractNextPayload([]byte(`<script>self.__next_f; while (true) {}</script>`))
 	assert.ErrorIs(t, err, errScriptTimeout)
 }
 

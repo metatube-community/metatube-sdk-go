@@ -1,4 +1,4 @@
-package nextjs
+package rsc
 
 import (
 	"embed"
@@ -38,7 +38,7 @@ func (s *TestdataTestSuite) SetupSuite() {
 		s.Require().NoError(err)
 		page, err := base64.StdEncoding.DecodeString(string(data))
 		s.Require().NoError(err, entry.Name())
-		payload, err := ExtractPayload(page)
+		payload, err := ExtractNextPayload(page)
 		s.Require().NoError(err, entry.Name())
 		s.Require().NotEmpty(payload, entry.Name())
 		s.payloads[entry.Name()] = payload
