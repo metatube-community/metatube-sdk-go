@@ -1,4 +1,4 @@
-package searchparse
+package search
 
 type ResponseWrapper struct {
 	BackendResponse BackendResponse `json:"backendResponse"`

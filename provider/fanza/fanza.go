@@ -30,7 +30,7 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/fanza/internal/graphql"
-	"github.com/metatube-community/metatube-sdk-go/provider/fanza/internal/searchparse"
+	"github.com/metatube-community/metatube-sdk-go/provider/fanza/internal/search"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/imcmp"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
@@ -604,7 +604,7 @@ func (fz *FANZA) searchMovieNext(keyword string) (results []*model.MovieSearchRe
 
 	c := fz.ClonedCollector()
 
-	resp := &searchparse.ResponseWrapper{}
+	resp := &search.ResponseWrapper{}
 	c.OnResponse(func(r *colly.Response) {
 		var payload string
 		if payload, err = rsc.ExtractNextPayload(r.Body); err != nil {
