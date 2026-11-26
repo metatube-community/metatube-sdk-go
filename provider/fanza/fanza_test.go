@@ -191,6 +191,11 @@ func TestPreviewSrc(t *testing.T) {
 			"https://pics.dmm.co.jp/digital/video/pppd00990/pppd00990-23.jpg",
 			"https://pics.dmm.co.jp/digital/video/pppd00990/pppd00990jp-23.jpg",
 		},
+		// Only the first match is replaced, like JS String.replace.
+		{
+			"https://pics.dmm.co.jp/digital/video/ts-pppd00990/pppd00990ts-1.jpg",
+			"https://pics.dmm.co.jp/digital/video/tl-pppd00990/pppd00990ts-1.jpg",
+		},
 	} {
 		assert.Equal(t, unit.want, PreviewSrc(unit.src))
 	}
