@@ -5,13 +5,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
-	"encoding/json"
+	"encoding/json/jsontext"
+	json "encoding/json/v2"
 	"errors"
 	"fmt"
 	"iter"
 	"reflect"
 	"regexp"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -92,7 +92,7 @@ var (
 )
 
 // FindObject unmarshals the object in the RSC payload that matches the most
-// fields of v into v. Distinct objects tied for the most are ambiguous.
+// fields of v into v. Objects tied for the most that decode differently are ambiguous.
 func FindObject(payload string, v any, opts ...Option) error {
 	rv := reflect.ValueOf(v)
 	if rv.Kind() != reflect.Pointer || rv.IsNil() {
@@ -109,7 +109,7 @@ func FindObject(payload string, v any, opts ...Option) error {
 	bestScore := 1
 	if len(fields) == 0 {
 		if len(o.keys) == 0 {
-			return errors.New("rsc: no fields or keys to match")
+			return fmt.Errorf("rsc: no fields or keys to match for %T", v)
 		}
 		bestScore = 0
 	}
@@ -117,7 +117,9 @@ func FindObject(payload string, v any, opts ...Option) error {
 	var candidates []map[string]any
 	for data := range jsonRows(payload) {
 		var row any
-		if json.Unmarshal([]byte(data), &row) != nil {
+		// Parse rows as leniently as JSON.parse does.
+		if json.Unmarshal([]byte(data), &row,
+			jsontext.AllowDuplicateNames(true), jsontext.AllowInvalidUTF8(true)) != nil {
 			continue
 		}
 		walkObjects(row, func(obj map[string]any) {
@@ -125,33 +127,36 @@ func FindObject(payload string, v any, opts ...Option) error {
 				return
 			}
 			switch score := matchFields(obj, fields); {
-			case score < bestScore:
 			case score > bestScore:
 				candidates, bestScore = []map[string]any{obj}, score
-			case !slices.ContainsFunc(candidates, func(c map[string]any) bool {
-				return reflect.DeepEqual(c, obj)
-			}):
+			case score == bestScore:
 				candidates = append(candidates, obj)
 			}
 		})
 	}
-	switch len(candidates) {
-	case 0:
-		return ErrNotFound
-	case 1:
-	default:
-		return ErrAmbiguous
+	if len(candidates) == 0 {
+		return fmt.Errorf("%w: %T", ErrNotFound, v)
 	}
 
-	b, err := json.Marshal(decodeValue(candidates[0]))
-	if err != nil {
-		return err
+	var match []byte
+	var first any
+	for i, c := range candidates {
+		b, err := json.Marshal(decodeValue(c))
+		if err != nil {
+			return err
+		}
+		// Unmarshal into a zero value first to leave v untouched on failure.
+		d := reflect.New(rv.Elem().Type()).Interface()
+		if err = json.Unmarshal(b, d); err != nil {
+			return err
+		}
+		if i == 0 {
+			match, first = b, d
+		} else if !reflect.DeepEqual(first, d) {
+			return fmt.Errorf("%w: %T", ErrAmbiguous, v)
+		}
 	}
-	// Unmarshal into a zero value first to leave v untouched on failure.
-	if err = json.Unmarshal(b, reflect.New(rv.Elem().Type()).Interface()); err != nil {
-		return err
-	}
-	return json.Unmarshal(b, v)
+	return json.Unmarshal(match, v)
 }
 
 // jsonRows yields the data of the JSON rows in the payload.
@@ -210,7 +215,7 @@ func decodeValue(v any) any {
 		case strings.HasPrefix(v, "$D"): // date
 			return v[2:]
 		case strings.HasPrefix(v, "$n"): // bigint, decoded as a number
-			return json.Number(v[2:])
+			return jsontext.Value(v[2:])
 		}
 	}
 	return v
@@ -240,19 +245,17 @@ func hasKeys(obj map[string]any, keys []string) bool {
 	return true
 }
 
-// matchFields counts the fields that obj has, case-insensitively.
-func matchFields(obj map[string]any, fields map[string]struct{}) int {
-	matched := make(map[string]struct{})
+// matchFields counts the fields that obj has.
+func matchFields(obj map[string]any, fields map[string]struct{}) (n int) {
 	for key := range obj {
-		name := strings.ToLower(key)
-		if _, ok := fields[name]; ok {
-			matched[name] = struct{}{}
+		if _, ok := fields[key]; ok {
+			n++
 		}
 	}
-	return len(matched)
+	return
 }
 
-// jsonFieldNames returns the lowercased JSON field names of v.
+// jsonFieldNames returns the JSON field names of v.
 func jsonFieldNames(v any) map[string]struct{} {
 	t := reflect.TypeOf(v)
 	for t != nil && t.Kind() == reflect.Pointer {
@@ -291,6 +294,6 @@ func addJSONFieldNames(t reflect.Type, names map[string]struct{}) {
 		if name == "" {
 			name = field.Name
 		}
-		names[strings.ToLower(name)] = struct{}{}
+		names[name] = struct{}{}
 	}
 }

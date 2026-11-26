@@ -2,7 +2,7 @@ package rsc
 
 import (
 	"context"
-	"encoding/json"
+	json "encoding/json/v2"
 	"fmt"
 	"testing"
 	"time"
@@ -56,7 +56,7 @@ func TestFindObject(t *testing.T) {
 	type player struct {
 		Src      string `json:"src"`
 		Poster   string `json:"poster"`
-		MovieSeq int    // untagged
+		MovieSeq int    `json:"movieSeq"`
 		Title    string `json:"title"` // not in the payloads.
 	}
 
@@ -73,22 +73,22 @@ func TestFindObject(t *testing.T) {
 
 	// Objects without any field of v never match.
 	var unknown struct{ Foo string }
-	assert.ErrorIs(t, FindObject(samplePayload, &unknown), ErrNotFound)
+	assert.EqualError(t, FindObject(samplePayload, &unknown), "rsc: object not found: *struct { Foo string }")
 	assert.ErrorIs(t, FindObject(samplePayload, &unknown, RequireKeys("src")), ErrNotFound)
 
 	// The second object matches more fields.
-	const payload = `0:[{"src":"a.jpg","alt":"a"},{"src":"b.m3u8","poster":"b.jpg","movieseq":2}]` + "\n"
+	const payload = `0:[{"src":"a.jpg","alt":"a"},{"src":"b.m3u8","poster":"b.jpg","movieSeq":2}]` + "\n"
 	assert.Equal(t, player{Src: "b.m3u8", Poster: "b.jpg", MovieSeq: 2}, find(payload))
 
 	// Required keys narrow down the candidates.
 	assert.Equal(t, player{Src: "a.jpg"}, find(payload, RequireKeys("alt")))
 	assert.ErrorIs(t, FindObject(payload, new(player), RequireKeys("missing")), ErrNotFound)
 
-	// Identical objects are one match, distinct ones tied for best are ambiguous.
+	// Objects tied for best that decode to the same value are one match.
 	assert.Equal(t, player{Src: "a", Poster: "b"},
-		find(`0:{"src":"a","poster":"b"}`+"\n"+`1:[{"src":"a","poster":"b"}]`+"\n"))
-	assert.ErrorIs(t, FindObject(`0:[{"src":"a","poster":"b"},{"src":"c","poster":"d"}]`+"\n",
-		new(player)), ErrAmbiguous)
+		find(`0:{"src":"a","poster":"b","id":1}`+"\n"+`1:[{"src":"a","poster":"b","id":2}]`+"\n"))
+	assert.EqualError(t, FindObject(`0:[{"src":"a","poster":"b"},{"src":"c","poster":"d"}]`+"\n",
+		new(player)), "rsc: multiple objects match: *rsc.player")
 	assert.Equal(t, player{Src: "c", Poster: "d", MovieSeq: 1},
 		find(`0:[{"src":"a","poster":"b"},{"src":"c","poster":"d","movieSeq":1}]`+"\n"))
 
@@ -108,9 +108,13 @@ func TestFindObject(t *testing.T) {
 		find(fmt.Sprintf("5:T%x,%s6:{\"src\":\"real\"}\n", len(text), text)))
 	assert.Equal(t, player{Src: "real"}, find("5:A4,\x00\x01\x02\x036:{\"src\":\"real\"}\n"))
 
-	// Keys that differ only in case count once.
-	assert.Equal(t, player{Src: "a", Poster: "b"},
-		find(`0:{"src":"x","SRC":"y"}`+"\n"+`1:{"src":"a","poster":"b"}`+"\n"))
+	// Names are matched and decoded case-sensitively.
+	assert.Equal(t, player{Src: "a"},
+		find(`0:{"SRC":"x","POSTER":"y"}`+"\n"+`1:{"src":"a","Poster":"b"}`+"\n"))
+	assert.ErrorIs(t, FindObject(`0:{"src":"a"}`+"\n", new(player), RequireKeys("SRC")), ErrNotFound)
+	var untagged struct{ Src string }
+	require.NoError(t, FindObject(`0:{"src":"x"}`+"\n"+`1:{"Src":"a"}`+"\n", &untagged))
+	assert.Equal(t, "a", untagged.Src)
 
 	// v is left untouched on failure.
 	var tagged struct {
@@ -118,8 +122,8 @@ func TestFindObject(t *testing.T) {
 		Tags []string `json:"tags"`
 	}
 	tagged.Src = "untouched"
-	var typeErr *json.UnmarshalTypeError
-	assert.ErrorAs(t, FindObject(`0:{"src":"a","tags":"$4"}`+"\n", &tagged), &typeErr)
+	var semErr *json.SemanticError
+	assert.ErrorAs(t, FindObject(`0:{"src":"a","tags":"$4"}`+"\n", &tagged), &semErr)
 	assert.Equal(t, "untouched", tagged.Src)
 	assert.Nil(t, tagged.Tags)
 
