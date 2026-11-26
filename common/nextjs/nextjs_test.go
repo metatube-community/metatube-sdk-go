@@ -112,6 +112,15 @@ func TestFindObject(t *testing.T) {
 	assert.False(t, FindObject(`0:{"src":"a","tags":"$4"}`+"\n", &tagged))
 	assert.Equal(t, "untouched", tagged.Src)
 	assert.Nil(t, tagged.Tags)
+
+	// The object is merged into v, keeping defaults it does not have.
+	merged := player{Title: "default"}
+	require.True(t, FindObject(`0:{"src":"a","poster":"b"}`+"\n", &merged))
+	assert.Equal(t, player{Src: "a", Poster: "b", Title: "default"}, merged)
+
+	kept := map[string]any{"keep": 1}
+	require.True(t, FindObject(`0:{"src":"a"}`+"\n", &kept, "src"))
+	assert.Equal(t, map[string]any{"keep": 1, "src": "a"}, kept)
 }
 
 func TestFindObjectDecodeValues(t *testing.T) {

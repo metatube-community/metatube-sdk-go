@@ -115,10 +115,11 @@ func ExtractPayload(page []byte) (payload string, err error) {
 // first one found. Objects must also have all the given keys, matched
 // exactly, which are required when v has no struct fields, e.g., a map.
 //
-// It returns false if no object matches, or if the best one cannot be
-// unmarshaled into v, which is then left untouched. References to other
-// rows are kept as `$<id>` strings, so fields that may hold them should be
-// typed as string or any.
+// The object is merged into v like json.Unmarshal does, keeping what v has
+// that the object does not. It returns false if no object matches, or if the
+// best one cannot be unmarshaled into v, which is then left untouched.
+// References to other rows are kept as `$<id>` strings, so fields that may
+// hold them should be typed as string or any.
 func FindObject(payload string, v any, keys ...string) bool {
 	fields := jsonFieldNames(v)
 
@@ -160,18 +161,17 @@ func FindObject(payload string, v any, keys ...string) bool {
 	if err != nil {
 		return false
 	}
-	// Unmarshal into a new value first, so that v is left untouched if it
-	// fails halfway.
 	rv := reflect.ValueOf(v)
 	if rv.Kind() != reflect.Pointer || rv.IsNil() {
 		return false
 	}
-	nv := reflect.New(rv.Elem().Type())
-	if json.Unmarshal(b, nv.Interface()) != nil {
+	// Check that the object fits v's type on a zero value first, so v is left
+	// untouched on failure, then unmarshal into v itself to merge like
+	// json.Unmarshal.
+	if json.Unmarshal(b, reflect.New(rv.Elem().Type()).Interface()) != nil {
 		return false
 	}
-	rv.Elem().Set(nv.Elem())
-	return true
+	return json.Unmarshal(b, v) == nil
 }
 
 // jsonRows yields the data of the payload rows that are JSON arrays or
