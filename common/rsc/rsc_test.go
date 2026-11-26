@@ -7,6 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/metatube-community/metatube-sdk-go/common/js"
 )
 
 const samplePage = `<html><head>
@@ -50,7 +52,7 @@ func TestExtractNextPayloadTimeout(t *testing.T) {
 	scriptTimeout = 100 * time.Millisecond
 
 	_, err := ExtractNextPayload([]byte(`<script>self.__next_f; while (true) {}</script>`))
-	assert.ErrorIs(t, err, errScriptTimeout)
+	assert.ErrorIs(t, err, js.ErrTimeout)
 }
 
 func TestFindObject(t *testing.T) {

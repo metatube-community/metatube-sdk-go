@@ -7,8 +7,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"iter"
 	"maps"
 	"reflect"
@@ -20,12 +18,12 @@ import (
 
 	"github.com/antchfx/htmlquery"
 	"github.com/robertkrimen/otto"
+
+	"github.com/metatube-community/metatube-sdk-go/common/js"
 )
 
 // scriptTimeout limits the total execution time of the page scripts.
 var scriptTimeout = 3 * time.Second
-
-var errScriptTimeout = errors.New("rsc: script execution timed out")
 
 // rowHeaderRe matches the header of a payload row: its hex id, followed by
 // the tag and the hex byte length if the row data is length-prefixed instead
@@ -37,50 +35,36 @@ var rowHeaderRe = regexp.MustCompile(`^[0-9a-f]+:(?:[TAOoUSsLlGgMmVb]([0-9a-f]+)
 // scripts. It runs the inline flight data scripts of the page in a JS VM with
 // a predefined `self.__next_f` array, then concatenates the pushed payload
 // chunks.
-func ExtractNextPayload(page []byte) (payload string, err error) {
+func ExtractNextPayload(page []byte) (string, error) {
 	doc, err := htmlquery.Parse(bytes.NewReader(page))
 	if err != nil {
 		return "", err
 	}
 
-	vm := otto.New()
-	vm.Interrupt = make(chan func(), 1)
-
-	timer := time.AfterFunc(scriptTimeout, func() {
-		vm.Interrupt <- func() { panic(errScriptTimeout) }
-	})
-	defer timer.Stop()
-
-	defer func() {
-		// The scripts come from untrusted pages, so report any panic of the
-		// VM as an error, not only the timeout.
-		if r := recover(); r != nil {
-			payload = ""
-			if r == errScriptTimeout {
-				err = errScriptTimeout
-			} else {
-				err = fmt.Errorf("rsc: script panicked: %v", r)
+	var data string
+	if err = js.RunVM(scriptTimeout, func(vm *otto.Otto) error {
+		if _, err := vm.Run(`var self = { __next_f: [] };`); err != nil {
+			return err
+		}
+		// Only run the inline flight data scripts, other scripts may depend
+		// on browser APIs that are not available in the VM.
+		for _, script := range htmlquery.Find(doc, `//script[not(@src)][contains(., "self.__next_f")]`) {
+			if _, err := vm.Run(htmlquery.InnerText(script)); err != nil {
+				return err
 			}
 		}
-	}()
-
-	if _, err = vm.Run(`var self = { __next_f: [] };`); err != nil {
-		return "", err
-	}
-	// Only run the inline flight data scripts, other scripts may depend
-	// on browser APIs that are not available in the VM.
-	for _, script := range htmlquery.Find(doc, `//script[not(@src)][contains(., "self.__next_f")]`) {
-		if _, err = vm.Run(htmlquery.InnerText(script)); err != nil {
-			return "", err
+		v, err := vm.Run(`JSON.stringify(self.__next_f)`)
+		if err != nil {
+			return err
 		}
-	}
-
-	v, err := vm.Run(`JSON.stringify(self.__next_f)`)
-	if err != nil {
+		data = v.String()
+		return nil
+	}); err != nil {
 		return "", err
 	}
+
 	var chunks []any
-	if err = json.Unmarshal([]byte(v.String()), &chunks); err != nil {
+	if err = json.Unmarshal([]byte(data), &chunks); err != nil {
 		return "", err
 	}
 
