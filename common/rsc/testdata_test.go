@@ -1,4 +1,4 @@
-package js
+package rsc
 
 import (
 	"embed"
@@ -17,18 +17,18 @@ import (
 //go:embed testdata/*
 var testdata embed.FS
 
-type RSCTestdataTestSuite struct {
+type TestdataTestSuite struct {
 	suite.Suite
 
 	payloads map[string]string // filename -> RSC payload
 }
 
-func TestRSCTestdataTestSuite(t *testing.T) {
-	suite.Run(t, new(RSCTestdataTestSuite))
+func TestTestdataTestSuite(t *testing.T) {
+	suite.Run(t, new(TestdataTestSuite))
 }
 
 // SetupSuite extracts the RSC payload of every page in testdata.
-func (s *RSCTestdataTestSuite) SetupSuite() {
+func (s *TestdataTestSuite) SetupSuite() {
 	entries, err := testdata.ReadDir("testdata")
 	s.Require().NoError(err)
 
@@ -38,14 +38,14 @@ func (s *RSCTestdataTestSuite) SetupSuite() {
 		s.Require().NoError(err)
 		page, err := base64.StdEncoding.DecodeString(string(data))
 		s.Require().NoError(err, entry.Name())
-		payload, err := ExtractRSCPayload(page)
+		payload, err := ExtractNextPayload(page)
 		s.Require().NoError(err, entry.Name())
 		s.Require().NotEmpty(payload, entry.Name())
 		s.payloads[entry.Name()] = payload
 	}
 }
 
-func (s *RSCTestdataTestSuite) TestFindRSCObject() {
+func (s *TestdataTestSuite) TestFindObject() {
 	for _, unit := range []struct {
 		filename string
 		want     any // struct value to find, matched by its fields.
@@ -216,7 +216,7 @@ func (s *RSCTestdataTestSuite) TestFindRSCObject() {
 			s.Require().Contains(s.payloads, unit.filename)
 
 			got := reflect.New(reflect.TypeOf(unit.want))
-			s.Require().True(FindRSCObject(s.payloads[unit.filename], got.Interface()))
+			s.Require().True(FindObject(s.payloads[unit.filename], got.Interface()))
 			s.Equal(unit.want, got.Elem().Interface())
 		})
 	}

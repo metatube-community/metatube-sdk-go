@@ -1,4 +1,4 @@
-package js
+package rsc
 
 import (
 	"fmt"
@@ -25,35 +25,35 @@ const samplePayload = "1:\"$Sreact.fragment\"\n" +
 	"6:[\"$\",\"main\",null,{\"children\":[[\"$\",\"$L2\",null,{\"src\":\"https://example.com/a.m3u8\"," +
 	"\"poster\":\"https://example.com/a.jpg\",\"movieSeq\":1}]]}]\n"
 
-func TestExtractRSCPayload(t *testing.T) {
-	payload, err := ExtractRSCPayload([]byte(samplePage))
+func TestExtractNextPayload(t *testing.T) {
+	payload, err := ExtractNextPayload([]byte(samplePage))
 	require.NoError(t, err)
 	assert.Equal(t, samplePayload, payload)
 
-	payload, err = ExtractRSCPayload([]byte(`<html></html>`))
+	payload, err = ExtractNextPayload([]byte(`<html></html>`))
 	require.NoError(t, err)
 	assert.Empty(t, payload)
 
-	_, err = ExtractRSCPayload([]byte(`<script>self.__next_f.push(</script>`))
+	_, err = ExtractNextPayload([]byte(`<script>self.__next_f.push(</script>`))
 	assert.Error(t, err)
 
 	// Binary chunks are base64-decoded.
-	payload, err = ExtractRSCPayload([]byte(`<script>self.__next_f.push([1,"0:[\"a"])</script>` +
+	payload, err = ExtractNextPayload([]byte(`<script>self.__next_f.push([1,"0:[\"a"])</script>` +
 		`<script>self.__next_f.push([3,"YmM="])</script>` +
 		`<script>self.__next_f.push([1,"\"]\n"])</script>`))
 	require.NoError(t, err)
 	assert.Equal(t, "0:[\"abc\"]\n", payload)
 }
 
-func TestExtractRSCPayloadTimeout(t *testing.T) {
-	defer func(d time.Duration) { rscScriptTimeout = d }(rscScriptTimeout)
-	rscScriptTimeout = 100 * time.Millisecond
+func TestExtractNextPayloadTimeout(t *testing.T) {
+	defer func(d time.Duration) { scriptTimeout = d }(scriptTimeout)
+	scriptTimeout = 100 * time.Millisecond
 
-	_, err := ExtractRSCPayload([]byte(`<script>self.__next_f; while (true) {}</script>`))
-	assert.ErrorIs(t, err, errRSCScriptTimeout)
+	_, err := ExtractNextPayload([]byte(`<script>self.__next_f; while (true) {}</script>`))
+	assert.ErrorIs(t, err, errScriptTimeout)
 }
 
-func TestFindRSCObject(t *testing.T) {
+func TestFindObject(t *testing.T) {
 	type player struct {
 		Src      string `json:"src"`
 		Poster   string `json:"poster"`
@@ -62,7 +62,7 @@ func TestFindRSCObject(t *testing.T) {
 	}
 
 	find := func(payload string, keys ...string) (p player) {
-		require.True(t, FindRSCObject(payload, &p, keys...))
+		require.True(t, FindObject(payload, &p, keys...))
 		return
 	}
 
@@ -74,8 +74,8 @@ func TestFindRSCObject(t *testing.T) {
 
 	// Objects without any field of the struct never match, even with keys.
 	var unknown struct{ Foo string }
-	assert.False(t, FindRSCObject(samplePayload, &unknown))
-	assert.False(t, FindRSCObject(samplePayload, &unknown, "src"))
+	assert.False(t, FindObject(samplePayload, &unknown))
+	assert.False(t, FindObject(samplePayload, &unknown, "src"))
 
 	// The second object matches more fields than the first one.
 	const payload = `0:[{"src":"a.jpg","alt":"a"},{"src":"b.m3u8","poster":"b.jpg","movieseq":2}]` + "\n"
@@ -83,12 +83,12 @@ func TestFindRSCObject(t *testing.T) {
 
 	// Keys narrow down the candidates.
 	assert.Equal(t, player{Src: "a.jpg"}, find(payload, "alt"))
-	assert.False(t, FindRSCObject(payload, new(player), "missing"))
+	assert.False(t, FindObject(payload, new(player), "missing"))
 
 	// A map has no fields to match, so keys are required.
 	var m map[string]any
-	assert.False(t, FindRSCObject(payload, &m))
-	require.True(t, FindRSCObject(payload, &m, "poster"))
+	assert.False(t, FindObject(payload, &m))
+	require.True(t, FindObject(payload, &m, "poster"))
 	assert.Equal(t, "b.m3u8", m["src"])
 
 	// Length-prefixed rows are skipped by their length, even if they contain
@@ -109,21 +109,21 @@ func TestFindRSCObject(t *testing.T) {
 		Tags []string `json:"tags"`
 	}
 	tagged.Src = "untouched"
-	assert.False(t, FindRSCObject(`0:{"src":"a","tags":"$4"}`+"\n", &tagged))
+	assert.False(t, FindObject(`0:{"src":"a","tags":"$4"}`+"\n", &tagged))
 	assert.Equal(t, "untouched", tagged.Src)
 	assert.Nil(t, tagged.Tags)
 
 	// The object is merged into v, keeping defaults it does not have.
 	merged := player{Title: "default"}
-	require.True(t, FindRSCObject(`0:{"src":"a","poster":"b"}`+"\n", &merged))
+	require.True(t, FindObject(`0:{"src":"a","poster":"b"}`+"\n", &merged))
 	assert.Equal(t, player{Src: "a", Poster: "b", Title: "default"}, merged)
 
 	kept := map[string]any{"keep": 1}
-	require.True(t, FindRSCObject(`0:{"src":"a"}`+"\n", &kept, "src"))
+	require.True(t, FindObject(`0:{"src":"a"}`+"\n", &kept, "src"))
 	assert.Equal(t, map[string]any{"keep": 1, "src": "a"}, kept)
 }
 
-func TestFindRSCObjectDecodeValues(t *testing.T) {
+func TestFindObjectDecodeValues(t *testing.T) {
 	var v struct {
 		Src   string    `json:"src"`
 		Price string    `json:"price"`
@@ -131,7 +131,7 @@ func TestFindRSCObjectDecodeValues(t *testing.T) {
 		Size  int64     `json:"size"`
 		NaN   *float64  `json:"nan"`
 	}
-	require.True(t, FindRSCObject(`0:{"src":"$undefined","price":"$$5",`+
+	require.True(t, FindObject(`0:{"src":"$undefined","price":"$$5",`+
 		`"date":"$D2026-11-23T00:00:00.000Z","size":"$n123","nan":"$NaN"}`+"\n", &v))
 	assert.Empty(t, v.Src)
 	assert.Equal(t, "$5", v.Price)
