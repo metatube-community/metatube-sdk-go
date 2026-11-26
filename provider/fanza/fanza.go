@@ -1017,7 +1017,6 @@ func ParseNumber(s string) string {
 //	        }
 //	        return parts[0];
 //	    }
-//
 //	    if (src.match(/(p[a-z]\.)jpg/)) {
 //	        return src.replace(RegExp.$1, 'pl.');
 //	    } else if (src.match(/consumer_game/)) {
@@ -1039,12 +1038,12 @@ func PreviewSrc(s string) string {
 	if isAwsImageHost && hasQuery {
 		if strings.Contains(parts[0], "awsimgsrc.dmm.co.jp/pics_dig/") {
 			// JS replaces only the first match, but a URL has at most one.
-			replaced := regexp.MustCompile(`https?://awsimgsrc\.dmm\.co\.jp/pics_dig/`).ReplaceAllString(parts[0], "https://pics.dmm.co.jp/")
+			replaced := regexp.MustCompile(`https?://awsimgsrc\.dmm\.co\.jp/pics_dig/`).
+				ReplaceAllString(parts[0], "https://pics.dmm.co.jp/")
 			parts[0] = replaced
 		}
 		return parts[0]
 	}
-
 	if m := regexp.MustCompile(`(p[a-z]\.)jpg`).FindStringSubmatch(s); m != nil {
 		return strings.Replace(s, m[1], "pl.", 1)
 	} else if strings.Contains(s, "consumer_game") {
