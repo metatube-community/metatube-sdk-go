@@ -71,15 +71,18 @@ func TestRunVM(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, int64(3), n)
 
+	// Errors of fn are returned as is.
 	errFn := errors.New("fn")
 	assert.ErrorIs(t, RunVM(time.Second, func(*otto.Otto) error { return errFn }), errFn)
 
+	// Scripts are interrupted on timeout.
 	err = RunVM(100*time.Millisecond, func(vm *otto.Otto) error {
 		_, err := vm.Run(`while (true) {}`)
 		return err
 	})
 	assert.ErrorIs(t, err, ErrTimeout)
 
+	// Other panics are returned as errors.
 	err = RunVM(time.Second, func(*otto.Otto) error { panic("boom") })
 	assert.EqualError(t, err, "js: script panicked: boom")
 }

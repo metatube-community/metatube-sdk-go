@@ -112,6 +112,7 @@ func FindObject(payload string, v any, keys ...string) bool {
 				return false
 			}
 			best, bestScore = obj, score
+			// A perfect match cannot be beaten.
 			return score == len(fields)
 		}) {
 			break
@@ -141,13 +142,15 @@ func jsonRows(payload string) iter.Seq[string] {
 		for payload != "" {
 			m := rowHeaderRe.FindStringSubmatchIndex(payload)
 			if m == nil {
+				// Skip a malformed line.
 				_, payload, _ = strings.Cut(payload, "\n")
 				continue
 			}
 			if m[2] >= 0 {
+				// Skip length-prefixed data, which may contain newlines.
 				n, err := strconv.ParseUint(payload[m[2]:m[3]], 16, 64)
 				if err != nil || n > uint64(len(payload)-m[1]) {
-					return
+					return // truncated payload
 				}
 				payload = payload[uint64(m[1])+n:]
 				continue

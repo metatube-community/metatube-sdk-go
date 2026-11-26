@@ -20,7 +20,7 @@ var testdata embed.FS
 type TestdataTestSuite struct {
 	suite.Suite
 
-	payloads map[string]string
+	payloads map[string]string // filename -> RSC payload
 }
 
 func TestTestdataTestSuite(t *testing.T) {
@@ -47,7 +47,7 @@ func (s *TestdataTestSuite) SetupSuite() {
 func (s *TestdataTestSuite) TestFindObject() {
 	for _, unit := range []struct {
 		filename string
-		want     any
+		want     any // struct value to find
 	}{
 		{
 			// https://www.heyzo.com/movie/3986
