@@ -191,6 +191,22 @@ func TestPreviewSrc(t *testing.T) {
 			"https://pics.dmm.co.jp/digital/video/pppd00990/pppd00990-23.jpg",
 			"https://pics.dmm.co.jp/digital/video/pppd00990/pppd00990jp-23.jpg",
 		},
+		{ // Only the first match is replaced, like JS String.replace.
+			"https://pics.dmm.co.jp/digital/video/ts-pppd00990/pppd00990ts-1.jpg",
+			"https://pics.dmm.co.jp/digital/video/tl-pppd00990/pppd00990ts-1.jpg",
+		},
+		{ // Resized awsimgsrc images map back to the original image.
+			"https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/pppd00990/pppd00990pl.jpg?w=147&h=200&f=webp&t=margin",
+			"https://pics.dmm.co.jp/digital/video/pppd00990/pppd00990pl.jpg",
+		},
+		{
+			"https://awsimgsrc.dmm.co.jp/dig/digital/video/pppd00990/pppd00990ps.jpg?w=147",
+			"https://awsimgsrc.dmm.co.jp/dig/digital/video/pppd00990/pppd00990ps.jpg",
+		},
+		{ // awsimgsrc images without a query take the usual path.
+			"https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/pppd00990/pppd00990ps.jpg",
+			"https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/pppd00990/pppd00990pl.jpg",
+		},
 	} {
 		assert.Equal(t, unit.want, PreviewSrc(unit.src))
 	}
