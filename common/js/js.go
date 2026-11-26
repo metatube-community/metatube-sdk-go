@@ -12,8 +12,6 @@ import (
 // ErrTimeout is returned by RunVM when the timeout expires.
 var ErrTimeout = errors.New("js: script execution timed out")
 
-const unmarshalTimeout = 3 * time.Second
-
 // RunVM calls fn with a new VM, interrupting the scripts it runs once the
 // timeout expires.
 func RunVM(timeout time.Duration, fn func(vm *otto.Otto) error) (err error) {
@@ -37,6 +35,8 @@ func RunVM(timeout time.Duration, fn func(vm *otto.Otto) error) (err error) {
 
 	return fn(vm)
 }
+
+const unmarshalTimeout = 3 * time.Second
 
 func UnmarshalObject[T ~string | ~[]byte](jsCode T, objName string, i any) error {
 	if len(jsCode) == 0 {
