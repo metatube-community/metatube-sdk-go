@@ -10,8 +10,6 @@ import (
 	"github.com/robertkrimen/otto"
 )
 
-var errInterrupted = errors.New("js: script interrupted")
-
 // RunVM calls fn with a new VM, interrupting the scripts it runs once ctx
 // is done.
 func RunVM(ctx context.Context, fn func(vm *otto.Otto) error) (err error) {
@@ -19,13 +17,13 @@ func RunVM(ctx context.Context, fn func(vm *otto.Otto) error) (err error) {
 	vm.Interrupt = make(chan func(), 1)
 
 	stop := context.AfterFunc(ctx, func() {
-		vm.Interrupt <- func() { panic(errInterrupted) }
+		vm.Interrupt <- func() { panic(ctx.Err()) }
 	})
 	defer stop()
 
 	defer func() {
 		if r := recover(); r != nil {
-			if r == errInterrupted {
+			if r == ctx.Err() {
 				err = ctx.Err()
 			} else {
 				err = fmt.Errorf("js: script panicked: %v", r)
