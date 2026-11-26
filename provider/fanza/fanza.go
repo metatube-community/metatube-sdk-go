@@ -1001,25 +1001,48 @@ func ParseNumber(s string) string {
 // PreviewSrc maximizes the preview image.
 // Ref: https://digstatic.dmm.com/js/digital/preview_jquery.js#652
 // JS Code:
-// // 画像パスの正規化
-// function preview_src(src)
 //
+//	// 画像パスの正規化
+//	function preview_src(src)
 //	{
-//		  if (src.match(/(p[a-z]\.)jpg/)) {
-//			  return src.replace(RegExp.$1, 'pl.');
-//		  } else if (src.match(/consumer_game/)) {
-//			  return src.replace('js-','-');
-//		  } else if (src.match(/js\-([0-9]+)\.jpg$/)) {
-//			  return src.replace('js-','jp-');
-//		  } else if (src.match(/ts\-([0-9]+)\.jpg$/)) {
-//			  return src.replace('ts-','tl-');
-//		  } else if (src.match(/(\-[0-9]+\.)jpg$/)) {
-//			  return src.replace(RegExp.$1, 'jp' + RegExp.$1);
-//		  } else {
-//			  return src.replace('-','jp-');
-//		  }
+//	    // awsimgsrcのリサイズ画像をサムネ画像に使っている場合は元画像をモーダル表示する
+//	    var isAwsImageHost = src.includes('awsimgsrc.dmm.co.jp');
+//	    var parts = src.split('?');
+//	    var hasQuery = parts.length > 1;
+//	    if (isAwsImageHost && hasQuery) {
+//	        // awsimgsrc.dmm.co.jp/pics_dig/ 以下の画像URLを pics.dmm.co.jp/ に置換する
+//	        if (parts[0].indexOf('awsimgsrc.dmm.co.jp/pics_dig/') !== -1) {
+//	            var replaced = parts[0].replace(/https?:\/\/awsimgsrc\.dmm\.co\.jp\/pics_dig\//, 'https://pics.dmm.co.jp/');
+//	            parts[0] = replaced;
+//	        }
+//	        return parts[0];
+//	    }
+//
+//	    if (src.match(/(p[a-z]\.)jpg/)) {
+//	        return src.replace(RegExp.$1, 'pl.');
+//	    } else if (src.match(/consumer_game/)) {
+//	        return src.replace('js-','-');
+//	    } else if (src.match(/js\-([0-9]+)\.jpg$/)) {
+//	        return src.replace('js-','jp-');
+//	    } else if (src.match(/ts\-([0-9]+)\.jpg$/)) {
+//	        return src.replace('ts-','tl-');
+//	    } else if (src.match(/(\-[0-9]+\.)jpg$/)) {
+//	        return src.replace(RegExp.$1, 'jp' + RegExp.$1);
+//	    } else {
+//	        return src.replace('-','jp-');
+//	    }
 //	}
 func PreviewSrc(s string) string {
+	if base, _, hasQuery := strings.Cut(s, "?"); strings.Contains(s, "awsimgsrc.dmm.co.jp") && hasQuery {
+		if strings.Contains(base, "awsimgsrc.dmm.co.jp/pics_dig/") {
+			re := regexp.MustCompile(`https?://awsimgsrc\.dmm\.co\.jp/pics_dig/`)
+			if loc := re.FindStringIndex(base); loc != nil {
+				base = base[:loc[0]] + "https://pics.dmm.co.jp/" + base[loc[1]:]
+			}
+		}
+		return base
+	}
+
 	if m := regexp.MustCompile(`(p[a-z]\.)jpg`).FindStringSubmatch(s); m != nil {
 		return strings.Replace(s, m[1], "pl.", 1)
 	} else if strings.Contains(s, "consumer_game") {
