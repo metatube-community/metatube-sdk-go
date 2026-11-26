@@ -26,6 +26,7 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/common/js"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
+	"github.com/metatube-community/metatube-sdk-go/common/rsc"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/fanza/internal/graphql"
@@ -602,18 +603,22 @@ func (fz *FANZA) searchMovieNext(keyword string) (results []*model.MovieSearchRe
 	}()
 
 	c := fz.ClonedCollector()
-	p := searchparse.NewSearchPageParser()
 
-	c.OnXML("//script", func(e *colly.XMLElement) {
-		_ = p.LoadJSCode(e.Text)
+	resp := &searchparse.BackendResponse{}
+	c.OnResponse(func(r *colly.Response) {
+		var payload string
+		if payload, err = rsc.ExtractNextPayload(r.Body); err != nil {
+			return
+		}
+		if !rsc.FindObject(payload, resp, "search_word", "contents") {
+			err = provider.ErrInfoNotFound
+		}
 	})
 
-	if err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword))); err != nil {
-		return
+	if vErr := c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword))); vErr != nil {
+		err = vErr
 	}
-
-	resp := &searchparse.ResponseWrapper{}
-	if err = p.Parse(resp); err != nil {
+	if err != nil {
 		return
 	}
 
@@ -630,7 +635,7 @@ func (fz *FANZA) searchMovieNext(keyword string) (results []*model.MovieSearchRe
 		return false
 	}
 
-	for _, product := range resp.BackendResponse.Contents.Data {
+	for _, product := range resp.Contents.Data {
 		if !filter(product.DetailURL) {
 			continue // ignore non-digital/mono results, e.g.: 月額動画
 		}
