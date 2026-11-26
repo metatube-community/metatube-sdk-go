@@ -71,11 +71,17 @@ func (s *TestdataTestSuite) TestFindObject() {
 				MovieID          string    `json:"movie_id"`
 				Name             string    `json:"name"`
 				MonthlyStartDate time.Time `json:"monthly_start_date"`
+				Actors           []struct {
+					ActorName string `json:"actor_name"`
+				} `json:"actors"` // path references to the actor props.
 			}{
 				MovieSeq:         4001,
 				MovieID:          "3986",
 				Name:             "男優のテクをガマンできたらご褒美ゲット！でも、ダメだったら。。。Vol.2",
 				MonthlyStartDate: time.Date(2026, 11, 23, 0, 0, 0, 0, time.UTC),
+				Actors: []struct {
+					ActorName string `json:"actor_name"`
+				}{{ActorName: "羽柴よしの"}},
 			},
 		},
 		{

@@ -9,7 +9,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"iter"
 	"maps"
 	"reflect"
 	"regexp"
@@ -36,7 +35,7 @@ const (
 // rowHeaderRe matches the header of a payload row: its hex id, followed by
 // the tag and the hex byte length if the row data is length-prefixed instead
 // of newline-terminated, e.g., `5:T1a,` for text rows.
-var rowHeaderRe = regexp.MustCompile(`^[0-9a-f]+:(?:[TAOoUSsLlGgMmVb]([0-9a-f]+),)?`)
+var rowHeaderRe = regexp.MustCompile(`^([0-9a-f]+):(?:([TAOoUSsLlGgMmVb])([0-9a-f]+),)?`)
 
 // ExtractPayload extracts the RSC payload from a Next.js App Router HTML
 // page. It runs the inline flight data scripts of the page in a JS VM with
@@ -68,10 +67,13 @@ func ExtractPayload(page []byte) (payload string, err error) {
 	if _, err = vm.Run(`var self = { __next_f: [] };`); err != nil {
 		return "", err
 	}
+	var scriptErr error
 	for _, script := range htmlquery.Find(doc, `//script[not(@src)][contains(., "self.__next_f")]`) {
 		// Skip scripts that fail, e.g., ones that also use browser APIs
 		// which are not available in the VM.
-		_, _ = vm.Run(htmlquery.InnerText(script))
+		if _, err := vm.Run(htmlquery.InnerText(script)); err != nil && scriptErr == nil {
+			scriptErr = err
+		}
 	}
 
 	v, err := vm.Run(`JSON.stringify(self.__next_f)`)
@@ -104,6 +106,10 @@ func ExtractPayload(page []byte) (payload string, err error) {
 			b.Write(raw)
 		}
 	}
+	if b.Len() == 0 && scriptErr != nil {
+		// Report the failure if no data could be extracted at all.
+		return "", scriptErr
+	}
 	return b.String(), nil
 }
 
@@ -112,8 +118,12 @@ func ExtractPayload(page []byte) (payload string, err error) {
 // field of v they have, by its JSON name and case-insensitively; the highest
 // score wins, ties go to the first one found, and objects that cannot be
 // unmarshaled into v are skipped. Objects must also have all the given keys,
-// which are required when v has no struct fields, e.g., a map. It returns
-// false if no object matches, in which case v is left untouched.
+// also compared case-insensitively, which are required when v has no struct
+// fields, e.g., a map. It returns false if no object matches, in which case
+// v is left untouched.
+//
+// The special `$`-prefixed values of the payload are decoded, and references
+// to other rows, e.g., long strings sent as text rows, are resolved.
 func FindObject(payload string, v any, keys ...string) bool {
 	rv := reflect.ValueOf(v)
 	if rv.Kind() != reflect.Pointer || rv.IsNil() {
@@ -136,11 +146,8 @@ func FindObject(payload string, v any, keys ...string) bool {
 		score int
 	}
 	var candidates []candidate
-	for data := range jsonRows(payload) {
-		var row any
-		if json.Unmarshal([]byte(data), &row) != nil {
-			continue
-		}
+	rows := parseRows(payload)
+	for _, row := range rows.values {
 		walkObjects(row, func(obj map[string]any) {
 			if !hasKeys(obj, keys) {
 				return
@@ -156,42 +163,58 @@ func FindObject(payload string, v any, keys ...string) bool {
 		return cmp.Compare(b.score, a.score)
 	})
 	for _, c := range candidates {
-		if decodeObject(c.obj, rv) {
+		if decodeObject(c.obj, rows.byID, rv) {
 			return true
 		}
 	}
 	return false
 }
 
-// jsonRows yields the data of the payload rows that are JSON arrays or
-// objects, e.g., `["$","main",null,{...}]` of the row `6:["$","main",...]`.
-func jsonRows(payload string) iter.Seq[string] {
-	return func(yield func(string) bool) {
-		for payload != "" {
-			m := rowHeaderRe.FindStringSubmatchIndex(payload)
-			if m == nil {
-				// Skip a malformed line.
-				_, payload, _ = strings.Cut(payload, "\n")
-				continue
+// payloadRows holds the parsed rows of an RSC payload.
+type payloadRows struct {
+	byID   map[string]any // JSON values and text rows by row id.
+	values []any          // JSON arrays and objects in payload order.
+}
+
+// parseRows parses the rows of an RSC payload. Rows are newline-terminated,
+// except length-prefixed ones, e.g., `5:T1a,<text>` for text rows.
+func parseRows(payload string) payloadRows {
+	rows := payloadRows{byID: make(map[string]any)}
+	for payload != "" {
+		m := rowHeaderRe.FindStringSubmatchIndex(payload)
+		if m == nil {
+			// Skip a malformed line.
+			_, payload, _ = strings.Cut(payload, "\n")
+			continue
+		}
+		id := payload[m[2]:m[3]]
+
+		if m[4] >= 0 {
+			n, err := strconv.ParseUint(payload[m[6]:m[7]], 16, 64)
+			if err != nil || n > uint64(len(payload)-m[1]) {
+				break // truncated payload
 			}
-			if m[2] >= 0 {
-				// Skip length-prefixed data, which is not newline-terminated.
-				n, err := strconv.ParseUint(payload[m[2]:m[3]], 16, 64)
-				if err != nil || n > uint64(len(payload)-m[1]) {
-					return
-				}
-				payload = payload[m[1]+int(n):]
-				continue
+			end := uint64(m[1]) + n
+			if payload[m[4]:m[5]] == "T" {
+				rows.byID[id] = payload[m[1]:end]
 			}
-			var data string
-			data, payload, _ = strings.Cut(payload[m[1]:], "\n")
-			if strings.HasPrefix(data, "[") || strings.HasPrefix(data, "{") {
-				if !yield(data) {
-					return
-				}
-			}
+			payload = payload[end:]
+			continue
+		}
+
+		var data string
+		data, payload, _ = strings.Cut(payload[m[1]:], "\n")
+		var value any
+		if json.Unmarshal([]byte(data), &value) != nil {
+			continue // e.g., module or hint rows
+		}
+		rows.byID[id] = value
+		switch value.(type) {
+		case map[string]any, []any:
+			rows.values = append(rows.values, value)
 		}
 	}
+	return rows
 }
 
 // walkObjects calls visit for every object in node, depth-first, with map
@@ -212,13 +235,26 @@ func walkObjects(node any, visit func(map[string]any)) {
 	}
 }
 
+// hasKeys reports whether obj has all the keys, case-insensitively.
 func hasKeys(obj map[string]any, keys []string) bool {
 	for _, key := range keys {
-		if _, ok := obj[key]; !ok {
+		if !hasKey(obj, key) {
 			return false
 		}
 	}
 	return true
+}
+
+func hasKey(obj map[string]any, key string) bool {
+	if _, ok := obj[key]; ok {
+		return true
+	}
+	for k := range obj {
+		if strings.EqualFold(k, key) {
+			return true
+		}
+	}
+	return false
 }
 
 // matchFields counts the fields that obj has, case-insensitively. Keys with
@@ -238,56 +274,146 @@ func matchFields(obj map[string]any, fields map[string]struct{}) int {
 }
 
 // decodeObject unmarshals obj into the value rv points to, which is only
-// overwritten if obj is unmarshaled successfully.
-func decodeObject(obj map[string]any, rv reflect.Value) bool {
-	b, err := json.Marshal(decodeValue(obj))
-	if err != nil {
-		return false
+// overwritten if obj is unmarshaled successfully. Bigints are decoded into
+// numbers, or into strings if v needs them to be strings.
+func decodeObject(obj map[string]any, rows map[string]any, rv reflect.Value) bool {
+	for _, bigintAsString := range []bool{false, true} {
+		d := decoder{rows: rows, bigintAsString: bigintAsString}
+		b, err := json.Marshal(d.decode(obj, 0))
+		if err != nil {
+			continue
+		}
+		v := reflect.New(rv.Elem().Type())
+		if json.Unmarshal(b, v.Interface()) == nil {
+			rv.Elem().Set(v.Elem())
+			return true
+		}
 	}
-	v := reflect.New(rv.Elem().Type())
-	if json.Unmarshal(b, v.Interface()) != nil {
-		return false
-	}
-	rv.Elem().Set(v.Elem())
-	return true
+	return false
 }
 
-// decodeValue returns a copy of v with the special `$`-prefixed strings of
-// the RSC payload decoded. References to other rows are kept as they are.
-func decodeValue(v any) any {
+// maxRefDepth limits nested references, which may be cyclic.
+const maxRefDepth = 32
+
+// decoder decodes the special `$`-prefixed values of an RSC payload.
+type decoder struct {
+	rows           map[string]any
+	bigintAsString bool
+}
+
+// decode returns a copy of v with the special values decoded.
+func (d decoder) decode(v any, depth int) any {
 	switch v := v.(type) {
 	case map[string]any:
 		m := make(map[string]any, len(v))
 		for key, value := range v {
-			m[key] = decodeValue(value)
+			m[key] = d.decode(value, depth)
 		}
 		return m
 	case []any:
 		s := make([]any, len(v))
 		for i, value := range v {
-			s[i] = decodeValue(value)
+			s[i] = d.decode(value, depth)
 		}
 		return s
 	case string:
-		switch {
-		case strings.HasPrefix(v, "$$"): // escaped `$`
-			return v[1:]
-		case v == "$undefined", v == "$NaN", v == "$Infinity", v == "$-Infinity":
-			return nil
-		case v == "$-0":
-			return 0
-		case strings.HasPrefix(v, "$D"): // date
-			return v[2:]
-		case strings.HasPrefix(v, "$n"): // bigint
-			return json.Number(v[2:])
-		}
+		return d.decodeString(v, depth)
 	}
 	return v
 }
 
+func (d decoder) decodeString(s string, depth int) any {
+	switch {
+	case !strings.HasPrefix(s, "$"):
+		return s
+	case strings.HasPrefix(s, "$$"): // escaped `$`
+		return s[1:]
+	case s == "$undefined", s == "$NaN", s == "$Infinity", s == "$-Infinity":
+		return nil
+	case s == "$-0":
+		return 0
+	case strings.HasPrefix(s, "$D"): // date
+		return s[2:]
+	case strings.HasPrefix(s, "$n"): // bigint
+		if d.bigintAsString {
+			return s[2:]
+		}
+		return json.Number(s[2:])
+	}
+	if value, ok := d.resolve(s, depth); ok {
+		return d.decode(value, depth+1)
+	}
+	return s
+}
+
+// resolve resolves a reference to a row, `$<hex id>[:path]`, also as a
+// promise (`$@`) or a lazy value (`$L`). The path walks into the row value,
+// e.g., `$6:props:children:0`.
+func (d decoder) resolve(ref string, depth int) (any, bool) {
+	if depth >= maxRefDepth {
+		return nil, false
+	}
+	ref = strings.TrimPrefix(ref, "$")
+	ref = strings.TrimPrefix(strings.TrimPrefix(ref, "@"), "L")
+	if ref == "" || !isHexDigit(ref[0]) {
+		return nil, false
+	}
+
+	id, path, _ := strings.Cut(ref, ":")
+	value, ok := d.rows[id]
+	if !ok || path == "" {
+		return value, ok
+	}
+	for key := range strings.SplitSeq(path, ":") {
+		// Path steps may go through other references.
+		if s, isString := value.(string); isString {
+			if value, ok = d.resolve(s, depth+1); !ok {
+				return nil, false
+			}
+		}
+		switch n := value.(type) {
+		case map[string]any:
+			if value, ok = n[key]; !ok {
+				return nil, false
+			}
+		case []any:
+			// React elements are encoded as ["$", type, key, props].
+			if len(n) >= 4 && n[0] == "$" {
+				switch key {
+				case "type":
+					value = n[1]
+				case "key":
+					value = n[2]
+				case "props":
+					value = n[3]
+				default:
+					return nil, false
+				}
+				continue
+			}
+			i, err := strconv.Atoi(key)
+			if err != nil || i < 0 || i >= len(n) {
+				return nil, false
+			}
+			value = n[i]
+		default:
+			return nil, false
+		}
+	}
+	return value, true
+}
+
+func isHexDigit(c byte) bool {
+	return '0' <= c && c <= '9' || 'a' <= c && c <= 'f'
+}
+
 // jsonFieldNames returns the lowercased JSON names of the fields of t if it
-// is a struct, following the `encoding/json` naming rules.
+// is a struct or a pointer to one, following the `encoding/json` naming
+// rules.
 func jsonFieldNames(t reflect.Type) map[string]struct{} {
+	for t.Kind() == reflect.Pointer {
+		t = t.Elem()
+	}
 	if t.Kind() != reflect.Struct {
 		return nil
 	}
