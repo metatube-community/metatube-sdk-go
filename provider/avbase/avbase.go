@@ -279,12 +279,13 @@ func (ab *AVBase) SearchMovie(keyword string) (results []*model.MovieSearchResul
 					// no suitable source providers.
 					continue
 				}
+				id := ab.JoinPrefixID(work.Prefix, work.WorkID)
 				result := &model.MovieSearchResult{
-					ID:          ab.JoinPrefixID(work.Prefix, work.WorkID),
+					ID:          id,
 					Number:      work.WorkID,
 					Title:       work.Title,
 					Provider:    ab.Name(),
-					Homepage:    fmt.Sprintf(movieURL, work.WorkID),
+					Homepage:    fmt.Sprintf(movieURL, id),
 					ThumbURL:    work.Products[index].ThumbnailURL,
 					CoverURL:    work.Products[index].ImageURL,
 					ReleaseDate: parser.ParseDate(work.MinDate),
@@ -343,6 +344,7 @@ func (ab *AVBase) getBuildID() (buildID string, err error) {
 }
 
 func init() {
-	// The stability of this provider is still unknown.
+	// Note: AVBASE may intermittently return HTTP 403 (Cloudflare anti-bot).
+	// A per-provider proxy can be configured via the `proxy` config key.
 	provider.Register(Name, New)
 }

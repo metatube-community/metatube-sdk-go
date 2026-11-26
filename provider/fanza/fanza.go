@@ -120,10 +120,23 @@ func (fz *FANZA) getHomepagesByID(id string) []string {
 }
 
 func (fz *FANZA) GetMovieInfoByID(id string) (info *model.MovieInfo, err error) {
+	var regionErr error
 	for _, homepage := range fz.getHomepagesByID(id) {
-		if info, err = fz.GetMovieInfoByURL(homepage); errors.Is(err, ErrRegionNotAvailable) || err == nil && info.IsValid() {
+		info, err = fz.GetMovieInfoByURL(homepage)
+		if err == nil && info.IsValid() {
 			return
 		}
+		// Remember region errors but keep trying the remaining homepages.
+		// The mono/dvd pages are geo-restricted from outside Japan, while
+		// the digital GraphQL API (video.dmm.co.jp) is still accessible,
+		// so bailing out on the first region error would hide valid results.
+		if errors.Is(err, ErrRegionNotAvailable) {
+			regionErr = err
+			continue
+		}
+	}
+	if regionErr != nil {
+		err = regionErr
 	}
 	if err != nil && err.Error() == http.StatusText(http.StatusNotFound) {
 		err = provider.ErrInfoNotFound
@@ -584,11 +597,15 @@ func (fz *FANZA) NormalizeMovieKeyword(keyword string) string {
 
 func (fz *FANZA) SearchMovie(keyword string) ([]*model.MovieSearchResult, error) {
 	if strings.Contains(keyword, "-") {
-		if results, err := fz.searchMovieNext(strings.Replace(keyword,
+		results, err := fz.searchMovieNext(strings.Replace(keyword,
 			/* FANZA cannot search hyphened number */
 			"-", "00", 1) +
 			/* Add a `#` sign to distinguish 001 style number */
-			"#"); err == nil && len(results) > 0 {
+			"#")
+		if errors.Is(err, ErrRegionNotAvailable) {
+			return nil, err // no need to retry, the whole site is restricted.
+		}
+		if err == nil && len(results) > 0 {
 			return results, nil
 		}
 	}
@@ -608,8 +625,21 @@ func (fz *FANZA) searchMovieNext(keyword string) (results []*model.MovieSearchRe
 		_ = p.LoadJSCode(e.Text)
 	})
 
+	// The search page redirects to a "not-available-in-your-region" page for
+	// requests originating from outside Japan. Detect it so that we return a
+	// meaningful error instead of a confusing Next.js parsing failure.
+	var regionErr error
+	c.OnScraped(func(r *colly.Response) {
+		if isRegionError(r) {
+			regionErr = ErrRegionNotAvailable
+		}
+	})
+
 	if err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword))); err != nil {
 		return
+	}
+	if regionErr != nil {
+		return nil, regionErr
 	}
 
 	resp := &searchparse.ResponseWrapper{}
