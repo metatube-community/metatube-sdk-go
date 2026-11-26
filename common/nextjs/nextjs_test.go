@@ -46,17 +46,40 @@ func TestExtractPayloadTimeout(t *testing.T) {
 }
 
 func TestFindObject(t *testing.T) {
-	var props struct {
+	type player struct {
 		Src      string `json:"src"`
 		Poster   string `json:"poster"`
-		MovieSeq int    `json:"movieSeq"`
+		MovieSeq int    // untagged, matched case-insensitively.
+		Title    string `json:"title"` // not in the payloads.
 	}
-	require.True(t, FindObject(samplePayload, &props, "src", "poster"))
-	assert.Equal(t, "https://example.com/a.m3u8", props.Src)
-	assert.Equal(t, "https://example.com/a.jpg", props.Poster)
-	assert.Equal(t, 1, props.MovieSeq)
 
-	var v map[string]any
-	assert.False(t, FindObject(samplePayload, &v, "src", "missing"))
-	assert.False(t, FindObject(samplePayload, &v))
+	var p player
+	require.True(t, FindObject(samplePayload, &p))
+	assert.Equal(t, player{
+		Src:      "https://example.com/a.m3u8",
+		Poster:   "https://example.com/a.jpg",
+		MovieSeq: 1,
+	}, p)
+
+	var unknown struct{ Foo string }
+	assert.False(t, FindObject(samplePayload, &unknown))
+
+	// The second object matches more fields than the first one.
+	const payload = `0:[{"src":"a.jpg","alt":"a"},{"src":"b.m3u8","poster":"b.jpg","movieseq":2}]` + "\n"
+
+	p = player{}
+	require.True(t, FindObject(payload, &p))
+	assert.Equal(t, player{Src: "b.m3u8", Poster: "b.jpg", MovieSeq: 2}, p)
+
+	// Keys narrow down the candidates.
+	p = player{}
+	require.True(t, FindObject(payload, &p, "alt"))
+	assert.Equal(t, player{Src: "a.jpg"}, p)
+	assert.False(t, FindObject(payload, &p, "missing"))
+
+	// A map has no fields to match, so keys are required.
+	var m map[string]any
+	assert.False(t, FindObject(payload, &m))
+	require.True(t, FindObject(payload, &m, "poster"))
+	assert.Equal(t, "b.m3u8", m["src"])
 }
