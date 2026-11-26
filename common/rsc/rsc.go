@@ -91,18 +91,6 @@ var (
 	ErrAmbiguous = errors.New("rsc: multiple objects match")
 )
 
-// Option configures FindObject.
-type Option func(*options)
-
-type options struct {
-	keys []string
-}
-
-// RequireKeys only matches objects that have all the keys.
-func RequireKeys(keys ...string) Option {
-	return func(o *options) { o.keys = append(o.keys, keys...) }
-}
-
 // FindObject unmarshals the object in the RSC payload that matches the most
 // fields of v into v. Distinct objects tied for the most are ambiguous.
 func FindObject(payload string, v any, opts ...Option) error {
