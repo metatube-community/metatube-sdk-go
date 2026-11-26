@@ -3,6 +3,7 @@ package rsc
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"iter"
@@ -32,8 +33,11 @@ func ExtractNextPayload(page []byte) (string, error) {
 		return "", err
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), scriptTimeout)
+	defer cancel()
+
 	var data string
-	if err = js.RunVM(scriptTimeout, func(vm *otto.Otto) error {
+	if err = js.RunVM(ctx, func(vm *otto.Otto) error {
 		if _, err := vm.Run(`var self = { __next_f: [] };`); err != nil {
 			return err
 		}

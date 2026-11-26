@@ -1,14 +1,13 @@
 package rsc
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/metatube-community/metatube-sdk-go/common/js"
 )
 
 const samplePage = `<html><head>
@@ -49,7 +48,7 @@ func TestExtractNextPayload(t *testing.T) {
 
 func TestExtractNextPayloadTimeout(t *testing.T) {
 	_, err := ExtractNextPayload([]byte(`<script>self.__next_f; while (true) {}</script>`))
-	assert.ErrorIs(t, err, js.ErrTimeout)
+	assert.ErrorIs(t, err, context.DeadlineExceeded)
 }
 
 func TestFindObject(t *testing.T) {
