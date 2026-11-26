@@ -26,10 +26,11 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/common/js"
 	"github.com/metatube-community/metatube-sdk-go/common/number"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
+	"github.com/metatube-community/metatube-sdk-go/common/rsc"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/fanza/internal/graphql"
-	"github.com/metatube-community/metatube-sdk-go/provider/fanza/internal/searchparse"
+	"github.com/metatube-community/metatube-sdk-go/provider/fanza/internal/search"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/imcmp"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
@@ -602,18 +603,22 @@ func (fz *FANZA) searchMovieNext(keyword string) (results []*model.MovieSearchRe
 	}()
 
 	c := fz.ClonedCollector()
-	p := searchparse.NewSearchPageParser()
 
-	c.OnXML("//script", func(e *colly.XMLElement) {
-		_ = p.LoadJSCode(e.Text)
+	resp := &search.ResponseWrapper{}
+	c.OnResponse(func(r *colly.Response) {
+		var payload string
+		if payload, err = rsc.ExtractNextPayload(r.Body); err != nil {
+			return
+		}
+		if !rsc.FindObject(payload, resp) {
+			err = provider.ErrInfoNotFound
+		}
 	})
 
-	if err = c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword))); err != nil {
-		return
+	if vErr := c.Visit(fmt.Sprintf(searchURL, url.QueryEscape(keyword))); vErr != nil {
+		err = vErr
 	}
-
-	resp := &searchparse.ResponseWrapper{}
-	if err = p.Parse(resp); err != nil {
+	if err != nil {
 		return
 	}
 
