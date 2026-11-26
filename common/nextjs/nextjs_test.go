@@ -1,6 +1,7 @@
 package nextjs
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -35,6 +36,13 @@ func TestExtractPayload(t *testing.T) {
 
 	_, err = ExtractPayload([]byte(`<script>self.__next_f.push(</script>`))
 	assert.Error(t, err)
+
+	// Binary chunks are base64-decoded.
+	payload, err = ExtractPayload([]byte(`<script>self.__next_f.push([1,"0:[\"a"])</script>` +
+		`<script>self.__next_f.push([3,"YmM="])</script>` +
+		`<script>self.__next_f.push([1,"\"]\n"])</script>`))
+	require.NoError(t, err)
+	assert.Equal(t, "0:[\"abc\"]\n", payload)
 }
 
 func TestExtractPayloadTimeout(t *testing.T) {
@@ -82,4 +90,28 @@ func TestFindObject(t *testing.T) {
 	assert.False(t, FindObject(payload, &m))
 	require.True(t, FindObject(payload, &m, "poster"))
 	assert.Equal(t, "b.m3u8", m["src"])
+
+	// Length-prefixed rows are skipped by their length, even if they contain
+	// newlines.
+	const text = "a\n7:{\"src\":\"fake\"}\n"
+	assert.Equal(t, player{Src: "real"},
+		find(fmt.Sprintf("5:T%x,%s6:{\"src\":\"real\"}\n", len(text), text)))
+	assert.Equal(t, player{Src: "real"}, find("5:A4,\x00\x01\x02\x036:{\"src\":\"real\"}\n"))
+}
+
+func TestFindObjectDecodeValues(t *testing.T) {
+	var v struct {
+		Src   string    `json:"src"`
+		Price string    `json:"price"`
+		Date  time.Time `json:"date"`
+		Size  int64     `json:"size"`
+		NaN   *float64  `json:"nan"`
+	}
+	require.True(t, FindObject(`0:{"src":"$undefined","price":"$$5",`+
+		`"date":"$D2026-11-23T00:00:00.000Z","size":"$n123","nan":"$NaN"}`+"\n", &v))
+	assert.Empty(t, v.Src)
+	assert.Equal(t, "$5", v.Price)
+	assert.Equal(t, time.Date(2026, 11, 23, 0, 0, 0, 0, time.UTC), v.Date)
+	assert.Equal(t, int64(123), v.Size)
+	assert.Nil(t, v.NaN)
 }

@@ -5,12 +5,15 @@ package nextjs
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"iter"
 	"maps"
 	"reflect"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -23,9 +26,10 @@ var scriptTimeout = 3 * time.Second
 
 var errScriptTimeout = errors.New("nextjs: script execution timed out")
 
-// jsonRowRe matches a payload row in `<hex id>:<data>` format whose data is
-// a JSON array or object, e.g., `6:["$","main",null,{...}]`.
-var jsonRowRe = regexp.MustCompile(`^[0-9a-f]+:([\[{].*)$`)
+// rowHeaderRe matches the header of a payload row: its hex id, followed by
+// the tag and the hex byte length if the row data is length-prefixed instead
+// of newline-terminated, e.g., `5:T1a,` for text rows.
+var rowHeaderRe = regexp.MustCompile(`^[0-9a-f]+:(?:[TAOoUSsLlGgMmVb]([0-9a-f]+),)?`)
 
 // ExtractPayload extracts the RSC payload from a Next.js App Router HTML
 // page. It runs the inline flight data scripts of the page in a JS VM with
@@ -65,16 +69,39 @@ func ExtractPayload(page []byte) (payload string, err error) {
 		}
 	}
 
-	// Only type 1 chunks, i.e., `[1, "..."]`, carry the payload data.
-	v, err := vm.Run(`self.__next_f.filter(function (c) {
-		return c && c[0] === 1 && typeof c[1] === "string";
-	}).map(function (c) {
-		return c[1];
-	}).join("");`)
+	v, err := vm.Run(`JSON.stringify(self.__next_f)`)
 	if err != nil {
 		return "", err
 	}
-	return v.ToString()
+	var chunks []any
+	if err = json.Unmarshal([]byte(v.String()), &chunks); err != nil {
+		return "", err
+	}
+
+	// Only text (`[1, "..."]`) and binary (`[3, "<base64>"]`) chunks carry
+	// the payload data.
+	var b strings.Builder
+	for _, chunk := range chunks {
+		c, ok := chunk.([]any)
+		if !ok || len(c) != 2 {
+			continue
+		}
+		data, ok := c[1].(string)
+		if !ok {
+			continue
+		}
+		switch c[0] {
+		case float64(1):
+			b.WriteString(data)
+		case float64(3):
+			raw, err := base64.StdEncoding.DecodeString(data)
+			if err != nil {
+				return "", err
+			}
+			b.Write(raw)
+		}
+	}
+	return b.String(), nil
 }
 
 // FindObject unmarshals the object in the RSC payload that best matches v
@@ -97,13 +124,9 @@ func FindObject(payload string, v any, keys ...string) bool {
 	}
 
 	var best map[string]any
-	for line := range strings.SplitSeq(payload, "\n") {
-		sub := jsonRowRe.FindStringSubmatch(line)
-		if sub == nil {
-			continue
-		}
+	for data := range jsonRows(payload) {
 		var row any
-		if json.Unmarshal([]byte(sub[1]), &row) != nil {
+		if json.Unmarshal([]byte(data), &row) != nil {
 			continue
 		}
 		if walkObjects(row, func(obj map[string]any) bool {
@@ -124,9 +147,76 @@ func FindObject(payload string, v any, keys ...string) bool {
 	if best == nil {
 		return false
 	}
-	// Marshaling a value decoded from JSON never fails.
-	b, _ := json.Marshal(best)
+	b, err := json.Marshal(decodeValue(best))
+	if err != nil {
+		return false
+	}
 	return json.Unmarshal(b, v) == nil
+}
+
+// jsonRows yields the data of the payload rows that are JSON arrays or
+// objects, e.g., `["$","main",null,{...}]` of the row `6:["$","main",...]`.
+func jsonRows(payload string) iter.Seq[string] {
+	return func(yield func(string) bool) {
+		for payload != "" {
+			m := rowHeaderRe.FindStringSubmatchIndex(payload)
+			if m == nil {
+				// Skip a malformed line.
+				_, payload, _ = strings.Cut(payload, "\n")
+				continue
+			}
+			if m[2] >= 0 {
+				// Skip length-prefixed data, which may contain newlines.
+				n, err := strconv.ParseUint(payload[m[2]:m[3]], 16, 64)
+				if err != nil || n > uint64(len(payload)-m[1]) {
+					return // truncated payload
+				}
+				payload = payload[uint64(m[1])+n:]
+				continue
+			}
+			var data string
+			data, payload, _ = strings.Cut(payload[m[1]:], "\n")
+			if strings.HasPrefix(data, "[") || strings.HasPrefix(data, "{") {
+				if !yield(data) {
+					return
+				}
+			}
+		}
+	}
+}
+
+// decodeValue returns a copy of v with the simple `$`-prefixed values of the
+// RSC payload decoded: escaped strings, undefined and special numbers, dates
+// and bigints. Other values, e.g., references to other rows, are kept as is.
+func decodeValue(v any) any {
+	switch v := v.(type) {
+	case map[string]any:
+		m := make(map[string]any, len(v))
+		for key, value := range v {
+			m[key] = decodeValue(value)
+		}
+		return m
+	case []any:
+		s := make([]any, len(v))
+		for i, value := range v {
+			s[i] = decodeValue(value)
+		}
+		return s
+	case string:
+		switch {
+		case strings.HasPrefix(v, "$$"): // escaped `$`
+			return v[1:]
+		case v == "$undefined", v == "$NaN", v == "$Infinity", v == "$-Infinity":
+			return nil
+		case v == "$-0":
+			return 0
+		case strings.HasPrefix(v, "$D"): // date
+			return v[2:]
+		case strings.HasPrefix(v, "$n"): // bigint, decoded as a number
+			return json.Number(v[2:])
+		}
+	}
+	return v
 }
 
 // walkObjects calls visit for every object in node, depth-first, until visit
