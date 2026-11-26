@@ -19,7 +19,7 @@ Every value a provider returns (metadata, cover, thumbnail, preview images, samp
 Example of a ported derivation, `provider/fanza/fanza.go`:
 
 ```go
-// PreviewSrc maximize the preview image.
+// PreviewSrc maximizes the preview image.
 // Ref: https://digstatic.dmm.com/js/digital/preview_jquery.js#652
 // JS Code:
 // // 画像パスの正規化
@@ -41,19 +41,18 @@ Example of a ported derivation, `provider/fanza/fanza.go`:
 //       }
 //  }
 func PreviewSrc(s string) string {
-	if re := regexp.MustCompile(`(p[a-z]\.)jpg`); re.MatchString(s) {
-		return re.ReplaceAllString(s, "pl.jpg")
-	} else if re = regexp.MustCompile(`consumer_game`); re.MatchString(s) {
-		return strings.ReplaceAll(s, "js-", "-")
-	} else if re = regexp.MustCompile(`js-(\d+)\.jpg$`); re.MatchString(s) {
-		return strings.ReplaceAll(s, "js-", "jp-")
-	} else if re = regexp.MustCompile(`ts-(\d+)\.jpg$`); re.MatchString(s) {
-		return strings.ReplaceAll(s, "ts-", "tl-")
-	} else if re = regexp.MustCompile(`(-\d+\.)jpg$`); re.MatchString(s) {
-		return re.ReplaceAllString(s, "jp${1}jpg")
-	} else {
-		return strings.ReplaceAll(s, "-", "jp-")
+	if m := regexp.MustCompile(`(p[a-z]\.)jpg`).FindStringSubmatch(s); m != nil {
+		return strings.Replace(s, m[1], "pl.", 1)
+	} else if strings.Contains(s, "consumer_game") {
+		return strings.Replace(s, "js-", "-", 1)
+	} else if regexp.MustCompile(`js-\d+\.jpg$`).MatchString(s) {
+		return strings.Replace(s, "js-", "jp-", 1)
+	} else if regexp.MustCompile(`ts-\d+\.jpg$`).MatchString(s) {
+		return strings.Replace(s, "ts-", "tl-", 1)
+	} else if m := regexp.MustCompile(`(-\d+\.)jpg$`).FindStringSubmatch(s); m != nil {
+		return strings.Replace(s, m[1], "jp"+m[1], 1)
 	}
+	return strings.Replace(s, "-", "jp-", 1)
 }
 ```
 
