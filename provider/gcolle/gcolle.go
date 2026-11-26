@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
-	"path"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/text/language"
 
-	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
@@ -25,9 +24,10 @@ const (
 )
 
 const (
-	baseURL  = "https://gcolle.net/"
-	movieURL = "https://gcolle.net/product_info.php/products_id/%s"
-	scoreURL = "https://rating.gcolle.net/ratings/products/%s.js"
+	baseURL = "https://gcolle.net/"
+	// Site revamped: old path /product_info.php/products_id/{id} 301-redirects to
+	// new path /adult/contents/{id}, and the old DOM (#cart_quantity / .filesetumei / age_check) is gone.
+	movieURL = "https://gcolle.net/adult/contents/%s"
 )
 
 type Gcolle struct {
@@ -35,10 +35,11 @@ type Gcolle struct {
 }
 
 func New() *Gcolle {
+	// Note: WithDetectCharset is NOT enabled — when enabled, colly mis-detects the UTF-8 response as a wrong charset,
+	// causing the body to fail parsing (the page is already charset=utf-8, no detection needed).
 	return &Gcolle{scraper.NewDefaultScraper(
 		Name, baseURL, Priority,
 		language.Japanese,
-		scraper.WithDetectCharset(),
 	)}
 }
 
@@ -58,8 +59,25 @@ func (gcl *Gcolle) ParseMovieIDFromURL(rawURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return path.Base(homepage.Path), nil
+	// Both new /adult/contents/55720 and old /product_info.php/products_id/847256 take the trailing digits
+	if ss := regexp.MustCompile(`/(\d+)/?$`).FindStringSubmatch(homepage.Path); len(ss) == 2 {
+		return ss[1], nil
+	}
+	return "", provider.ErrInvalidURL
 }
+
+// og:title carries a site suffix that must be stripped
+var (
+	reOGTitleSuffix  = regexp.MustCompile(`\s*[｜|]\s*アダルト動画.*$`)
+	reOGTitleSuffix2 = regexp.MustCompile(`\s*[｜|]\s*Gcolle.*$`)
+	// Runtime marker in the summary, e.g. "...【26:20】 980 yen"
+	reRuntimeFromDesc = regexp.MustCompile(`[【\[](?:(\d+):)?(\d{1,2}):(\d{2})[】\]]`)
+	// Runtime marker, e.g. "・Time:26min19sec"
+	reRuntimeJa = regexp.MustCompile(`(\d+)\s*分`)
+	// JSON-LD Product structure
+	reLDJSON   = regexp.MustCompile(`(?s)<script type="application/ld\+json">(.*?)</script>`)
+	reCategory = regexp.MustCompile(`/adult/categories/(\d+)`)
+)
 
 func (gcl *Gcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err error) {
 	id, err := gcl.ParseMovieIDFromURL(rawURL)
@@ -79,89 +97,128 @@ func (gcl *Gcolle) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err 
 
 	c := gcl.ClonedCollector()
 
-	// Age check
-	c.OnHTML(`#main_content > table:nth-child(5) > tbody > tr > td:nth-child(2) > table > tbody > tr > td > h4 > a:nth-child(2)`, func(e *colly.HTMLElement) {
+	// Title: prefer og:title, strip site suffix
+	c.OnXML(`//meta[@property="og:title"]`, func(e *colly.XMLElement) {
+		title := strings.TrimSpace(e.Attr("content"))
+		if title == "" {
+			return
+		}
+		title = reOGTitleSuffix.ReplaceAllString(title, "")
+		title = reOGTitleSuffix2.ReplaceAllString(title, "")
+		info.Title = strings.TrimSpace(title)
+	})
+
+	// Title fallback: page h1
+	c.OnXML(`//h1`, func(e *colly.XMLElement) {
+		if info.Title != "" {
+			return
+		}
+		if title := strings.TrimSpace(e.Text); title != "" {
+			info.Title = title
+		}
+	})
+
+	// Summary: og:description
+	c.OnXML(`//meta[@property="og:description"]`, func(e *colly.XMLElement) {
+		info.Summary = strings.TrimSpace(e.Attr("content"))
+	})
+
+	// Cover: og:image
+	c.OnXML(`//meta[@property="og:image"]`, func(e *colly.XMLElement) {
+		if src := strings.TrimSpace(e.Attr("content")); src != "" {
+			info.CoverURL = e.Request.AbsoluteURL(src)
+			info.ThumbURL = info.CoverURL
+		}
+	})
+
+	// Categories: dedupe /adult/categories/{id} links
+	c.OnXML(`//a[@href]`, func(e *colly.XMLElement) {
 		href := e.Attr("href")
-		if !strings.Contains(href, "age_check") {
+		if !reCategory.MatchString(href) {
 			return
 		}
-		d := c.Clone()
-		d.OnResponse(func(r *colly.Response) {
-			e.Response.Body = r.Body // Replace HTTP body.
-		})
-		d.Visit(e.Request.AbsoluteURL(href))
-	})
-
-	// Title
-	c.OnXML(`//*[@id="cart_quantity"]/table/tbody/tr[1]/td/h1`, func(e *colly.XMLElement) {
-		info.Title = strings.TrimSpace(e.Text)
-	})
-
-	// Summary
-	c.OnXML(`//*[@id="cart_quantity"]/table/tbody/tr[3]/td/p`, func(e *colly.XMLElement) {
-		info.Summary = strings.TrimSpace(e.Text)
-	})
-
-	// Genres
-	c.OnXML(`//*[@id="cart_quantity"]/table/tbody/tr[4]/td/a`, func(e *colly.XMLElement) {
-		info.Genres = append(info.Genres, strings.TrimSpace(e.Text))
-	})
-
-	// Thumb+Cover
-	c.OnXML(`//*[@id="cart_quantity"]/table/tbody/tr[3]/td/table/tbody/tr/td/a`, func(e *colly.XMLElement) {
-		info.CoverURL = e.Request.AbsoluteURL(e.Attr("href"))
-		info.ThumbURL = e.Request.AbsoluteURL(e.ChildAttr(`.//img`, "src"))
-	})
-
-	// Preview Images
-	c.OnXML(`//*[@id="cart_quantity"]/table/tbody/tr[3]/td/div/img`, func(e *colly.XMLElement) {
-		info.PreviewImages = append(info.PreviewImages,
-			e.Request.AbsoluteURL(e.Attr("src")))
-	})
-
-	// Preview Images (extra?)
-	c.OnXML(`//*[@id="cart_quantity"]/table/tbody/tr[3]/td/div/a/img`, func(e *colly.XMLElement) {
-		info.PreviewImages = append(info.PreviewImages,
-			e.Request.AbsoluteURL(e.Attr("src")))
-	})
-
-	// Fields
-	c.OnXML(`//table[@class="filesetumei"]//tr`, func(e *colly.XMLElement) {
-		switch e.ChildText(`.//td[1]`) {
-		case "商品番号":
-			// should use id from url.
-			// info.ID = e.ChildText(`.//td[2]`)
-		case "商品登録日":
-			info.ReleaseDate = parser.ParseDate(e.ChildText(`.//td[2]`))
-		}
-	})
-
-	// Maker
-	c.OnXML(`//table[@class="contentBoxContentsManufactureInfo"]//td`, func(e *colly.XMLElement) {
-		if info.Maker != "" {
-			return
-		}
-		if strings.Contains(e.Text, "アップロード会員名") {
-			info.Maker = e.ChildText(`.//b`)
-		}
-	})
-
-	// Score
-	c.OnScraped(func(_ *colly.Response) {
-		d := c.Clone()
-		d.OnResponse(func(r *colly.Response) {
-			data := struct {
-				Rating float64 `json:"rating"`
-			}{}
-			if json.Unmarshal(r.Body, &data) == nil {
-				info.Score = data.Rating
+		if name := strings.TrimSpace(e.Text); name != "" {
+			for _, g := range info.Genres {
+				if g == name {
+					return
+				}
 			}
-		})
-		d.Visit(fmt.Sprintf(scoreURL, id))
+			info.Genres = append(info.Genres, name)
+		}
+	})
+
+	// Runtime: the 【26:20】 marker at the tail of og:description
+	c.OnXML(`//meta[@property="og:description"]`, func(e *colly.XMLElement) {
+		if info.Runtime != 0 {
+			return
+		}
+		info.Runtime = parseRuntimeFromText(e.Attr("content"))
+	})
+
+	// JSON-LD Product: take the authoritative name / description / image
+	c.OnResponse(func(r *colly.Response) {
+		m := reLDJSON.FindSubmatch(r.Body)
+		if len(m) != 2 {
+			return
+		}
+		var ld struct {
+			Type  string `json:"@type"`
+			Name  string `json:"name"`
+			Desc  string `json:"description"`
+			Image any    `json:"image"`
+			Brand struct {
+				Name string `json:"name"`
+			} `json:"brand"`
+		}
+		if json.Unmarshal(m[1], &ld) != nil {
+			return
+		}
+		if info.Title == "" {
+			info.Title = strings.TrimSpace(ld.Name)
+		}
+		if info.Summary == "" {
+			info.Summary = strings.TrimSpace(ld.Desc)
+		}
+		if s, ok := ld.Image.(string); ok && info.CoverURL == "" {
+			info.CoverURL = s
+			info.ThumbURL = s
+		}
+		if info.Maker == "" {
+			info.Maker = strings.TrimSpace(ld.Brand.Name)
+		}
 	})
 
 	err = c.Visit(info.Homepage)
+	if err != nil {
+		return
+	}
+
+	// JSON-LD description often has details like "・Time:26min19sec"; fall back to grab the runtime
+	// Note: the new Gcolle page exposes no stable release-date field, so ReleaseDate stays zero.
+	if info.Runtime == 0 {
+		info.Runtime = parseRuntimeFromText(info.Summary)
+	}
+
 	return
+}
+
+// parseRuntimeFromText extracts runtime (minutes) from markers like "【26:20】" / "26min19sec"
+func parseRuntimeFromText(text string) int {
+	// e.g. 【26:20】 or 【1:02:03】
+	if m := reRuntimeFromDesc.FindStringSubmatch(text); len(m) == 4 {
+		h, _ := strconv.Atoi(m[1])
+		mnt, _ := strconv.Atoi(m[2])
+		if h > 0 || mnt > 0 {
+			return h*60 + mnt
+		}
+	}
+	// e.g. "26min19sec"
+	if m := reRuntimeJa.FindStringSubmatch(text); len(m) == 2 {
+		if mnt, err := strconv.Atoi(m[1]); err == nil && mnt > 0 {
+			return mnt
+		}
+	}
+	return 0
 }
 
 func init() {
