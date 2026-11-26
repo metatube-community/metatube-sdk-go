@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"iter"
 	"maps"
 	"reflect"
@@ -50,11 +51,15 @@ func ExtractPayload(page []byte) (payload string, err error) {
 	defer timer.Stop()
 
 	defer func() {
+		// The scripts come from untrusted pages, so report any panic of the
+		// VM as an error, not only the timeout.
 		if r := recover(); r != nil {
-			if r != errScriptTimeout {
-				panic(r)
+			payload = ""
+			if r == errScriptTimeout {
+				err = errScriptTimeout
+			} else {
+				err = fmt.Errorf("nextjs: script panicked: %v", r)
 			}
-			err = errScriptTimeout
 		}
 	}()
 
@@ -107,9 +112,13 @@ func ExtractPayload(page []byte) (payload string, err error) {
 // FindObject unmarshals the object in the RSC payload that best matches v
 // into v. Objects score one point for each field of v they have, by its JSON
 // name and case-insensitively; the highest score wins, and ties go to the
-// first one found. Objects must also have all the given keys, which are
-// required when v has no struct fields, e.g., a map. It returns false if no
-// object matches.
+// first one found. Objects must also have all the given keys, matched
+// exactly, which are required when v has no struct fields, e.g., a map.
+//
+// It returns false if no object matches, or if the best one cannot be
+// unmarshaled into v, which is then left untouched. References to other
+// rows are kept as `$<id>` strings, so fields that may hold them should be
+// typed as string or any.
 func FindObject(payload string, v any, keys ...string) bool {
 	fields := jsonFieldNames(v)
 
@@ -151,7 +160,18 @@ func FindObject(payload string, v any, keys ...string) bool {
 	if err != nil {
 		return false
 	}
-	return json.Unmarshal(b, v) == nil
+	// Unmarshal into a new value first, so that v is left untouched if it
+	// fails halfway.
+	rv := reflect.ValueOf(v)
+	if rv.Kind() != reflect.Pointer || rv.IsNil() {
+		return false
+	}
+	nv := reflect.New(rv.Elem().Type())
+	if json.Unmarshal(b, nv.Interface()) != nil {
+		return false
+	}
+	rv.Elem().Set(nv.Elem())
+	return true
 }
 
 // jsonRows yields the data of the payload rows that are JSON arrays or
@@ -251,14 +271,17 @@ func hasKeys(obj map[string]any, keys []string) bool {
 	return true
 }
 
-// matchFields counts the keys of obj that are in fields, case-insensitively.
-func matchFields(obj map[string]any, fields map[string]struct{}) (n int) {
+// matchFields counts the fields that obj has, case-insensitively. Keys that
+// differ only in case count once.
+func matchFields(obj map[string]any, fields map[string]struct{}) int {
+	matched := make(map[string]struct{})
 	for key := range obj {
-		if _, ok := fields[strings.ToLower(key)]; ok {
-			n++
+		name := strings.ToLower(key)
+		if _, ok := fields[name]; ok {
+			matched[name] = struct{}{}
 		}
 	}
-	return
+	return len(matched)
 }
 
 // jsonFieldNames returns the lowercased JSON names of the fields of v if it

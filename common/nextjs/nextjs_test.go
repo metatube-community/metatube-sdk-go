@@ -97,6 +97,21 @@ func TestFindObject(t *testing.T) {
 	assert.Equal(t, player{Src: "real"},
 		find(fmt.Sprintf("5:T%x,%s6:{\"src\":\"real\"}\n", len(text), text)))
 	assert.Equal(t, player{Src: "real"}, find("5:A4,\x00\x01\x02\x036:{\"src\":\"real\"}\n"))
+
+	// Keys that differ only in case count once.
+	assert.Equal(t, player{Src: "a", Poster: "b"},
+		find(`0:{"src":"x","SRC":"y"}`+"\n"+`1:{"src":"a","poster":"b"}`+"\n"))
+
+	// v is left untouched if the best object cannot be unmarshaled into it,
+	// e.g., a field holding a reference to another row.
+	var tagged struct {
+		Src  string   `json:"src"`
+		Tags []string `json:"tags"`
+	}
+	tagged.Src = "untouched"
+	assert.False(t, FindObject(`0:{"src":"a","tags":"$4"}`+"\n", &tagged))
+	assert.Equal(t, "untouched", tagged.Src)
+	assert.Nil(t, tagged.Tags)
 }
 
 func TestFindObjectDecodeValues(t *testing.T) {
