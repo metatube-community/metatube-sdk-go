@@ -1,12 +1,32 @@
 package nextjs
 
 import (
-	"os"
+	"embed"
+	"encoding/base64"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+)
+
+/*
+  # Generate MD5-hashed pages:
+  for PAGE in *.html; do
+    gbase64 "$PAGE" > "$(md5sum "$PAGE" | cut -d' ' -f1)"
+  done
+
+  # Decode page:
+  gbase64 -d "$PAGE" > "$PAGE".html
+*/
+
+//go:embed testdata/*
+var testdata embed.FS
+
+// Saved Next.js App Router pages in testdata.
+const (
+	heyzoMoviePage  = "55307bfd703df11319fecbfed69883f5" // https://www.heyzo.com/movie/3986
+	fanzaSearchPage = "a0ef9a6847f4d22cca6abc9480b7a3ae" // https://www.dmm.co.jp/search/=/searchstr=SSIS-419/limit=30/sort=rankprofile
 )
 
 const testHTML = `<html><head>
@@ -63,9 +83,11 @@ func TestFindObject(t *testing.T) {
 	assert.False(t, FindObject(testPayload, &v))
 }
 
-func extractTestdata(t *testing.T, name string) string {
+func extractTestdata(t *testing.T, filename string) string {
 	t.Helper()
-	page, err := os.ReadFile("testdata/" + name)
+	data, err := testdata.ReadFile("testdata/" + filename)
+	require.NoError(t, err)
+	page, err := base64.StdEncoding.DecodeString(string(data))
 	require.NoError(t, err)
 	payload, err := ExtractPayload(page)
 	require.NoError(t, err)
@@ -73,9 +95,8 @@ func extractTestdata(t *testing.T, name string) string {
 	return payload
 }
 
-// testdata/heyzo.html is the HEYZO movie page https://www.heyzo.com/movie/3986.
-func TestHeyzoPage(t *testing.T) {
-	payload := extractTestdata(t, "heyzo.html")
+func TestHeyzoMoviePage(t *testing.T) {
+	payload := extractTestdata(t, heyzoMoviePage)
 
 	var player struct {
 		Src    string `json:"src"`
@@ -100,9 +121,8 @@ func TestHeyzoPage(t *testing.T) {
 	}
 }
 
-// testdata/fanza.html is the FANZA search result page of `SSIS-419`.
-func TestFanzaPage(t *testing.T) {
-	payload := extractTestdata(t, "fanza.html")
+func TestFanzaSearchPage(t *testing.T) {
+	payload := extractTestdata(t, fanzaSearchPage)
 
 	var resp struct {
 		BackendResponse struct {
