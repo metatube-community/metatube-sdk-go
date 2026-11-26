@@ -1,6 +1,7 @@
 package js
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,24 +10,21 @@ import (
 	"github.com/robertkrimen/otto"
 )
 
-// ErrTimeout is returned by RunVM when the timeout expires.
-var ErrTimeout = errors.New("js: script execution timed out")
-
-// RunVM calls fn with a new VM, interrupting the scripts it runs once the
-// timeout expires.
-func RunVM(timeout time.Duration, fn func(vm *otto.Otto) error) (err error) {
+// RunVM calls fn with a new VM, interrupting the scripts it runs once ctx
+// is done.
+func RunVM(ctx context.Context, fn func(vm *otto.Otto) error) (err error) {
 	vm := otto.New()
 	vm.Interrupt = make(chan func(), 1)
 
-	timer := time.AfterFunc(timeout, func() {
-		vm.Interrupt <- func() { panic(ErrTimeout) }
+	stop := context.AfterFunc(ctx, func() {
+		vm.Interrupt <- func() { panic(ctx.Err()) }
 	})
-	defer timer.Stop()
+	defer stop()
 
 	defer func() {
 		if r := recover(); r != nil {
-			if r == ErrTimeout {
-				err = ErrTimeout
+			if r == ctx.Err() {
+				err = ctx.Err()
 			} else {
 				err = fmt.Errorf("js: script panicked: %v", r)
 			}
@@ -36,14 +34,15 @@ func RunVM(timeout time.Duration, fn func(vm *otto.Otto) error) (err error) {
 	return fn(vm)
 }
 
-const unmarshalTimeout = 3 * time.Second
-
 func UnmarshalObject[T ~string | ~[]byte](jsCode T, objName string, i any) error {
 	if len(jsCode) == 0 {
 		return errors.New("empty JS code snippet")
 	}
 
-	return RunVM(unmarshalTimeout, func(vm *otto.Otto) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	return RunVM(ctx, func(vm *otto.Otto) error {
 		v, _ := vm.Run(jsCode)
 
 		var err error
