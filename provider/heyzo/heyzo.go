@@ -267,7 +267,7 @@ func (hzo *Heyzo) fetchMovie(id string) (data *movieResponse, err error) {
 	})
 
 	if vErr := c.Visit(fmt.Sprintf(movieAPIURL, url.QueryEscape(id))); vErr != nil {
-		if vErr.Error() == http.StatusText(http.StatusNotFound) {
+		if strings.Contains(vErr.Error(), http.StatusText(http.StatusNotFound)) {
 			// API responds 404 with {"error":"Movie not found"}.
 			return nil, provider.ErrInfoNotFound
 		}
