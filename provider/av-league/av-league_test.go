@@ -13,6 +13,8 @@ func TestAVLeague_GetActorInfoByID(t *testing.T) {
 		"36672",
 		"32759",
 		"36736",
+		"39757",
+		"39744",
 	})
 }
 
@@ -21,5 +23,7 @@ func TestAVLeague_SearchActor(t *testing.T) {
 		"白川ゆず",
 		"美竹すず",
 		"宇流木さら",
+		"八神七々実",
+		"藤沢なみえ",
 	})
 }
