@@ -1,9 +1,5 @@
 name: Prune Docker Images
 
-concurrency:
-  group: ${{ github.workflow }}
-  cancel-in-progress: false
-
 on:
   schedule:
     - cron: "0 3 * * 0"
@@ -11,6 +7,10 @@ on:
 
 permissions:
   packages: write
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
 jobs:
   prune:
