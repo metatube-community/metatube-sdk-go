@@ -41,7 +41,7 @@ hYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq
 aPej7R71+j/2X5HwP9peYfaPeiij+y/IP7S8yhk+tGT60ZPrX2HKj5W7DJ9aKKOVBdn/2Q==
 `
 
-func TestJPEGDecodeNonStandard(t *testing.T) {
+func TestJPEGDecode(t *testing.T) {
 	data, err := base64.StdEncoding.DecodeString(nonStandardSubsamplingJPEG)
 	require.NoError(t, err)
 
@@ -49,7 +49,7 @@ func TestJPEGDecodeNonStandard(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestJPEGDecodeUnsupported(t *testing.T) {
+func TestJPEGDecodeFallback(t *testing.T) {
 	data, err := base64.StdEncoding.DecodeString(unsupportedSubsamplingJPEG)
 	require.NoError(t, err)
 
@@ -59,20 +59,9 @@ func TestJPEGDecodeUnsupported(t *testing.T) {
 
 	_, err = jpegli.Decode(bytes.NewReader(data))
 	require.NoError(t, err)
-}
 
-func TestJPEGDecode(t *testing.T) {
-	for _, test := range []struct {
-		encoded string
-	}{
-		{encoded: nonStandardSubsamplingJPEG},
-		{encoded: unsupportedSubsamplingJPEG},
-	} {
-		data, err := base64.StdEncoding.DecodeString(test.encoded)
-		require.NoError(t, err)
-
-		_, format, err := Decode(bytes.NewReader(data))
-		require.NoError(t, err)
-		require.Equal(t, "jpeg", format)
-	}
+	// Decode falls back to jpegli.
+	_, format, err := Decode(bytes.NewReader(data))
+	require.NoError(t, err)
+	require.Equal(t, "jpeg", format)
 }
