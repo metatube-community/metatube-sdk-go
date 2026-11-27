@@ -611,8 +611,8 @@ components:
 
     ActorInfo:
       type: object
-      required: [id, name, provider, homepage, summary, hobby, skill, blood_type, cup_size,
-        measurements, nationality, height, aliases, images, birthday, debut_date]
+      required: [id, name, provider, homepage, summary, hobby, skill, blood_type, cup_size, measurements, nationality,
+                 height, aliases, images, birthday, debut_date]
       properties:
         id:
           type: string
@@ -676,9 +676,9 @@ components:
 
     MovieInfo:
       type: object
-      required: [id, number, title, summary, provider, homepage, director, actors, thumb_url,
-        big_thumb_url, cover_url, big_cover_url, preview_video_url, preview_video_hls_url,
-        preview_images, maker, label, series, genres, score, runtime, release_date]
+      required: [id, number, title, summary, provider, homepage, director, actors, thumb_url, big_thumb_url, cover_url,
+                 big_cover_url, preview_video_url, preview_video_hls_url, preview_images, maker, label, series, genres,
+                 score, runtime, release_date]
       properties:
         id:
           type: string
