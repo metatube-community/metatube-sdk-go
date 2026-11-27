@@ -1,4 +1,4 @@
-name: Prune Untagged Images
+name: GHCR Cleanup
 
 concurrency:
   group: ${{ github.workflow }}
@@ -13,8 +13,7 @@ permissions:
   packages: write
 
 jobs:
-  prune:
-    name: Prune
+  cleanup:
     runs-on: ubuntu-latest
     steps:
       - name: Delete untagged images
