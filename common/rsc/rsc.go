@@ -89,7 +89,9 @@ func ExtractNextPayload(page []byte) (string, error) {
 }
 
 var (
-	ErrNotFound  = errors.New("rsc: object not found")
+	// ErrNotFound means no object in the payload matches.
+	ErrNotFound = errors.New("rsc: object not found")
+	// ErrAmbiguous means objects tied for the best match decode differently.
 	ErrAmbiguous = errors.New("rsc: multiple objects match")
 )
 
