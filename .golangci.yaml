@@ -16,7 +16,7 @@ linters:
       - common-false-positives
       - legacy
       - std-error-handling
-    paths: [ ]
+    paths: []
 formatters:
   enable:
     - gci
@@ -30,4 +30,4 @@ formatters:
       custom-order: true
   exclusions:
     generated: lax
-    paths: [ ]
+    paths: []

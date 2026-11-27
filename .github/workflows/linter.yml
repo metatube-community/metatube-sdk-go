@@ -34,3 +34,11 @@ jobs:
         uses: golangci/golangci-lint-action@v9
         with:
           version: latest
+
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: yamllint
+        run: yamllint --strict --format github .
