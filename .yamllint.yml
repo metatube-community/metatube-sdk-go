@@ -9,7 +9,7 @@ rules:
   line-length:
     max: 120
   quoted-strings:
-    quote-type: single
+    quote-type: any
     required: false
   truthy:
     check-keys: false

@@ -1,4 +1,4 @@
-name: CodeQL
+name: "CodeQL"
 
 concurrency:
   group: codeql-${{ github.event_name }}-${{ github.ref }}
