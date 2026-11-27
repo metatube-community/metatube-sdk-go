@@ -1,4 +1,4 @@
-name: Clean Up GHCR Images
+name: Prune Docker Images
 
 concurrency:
   group: ${{ github.workflow }}
@@ -13,8 +13,8 @@ permissions:
   packages: write
 
 jobs:
-  cleanup:
-    name: Cleanup
+  prune:
+    name: Prune
     runs-on: ubuntu-latest
     steps:
       - name: Delete untagged images
