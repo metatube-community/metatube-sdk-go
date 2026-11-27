@@ -178,7 +178,6 @@ func (hzo *Heyzo) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err e
 func (hzo *Heyzo) scrapeMoviePage(info *model.MovieInfo) (err error) {
 	c := hzo.ClonedCollector()
 
-	// The server responds 404 Not Found for non-HTML requests.
 	c.OnRequest(scraper.AcceptHTML)
 
 	c.OnResponse(func(r *colly.Response) {

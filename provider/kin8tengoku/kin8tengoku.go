@@ -82,7 +82,6 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 	}
 
 	c := k8.ClonedCollector()
-	// The server responds 404 Not Found for non-HTML requests.
 	c.OnRequest(scraper.AcceptHTML)
 
 	// Fields
@@ -188,7 +187,6 @@ func (k8 *KIN8) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDeta
 
 func (k8 *KIN8) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewDetail, err error) {
 	c := k8.ClonedCollector()
-	// The server responds 404 Not Found for non-HTML requests.
 	c.OnRequest(scraper.AcceptHTML)
 
 	c.OnResponse(func(r *colly.Response) {
