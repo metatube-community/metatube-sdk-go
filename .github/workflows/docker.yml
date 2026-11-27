@@ -44,7 +44,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Docker meta
+      - name: Docker metadata
         id: meta
         uses: docker/metadata-action@v6
         with:
