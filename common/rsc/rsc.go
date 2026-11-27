@@ -3,6 +3,7 @@ package rsc
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -91,7 +92,7 @@ var (
 )
 
 // FindObject unmarshals the object in the RSC payload that matches the most
-// fields of v into v. Objects tied for the most that decode differently are ambiguous.
+// fields of v into v, or fails with ErrAmbiguous if tied objects differ.
 func FindObject(payload string, v any, opts ...Option) error {
 	rv := reflect.ValueOf(v)
 	if rv.Kind() != reflect.Pointer || rv.IsNil() {
@@ -104,14 +105,10 @@ func FindObject(payload string, v any, opts ...Option) error {
 	}
 
 	fields := jsonFieldNames(v)
-	// Struct objects must match at least one field.
-	bestScore := 1
-	if len(fields) == 0 {
-		if len(o.keys) == 0 {
-			return fmt.Errorf("rsc: no fields or keys to match for %T", v)
-		}
-		bestScore = 0
+	if len(fields) == 0 && len(o.keys) == 0 {
+		return fmt.Errorf("rsc: no fields or keys to match for %T", v)
 	}
+	bestScore := min(len(fields), 1) // struct objects must match a field
 
 	var candidates []map[string]any
 	for data := range jsonRows(payload) {
@@ -140,19 +137,19 @@ func FindObject(payload string, v any, opts ...Option) error {
 		first     any
 		decodeErr error
 	)
+	t := rv.Elem().Type()
 	for _, c := range candidates {
-		// Unmarshal into a zero value first to leave v untouched on failure.
-		d := reflect.New(rv.Elem().Type()).Interface()
+		// Decode into a zero value to compare candidates and leave v untouched.
+		d := reflect.New(t).Interface()
 		b, err := json.Marshal(decodeValue(c))
 		if err == nil {
 			err = json.Unmarshal(b, d)
 		}
+		if err != nil { // not a match
+			decodeErr = cmp.Or(decodeErr, err)
+			continue
+		}
 		switch {
-		case err != nil:
-			// Candidates that cannot be decoded into v are not matches.
-			if decodeErr == nil {
-				decodeErr = err
-			}
 		case first == nil:
 			match, first = b, d
 		case !reflect.DeepEqual(first, d):

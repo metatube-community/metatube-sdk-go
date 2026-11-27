@@ -191,7 +191,7 @@ func (hzo *Heyzo) scrapeMoviePage(info *model.MovieInfo) (err error) {
 		props := playerProps{}
 		// Require the poster key, so other objects with a `src` or `type`
 		// field, e.g., images, are not mistaken for the video player.
-		// The player is optional, so any error leaves its fields empty.
+		// The player is optional.
 		if rsc.FindObject(payload, &props, rsc.RequireKeys("poster")) != nil {
 			return
 		}

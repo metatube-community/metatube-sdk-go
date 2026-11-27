@@ -111,7 +111,7 @@ func TestFindObject(t *testing.T) {
 	// Keys that differ only in case count once.
 	assert.Equal(t, player{Src: "a", Poster: "b"},
 		find(`0:{"src":"x","SRC":"y"}`+"\n"+`1:{"src":"a","poster":"b"}`+"\n"))
-	// Required keys are compared exactly.
+	// Required keys are compared case-sensitively.
 	assert.ErrorIs(t, FindObject(`0:{"src":"a"}`+"\n", new(player), RequireKeys("SRC")), ErrNotFound)
 
 	// v is left untouched on failure.
