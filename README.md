@@ -6,10 +6,7 @@
 [![GitHub License](https://img.shields.io/github/license/metatube-community/metatube-sdk-go?color=e4682a&logo=apache&style=flat-square)](https://github.com/metatube-community/metatube-sdk-go/blob/main/LICENSE)
 [![Tag](https://img.shields.io/github/v/tag/metatube-community/metatube-sdk-go?color=%23ff8936&logo=git&logoColor=white&style=flat-square)](https://github.com/metatube-community/metatube-sdk-go/tags)
 
-MetaTube SDK and API server in Golang, serving metadata to
-the [Jellyfin/Emby plugin](https://github.com/metatube-community/jellyfin-plugin-metatube)
-and the [Plex plug-ins](https://github.com/metatube-community/metatube-plex-plugins).
-See the [documentation](https://metatube-community.github.io) to set up the server.
+MetaTube SDK and API server in Golang. See the [documentation](https://metatube-community.github.io) for setup.
 
 ## Features
 
