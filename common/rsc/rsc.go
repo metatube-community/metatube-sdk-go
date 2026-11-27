@@ -10,8 +10,10 @@ import (
 	"errors"
 	"fmt"
 	"iter"
+	"maps"
 	"reflect"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -224,13 +226,13 @@ func decodeValue(v any) any {
 	return v
 }
 
-// walkObjects calls visit for every object in node.
+// walkObjects calls visit for every object in node, visiting keys in sorted order.
 func walkObjects(node any, visit func(map[string]any)) {
 	switch n := node.(type) {
 	case map[string]any:
 		visit(n)
-		for _, child := range n {
-			walkObjects(child, visit)
+		for _, key := range slices.Sorted(maps.Keys(n)) {
+			walkObjects(n[key], visit)
 		}
 	case []any:
 		for _, child := range n {
