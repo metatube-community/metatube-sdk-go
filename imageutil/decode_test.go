@@ -63,16 +63,18 @@ func TestJPEGDecodeUnsupported(t *testing.T) {
 
 func TestJPEGDecode(t *testing.T) {
 	for _, test := range []struct {
-		encoded string
+		name, encoded string
 	}{
-		{encoded: nonStandardSubsamplingJPEG},
-		{encoded: unsupportedSubsamplingJPEG},
+		{name: "nonstandard", encoded: nonStandardSubsamplingJPEG},
+		{name: "unsupported", encoded: unsupportedSubsamplingJPEG},
 	} {
-		data, err := base64.StdEncoding.DecodeString(test.encoded)
-		require.NoError(t, err)
+		t.Run(test.name, func(t *testing.T) {
+			data, err := base64.StdEncoding.DecodeString(test.encoded)
+			require.NoError(t, err)
 
-		_, format, err := Decode(bytes.NewReader(data))
-		require.NoError(t, err)
-		require.Equal(t, "jpeg", format)
+			_, format, err := Decode(bytes.NewReader(data))
+			require.NoError(t, err)
+			require.Equal(t, "jpeg", format)
+		})
 	}
 }
