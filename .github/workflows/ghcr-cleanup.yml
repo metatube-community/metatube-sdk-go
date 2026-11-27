@@ -1,7 +1,8 @@
 name: Clean Up GHCR Images
 
 concurrency:
-  group: ghcr-cleanup
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
 on:
   schedule:
