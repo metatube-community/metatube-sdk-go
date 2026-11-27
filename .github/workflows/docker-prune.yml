@@ -1,4 +1,4 @@
-name: Prune Docker Images
+name: Prune Untagged Images
 
 concurrency:
   group: ${{ github.workflow }}
