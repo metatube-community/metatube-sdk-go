@@ -215,7 +215,7 @@ func (s *TestdataTestSuite) TestFindObject() {
 			s.Require().Contains(s.payloads, unit.filename)
 
 			got := reflect.New(reflect.TypeOf(unit.want))
-			s.Require().True(FindObject(s.payloads[unit.filename], got.Interface()))
+			s.Require().NoError(FindObject(s.payloads[unit.filename], got.Interface()))
 			s.Equal(unit.want, got.Elem().Interface())
 		})
 	}

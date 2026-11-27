@@ -2,6 +2,7 @@ package rsc
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
@@ -59,8 +60,8 @@ func TestFindObject(t *testing.T) {
 		Title    string `json:"title"` // not in the payloads.
 	}
 
-	find := func(payload string, keys ...string) (p player) {
-		require.True(t, FindObject(payload, &p, keys...))
+	find := func(payload string, opts ...Option) (p player) {
+		require.NoError(t, FindObject(payload, &p, opts...))
 		return
 	}
 
@@ -72,22 +73,34 @@ func TestFindObject(t *testing.T) {
 
 	// Objects without any field of v never match.
 	var unknown struct{ Foo string }
-	assert.False(t, FindObject(samplePayload, &unknown))
-	assert.False(t, FindObject(samplePayload, &unknown, "src"))
+	assert.EqualError(t, FindObject(samplePayload, &unknown), "rsc: object not found: *struct { Foo string }")
+	assert.ErrorIs(t, FindObject(samplePayload, &unknown, RequireKeys("src")), ErrNotFound)
 
 	// The second object matches more fields.
 	const payload = `0:[{"src":"a.jpg","alt":"a"},{"src":"b.m3u8","poster":"b.jpg","movieseq":2}]` + "\n"
 	assert.Equal(t, player{Src: "b.m3u8", Poster: "b.jpg", MovieSeq: 2}, find(payload))
 
-	// Keys narrow down the candidates.
-	assert.Equal(t, player{Src: "a.jpg"}, find(payload, "alt"))
-	assert.False(t, FindObject(payload, new(player), "missing"))
+	// Required keys narrow down the candidates.
+	assert.Equal(t, player{Src: "a.jpg"}, find(payload, RequireKeys("alt")))
+	assert.ErrorIs(t, FindObject(payload, new(player), RequireKeys("missing")), ErrNotFound)
+
+	// Objects tied for best that decode to the same value are one match.
+	assert.Equal(t, player{Src: "a", Poster: "b"},
+		find(`0:{"src":"a","poster":"b","id":1}`+"\n"+`1:[{"src":"a","poster":"b","id":2}]`+"\n"))
+	assert.EqualError(t, FindObject(`0:[{"src":"a","poster":"b"},{"src":"c","poster":"d"}]`+"\n",
+		new(player)), "rsc: multiple objects match: *rsc.player")
+	assert.Equal(t, player{Src: "c", Poster: "d", MovieSeq: 1},
+		find(`0:[{"src":"a","poster":"b"},{"src":"c","poster":"d","movieSeq":1}]`+"\n"))
 
 	// A map has no fields, so keys are required.
 	var m map[string]any
-	assert.False(t, FindObject(payload, &m))
-	require.True(t, FindObject(payload, &m, "poster"))
+	assert.Error(t, FindObject(payload, &m))
+	require.NoError(t, FindObject(payload, &m, RequireKeys("poster")))
 	assert.Equal(t, "b.m3u8", m["src"])
+
+	// v must be a non-nil pointer.
+	assert.Error(t, FindObject(payload, player{}))
+	assert.Error(t, FindObject(payload, (*player)(nil)))
 
 	// Length-prefixed rows are skipped, even with newlines.
 	const text = "a\n7:{\"src\":\"fake\"}\n"
@@ -98,6 +111,8 @@ func TestFindObject(t *testing.T) {
 	// Keys that differ only in case count once.
 	assert.Equal(t, player{Src: "a", Poster: "b"},
 		find(`0:{"src":"x","SRC":"y"}`+"\n"+`1:{"src":"a","poster":"b"}`+"\n"))
+	// Required keys are compared case-sensitively.
+	assert.ErrorIs(t, FindObject(`0:{"src":"a"}`+"\n", new(player), RequireKeys("SRC")), ErrNotFound)
 
 	// v is left untouched on failure.
 	var tagged struct {
@@ -105,17 +120,23 @@ func TestFindObject(t *testing.T) {
 		Tags []string `json:"tags"`
 	}
 	tagged.Src = "untouched"
-	assert.False(t, FindObject(`0:{"src":"a","tags":"$4"}`+"\n", &tagged))
+	var typeErr *json.UnmarshalTypeError
+	assert.ErrorAs(t, FindObject(`0:{"src":"a","tags":"$4"}`+"\n", &tagged), &typeErr)
 	assert.Equal(t, "untouched", tagged.Src)
 	assert.Nil(t, tagged.Tags)
 
+	// Tied candidates that cannot be decoded into v are skipped.
+	require.NoError(t, FindObject(`0:[{"src":"a","tags":"$4"},{"src":"b","tags":["x"]}]`+"\n", &tagged))
+	assert.Equal(t, "b", tagged.Src)
+	assert.Equal(t, []string{"x"}, tagged.Tags)
+
 	// The object is merged into v.
 	merged := player{Title: "default"}
-	require.True(t, FindObject(`0:{"src":"a","poster":"b"}`+"\n", &merged))
+	require.NoError(t, FindObject(`0:{"src":"a","poster":"b"}`+"\n", &merged))
 	assert.Equal(t, player{Src: "a", Poster: "b", Title: "default"}, merged)
 
 	kept := map[string]any{"keep": 1}
-	require.True(t, FindObject(`0:{"src":"a"}`+"\n", &kept, "src"))
+	require.NoError(t, FindObject(`0:{"src":"a"}`+"\n", &kept, RequireKeys("src")))
 	assert.Equal(t, map[string]any{"keep": 1, "src": "a"}, kept)
 }
 
@@ -127,7 +148,7 @@ func TestFindObjectDecodeValues(t *testing.T) {
 		Size  int64     `json:"size"`
 		NaN   *float64  `json:"nan"`
 	}
-	require.True(t, FindObject(`0:{"src":"$undefined","price":"$$5",`+
+	require.NoError(t, FindObject(`0:{"src":"$undefined","price":"$$5",`+
 		`"date":"$D2026-11-23T00:00:00.000Z","size":"$n123","nan":"$NaN"}`+"\n", &v))
 	assert.Empty(t, v.Src)
 	assert.Equal(t, "$5", v.Price)
