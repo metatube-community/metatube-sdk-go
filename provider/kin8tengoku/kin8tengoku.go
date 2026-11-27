@@ -198,6 +198,8 @@ type movieData struct {
 		MemoUTF8 string `json:"memo_utf8"`
 		Duration int    `json:"duration"` // seconds
 	} `json:"detail"`
+	IsPreRelease  bool `json:"isPreRelease"`
+	AvailableDays int  `json:"availableDays"`
 }
 
 // locale is the locale the provider browses the site in.
