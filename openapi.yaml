@@ -8,14 +8,6 @@ info:
   version: v1
 servers:
   - url: http://localhost:8080
-tags:
-  - name: System
-  - name: Images
-  - name: Translate
-  - name: Actors
-  - name: Movies
-  - name: Reviews
-  - name: Database
 paths:
   /:
     get:
@@ -26,7 +18,6 @@ paths:
       parameters:
         - name: redirect
           in: query
-          required: false
           description: '`provider:id` pair; a trailing position suffix is ignored.'
           schema:
             type: string
@@ -55,11 +46,7 @@ paths:
             Location:
               schema:
                 type: string
-        '400':
-          $ref: '#/components/responses/Error'
-        '404':
-          $ref: '#/components/responses/Error'
-        '500':
+        default:
           $ref: '#/components/responses/Error'
 
   /v1/modules:
@@ -115,6 +102,71 @@ paths:
                         additionalProperties:
                           type: string
 
+  /v1/images/primary/{provider}/{id}:
+    get:
+      tags: [Images]
+      operationId: getPrimaryImage
+      summary: Get a primary (poster) image
+      description: Crops to 2:3; without `url`, `ratio` and `pos` apply to movies only.
+      parameters:
+        - $ref: '#/components/parameters/Provider'
+        - $ref: '#/components/parameters/ID'
+        - $ref: '#/components/parameters/ImageURL'
+        - name: ratio
+          in: query
+          description: Crop aspect ratio (width / height); negative means 2:3.
+          schema:
+            type: number
+            format: double
+            default: -1
+        - $ref: '#/components/parameters/ImagePosition'
+        - $ref: '#/components/parameters/ImageAuto'
+        - $ref: '#/components/parameters/ImageBadge'
+        - $ref: '#/components/parameters/ImageQuality'
+      responses:
+        '200':
+          $ref: '#/components/responses/Image'
+        default:
+          $ref: '#/components/responses/Error'
+
+  /v1/images/thumb/{provider}/{id}:
+    get:
+      tags: [Images]
+      operationId: getThumbImage
+      summary: Get a thumb image
+      description: Crops to 16:9; actor providers require `url`.
+      parameters:
+        - $ref: '#/components/parameters/Provider'
+        - $ref: '#/components/parameters/ID'
+        - $ref: '#/components/parameters/ImageURL'
+        - $ref: '#/components/parameters/ImagePosition'
+        - $ref: '#/components/parameters/ImageAuto'
+        - $ref: '#/components/parameters/ImageBadge'
+        - $ref: '#/components/parameters/ImageQuality'
+      responses:
+        '200':
+          $ref: '#/components/responses/Image'
+        default:
+          $ref: '#/components/responses/Error'
+
+  /v1/images/backdrop/{provider}/{id}:
+    get:
+      tags: [Images]
+      operationId: getBackdropImage
+      summary: Get a backdrop image
+      description: Not cropped; actor providers require `url`.
+      parameters:
+        - $ref: '#/components/parameters/Provider'
+        - $ref: '#/components/parameters/ID'
+        - $ref: '#/components/parameters/ImageURL'
+        - $ref: '#/components/parameters/ImageBadge'
+        - $ref: '#/components/parameters/ImageQuality'
+      responses:
+        '200':
+          $ref: '#/components/responses/Image'
+        default:
+          $ref: '#/components/responses/Error'
+
   /v1/translate:
     get:
       tags: [Translate]
@@ -129,7 +181,6 @@ paths:
             type: string
         - name: from
           in: query
-          required: false
           description: Source language.
           schema:
             type: string
@@ -203,87 +254,7 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/TranslateResult'
-        '400':
-          $ref: '#/components/responses/Error'
-        '500':
-          $ref: '#/components/responses/Error'
-
-  /v1/images/primary/{provider}/{id}:
-    get:
-      tags: [Images]
-      operationId: getPrimaryImage
-      summary: Get a primary (poster) image
-      description: 'Crops to 2:3; without `url`, `ratio` and `pos` apply to movies only.'
-      parameters:
-        - $ref: '#/components/parameters/Provider'
-        - $ref: '#/components/parameters/ID'
-        - $ref: '#/components/parameters/ImageURL'
-        - name: ratio
-          in: query
-          required: false
-          description: 'Crop aspect ratio (width / height); negative means 2:3.'
-          schema:
-            type: number
-            format: double
-            default: -1
-        - $ref: '#/components/parameters/ImagePosition'
-        - $ref: '#/components/parameters/ImageAuto'
-        - $ref: '#/components/parameters/ImageBadge'
-        - $ref: '#/components/parameters/ImageQuality'
-      responses:
-        '200':
-          $ref: '#/components/responses/Image'
-        '400':
-          $ref: '#/components/responses/Error'
-        '404':
-          $ref: '#/components/responses/Error'
-        '500':
-          $ref: '#/components/responses/Error'
-
-  /v1/images/thumb/{provider}/{id}:
-    get:
-      tags: [Images]
-      operationId: getThumbImage
-      summary: Get a thumb image
-      description: 'Crops to 16:9; actor providers require `url`.'
-      parameters:
-        - $ref: '#/components/parameters/Provider'
-        - $ref: '#/components/parameters/ID'
-        - $ref: '#/components/parameters/ImageURL'
-        - $ref: '#/components/parameters/ImagePosition'
-        - $ref: '#/components/parameters/ImageAuto'
-        - $ref: '#/components/parameters/ImageBadge'
-        - $ref: '#/components/parameters/ImageQuality'
-      responses:
-        '200':
-          $ref: '#/components/responses/Image'
-        '400':
-          $ref: '#/components/responses/Error'
-        '404':
-          $ref: '#/components/responses/Error'
-        '500':
-          $ref: '#/components/responses/Error'
-
-  /v1/images/backdrop/{provider}/{id}:
-    get:
-      tags: [Images]
-      operationId: getBackdropImage
-      summary: Get a backdrop image
-      description: Not cropped; actor providers require `url`.
-      parameters:
-        - $ref: '#/components/parameters/Provider'
-        - $ref: '#/components/parameters/ID'
-        - $ref: '#/components/parameters/ImageURL'
-        - $ref: '#/components/parameters/ImageBadge'
-        - $ref: '#/components/parameters/ImageQuality'
-      responses:
-        '200':
-          $ref: '#/components/responses/Image'
-        '400':
-          $ref: '#/components/responses/Error'
-        '404':
-          $ref: '#/components/responses/Error'
-        '500':
+        default:
           $ref: '#/components/responses/Error'
 
   /v1/db/version:
@@ -309,9 +280,7 @@ paths:
                     properties:
                       version:
                         type: string
-        '401':
-          $ref: '#/components/responses/Error'
-        '500':
+        default:
           $ref: '#/components/responses/Error'
 
   /v1/actors/{provider}/{id}:
@@ -337,13 +306,7 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/ActorInfo'
-        '400':
-          $ref: '#/components/responses/Error'
-        '401':
-          $ref: '#/components/responses/Error'
-        '404':
-          $ref: '#/components/responses/Error'
-        '500':
+        default:
           $ref: '#/components/responses/Error'
 
   /v1/actors/search:
@@ -372,13 +335,7 @@ paths:
                     minItems: 1
                     items:
                       $ref: '#/components/schemas/ActorSearchResult'
-        '400':
-          $ref: '#/components/responses/Error'
-        '401':
-          $ref: '#/components/responses/Error'
-        '404':
-          $ref: '#/components/responses/Error'
-        '500':
+        default:
           $ref: '#/components/responses/Error'
 
   /v1/movies/{provider}/{id}:
@@ -404,13 +361,7 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/MovieInfo'
-        '400':
-          $ref: '#/components/responses/Error'
-        '401':
-          $ref: '#/components/responses/Error'
-        '404':
-          $ref: '#/components/responses/Error'
-        '500':
+        default:
           $ref: '#/components/responses/Error'
 
   /v1/movies/search:
@@ -439,13 +390,7 @@ paths:
                     minItems: 1
                     items:
                       $ref: '#/components/schemas/MovieSearchResult'
-        '400':
-          $ref: '#/components/responses/Error'
-        '401':
-          $ref: '#/components/responses/Error'
-        '404':
-          $ref: '#/components/responses/Error'
-        '500':
+        default:
           $ref: '#/components/responses/Error'
 
   /v1/reviews/{provider}/{id}:
@@ -462,7 +407,6 @@ paths:
         - $ref: '#/components/parameters/ID'
         - name: homepage
           in: query
-          required: false
           description: Movie page URL to fetch reviews from.
           schema:
             type: string
@@ -480,13 +424,7 @@ paths:
                     type: [array, 'null']
                     items:
                       $ref: '#/components/schemas/MovieReviewDetail'
-        '400':
-          $ref: '#/components/responses/Error'
-        '401':
-          $ref: '#/components/responses/Error'
-        '404':
-          $ref: '#/components/responses/Error'
-        '500':
+        default:
           $ref: '#/components/responses/Error'
 
 components:
@@ -523,7 +461,6 @@ components:
     Lazy:
       name: lazy
       in: query
-      required: false
       description: Read from the database first.
       schema:
         type: boolean
@@ -538,14 +475,12 @@ components:
     SearchProvider:
       name: provider
       in: query
-      required: false
       description: Search only this provider instead of all.
       schema:
         type: string
     SearchFallback:
       name: fallback
       in: query
-      required: false
       description: Also include matching results from the database.
       schema:
         type: boolean
@@ -553,14 +488,12 @@ components:
     ImageURL:
       name: url
       in: query
-      required: false
       description: Image URL to use instead of the default image.
       schema:
         type: string
     ImagePosition:
       name: pos
       in: query
-      required: false
       description: Crop center from 0 to 1; negative means the default.
       schema:
         type: number
@@ -569,7 +502,6 @@ components:
     ImageAuto:
       name: auto
       in: query
-      required: false
       description: Detect faces to choose the crop position; only applies with `url`.
       schema:
         type: boolean
@@ -577,14 +509,12 @@ components:
     ImageBadge:
       name: badge
       in: query
-      required: false
       description: URL of a badge image to overlay at the top-left corner.
       schema:
         type: string
     ImageQuality:
       name: quality
       in: query
-      required: false
       description: JPEG quality, clamped to 1-100.
       schema:
         type: integer
@@ -681,23 +611,8 @@ components:
 
     ActorInfo:
       type: object
-      required:
-        - id
-        - name
-        - provider
-        - homepage
-        - summary
-        - hobby
-        - skill
-        - blood_type
-        - cup_size
-        - measurements
-        - nationality
-        - height
-        - aliases
-        - images
-        - birthday
-        - debut_date
+      required: [id, name, provider, homepage, summary, hobby, skill, blood_type, cup_size,
+        measurements, nationality, height, aliases, images, birthday, debut_date]
       properties:
         id:
           type: string
@@ -761,29 +676,9 @@ components:
 
     MovieInfo:
       type: object
-      required:
-        - id
-        - number
-        - title
-        - summary
-        - provider
-        - homepage
-        - director
-        - actors
-        - thumb_url
-        - big_thumb_url
-        - cover_url
-        - big_cover_url
-        - preview_video_url
-        - preview_video_hls_url
-        - preview_images
-        - maker
-        - label
-        - series
-        - genres
-        - score
-        - runtime
-        - release_date
+      required: [id, number, title, summary, provider, homepage, director, actors, thumb_url,
+        big_thumb_url, cover_url, big_cover_url, preview_video_url, preview_video_hls_url,
+        preview_images, maker, label, series, genres, score, runtime, release_date]
       properties:
         id:
           type: string
