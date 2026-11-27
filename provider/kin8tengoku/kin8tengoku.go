@@ -84,8 +84,6 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		r.Headers.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 	})
 
-	hasMovieData := false
-
 	// Fields
 	c.OnResponse(func(r *colly.Response) {
 		var payload string
@@ -96,7 +94,6 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		if rsc.FindObject(payload, &data, rsc.RequireKeys("movie_seq", "name_utf8", "detail")) != nil {
 			return
 		}
-		hasMovieData = true
 		info.Title = data.NameUTF8
 		info.CoverURL = thumbnailURL(data.MovieID, locale)
 		info.ThumbURL = info.CoverURL /* use cover as thumb */
@@ -141,19 +138,17 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 
 	// Cover+Thumb (fallback when the RSC payload has no movie data)
 	c.OnXML(`//meta[@property="og:image"]`, func(e *colly.XMLElement) {
-		if hasMovieData {
-			return
+		if info.CoverURL == "" {
+			info.CoverURL = e.Request.AbsoluteURL(e.Attr("content"))
+			info.ThumbURL = info.CoverURL /* use cover as thumb */
 		}
-		info.CoverURL = e.Request.AbsoluteURL(e.Attr("content"))
-		info.ThumbURL = info.CoverURL /* use cover as thumb */
 	})
 
 	// Preview Video (fallback when the RSC payload has no movie data)
 	c.OnXML(`//meta[@property="og:video"]`, func(e *colly.XMLElement) {
-		if hasMovieData {
-			return
+		if info.PreviewVideoURL == "" {
+			info.PreviewVideoURL = e.Request.AbsoluteURL(e.Attr("content"))
 		}
-		info.PreviewVideoURL = e.Request.AbsoluteURL(e.Attr("content"))
 	})
 
 	if vErr := c.Visit(info.Homepage); vErr != nil {
