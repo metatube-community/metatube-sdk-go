@@ -21,3 +21,11 @@ func TestKIN8_GetMovieInfoByID(t *testing.T) {
 		"1662",
 	})
 }
+
+func TestKIN8_GetMovieReviewsByID(t *testing.T) {
+	testkit.Test(t, New, []string{
+		"3604",
+		"3556",
+		"4054",
+	})
+}

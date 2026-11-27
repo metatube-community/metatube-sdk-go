@@ -83,3 +83,9 @@ func (s *Scraper) SetProxy(proxyURL string) error { return s.c.SetProxy(proxyURL
 
 // SetRequestTimeout sets timeout for HTTP requests.
 func (s *Scraper) SetRequestTimeout(timeout time.Duration) { s.c.SetRequestTimeout(timeout) }
+
+// AcceptHTML is a request callback that sets the Accept header browsers send
+// for pages, for servers that only serve HTML to such requests.
+func AcceptHTML(r *colly.Request) {
+	r.Headers.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+}
