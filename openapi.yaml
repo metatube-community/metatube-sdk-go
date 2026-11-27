@@ -1,0 +1,898 @@
+openapi: 3.0.3
+info:
+  title: MetaTube API
+  description: |
+    HTTP API served by `cmd/server`.
+
+    Every JSON response, except `GET /v1/modules`, is wrapped in an envelope:
+    `{"data": ...}` on success, or `{"error": {"code": ..., "message": ...}}` on failure.
+    Unmatched routes return `404` with the same error envelope.
+
+    Any request, on any path, that carries the `redirect` query parameter is
+    intercepted before routing and authentication; see `GET /`.
+  license:
+    name: Apache-2.0
+    url: https://github.com/metatube-community/metatube-sdk-go/blob/main/LICENSE
+  version: v1
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: System
+  - name: Images
+  - name: Translate
+  - name: Actors
+  - name: Movies
+  - name: Reviews
+  - name: Database
+paths:
+  /:
+    get:
+      tags: [System]
+      operationId: getIndex
+      summary: Get the app name and version
+      description: |
+        With the `redirect` query parameter, responds with a `307` redirect to the
+        homepage of the given actor or movie instead. The redirect is handled by a
+        global middleware, so it works the same on every path and never requires
+        authentication.
+      parameters:
+        - name: redirect
+          in: query
+          required: false
+          description: |
+            A `provider:id` pair, with the id query-escaped. A trailing position
+            suffix (`:0`, `:1`, `:0.5`, ...) is ignored. Actor providers are checked
+            before movie providers. Info is looked up lazily (database first).
+          schema:
+            type: string
+          example: FANZA:ssis00001
+      responses:
+        '200':
+          description: App info, when `redirect` is absent or empty.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [app, version]
+                    properties:
+                      app:
+                        type: string
+                        example: metatube
+                      version:
+                        type: string
+        '307':
+          description: Redirect to the actor or movie homepage.
+          headers:
+            Location:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /v1/modules:
+    get:
+      tags: [System]
+      operationId: getModules
+      summary: List the Go modules the server was built with
+      description: The only JSON response not wrapped in the `data` envelope.
+      responses:
+        '200':
+          description: Build dependencies from `debug.ReadBuildInfo`.
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [modules]
+                properties:
+                  modules:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Module'
+
+  /v1/providers:
+    get:
+      tags: [System]
+      operationId: getProviders
+      summary: List the registered providers
+      responses:
+        '200':
+          description: Provider names mapped to their base URLs.
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [actor_providers, movie_providers]
+                    properties:
+                      actor_providers:
+                        type: object
+                        additionalProperties:
+                          type: string
+                      movie_providers:
+                        type: object
+                        additionalProperties:
+                          type: string
+
+  /v1/translate:
+    get:
+      tags: [Translate]
+      operationId: translate
+      summary: Translate text
+      description: |
+        Engine credentials are passed as query parameters; only those of the
+        selected engine are read. An unknown engine or a failed translation
+        returns `500`, unless the engine reports its own HTTP error code.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          description: Source language.
+          schema:
+            type: string
+            default: auto
+        - name: to
+          in: query
+          required: true
+          description: Target language.
+          schema:
+            type: string
+        - name: engine
+          in: query
+          required: true
+          description: Translation engine, matched case-insensitively.
+          schema:
+            type: string
+            enum: [baidu, deepl, google, googlefree, openai]
+        - name: baidu-app-id
+          in: query
+          schema:
+            type: string
+        - name: baidu-app-key
+          in: query
+          schema:
+            type: string
+        - name: deepl-api-key
+          in: query
+          schema:
+            type: string
+        - name: deepl-api-url
+          in: query
+          description: Optional DeepL(X) API URL.
+          schema:
+            type: string
+        - name: google-api-key
+          in: query
+          schema:
+            type: string
+        - name: google-api-url
+          in: query
+          schema:
+            type: string
+        - name: openai-api-key
+          in: query
+          schema:
+            type: string
+        - name: openai-api-url
+          in: query
+          schema:
+            type: string
+        - name: openai-model
+          in: query
+          schema:
+            type: string
+        - name: openai-prompt
+          in: query
+          description: System prompt that replaces the built-in one.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Translated text.
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlPublic'
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TranslateResult'
+        '400':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /v1/images/primary/{provider}/{id}:
+    get:
+      tags: [Images]
+      operationId: getPrimaryImage
+      summary: Get a primary (poster) image
+      description: |
+        Without `url`, the image comes from the actor's first image or the movie's
+        big thumb (falling back to its cover). For movies, `ratio` and `pos` apply,
+        and face detection is used when `pos` is unset and the movie number calls
+        for it. For actors, `ratio`, `pos` and `auto` are ignored.
+
+        With `url`, that image is fetched through the provider, cropped with
+        `ratio` (default 2/3), `pos` and `auto`.
+      parameters:
+        - $ref: '#/components/parameters/Provider'
+        - $ref: '#/components/parameters/ID'
+        - $ref: '#/components/parameters/ImageURL'
+        - name: ratio
+          in: query
+          required: false
+          description: |
+            Crop aspect ratio (width / height). Negative means the default 2/3.
+            Values outside [0.01, 100] disable cropping.
+          schema:
+            type: number
+            format: double
+            default: -1
+        - $ref: '#/components/parameters/ImagePosition'
+        - $ref: '#/components/parameters/ImageAuto'
+        - $ref: '#/components/parameters/ImageBadge'
+        - $ref: '#/components/parameters/ImageQuality'
+      responses:
+        '200':
+          $ref: '#/components/responses/Image'
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /v1/images/thumb/{provider}/{id}:
+    get:
+      tags: [Images]
+      operationId: getThumbImage
+      summary: Get a thumb image
+      description: |
+        Cropped to 16:9. Without `url`, uses the movie's big cover (falling back to
+        its cover) centered; actor providers return `400` (`unsupported image type`).
+        With `url`, crops that image with `pos` and `auto`.
+      parameters:
+        - $ref: '#/components/parameters/Provider'
+        - $ref: '#/components/parameters/ID'
+        - $ref: '#/components/parameters/ImageURL'
+        - $ref: '#/components/parameters/ImagePosition'
+        - $ref: '#/components/parameters/ImageAuto'
+        - $ref: '#/components/parameters/ImageBadge'
+        - $ref: '#/components/parameters/ImageQuality'
+      responses:
+        '200':
+          $ref: '#/components/responses/Image'
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /v1/images/backdrop/{provider}/{id}:
+    get:
+      tags: [Images]
+      operationId: getBackdropImage
+      summary: Get a backdrop image
+      description: |
+        Not cropped. Without `url`, uses the movie's big cover (falling back to its
+        cover); actor providers return `400` (`unsupported image type`).
+        With `url`, returns that image.
+      parameters:
+        - $ref: '#/components/parameters/Provider'
+        - $ref: '#/components/parameters/ID'
+        - $ref: '#/components/parameters/ImageURL'
+        - $ref: '#/components/parameters/ImageBadge'
+        - $ref: '#/components/parameters/ImageQuality'
+      responses:
+        '200':
+          $ref: '#/components/responses/Image'
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /v1/db/version:
+    get:
+      tags: [Database]
+      operationId: getDBVersion
+      summary: Get the database version
+      security:
+        - {}
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Result of `SELECT version()` (PostgreSQL) or `SELECT sqlite_version()` (SQLite).
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [version]
+                    properties:
+                      version:
+                        type: string
+        '401':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /v1/actors/{provider}/{id}:
+    get:
+      tags: [Actors]
+      operationId: getActorInfo
+      summary: Get actor info
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Provider'
+        - $ref: '#/components/parameters/ID'
+        - $ref: '#/components/parameters/Lazy'
+      responses:
+        '200':
+          description: Actor info.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ActorInfo'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /v1/actors/search:
+    get:
+      tags: [Actors]
+      operationId: searchActor
+      summary: Search actors
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/SearchQ'
+        - $ref: '#/components/parameters/SearchProvider'
+        - $ref: '#/components/parameters/SearchFallback'
+      responses:
+        '200':
+          description: Non-empty list of results.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    minItems: 1
+                    items:
+                      $ref: '#/components/schemas/ActorSearchResult'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /v1/movies/{provider}/{id}:
+    get:
+      tags: [Movies]
+      operationId: getMovieInfo
+      summary: Get movie info
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Provider'
+        - $ref: '#/components/parameters/ID'
+        - $ref: '#/components/parameters/Lazy'
+      responses:
+        '200':
+          description: Movie info.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MovieInfo'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /v1/movies/search:
+    get:
+      tags: [Movies]
+      operationId: searchMovie
+      summary: Search movies
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/SearchQ'
+        - $ref: '#/components/parameters/SearchProvider'
+        - $ref: '#/components/parameters/SearchFallback'
+      responses:
+        '200':
+          description: Non-empty list of results.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    minItems: 1
+                    items:
+                      $ref: '#/components/schemas/MovieSearchResult'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /v1/reviews/{provider}/{id}:
+    get:
+      tags: [Reviews]
+      operationId: getMovieReviews
+      summary: Get movie reviews
+      description: |
+        `provider` must be a movie provider, otherwise `400`. With `homepage`, the
+        provider is resolved from that URL and `id` is ignored. Providers that do
+        not support reviews return `500`.
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Provider'
+        - $ref: '#/components/parameters/ID'
+        - name: homepage
+          in: query
+          required: false
+          description: Movie page URL to fetch reviews from.
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Lazy'
+      responses:
+        '200':
+          description: Reviews; `null` when there are none.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    nullable: true
+                    items:
+                      $ref: '#/components/schemas/MovieReviewDetail'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        Required on `/v1/db`, `/v1/actors`, `/v1/movies` and `/v1/reviews` only when
+        the server is started with a token (`-token` / `TOKEN`). Otherwise those
+        routes are open.
+
+  headers:
+    CacheControlNoStore:
+      schema:
+        type: string
+        enum: [no-store]
+    CacheControlPublic:
+      schema:
+        type: string
+        enum: ['public, s-maxage=15552000']
+
+  parameters:
+    Provider:
+      name: provider
+      in: path
+      required: true
+      description: Provider name, as listed by `GET /v1/providers`; matched case-insensitively.
+      schema:
+        type: string
+    ID:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    Lazy:
+      name: lazy
+      in: query
+      required: false
+      description: Read from the database first and only fetch from the provider on a miss.
+      schema:
+        type: boolean
+        default: true
+    SearchQ:
+      name: q
+      in: query
+      required: true
+      description: |
+        Keyword, or a URL. A URL (anything `url.ParseRequestURI` accepts) is
+        fetched as an info page and returned as a single result; `provider` and
+        `fallback` are then ignored.
+      schema:
+        type: string
+    SearchProvider:
+      name: provider
+      in: query
+      required: false
+      description: Search only this provider. Searches all providers when empty.
+      schema:
+        type: string
+    SearchFallback:
+      name: fallback
+      in: query
+      required: false
+      description: Merge in matching results from the database.
+      schema:
+        type: boolean
+        default: true
+    ImageURL:
+      name: url
+      in: query
+      required: false
+      description: Image URL to fetch through the provider instead of the default image.
+      schema:
+        type: string
+    ImagePosition:
+      name: pos
+      in: query
+      required: false
+      description: |
+        Crop center along the cropped axis, from 0 to 1. Negative means the
+        default for the image type.
+      schema:
+        type: number
+        format: double
+        default: -1
+    ImageAuto:
+      name: auto
+      in: query
+      required: false
+      description: Use face detection to choose the crop position. Only applies with `url`.
+      schema:
+        type: boolean
+        default: false
+    ImageBadge:
+      name: badge
+      in: query
+      required: false
+      description: URL of a badge image to overlay at the top-left corner, scaled to 1/5 of the image height.
+      schema:
+        type: string
+    ImageQuality:
+      name: quality
+      in: query
+      required: false
+      description: JPEG quality; values outside 1-100 are clamped.
+      schema:
+        type: integer
+        default: 90
+
+  responses:
+    Error:
+      description: Error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Image:
+      description: JPEG image.
+      headers:
+        Cache-Control:
+          $ref: '#/components/headers/CacheControlPublic'
+        X-MetaTube-Image-Width:
+          schema:
+            type: integer
+        X-MetaTube-Image-Height:
+          schema:
+            type: integer
+      content:
+        image/jpeg:
+          schema:
+            type: string
+            format: binary
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: integer
+              description: Same as the HTTP status code.
+            message:
+              type: string
+
+    Module:
+      type: object
+      description: Go `debug.Module`; empty fields are omitted.
+      properties:
+        Path:
+          type: string
+        Version:
+          type: string
+        Sum:
+          type: string
+        Replace:
+          $ref: '#/components/schemas/Module'
+
+    TranslateResult:
+      type: object
+      required: [from, to, translated_text]
+      properties:
+        from:
+          type: string
+          description: The `from` query parameter as given (`auto` by default), not the detected language.
+        to:
+          type: string
+        translated_text:
+          type: string
+
+    Date:
+      type: string
+      format: date-time
+      description: RFC 3339 timestamp at midnight UTC; `0001-01-01T00:00:00Z` when unknown.
+      example: '2021-02-19T00:00:00Z'
+
+    StringArray:
+      type: array
+      nullable: true
+      items:
+        type: string
+
+    ActorSearchResult:
+      type: object
+      required: [id, name, provider, homepage, images]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        provider:
+          type: string
+        homepage:
+          type: string
+        aliases:
+          $ref: '#/components/schemas/StringArray'
+        images:
+          $ref: '#/components/schemas/StringArray'
+
+    ActorInfo:
+      type: object
+      required:
+        - id
+        - name
+        - provider
+        - homepage
+        - summary
+        - hobby
+        - skill
+        - blood_type
+        - cup_size
+        - measurements
+        - nationality
+        - height
+        - aliases
+        - images
+        - birthday
+        - debut_date
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        provider:
+          type: string
+        homepage:
+          type: string
+        summary:
+          type: string
+        hobby:
+          type: string
+        skill:
+          type: string
+        blood_type:
+          type: string
+        cup_size:
+          type: string
+        measurements:
+          type: string
+        nationality:
+          type: string
+        height:
+          type: integer
+          description: Centimeters.
+        aliases:
+          $ref: '#/components/schemas/StringArray'
+        images:
+          $ref: '#/components/schemas/StringArray'
+        birthday:
+          $ref: '#/components/schemas/Date'
+        debut_date:
+          $ref: '#/components/schemas/Date'
+
+    MovieSearchResult:
+      type: object
+      required: [id, number, title, provider, homepage, thumb_url, cover_url, score, release_date]
+      properties:
+        id:
+          type: string
+        number:
+          type: string
+        title:
+          type: string
+        provider:
+          type: string
+        homepage:
+          type: string
+        thumb_url:
+          type: string
+        cover_url:
+          type: string
+        score:
+          type: number
+          format: double
+        actors:
+          $ref: '#/components/schemas/StringArray'
+        release_date:
+          $ref: '#/components/schemas/Date'
+
+    MovieInfo:
+      type: object
+      required:
+        - id
+        - number
+        - title
+        - summary
+        - provider
+        - homepage
+        - director
+        - actors
+        - thumb_url
+        - big_thumb_url
+        - cover_url
+        - big_cover_url
+        - preview_video_url
+        - preview_video_hls_url
+        - preview_images
+        - maker
+        - label
+        - series
+        - genres
+        - score
+        - runtime
+        - release_date
+      properties:
+        id:
+          type: string
+        number:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        provider:
+          type: string
+        homepage:
+          type: string
+        director:
+          type: string
+        actors:
+          $ref: '#/components/schemas/StringArray'
+        thumb_url:
+          type: string
+        big_thumb_url:
+          type: string
+        cover_url:
+          type: string
+        big_cover_url:
+          type: string
+        preview_video_url:
+          type: string
+        preview_video_hls_url:
+          type: string
+        preview_images:
+          $ref: '#/components/schemas/StringArray'
+        maker:
+          type: string
+        label:
+          type: string
+        series:
+          type: string
+        genres:
+          $ref: '#/components/schemas/StringArray'
+        score:
+          type: number
+          format: double
+        runtime:
+          type: integer
+          description: Minutes.
+        release_date:
+          $ref: '#/components/schemas/Date'
+
+    MovieReviewDetail:
+      type: object
+      required: [title, author, comment, score, date]
+      properties:
+        title:
+          type: string
+        author:
+          type: string
+        comment:
+          type: string
+        score:
+          type: number
+          format: double
+        date:
+          $ref: '#/components/schemas/Date'
