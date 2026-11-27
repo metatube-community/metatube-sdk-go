@@ -1,6 +1,6 @@
 module github.com/metatube-community/metatube-sdk-go
 
-go 1.26.10
+go 1.27.4
 
 require (
 	github.com/PuerkitoBio/goquery v1.14.0
