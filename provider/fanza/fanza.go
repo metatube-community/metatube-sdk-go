@@ -610,7 +610,7 @@ func (fz *FANZA) searchMovieNext(keyword string) (results []*model.MovieSearchRe
 		if payload, err = rsc.ExtractNextPayload(r.Body); err != nil {
 			return
 		}
-		if !rsc.FindObject(payload, resp) {
+		if err = rsc.FindObject(payload, resp); errors.Is(err, rsc.ErrNotFound) {
 			err = provider.ErrInfoNotFound
 		}
 	})
