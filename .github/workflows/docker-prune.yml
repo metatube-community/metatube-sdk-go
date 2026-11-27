@@ -24,4 +24,4 @@ jobs:
           delete-untagged: true
           older-than: 30 days
           validate: true
-          dry-run: true
+          dry-run: false
