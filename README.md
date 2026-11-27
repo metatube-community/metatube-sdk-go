@@ -2,9 +2,9 @@
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/metatube-community/metatube-sdk-go/docker.yml?branch=main&style=flat-square&logo=githubactions)](https://github.com/metatube-community/metatube-sdk-go/actions/workflows/docker.yml)
 [![Go Linter](https://img.shields.io/github/actions/workflow/status/metatube-community/metatube-sdk-go/linter.yml?style=flat-square&branch=main&logo=githubactions&label=golangci-lint)](https://github.com/metatube-community/metatube-sdk-go/actions/workflows/linter.yml)
-[![Require Go Version](https://img.shields.io/badge/go-%3E%3D1.27-30dff3?style=flat-square&logo=go)](https://github.com/metatube-community/metatube-sdk-go/blob/main/go.mod)
+[![Require Go Version](https://img.shields.io/badge/go-%3E%3D1.27-00ADD8?style=flat-square&logo=go&logoColor=white)](https://github.com/metatube-community/metatube-sdk-go/blob/main/go.mod)
 [![GitHub License](https://img.shields.io/github/license/metatube-community/metatube-sdk-go?color=e4682a&logo=apache&style=flat-square)](https://github.com/metatube-community/metatube-sdk-go/blob/main/LICENSE)
-[![Tag](https://img.shields.io/github/v/tag/metatube-community/metatube-sdk-go?color=%23ff8936&logo=fitbit&style=flat-square)](https://github.com/metatube-community/metatube-sdk-go/tags)
+[![Tag](https://img.shields.io/github/v/tag/metatube-community/metatube-sdk-go?color=%23ff8936&logo=git&logoColor=white&style=flat-square)](https://github.com/metatube-community/metatube-sdk-go/tags)
 
 MetaTube SDK and API server in Golang, serving metadata to
 the [Jellyfin/Emby plugin](https://github.com/metatube-community/jellyfin-plugin-metatube)
@@ -49,7 +49,7 @@ go get -u github.com/metatube-community/metatube-sdk-go
 | [robertkrimen/otto](https://github.com/robertkrimen/otto)       | A JavaScript interpreter in Go (golang)                                                              |
 | [modernc.org/sqlite](https://gitlab.com/cznic/sqlite)           | Package sqlite is a CGo-free port of SQLite/SQLite3                                                  |
 | [corona10/goimagehash](https://github.com/corona10/goimagehash) | Go Perceptual image hashing package                                                                  |
-| [antchfx/xpath](https://github.com/antchfx/xpath)               | XPath package for Golang, supports HTML, XML, JSON document query                                    |
+| [antchfx/htmlquery](https://github.com/antchfx/htmlquery)       | htmlquery is golang XPath package for HTML query                                                     |
 | [gen2brain/jpegli](https://github.com/gen2brain/jpegli)         | Go encoder/decoder for JPEG based on jpegli                                                          |
 
 ## License
