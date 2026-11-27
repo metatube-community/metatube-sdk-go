@@ -97,10 +97,7 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		info.Title = data.NameUTF8
 		info.CoverURL = thumbnailURL(data.MovieID, locale)
 		info.ThumbURL = info.CoverURL /* use cover as thumb */
-		// The movie page plays the sample video only for available movies.
-		if data.AvailableDays > 0 && !data.IsPreRelease {
-			info.PreviewVideoURL = sampleVideoURL(data.MovieID, locale)
-		}
+		info.PreviewVideoURL = sampleVideoURL(data.MovieID, locale)
 		info.Summary = strings.TrimSpace(data.Detail.MemoUTF8)
 		info.Runtime = data.Detail.Duration / 60
 		info.ReleaseDate = parser.ParseDate(data.EcpStartDate)
@@ -172,7 +169,7 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		}
 	})
 
-	// Preview Video (fallback, also set for ended movies, which have no player)
+	// Preview Video (fallback)
 	c.OnXML(`//meta[@property="og:video"]`, func(e *colly.XMLElement) {
 		if info.PreviewVideoURL == "" {
 			info.PreviewVideoURL = e.Request.AbsoluteURL(e.Attr("content"))
@@ -187,14 +184,12 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 
 // movieData is the movie object in the RSC payload of the movie page.
 type movieData struct {
-	MovieSeq      int    `json:"movie_seq"`
-	MovieID       string `json:"movie_id"`
-	ActUTF8       string `json:"act_utf8"`
-	NameUTF8      string `json:"name_utf8"`
-	EcpStartDate  string `json:"ecp_start_date"`
-	IsPreRelease  bool   `json:"isPreRelease"`
-	AvailableDays int    `json:"availableDays"`
-	Categories    []struct {
+	MovieSeq     int    `json:"movie_seq"`
+	MovieID      string `json:"movie_id"`
+	ActUTF8      string `json:"act_utf8"`
+	NameUTF8     string `json:"name_utf8"`
+	EcpStartDate string `json:"ecp_start_date"`
+	Categories   []struct {
 		NameUTF8 string `json:"category_name_utf8"`
 		KeyName  string `json:"category_key_name"`
 		Level    int    `json:"LEVEL"`
@@ -215,7 +210,6 @@ const locale = "ja"
 // let i=e=>{switch(e){case"ja":default:return"www.kin8tengoku.com";case"en":return"en.kin8tengoku.com"}}
 // let i=(e,n)=>1155>Number(e)?"https://smovie.kin8tengoku.com/sample_mobile_template/".concat(e,"/hls-1800k.mp4"):"https://smovie.kin8tengoku.com/".concat(e,"/pht/").concat("ja"===n?"sample.mp4":"sample_en.mp4")
 // r=(e,n)=>{let a=(0,t.Ib)(n);return"https://".concat(a,"/").concat(e,"/pht/").concat("ja"===n?"1":"main_en",".jpg")}
-// t.availableDays>0&&!t.isPreRelease?(0,i.jsx)(d.A,{src:(0,L.tQ)(t.movie_id,a),poster:(0,L.s4)(t.movie_id,a)}):(0,i.jsx)(_,{thumbnailUrl:(0,L.s4)(t.movie_id,a)})
 func siteHost(locale string) string {
 	switch locale {
 	case "en":
