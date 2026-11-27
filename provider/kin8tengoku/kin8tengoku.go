@@ -91,7 +91,7 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 			return
 		}
 		data := movieData{}
-		if rsc.FindObject(payload, &data, rsc.RequireKeys("movie_seq", "name_utf8", "detail")) != nil {
+		if rsc.FindObject(payload, &data) != nil {
 			return
 		}
 		info.Title = data.NameUTF8
