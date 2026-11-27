@@ -41,4 +41,4 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: yamllint
-        run: pipx run yamllint --strict --format github .
+        run: yamllint --strict --format github .
