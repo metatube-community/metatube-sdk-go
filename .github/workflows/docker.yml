@@ -12,7 +12,7 @@ permissions:
   packages: write
 
 concurrency:
-  group: docker-${{ github.event_name }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
