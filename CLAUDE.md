@@ -11,6 +11,7 @@ Every value a provider returns (metadata, cover, thumbnail, preview images, samp
   - Put it in a dedicated function in the provider, not inline in a scraping callback.
   - Port the frontend logic faithfully, branch by branch, without simplifying or extending it.
   - Above the function, add a `Ref:` comment with the URL of the JS file (with the line number for a readable script, e.g., `preview_jquery.js#652`), followed by only the core lines of the JS code that the function ports, not the surrounding code.
+- Also take data the page serves but doesn't show, e.g., KIN8 hides the player once a movie's streaming period has ended but still sets `og:video`, so the provider falls back to it for the sample video. Only guessed or probed values are off-limits.
 - If there is no data source and no frontend code to back a value, leave the field empty.
 - If the frontend only uses HLS for the sample video, return the HLS URL and leave the MP4 URL empty.
 - When only part of what a ported function returns belongs in a field, keep the port intact and filter at the call site, e.g., HEYZO `galleryImages` returns images and thumbnails, and only the images go to `PreviewImages`.
