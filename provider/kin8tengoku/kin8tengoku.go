@@ -12,6 +12,7 @@ import (
 	"github.com/gocolly/colly/v2"
 	"golang.org/x/text/language"
 
+	"github.com/metatube-community/metatube-sdk-go/common/convertor"
 	"github.com/metatube-community/metatube-sdk-go/common/parser"
 	"github.com/metatube-community/metatube-sdk-go/common/rsc"
 	"github.com/metatube-community/metatube-sdk-go/model"
@@ -19,7 +20,10 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
 )
 
-var _ provider.MovieProvider = (*KIN8)(nil)
+var (
+	_ provider.MovieProvider = (*KIN8)(nil)
+	_ provider.MovieReviewer = (*KIN8)(nil)
+)
 
 const (
 	Name     = "KIN8"
@@ -77,12 +81,7 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		Genres:        []string{},
 	}
 
-	c := k8.ClonedCollector()
-
-	c.OnRequest(func(r *colly.Request) {
-		// The server responds 404 Not Found for non-HTML requests.
-		r.Headers.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-	})
+	c := k8.moviePageCollector()
 
 	// Fields
 	c.OnResponse(func(r *colly.Response) {
@@ -124,9 +123,7 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		// Score
 		d := c.Clone()
 		d.OnResponse(func(r *colly.Response) {
-			resp := struct {
-				AvgRating float64 `json:"avgRating"`
-			}{}
+			resp := reviewResponse{}
 			if json.Unmarshal(r.Body, &resp) == nil {
 				info.Score = resp.AvgRating
 			}
@@ -183,6 +180,65 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 	return
 }
 
+func (k8 *KIN8) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {
+	return k8.GetMovieReviewsByURL(fmt.Sprintf(movieURL, id))
+}
+
+func (k8 *KIN8) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewDetail, err error) {
+	c := k8.moviePageCollector()
+
+	c.OnResponse(func(r *colly.Response) {
+		var payload string
+		if payload, err = rsc.ExtractNextPayload(r.Body); err != nil {
+			return
+		}
+		data := movieData{}
+		if err = rsc.FindObject(payload, &data); err != nil {
+			return
+		}
+
+		d := c.Clone()
+		d.OnResponse(func(r *colly.Response) {
+			resp := reviewResponse{}
+			if err = json.Unmarshal(r.Body, &resp); err != nil {
+				return
+			}
+			for _, item := range resp.Items {
+				comment := convertor.NormalizeNewlines(item.Comment)
+				// Skip rating-only reviews.
+				if item.ProfileName == "" || comment == "" {
+					continue
+				}
+				reviews = append(reviews, &model.MovieReviewDetail{
+					Author:  item.ProfileName,
+					Comment: comment,
+					Score:   item.Rating,
+					Date:    parser.ParseDate(item.Created),
+				})
+			}
+		})
+		// The movie page fetches all reviews of the movie at once.
+		if vErr := d.Visit(fmt.Sprintf(reviewURL, data.MovieSeq)); vErr != nil {
+			err = vErr
+		}
+	})
+
+	if vErr := c.Visit(rawURL); vErr != nil {
+		err = vErr
+	}
+	return
+}
+
+// moviePageCollector returns a collector for the movie page.
+func (k8 *KIN8) moviePageCollector() *colly.Collector {
+	c := k8.ClonedCollector()
+	c.OnRequest(func(r *colly.Request) {
+		// The server responds 404 Not Found for non-HTML requests.
+		r.Headers.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+	})
+	return c
+}
+
 // movieData is the movie object in the RSC payload of the movie page.
 type movieData struct {
 	MovieSeq     int    `json:"movie_seq"`
@@ -201,6 +257,17 @@ type movieData struct {
 	} `json:"detail"`
 	IsPreRelease  bool `json:"isPreRelease"`
 	AvailableDays int  `json:"availableDays"`
+}
+
+// reviewResponse is the response of the review API.
+type reviewResponse struct {
+	Items []struct {
+		ProfileName string  `json:"profile_name"`
+		Rating      float64 `json:"rating"`
+		Comment     string  `json:"comment"`
+		Created     string  `json:"created"`
+	} `json:"items"`
+	AvgRating float64 `json:"avgRating"`
 }
 
 // locale is the locale the provider browses the site in.
