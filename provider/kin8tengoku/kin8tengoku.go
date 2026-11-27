@@ -84,16 +84,7 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		r.Headers.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 	})
 
-	// Cover+Thumb
-	c.OnXML(`//meta[@property="og:image"]`, func(e *colly.XMLElement) {
-		info.CoverURL = e.Request.AbsoluteURL(e.Attr("content"))
-		info.ThumbURL = info.CoverURL /* use cover as thumb */
-	})
-
-	// Preview Video
-	c.OnXML(`//meta[@property="og:video"]`, func(e *colly.XMLElement) {
-		info.PreviewVideoURL = e.Request.AbsoluteURL(e.Attr("content"))
-	})
+	hasMovieData := false
 
 	// Fields
 	c.OnResponse(func(r *colly.Response) {
@@ -105,7 +96,14 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		if rsc.FindObject(payload, &data, rsc.RequireKeys("movie_seq", "name_utf8", "detail")) != nil {
 			return
 		}
+		hasMovieData = true
 		info.Title = data.NameUTF8
+		info.CoverURL = thumbnailURL(data.MovieID, locale)
+		info.ThumbURL = info.CoverURL /* use cover as thumb */
+		// The movie page plays the sample video only for available movies.
+		if data.AvailableDays > 0 && !data.IsPreRelease {
+			info.PreviewVideoURL = sampleVideoURL(data.MovieID, locale)
+		}
 		info.Summary = strings.TrimSpace(data.Detail.MemoUTF8)
 		info.Runtime = data.Detail.Duration / 60
 		info.ReleaseDate = parser.ParseDate(data.EcpStartDate)
@@ -141,6 +139,23 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		d.Visit(fmt.Sprintf(reviewURL, data.MovieSeq))
 	})
 
+	// Cover+Thumb (fallback when the RSC payload has no movie data)
+	c.OnXML(`//meta[@property="og:image"]`, func(e *colly.XMLElement) {
+		if hasMovieData {
+			return
+		}
+		info.CoverURL = e.Request.AbsoluteURL(e.Attr("content"))
+		info.ThumbURL = info.CoverURL /* use cover as thumb */
+	})
+
+	// Preview Video (fallback when the RSC payload has no movie data)
+	c.OnXML(`//meta[@property="og:video"]`, func(e *colly.XMLElement) {
+		if hasMovieData {
+			return
+		}
+		info.PreviewVideoURL = e.Request.AbsoluteURL(e.Attr("content"))
+	})
+
 	if vErr := c.Visit(info.Homepage); vErr != nil {
 		err = vErr
 	}
@@ -149,12 +164,14 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 
 // movieData is the movie object in the RSC payload of the movie page.
 type movieData struct {
-	MovieSeq     int    `json:"movie_seq"`
-	MovieID      string `json:"movie_id"`
-	ActUTF8      string `json:"act_utf8"`
-	NameUTF8     string `json:"name_utf8"`
-	EcpStartDate string `json:"ecp_start_date"`
-	Categories   []struct {
+	MovieSeq      int    `json:"movie_seq"`
+	MovieID       string `json:"movie_id"`
+	ActUTF8       string `json:"act_utf8"`
+	NameUTF8      string `json:"name_utf8"`
+	EcpStartDate  string `json:"ecp_start_date"`
+	IsPreRelease  bool   `json:"isPreRelease"`
+	AvailableDays int    `json:"availableDays"`
+	Categories    []struct {
 		NameUTF8 string `json:"category_name_utf8"`
 		KeyName  string `json:"category_key_name"`
 		Level    int    `json:"LEVEL"`
@@ -163,6 +180,46 @@ type movieData struct {
 		MemoUTF8 string `json:"memo_utf8"`
 		Duration int    `json:"duration"` // seconds
 	} `json:"detail"`
+}
+
+// locale is the locale the provider browses the site in.
+const locale = "ja"
+
+// siteHost (Ib), thumbnailURL (s4) and sampleVideoURL (tQ) port the URL
+// builders of the movie page, which builds the player from the movie data.
+// Ref: https://www.kin8tengoku.com/_next/static/chunks/3778-8a0fcf58311a7a7e.js
+// JS Code:
+// let i=e=>{switch(e){case"ja":default:return"www.kin8tengoku.com";case"en":return"en.kin8tengoku.com"}}
+// let i=(e,n)=>1155>Number(e)?"https://smovie.kin8tengoku.com/sample_mobile_template/".concat(e,"/hls-1800k.mp4"):"https://smovie.kin8tengoku.com/".concat(e,"/pht/").concat("ja"===n?"sample.mp4":"sample_en.mp4")
+// r=(e,n)=>{let a=(0,t.Ib)(n);return"https://".concat(a,"/").concat(e,"/pht/").concat("ja"===n?"1":"main_en",".jpg")}
+// t.availableDays>0&&!t.isPreRelease?(0,i.jsx)(d.A,{src:(0,L.tQ)(t.movie_id,a),poster:(0,L.s4)(t.movie_id,a)}):(0,i.jsx)(_,{thumbnailUrl:(0,L.s4)(t.movie_id,a)})
+func siteHost(locale string) string {
+	switch locale {
+	case "en":
+		return "en.kin8tengoku.com"
+	default:
+		return "www.kin8tengoku.com"
+	}
+}
+
+func thumbnailURL(movieID, locale string) string {
+	name := "main_en"
+	if locale == "ja" {
+		name = "1"
+	}
+	return fmt.Sprintf("https://%s/%s/pht/%s.jpg", siteHost(locale), movieID, name)
+}
+
+func sampleVideoURL(movieID, locale string) string {
+	// Number(e) is NaN for a non-numeric ID, which fails the comparison.
+	if n, err := strconv.Atoi(movieID); err == nil && n < 1155 {
+		return fmt.Sprintf("https://smovie.kin8tengoku.com/sample_mobile_template/%s/hls-1800k.mp4", movieID)
+	}
+	name := "sample_en.mp4"
+	if locale == "ja" {
+		name = "sample.mp4"
+	}
+	return fmt.Sprintf("https://smovie.kin8tengoku.com/%s/pht/%s", movieID, name)
 }
 
 // mainCategoryLevel is the LEVEL of the categories shown on the movie page.
@@ -181,11 +238,10 @@ const mainCategoryLevel = 40
 // T=(0,c.useCallback)((e,a)=>{let i="".concat(t,"/pht/").concat(e,"_lg.jpg");return k?"https://".concat(N,"/members/").concat(i):a>2?"/images/movie/gallery-only-member-".concat(m,".png"):"https://".concat(N,"/").concat(i)},[N,k,m,t]);
 // A.map((e,a)=>(0,i.jsx)("button",{"data-src":T(e,a),children:(0,i.jsx)(l.default,{src:"https://".concat(N,"/").concat(t,"/pht/").concat(e,".jpg")})}))
 func galleryImages(movieID string) (images, thumbnails []string) {
-	const (
-		host = "www.kin8tengoku.com" // Ib("ja")
-		// isKin8Member is always false, as the provider browses as a guest.
-		isKin8Member = false
-	)
+	// isKin8Member is always false, as the provider browses as a guest.
+	const isKin8Member = false
+
+	host := siteHost(locale)
 
 	items := []string{"2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"}
 	if n, _ := strconv.Atoi(movieID); n < 4075 {
