@@ -1,0 +1,26 @@
+name: Bug report
+description: Report something that is not working
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      placeholder: What went wrong? Include the error message if there is one.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: For a provider issue, include the provider and movie ID, e.g., FANZA / ABC-123.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The `version` shown at the server's root URL, or the output of `-version`.
