@@ -1,4 +1,4 @@
-name: Prune Docker Images
+name: GHCR Cleanup
 
 on:
   schedule:
@@ -13,8 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  prune:
-    name: Prune
+  cleanup:
     runs-on: ubuntu-latest
     steps:
       - name: Delete untagged images
@@ -24,4 +23,4 @@ jobs:
           delete-untagged: true
           older-than: 30 days
           validate: true
-          dry-run: true
+          dry-run: false
