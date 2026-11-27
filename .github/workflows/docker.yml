@@ -44,34 +44,23 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get Version
-        id: shell
-        run: |
-          echo "version=$(git describe --abbrev=0 --tags HEAD | cut -d'v' -f 2)" >> $GITHUB_OUTPUT
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/metatube-community/metatube-server
+          tags: |
+            type=raw,value=dev,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
 
-      - name: Build and Push (dev)
-        if: github.ref == 'refs/heads/main'
+      - name: Build and Push
         uses: docker/build-push-action@v7
         with:
           context: .
           file: Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: |
-            ghcr.io/metatube-community/metatube-server:dev
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build and Push (latest)
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: Dockerfile
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: |
-            ghcr.io/metatube-community/metatube-server:latest
-            ghcr.io/metatube-community/metatube-server:${{ steps.shell.outputs.version }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
