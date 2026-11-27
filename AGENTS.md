@@ -83,6 +83,7 @@ Comments are there to make the code easier to understand, so keep them short and
 ### Commits
 
 - Title commits and PRs `Type(scope): summary`, e.g., ``Fix(provider): update `KIN8` for redesigned site``. Types are `Build`, `CI`, `Chore`, `Feature`, `Fix`, `Refactor`, and `Revert`. The scope is the area changed, e.g., `provider/fanza` or `common`, and may be dropped for repo-wide changes. Wrap code and provider names in backticks.
+- Keep commit and PR titles within about 50 characters. This is a guideline, not a hard limit, but follow it when you can.
 
 ### Pull requests
 
