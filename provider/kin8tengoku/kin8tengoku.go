@@ -136,7 +136,7 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		d.Visit(fmt.Sprintf(reviewURL, data.MovieSeq))
 	})
 
-	// Cover+Thumb (fallback when the RSC payload has no movie data)
+	// Cover+Thumb (fallback)
 	c.OnXML(`//meta[@property="og:image"]`, func(e *colly.XMLElement) {
 		if info.CoverURL == "" {
 			info.CoverURL = e.Request.AbsoluteURL(e.Attr("content"))
@@ -144,7 +144,7 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		}
 	})
 
-	// Preview Video (fallback when the RSC payload has no movie data)
+	// Preview Video (fallback, also set for ended movies, which have no player)
 	c.OnXML(`//meta[@property="og:video"]`, func(e *colly.XMLElement) {
 		if info.PreviewVideoURL == "" {
 			info.PreviewVideoURL = e.Request.AbsoluteURL(e.Attr("content"))
