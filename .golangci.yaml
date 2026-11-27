@@ -1,4 +1,4 @@
-version: "2"
+version: '2'
 linters:
   default: none
   enable:
@@ -16,7 +16,7 @@ linters:
       - common-false-positives
       - legacy
       - std-error-handling
-    paths: [ ]
+    paths: []
 formatters:
   enable:
     - gci
@@ -30,4 +30,4 @@ formatters:
       custom-order: true
   exclusions:
     generated: lax
-    paths: [ ]
+    paths: []

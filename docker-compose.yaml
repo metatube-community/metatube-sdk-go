@@ -3,7 +3,7 @@ services:
     image: ghcr.io/metatube-community/metatube-server:latest
     container_name: metatube
     ports:
-      - "8080:8080"
+      - '8080:8080'
     restart: unless-stopped
     depends_on:
       - postgres
@@ -12,7 +12,9 @@ services:
       - HTTPS_PROXY=
     volumes:
       - run:/var/run
-    command: -dsn "postgres://metatube:metatube@/metatube?host=/var/run/postgresql" -port 8080 -db-auto-migrate -db-prepared-stmt
+    command: >-
+      -dsn "postgres://metatube:metatube@/metatube?host=/var/run/postgresql"
+      -port 8080 -db-auto-migrate -db-prepared-stmt
 
   postgres:
     image: postgres:15-alpine
@@ -25,7 +27,9 @@ services:
     volumes:
       - ./db:/var/lib/postgresql/data
       - run:/var/run
-    command: "-c TimeZone=Asia/Shanghai -c log_timezone=Asia/Shanghai -c listen_addresses='' -c unix_socket_permissions=0777"
+    command: >-
+      -c TimeZone=Asia/Shanghai -c log_timezone=Asia/Shanghai
+      -c listen_addresses='' -c unix_socket_permissions=0777
 
 volumes:
   run:
