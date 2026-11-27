@@ -114,7 +114,8 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 				hasGallery = true
 			}
 		}
-		// The server renders the gallery only for movies with this category.
+		// The op_flag_gallery category is named ギャラリー画像あり ("has gallery
+		// images"), and the server renders the gallery only for movies with it.
 		if hasGallery {
 			images, _ := galleryImages(data.MovieID)
 			info.PreviewImages = append(info.PreviewImages, images...)
