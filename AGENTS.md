@@ -76,6 +76,10 @@ Comments are there to make the code easier to understand, so keep them short and
 - Short comments that help are welcome, e.g., `payloads map[string]string // filename -> RSC payload`, `return // truncated payload`, or a one-line note on what a test case checks.
 - Shorten a long comment rather than deleting it; delete only comments that add nothing.
 
+## Workflows
+
+- Order a workflow's top-level keys as in GitHub's workflow syntax docs: `name`, `run-name`, `on`, `permissions`, `env`, `defaults`, `concurrency`, `jobs`.
+
 ## Git
 
 - Don't credit AI tools in commits or pull requests: no `Co-Authored-By` trailer for an AI in commit messages, and no "Generated with ..." line in PR descriptions.
