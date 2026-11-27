@@ -11,11 +11,11 @@ body:
     validations:
       required: true
 
-  - type: input
+  - type: textarea
     id: reproduce
     attributes:
-      label: Provider and movie ID
-      placeholder: e.g., FANZA / ABC-123
+      label: Steps to reproduce
+      description: For a provider issue, include the provider and movie ID, e.g., FANZA / ABC-123.
     validations:
       required: true
 
