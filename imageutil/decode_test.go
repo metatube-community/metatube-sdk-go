@@ -10,8 +10,23 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// A JPEG with non-standard chroma subsampling (Y 2x2, Cb 1x1, Cr 2x2),
+// which image/jpeg supports since Go 1.27.
+const nonStandardSubsamplingJPEG = `
+/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAwICQoJBwwKCgoNDQwOEh4TEhAQEiQaGxUeKyYtLComKSkv
+NUQ6LzJAMykpO1E8QEZJTE1MLjlUWlNKWURLTEn/2wBDAQ0NDRIQEiMTEyNJMSkxSUlJSUlJSUlJSUlJ
+SUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUn/wAARCAASACADASIAAhEBAyIB/8QA
+GgAAAgMBAQAAAAAAAAAAAAAAAAUCBAYBA//EACkQAAIBAwMDAgcBAAAAAAAAAAECAwAEEQUSIRMxQRRh
+BiIjUVKBseH/xAAYAQADAQEAAAAAAAAAAAAAAAAAAQIEA//EAB0RAAICAwADAAAAAAAAAAAAAAABAhED
+ITEEIkH/2gAMAwEAAhEDEQA/AGGsXCarfRWF7K1ml2zTRosoJ3jAAyOM8HimGl65LqWjNbSBvU2shiea
+UYDgZG4+c4xms2ksKSxajeosv0+mmB53ePcVo7Rrc2JezlV+sxk57nP3/lZnkZphjT0xrC70do11lLtn
+lq3xBpq6UbeR0nYFC2xWK8MCeSBnsalZalpiXgdAgzIxBCgHBA/2rVqmmRSzborXqbs56YJ7e9TPobiQ
+MERXXtvjA81am+szrx8qdtCyY57bR3nKb+i9qqzl1bQCOBRBGB0m42j8qWW0UaXjFY1U9Qdhiiis5Kb2
+UgAv6SqjTWIUZM5ycd+BTBRh5scfJ4/dFFdlxCl1kPgAf//Z
+`
+
 // A JPEG with a 3x1 luma sampling factor, which image/jpeg does not support.
-const base64EncodedImage = `
+const unsupportedSubsamplingJPEG = `
 /9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwg
 JC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIy
 MjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAASACADATEAAhEBAxEB/8QA
@@ -27,7 +42,15 @@ aPej7R71+j/2X5HwP9peYfaPeiij+y/IP7S8yhk+tGT60ZPrX2HKj5W7DJ9aKKOVBdn/2Q==
 `
 
 func TestJPEGDecode(t *testing.T) {
-	data, err := base64.StdEncoding.DecodeString(base64EncodedImage)
+	data, err := base64.StdEncoding.DecodeString(nonStandardSubsamplingJPEG)
+	require.NoError(t, err)
+
+	_, err = jpeg.Decode(bytes.NewReader(data))
+	require.NoError(t, err)
+}
+
+func TestJPEGDecodeFallback(t *testing.T) {
+	data, err := base64.StdEncoding.DecodeString(unsupportedSubsamplingJPEG)
 	require.NoError(t, err)
 
 	var jpegErr jpeg.UnsupportedError
@@ -36,4 +59,9 @@ func TestJPEGDecode(t *testing.T) {
 
 	_, err = jpegli.Decode(bytes.NewReader(data))
 	require.NoError(t, err)
+
+	// Decode falls back to jpegli.
+	_, format, err := Decode(bytes.NewReader(data))
+	require.NoError(t, err)
+	require.Equal(t, "jpeg", format)
 }
