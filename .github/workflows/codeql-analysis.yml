@@ -7,7 +7,12 @@ concurrency:
 on:
   push:
     branches: [ main ]
+    paths-ignore: &paths-ignore
+      - '**.md'
+      - 'LICENSE'
+      - '.github/ISSUE_TEMPLATE/**'
   pull_request:
+    paths-ignore: *paths-ignore
 
 jobs:
   analyze:

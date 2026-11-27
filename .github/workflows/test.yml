@@ -8,18 +8,17 @@ on:
   push:
     branches:
       - 'main'
+    paths-ignore: &paths-ignore
+      - '**.md'
+      - 'LICENSE'
+      - '.github/ISSUE_TEMPLATE/**'
   pull_request:
+    paths-ignore: *paths-ignore
 
 jobs:
   go-test:
     name: Go Test
     runs-on: ubuntu-latest
-    services:
-      dind:
-        image: docker:dind-rootless
-        ports:
-          - 2375:2375
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
