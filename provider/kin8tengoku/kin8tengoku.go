@@ -136,6 +136,34 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		d.Visit(fmt.Sprintf(reviewURL, data.MovieSeq))
 	})
 
+	// Title (fallback)
+	c.OnXML(`//div[contains(@class,"Movie_Detail_title-img__")]/img`, func(e *colly.XMLElement) {
+		if info.Title == "" {
+			info.Title = strings.TrimSpace(e.Attr("alt"))
+		}
+	})
+
+	// Summary (fallback)
+	c.OnXML(`//meta[@name="description"]`, func(e *colly.XMLElement) {
+		if info.Summary == "" {
+			info.Summary = strings.TrimSpace(e.Attr("content"))
+		}
+	})
+
+	// Actors (fallback)
+	c.OnXML(`//div[contains(@class,"Movie_Detail_actor__")]`, func(e *colly.XMLElement) {
+		if len(info.Actors) == 0 {
+			info.Actors = append(info.Actors, e.ChildTexts(`./a`)...)
+		}
+	})
+
+	// Genres (fallback, skipping the VIP/SVIP icons)
+	c.OnXML(`//div[contains(@class,"Movie_Detail_actor-type__")]`, func(e *colly.XMLElement) {
+		if len(info.Genres) == 0 {
+			info.Genres = append(info.Genres, e.ChildTexts(`./a[not(img)]`)...)
+		}
+	})
+
 	// Cover+Thumb (fallback)
 	c.OnXML(`//meta[@property="og:image"]`, func(e *colly.XMLElement) {
 		if info.CoverURL == "" {
