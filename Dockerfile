@@ -12,8 +12,6 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     GOOS=$TARGETOS GOARCH=$TARGETARCH make server
 
 FROM alpine:latest
-LABEL org.opencontainers.image.licenses=Apache-2.0
-LABEL org.opencontainers.image.source="https://github.com/metatube-community/metatube-sdk-go"
 
 COPY --from=builder /src/build/metatube-server .
 
