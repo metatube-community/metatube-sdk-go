@@ -110,7 +110,7 @@ func (avl *AVLeague) GetActorInfoByURL(rawURL string) (info *model.ActorInfo, er
 	c.OnXML(`//*[@id="contents"]//table/tbody/tr`, func(e *colly.XMLElement) {
 		row := strings.TrimSpace(e.ChildText(`.//th`))
 		data := strings.TrimSpace(e.ChildText(`.//td`))
-		if data == "不明" {
+		if data == "不明" || data == "-" {
 			return // ignore unknown
 		}
 		switch row {
@@ -140,7 +140,7 @@ func (avl *AVLeague) GetActorInfoByURL(rawURL string) (info *model.ActorInfo, er
 func (avl *AVLeague) SearchActor(keyword string) (results []*model.ActorSearchResult, err error) {
 	c := avl.ClonedCollector()
 
-	c.OnXML(`//*[@id="contents"]/div/div`, func(e *colly.XMLElement) {
+	c.OnXML(`//*[@id="contents"]//article[@class="l-box"]`, func(e *colly.XMLElement) {
 		homepage := e.Request.AbsoluteURL(
 			e.ChildAttr(`.//div[@class="l-name"]/a`, "href"))
 		id, _ := avl.ParseActorIDFromURL(homepage)
@@ -148,7 +148,7 @@ func (avl *AVLeague) SearchActor(keyword string) (results []*model.ActorSearchRe
 		actor := strings.TrimSpace(e.ChildText(`.//div[@class="l-name"]/a`))
 		// Images
 		var images []string
-		if img := e.ChildAttr(`.//div[@class="l-pic"]/a/img`, "data-layzr" /* lazy loading */); img != "" {
+		if img := e.ChildAttr(`.//a[@class="l-pic"]/img`, "src"); img != "" {
 			images = []string{e.Request.AbsoluteURL(img)}
 		}
 
