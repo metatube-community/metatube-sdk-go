@@ -5,8 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
-	"encoding/json/jsontext"
-	json "encoding/json/v2"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"iter"
@@ -117,9 +116,7 @@ func FindObject(payload string, v any, opts ...Option) error {
 	var candidates []map[string]any
 	for data := range jsonRows(payload) {
 		var row any
-		// Parse rows as leniently as JSON.parse does.
-		if json.Unmarshal([]byte(data), &row,
-			jsontext.AllowDuplicateNames(true), jsontext.AllowInvalidUTF8(true)) != nil {
+		if json.Unmarshal([]byte(data), &row) != nil {
 			continue
 		}
 		walkObjects(row, func(obj map[string]any) {
@@ -138,23 +135,32 @@ func FindObject(payload string, v any, opts ...Option) error {
 		return fmt.Errorf("%w: %T", ErrNotFound, v)
 	}
 
-	var match []byte
-	var first any
-	for i, c := range candidates {
-		b, err := json.Marshal(decodeValue(c))
-		if err != nil {
-			return err
-		}
+	var (
+		match     []byte
+		first     any
+		decodeErr error
+	)
+	for _, c := range candidates {
 		// Unmarshal into a zero value first to leave v untouched on failure.
 		d := reflect.New(rv.Elem().Type()).Interface()
-		if err = json.Unmarshal(b, d); err != nil {
-			return err
+		b, err := json.Marshal(decodeValue(c))
+		if err == nil {
+			err = json.Unmarshal(b, d)
 		}
-		if i == 0 {
+		switch {
+		case err != nil:
+			// Candidates that cannot be decoded into v are not matches.
+			if decodeErr == nil {
+				decodeErr = err
+			}
+		case first == nil:
 			match, first = b, d
-		} else if !reflect.DeepEqual(first, d) {
+		case !reflect.DeepEqual(first, d):
 			return fmt.Errorf("%w: %T", ErrAmbiguous, v)
 		}
+	}
+	if first == nil {
+		return decodeErr
 	}
 	return json.Unmarshal(match, v)
 }
@@ -215,7 +221,7 @@ func decodeValue(v any) any {
 		case strings.HasPrefix(v, "$D"): // date
 			return v[2:]
 		case strings.HasPrefix(v, "$n"): // bigint, decoded as a number
-			return jsontext.Value(v[2:])
+			return json.Number(v[2:])
 		}
 	}
 	return v
@@ -245,17 +251,19 @@ func hasKeys(obj map[string]any, keys []string) bool {
 	return true
 }
 
-// matchFields counts the fields that obj has.
-func matchFields(obj map[string]any, fields map[string]struct{}) (n int) {
+// matchFields counts the fields that obj has, case-insensitively.
+func matchFields(obj map[string]any, fields map[string]struct{}) int {
+	matched := make(map[string]struct{})
 	for key := range obj {
-		if _, ok := fields[key]; ok {
-			n++
+		name := strings.ToLower(key)
+		if _, ok := fields[name]; ok {
+			matched[name] = struct{}{}
 		}
 	}
-	return
+	return len(matched)
 }
 
-// jsonFieldNames returns the JSON field names of v.
+// jsonFieldNames returns the lowercased JSON field names of v.
 func jsonFieldNames(v any) map[string]struct{} {
 	t := reflect.TypeOf(v)
 	for t != nil && t.Kind() == reflect.Pointer {
@@ -294,6 +302,6 @@ func addJSONFieldNames(t reflect.Type, names map[string]struct{}) {
 		if name == "" {
 			name = field.Name
 		}
-		names[name] = struct{}{}
+		names[strings.ToLower(name)] = struct{}{}
 	}
 }
