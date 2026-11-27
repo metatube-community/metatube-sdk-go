@@ -78,3 +78,7 @@ Comments are there to make the code easier to understand, so keep them short and
 ## Git
 
 - Don't credit AI tools in commits or pull requests: no `Co-Authored-By` trailer for an AI in commit messages, and no "Generated with ..." line in PR descriptions.
+- Keep PR descriptions short: say what the PR does and roughly how, with no code and no detailed reasoning. Skip the how when the change is simple. Use these sections:
+  - `## Summary`: first link any related issue or PR, e.g., `Closes #123`. Then say briefly what the PR does and why (motivation, trade-offs). Give examples only when the case is too complex without one.
+  - `## Key changes`: bullets listing the main changes.
+  - `## Testing`: bullets listing the tests that ran. Test only what the change needs.
