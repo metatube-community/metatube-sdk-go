@@ -81,7 +81,9 @@ func (k8 *KIN8) GetMovieInfoByURL(rawURL string) (info *model.MovieInfo, err err
 		Genres:        []string{},
 	}
 
-	c := k8.moviePageCollector()
+	c := k8.ClonedCollector()
+	// The server responds 404 Not Found for non-HTML requests.
+	c.OnRequest(scraper.AcceptHTML)
 
 	// Fields
 	c.OnResponse(func(r *colly.Response) {
@@ -185,7 +187,9 @@ func (k8 *KIN8) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDeta
 }
 
 func (k8 *KIN8) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieReviewDetail, err error) {
-	c := k8.moviePageCollector()
+	c := k8.ClonedCollector()
+	// The server responds 404 Not Found for non-HTML requests.
+	c.OnRequest(scraper.AcceptHTML)
 
 	c.OnResponse(func(r *colly.Response) {
 		var payload string
@@ -227,16 +231,6 @@ func (k8 *KIN8) GetMovieReviewsByURL(rawURL string) (reviews []*model.MovieRevie
 		err = vErr
 	}
 	return
-}
-
-// moviePageCollector returns a collector for the movie page.
-func (k8 *KIN8) moviePageCollector() *colly.Collector {
-	c := k8.ClonedCollector()
-	c.OnRequest(func(r *colly.Request) {
-		// The server responds 404 Not Found for non-HTML requests.
-		r.Headers.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-	})
-	return c
 }
 
 // movieData is the movie object in the RSC payload of the movie page.
