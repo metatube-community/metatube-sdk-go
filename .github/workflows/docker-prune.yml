@@ -1,0 +1,27 @@
+name: Prune Docker Images
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"
+  workflow_dispatch:
+
+permissions:
+  packages: write
+
+jobs:
+  prune:
+    name: Prune
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete untagged images
+        uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          package: metatube-server
+          delete-untagged: true
+          older-than: 30 days
+          validate: true
+          dry-run: true
