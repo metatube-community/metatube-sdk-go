@@ -1,15 +1,7 @@
 openapi: 3.1.1
 info:
   title: MetaTube API
-  description: |
-    HTTP API served by `cmd/server`.
-
-    Every JSON response, except `GET /v1/modules`, is wrapped in an envelope:
-    `{"data": ...}` on success, or `{"error": {"code": ..., "message": ...}}` on failure.
-    Unmatched routes return `404` with the same error envelope.
-
-    Any request, on any path, that carries the `redirect` query parameter is
-    intercepted before routing and authentication; see `GET /`.
+  description: HTTP API served by `cmd/server`.
   license:
     name: Apache-2.0
     identifier: Apache-2.0
@@ -30,25 +22,18 @@ paths:
       tags: [System]
       operationId: getIndex
       summary: Get the app name and version
-      description: |
-        With the `redirect` query parameter, responds with a `307` redirect to the
-        homepage of the given actor or movie instead. The redirect is handled by a
-        global middleware, so it works the same on every path and never requires
-        authentication.
+      description: With `redirect`, redirects to the actor or movie homepage instead.
       parameters:
         - name: redirect
           in: query
           required: false
-          description: |
-            A `provider:id` pair, with the id query-escaped. A trailing position
-            suffix (`:0`, `:1`, `:0.5`, ...) is ignored. Actor providers are checked
-            before movie providers. Info is looked up lazily (database first).
+          description: '`provider:id` pair; a trailing position suffix is ignored.'
           schema:
             type: string
           example: FANZA:ssis00001
       responses:
         '200':
-          description: App info, when `redirect` is absent or empty.
+          description: App info.
           content:
             application/json:
               schema:
@@ -82,10 +67,10 @@ paths:
       tags: [System]
       operationId: getModules
       summary: List the Go modules the server was built with
-      description: The only JSON response not wrapped in the `data` envelope.
+      description: Not wrapped in the `data` envelope.
       responses:
         '200':
-          description: Build dependencies from `debug.ReadBuildInfo`.
+          description: Build dependencies.
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -135,10 +120,7 @@ paths:
       tags: [Translate]
       operationId: translate
       summary: Translate text
-      description: |
-        Engine credentials are passed as query parameters; only those of the
-        selected engine are read. An unknown engine or a failed translation
-        returns `500`, unless the engine reports its own HTTP error code.
+      description: Only the selected engine's credential parameters are read.
       parameters:
         - name: q
           in: query
@@ -231,14 +213,7 @@ paths:
       tags: [Images]
       operationId: getPrimaryImage
       summary: Get a primary (poster) image
-      description: |
-        Without `url`, the image comes from the actor's first image or the movie's
-        big thumb (falling back to its cover). For movies, `ratio` and `pos` apply,
-        and face detection is used when `pos` is unset and the movie number calls
-        for it. For actors, `ratio`, `pos` and `auto` are ignored.
-
-        With `url`, that image is fetched through the provider, cropped with
-        `ratio` (default 2/3), `pos` and `auto`.
+      description: 'Crops to 2:3; without `url`, `ratio` and `pos` apply to movies only.'
       parameters:
         - $ref: '#/components/parameters/Provider'
         - $ref: '#/components/parameters/ID'
@@ -246,9 +221,7 @@ paths:
         - name: ratio
           in: query
           required: false
-          description: |
-            Crop aspect ratio (width / height). Negative means the default 2/3.
-            Values outside [0.01, 100] disable cropping.
+          description: 'Crop aspect ratio (width / height); negative means 2:3.'
           schema:
             type: number
             format: double
@@ -272,10 +245,7 @@ paths:
       tags: [Images]
       operationId: getThumbImage
       summary: Get a thumb image
-      description: |
-        Cropped to 16:9. Without `url`, uses the movie's big cover (falling back to
-        its cover) centered; actor providers return `400` (`unsupported image type`).
-        With `url`, crops that image with `pos` and `auto`.
+      description: 'Crops to 16:9; actor providers require `url`.'
       parameters:
         - $ref: '#/components/parameters/Provider'
         - $ref: '#/components/parameters/ID'
@@ -299,10 +269,7 @@ paths:
       tags: [Images]
       operationId: getBackdropImage
       summary: Get a backdrop image
-      description: |
-        Not cropped. Without `url`, uses the movie's big cover (falling back to its
-        cover); actor providers return `400` (`unsupported image type`).
-        With `url`, returns that image.
+      description: Not cropped; actor providers require `url`.
       parameters:
         - $ref: '#/components/parameters/Provider'
         - $ref: '#/components/parameters/ID'
@@ -329,7 +296,7 @@ paths:
         - bearerAuth: []
       responses:
         '200':
-          description: Result of `SELECT version()` (PostgreSQL) or `SELECT sqlite_version()` (SQLite).
+          description: Database server version.
           content:
             application/json:
               schema:
@@ -486,10 +453,7 @@ paths:
       tags: [Reviews]
       operationId: getMovieReviews
       summary: Get movie reviews
-      description: |
-        `provider` must be a movie provider, otherwise `400`. With `homepage`, the
-        provider is resolved from that URL and `id` is ignored. Providers that do
-        not support reviews return `500`.
+      description: '`provider` must be a movie provider; with `homepage`, `id` is ignored.'
       security:
         - {}
         - bearerAuth: []
@@ -505,7 +469,7 @@ paths:
         - $ref: '#/components/parameters/Lazy'
       responses:
         '200':
-          description: Reviews; `null` when there are none.
+          description: Reviews, or `null` if none.
           content:
             application/json:
               schema:
@@ -530,10 +494,7 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
-      description: |
-        Required on `/v1/db`, `/v1/actors`, `/v1/movies` and `/v1/reviews` only when
-        the server is started with a token (`-token` / `TOKEN`). Otherwise those
-        routes are open.
+      description: Required only when the server is started with a token.
 
   headers:
     CacheControlNoStore:
@@ -550,7 +511,7 @@ components:
       name: provider
       in: path
       required: true
-      description: Provider name, as listed by `GET /v1/providers`; matched case-insensitively.
+      description: Provider name, case-insensitive.
       schema:
         type: string
     ID:
@@ -563,7 +524,7 @@ components:
       name: lazy
       in: query
       required: false
-      description: Read from the database first and only fetch from the provider on a miss.
+      description: Read from the database first.
       schema:
         type: boolean
         default: true
@@ -571,24 +532,21 @@ components:
       name: q
       in: query
       required: true
-      description: |
-        Keyword, or a URL. A URL (anything `url.ParseRequestURI` accepts) is
-        fetched as an info page and returned as a single result; `provider` and
-        `fallback` are then ignored.
+      description: Keyword, or a URL to fetch as a single result.
       schema:
         type: string
     SearchProvider:
       name: provider
       in: query
       required: false
-      description: Search only this provider. Searches all providers when empty.
+      description: Search only this provider instead of all.
       schema:
         type: string
     SearchFallback:
       name: fallback
       in: query
       required: false
-      description: Merge in matching results from the database.
+      description: Also include matching results from the database.
       schema:
         type: boolean
         default: true
@@ -596,16 +554,14 @@ components:
       name: url
       in: query
       required: false
-      description: Image URL to fetch through the provider instead of the default image.
+      description: Image URL to use instead of the default image.
       schema:
         type: string
     ImagePosition:
       name: pos
       in: query
       required: false
-      description: |
-        Crop center along the cropped axis, from 0 to 1. Negative means the
-        default for the image type.
+      description: Crop center from 0 to 1; negative means the default.
       schema:
         type: number
         format: double
@@ -614,7 +570,7 @@ components:
       name: auto
       in: query
       required: false
-      description: Use face detection to choose the crop position. Only applies with `url`.
+      description: Detect faces to choose the crop position; only applies with `url`.
       schema:
         type: boolean
         default: false
@@ -622,14 +578,14 @@ components:
       name: badge
       in: query
       required: false
-      description: URL of a badge image to overlay at the top-left corner, scaled to 1/5 of the image height.
+      description: URL of a badge image to overlay at the top-left corner.
       schema:
         type: string
     ImageQuality:
       name: quality
       in: query
       required: false
-      description: JPEG quality; values outside 1-100 are clamped.
+      description: JPEG quality, clamped to 1-100.
       schema:
         type: integer
         default: 90
@@ -689,7 +645,7 @@ components:
       properties:
         from:
           type: string
-          description: The `from` query parameter as given (`auto` by default), not the detected language.
+          description: The `from` query parameter, not the detected language.
         to:
           type: string
         translated_text:
@@ -698,7 +654,7 @@ components:
     Date:
       type: string
       format: date-time
-      description: RFC 3339 timestamp at midnight UTC; `0001-01-01T00:00:00Z` when unknown.
+      description: Midnight UTC; zero time when unknown.
       examples: ['2021-02-19T00:00:00Z']
 
     StringArray:
