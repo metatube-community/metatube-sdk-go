@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 ## Providers
 
@@ -6,12 +6,12 @@
 
 Every value a provider returns (metadata, cover, thumbnail, preview images, sample video URLs, and so on) must come from what the site's frontend actually uses: the page HTML, its embedded data (ld+json, RSC payload, inline scripts), or the APIs that the frontend calls.
 
-- **Never derive data from observed patterns.** For example, do not build an image or video URL with a format string, or rewrite a thumbnail URL into a full-size one, just because the existing URLs seem to follow that pattern. That a guessed URL returns 200 today is not evidence, since the site may stop serving it at any time.
+- **Never derive data from observed patterns**, e.g., building an image or video URL with a format string, or rewriting a thumbnail URL into a full-size one. A guessed URL that returns 200 today is not evidence; the site may stop serving it at any time.
 - **A derivation is allowed only when the site's frontend code does the same derivation.** In that case:
   - Put it in a dedicated function in the provider, not inline in a scraping callback.
   - Port the frontend logic faithfully, branch by branch, without simplifying or extending it.
   - Above the function, add a `Ref:` comment with the URL of the JS file (with the line number for a readable script, e.g., `preview_jquery.js#652`), followed by only the core lines of the JS code that the function ports, not the surrounding code.
-- Also take data the page serves but doesn't show, e.g., KIN8 hides the player once a movie's streaming period has ended but still sets `og:video`, so the provider falls back to it for the sample video. Only guessed or probed values are off-limits.
+- Data the page serves but hides is fair game, e.g., KIN8 hides the player after a movie's streaming period ends but still sets `og:video`, so the provider uses it for the sample video. Only guessed or probed values are off-limits.
 - If there is no data source and no frontend code to back a value, leave the field empty.
 - If the frontend only uses HLS for the sample video, return the HLS URL and leave the MP4 URL empty.
 - When only part of what a ported function returns belongs in a field, keep the port intact and filter at the call site, e.g., HEYZO `galleryImages` returns images and thumbnails, and only the images go to `PreviewImages`.
@@ -77,4 +77,4 @@ Comments are there to make the code easier to understand, so keep them short and
 
 ## Git
 
-- Don't credit AI in commits or pull requests: no `Co-Authored-By: Claude ...` trailer in commit messages, and no "Generated with Claude Code" line in PR descriptions.
+- Don't credit AI tools in commits or pull requests: no `Co-Authored-By` trailer for an AI in commit messages, and no "Generated with ..." line in PR descriptions.
