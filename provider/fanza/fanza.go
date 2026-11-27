@@ -606,6 +606,10 @@ func (fz *FANZA) searchMovieNext(keyword string) (results []*model.MovieSearchRe
 
 	resp := &search.ResponseWrapper{}
 	c.OnResponse(func(r *colly.Response) {
+		if isRegionError(r) {
+			err = ErrRegionNotAvailable
+			return
+		}
 		var payload string
 		if payload, err = rsc.ExtractNextPayload(r.Body); err != nil {
 			return
@@ -734,7 +738,7 @@ func (fz *FANZA) sortMovieSearchResults(keyword string, results []*model.MovieSe
 
 func (fz *FANZA) GetMovieReviewsByID(id string) (reviews []*model.MovieReviewDetail, err error) {
 	for _, homepage := range fz.getHomepagesByID(id) {
-		if reviews, err = fz.GetMovieReviewsByURL(homepage); err == nil && len(reviews) > 0 {
+		if reviews, err = fz.GetMovieReviewsByURL(homepage); errors.Is(err, ErrRegionNotAvailable) || err == nil && len(reviews) > 0 {
 			return
 		}
 	}
@@ -812,11 +816,18 @@ func (fz *FANZA) getMonoMovieReviewsByURL(rawURL string) (reviews []*model.Movie
 		})
 	})
 
-	if err = c.Visit(rawURL); err != nil {
+	c.OnScraped(func(r *colly.Response) {
+		if isRegionError(r) {
+			err = ErrRegionNotAvailable
+		}
+	})
+
+	if vErr := c.Visit(rawURL); vErr != nil {
 		var urlErr *url.Error
-		if errors.As(err, &urlErr) && errors.Is(urlErr.Err, errRequireNewHandler) {
+		if errors.As(vErr, &urlErr) && errors.Is(urlErr.Err, errRequireNewHandler) {
 			return fz.getDigitalMovieReviewsByURL(urlErr.URL)
 		}
+		err = vErr
 	}
 	return
 }
