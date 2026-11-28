@@ -16,8 +16,7 @@ jobs:
   cleanup:
     runs-on: ubuntu-latest
     steps:
-      - name: Delete untagged images
-        uses: dataaxiom/ghcr-cleanup-action@v1
+      - uses: dataaxiom/ghcr-cleanup-action@v1
         with:
           package: metatube-server
           delete-untagged: true

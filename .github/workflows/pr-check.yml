@@ -25,5 +25,4 @@ jobs:
     if: github.event.action != 'edited'
     runs-on: ubuntu-latest
     steps:
-      - name: Review dependencies
-        uses: actions/dependency-review-action@v5
+      - uses: actions/dependency-review-action@v5
