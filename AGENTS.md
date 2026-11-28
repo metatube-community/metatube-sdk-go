@@ -90,7 +90,7 @@ Comments are there to make the code easier to understand, so keep them short and
 
 ### Pull requests
 
-- Title PRs `Type(scope): summary`, e.g., ``Fix(provider): update `KIN8` for redesigned site``. Types are `Build`, `CI`, `Chore`, `Feature`, `Fix`, `Refactor`, and `Revert`. The scope is the area changed, e.g., `provider/fanza` or `common`, and may be dropped for repo-wide changes. Wrap code and provider names in backticks.
+- Title PRs `Type(scope): summary`, e.g., ``Fix(provider): update `KIN8` for redesigned site``. Common types are `Build`, `CI`, `Chore`, `Feature`, `Fix`, `Refactor`, and `Revert`; use a better fit, e.g., `Perf`, when there is one. The scope is the area changed, e.g., `provider/fanza` or `common`, and may be dropped for repo-wide changes. Wrap code and provider names in backticks.
 - Keep PR titles within about 50 characters. This is a guideline, not a hard limit, but follow it when you can.
 - Keep PR descriptions concise: clearly say what the PR does and roughly how, with no code snippets and no detailed reasoning. Skip the how when the change is simple. Use these sections:
   - `## Summary`: start with the related issue or PR, if any. Use `Fixes #N` (for a bug) or `Closes #N` only when the PR fully resolves the issue, since GitHub closes it on merge; otherwise use `Related to #N` or `Follows #N`. Then say briefly what the PR does and why (motivation, trade-offs). Give examples only when the case is too complex without one.
