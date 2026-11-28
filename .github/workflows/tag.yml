@@ -1,0 +1,83 @@
+name: Tag Release
+run-name: Tag ${{ inputs.bump }} release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump'
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Compute next version
+        id: version
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          prev=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+          IFS=. read -r major minor patch <<< "${prev#v}"
+          case "${BUMP}" in
+            major) tag="v$((major + 1)).0.0" ;;
+            minor) tag="v${major}.$((minor + 1)).0" ;;
+            patch) tag="v${major}.${minor}.$((patch + 1))" ;;
+          esac
+          if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+            echo "::error::Tag ${tag} already exists"
+            exit 1
+          fi
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          {
+            echo "## ${prev} → ${tag}"
+            echo
+            echo "Commit: \`${GITHUB_SHA}\`"
+            echo
+            echo "### Changes"
+            git log --format='- %s' "${prev}..HEAD"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  release:
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      actions: write
+      contents: write
+    steps:
+      - name: Create tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/git/refs" -f ref="refs/tags/${TAG}" -f sha="${GITHUB_SHA}"
+
+      # Tags created with GITHUB_TOKEN don't trigger push workflows, so dispatch them on the tag.
+      - name: Dispatch publish workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          gh workflow run release.yml --repo "${GITHUB_REPOSITORY}" --ref "${TAG}"
+          gh workflow run docker.yml --repo "${GITHUB_REPOSITORY}" --ref "${TAG}"
