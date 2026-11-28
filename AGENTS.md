@@ -91,7 +91,7 @@ Comments are there to make the code easier to understand, so keep them short and
 ### Pull requests
 
 - Title PRs `type(scope): summary` as commitlint's `config-conventional` expects, e.g., ``fix(provider): update `KIN8` for redesigned site``. Types are `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, and `test`. The scope is the lowercase area changed, e.g., `provider/fanza` or `common`, and may be dropped for repo-wide changes. Start the summary in lowercase with no trailing period, and wrap code and provider names in backticks.
-- Keep PR titles within about 50 characters. This is a guideline, not a hard limit, but follow it when you can.
+- Keep PR titles within about 50 characters when you can. CI rejects titles over 72 characters.
 - Keep PR descriptions concise: clearly say what the PR does and roughly how, with no code snippets and no detailed reasoning. Skip the how when the change is simple. Use these sections:
   - `## Summary`: start with the related issue or PR, if any. Use `Fixes #N` (for a bug) or `Closes #N` only when the PR fully resolves the issue, since GitHub closes it on merge; otherwise use `Related to #N` or `Follows #N`. Then say briefly what the PR does and why (motivation, trade-offs). Give examples only when the case is too complex without one.
   - `## Key Changes`: bullets listing the main changes. Omit it when the Summary already covers them.
