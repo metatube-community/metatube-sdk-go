@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  commitlint:
+  lint-pr-title:
     runs-on: ubuntu-latest
     steps:
       - name: Run commitlint
