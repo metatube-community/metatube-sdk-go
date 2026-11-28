@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "Chore(actions)"
+      prefix: "chore(actions)"
     labels:
       - "dependencies"
       - "actions"
@@ -19,7 +19,7 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "Chore(deps)"
+      prefix: "chore(deps)"
     groups:
       go-modules:
         patterns:
