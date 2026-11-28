@@ -15,11 +15,11 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Run commitlint
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           npm install --no-save commitlint @commitlint/config-conventional
           echo "${PR_TITLE}" | npx commitlint
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
 
   dependency-review:
     if: github.event.action != 'edited'
