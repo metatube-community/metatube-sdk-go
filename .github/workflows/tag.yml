@@ -1,0 +1,115 @@
+name: Tag Release
+run-name: Tag ${{ inputs.bump }} release${{ inputs.commit && format(' at {0}', inputs.commit) || '' }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump'
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      commit:
+        description: 'Commit to tag (defaults to latest main)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      sha: ${{ steps.version.outputs.sha }}
+    steps:
+      - name: Compute next version
+        id: version
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { bump, commit } = context.payload.inputs;
+
+            const { data: target } = await github.rest.repos.getCommit({
+              owner, repo, ref: commit?.trim() || context.sha,
+            });
+            const sha = target.sha;
+
+            const { data: onMain } = await github.rest.repos.compareCommitsWithBasehead({
+              owner, repo, basehead: `${sha}...${context.sha}`,
+            });
+            if (!['ahead', 'identical'].includes(onMain.status)) {
+              core.setFailed(`${sha} is not on main`);
+              return;
+            }
+
+            const tags = await github.paginate(github.rest.repos.listTags, { owner, repo, per_page: 100 });
+            const [latest] = tags
+              .map((tag) => ({ tag, v: tag.name.match(/^v(\d+)\.(\d+)\.(\d+)$/)?.slice(1).map(Number) }))
+              .filter(({ v }) => v)
+              .sort((a, b) => b.v[0] - a.v[0] || b.v[1] - a.v[1] || b.v[2] - a.v[2]);
+            if (!latest) {
+              core.setFailed('No vX.Y.Z tag found');
+              return;
+            }
+
+            const [major, minor, patch] = latest.v;
+            const next = {
+              major: `v${major + 1}.0.0`,
+              minor: `v${major}.${minor + 1}.0`,
+              patch: `v${major}.${minor}.${patch + 1}`,
+            }[bump];
+
+            const { data: diff } = await github.rest.repos.compareCommitsWithBasehead({
+              owner, repo, basehead: `${latest.tag.commit.sha}...${sha}`,
+            });
+            if (diff.status !== 'ahead') {
+              core.setFailed(`${sha} has no new commits after ${latest.tag.name}`);
+              return;
+            }
+
+            await core.summary
+              .addHeading(`${latest.tag.name} → ${next}`, 2)
+              .addRaw(`Commit: <code>${sha}</code>`, true)
+              .addHeading('Changes', 3)
+              .addList(diff.commits.map((c) => c.commit.message.split('\n')[0]))
+              .write();
+
+            core.setOutput('tag', next);
+            core.setOutput('sha', sha);
+
+  release:
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      actions: write
+      contents: write
+    steps:
+      - name: Create tag and dispatch publish workflows
+        uses: actions/github-script@v9
+        env:
+          TAG: ${{ needs.prepare.outputs.tag }}
+          SHA: ${{ needs.prepare.outputs.sha }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { TAG: tag, SHA: sha } = process.env;
+
+            await github.rest.git.createRef({ owner, repo, ref: `refs/tags/${tag}`, sha });
+
+            // Tags created with GITHUB_TOKEN don't trigger push workflows, so dispatch them on the tag.
+            for (const workflow_id of ['release.yml', 'docker.yml']) {
+              await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref: tag });
+            }
