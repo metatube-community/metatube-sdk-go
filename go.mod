@@ -10,7 +10,7 @@ require (
 	github.com/corona10/goimagehash v1.1.0
 	github.com/disintegration/imaging v1.6.3-0.20201218193011-d40f48ce0f09
 	github.com/docker/go-units v0.5.0
-	github.com/elliotchance/orderedmap/v3 v3.1.1
+	github.com/elliotchance/orderedmap/v3 v3.2.0
 	github.com/esimov/pigo v1.4.7-0.20240801095032-7465ed14de47
 	github.com/gen2brain/jpegli v0.4.2
 	github.com/gin-contrib/cors v1.7.11
@@ -30,9 +30,9 @@ require (
 	github.com/peterbourgon/ff/v3 v3.4.0
 	github.com/projectbarks/cimap v0.1.1
 	github.com/projectdiscovery/useragent v0.0.110
-	github.com/projectdiscovery/utils v0.11.16
+	github.com/projectdiscovery/utils v0.11.17
 	github.com/robertkrimen/otto v0.5.1
-	github.com/sashabaranov/go-openai v1.43.0
+	github.com/sashabaranov/go-openai v1.44.0
 	github.com/stretchr/testify v1.12.1
 	github.com/xjasonlyu/deeplx-translator v0.1.0
 	github.com/xjasonlyu/openai-translator v0.2.2
@@ -103,7 +103,7 @@ require (
 	github.com/opencontainers/runc v1.3.6 // indirect
 	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/projectdiscovery/blackrock v0.0.2 // indirect
+	github.com/projectdiscovery/blackrock v0.0.4 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.64.1 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
