@@ -185,6 +185,14 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.MovieSearchResu
 	c := bus.ClonedCollector()
 	c.Async = true /* ASYNC */
 
+	// A standard movie ID has a deterministic detail page; skip the search
+	// index, which sometimes omits movies that the detail page still serves.
+	if isRegularMovieID(keyword) {
+		if info, infoErr := bus.GetMovieInfoByID(keyword); infoErr == nil && info.IsValid() {
+			return []*model.MovieSearchResult{info.ToSearchResult()}, nil
+		}
+	}
+
 	var mu sync.Mutex
 	c.OnXML(`//a[@class="movie-box"]`, func(e *colly.XMLElement) {
 		mu.Lock()
@@ -231,6 +239,12 @@ func (bus *JavBus) SearchMovie(keyword string) (results []*model.MovieSearchResu
 		}
 	}
 	return
+}
+
+// isRegularMovieID reports whether keyword is a dashed movie ID such as
+// SSIS-277, which has a deterministic detail page.
+func isRegularMovieID(keyword string) bool {
+	return regexp.MustCompile(`(?i)^[a-z]{2,}-\d+$`).MatchString(keyword)
 }
 
 func init() {

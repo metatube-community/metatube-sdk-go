@@ -44,3 +44,17 @@ func TestJavBus_Normalize(t *testing.T) {
 		require.Equal(t, want, bus.NormalizeMovieKeyword(keyword))
 	}
 }
+
+func TestIsRegularMovieID(t *testing.T) {
+	for keyword, want := range map[string]bool{
+		"SSIS-277":    true,
+		"MIDV-005":    true,
+		"ssis-033":    true,
+		"ssis277":     false,
+		"FC2-1234567": false,
+		"083120_001":  false,
+		"8765432":     false,
+	} {
+		require.Equal(t, want, isRegularMovieID(keyword))
+	}
+}
